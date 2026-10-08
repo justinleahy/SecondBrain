@@ -1,0 +1,13 @@
+@page "/login"
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Sign in · SecondBrain</PageTitle>
+<main>
+    <h1>Sign in to SecondBrain</h1>
+    <form method="post" action="/auth/login" data-enhance="false">
+        <AntiforgeryToken />
+        <label for="password">Password</label>
+        <input id="password" name="Password" type="password" autocomplete="current-password" required maxlength="1024" />
+        <button type="submit">Sign in</button>
+    </form>
+</main>
