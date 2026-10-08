@@ -1,0 +1,50 @@
+[Unit]
+Description=SecondBrain private knowledge daemon
+After=network-online.target secondbrain-extractor.socket
+Wants=network-online.target
+Requires=secondbrain-extractor.socket
+ConditionPathExists=/etc/secondbrain/config.yaml
+
+[Service]
+Type=simple
+User=secondbrain
+Group=secondbrain
+UMask=0077
+WorkingDirectory=/srv/secondbrain
+Environment=SECONDBRAIN_CONFIG=/etc/secondbrain/config.yaml
+Environment=DOTNET_EnableDiagnostics=0
+ExecStart=/usr/local/lib/secondbrain/brain serve
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ReadWritePaths=/srv/secondbrain /srv/secondbrain-incoming /run/secondbrain
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+LimitCORE=0
+MemoryMax=2G
+TasksMax=256
+IPAccounting=yes
+IPAddressDeny=any
+IPAddressAllow=localhost
+# Provider-data allowance: replace with the exact pinned trusted service IPs.
+IPAddressAllow=10.8.0.5
+# Control plane: resolver, then Access certificate endpoint. The documentation
+# address deliberately grants no public service until an operator pins its IPs.
+IPAddressAllow=10.8.0.1
+IPAddressAllow=192.0.2.1
+
+[Install]
+WantedBy=multi-user.target

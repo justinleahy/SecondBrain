@@ -1,0 +1,24 @@
+# Match SECONDBRAIN_DOCKER_ADDRESS if changing the namespace subnet.
+# The bridge listener is private; only the explicit host bind publishes it.
+data_root: /srv/secondbrain
+server:
+  listeners:
+    - { scheme: http, bind: 127.0.0.1, port: 7171 }
+    - { scheme: http, bind: 172.30.0.2, port: 8080 }
+  hosts: [localhost, 127.0.0.1]
+  origins: [http://localhost:7171, http://127.0.0.1:7171]
+  trusted_proxies: [127.0.0.1]
+providers: {}
+models: {}
+privacy:
+  local_only: true
+  trusted_services: []
+  egress_canary: true
+  canary_target: 1.1.1.1:443
+  control_plane_egress: [dns]
+sources:
+  incoming_root: /srv/secondbrain-incoming
+  allowed_roots: [/srv/secondbrain-incoming]
+logging:
+  level: info
+  debug_bodies: false

@@ -96,11 +96,16 @@ jobs:
         run: docker build --platform linux/amd64 --file deploy/docker/Dockerfile --tag secondbrain:ci .
 
   compose-smoke:
-    name: Compose smoke placeholder
+    name: G1 hardened Compose smoke
     needs: [publish, docker]
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
-      # Lane C replaces this with the G1 Compose smoke after item 14 lands.
-      - name: Record deferred Compose smoke
-        run: echo '::notice::Compose smoke is a placeholder until lane C supplies the Compose project and provisioning flow.'
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Provision and serve as non-root in Compose
+        env:
+          SECONDBRAIN_PRIVATE_ADDRESS: 127.0.0.1
+        run: deploy/tests/compose-smoke.sh

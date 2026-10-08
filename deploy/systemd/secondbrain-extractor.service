@@ -1,0 +1,40 @@
+[Unit]
+Description=SecondBrain offline extractor stub
+Requires=secondbrain-extractor.socket
+After=secondbrain-extractor.socket
+
+[Service]
+Type=simple
+User=secondbrain-extract
+Group=secondbrain
+UMask=0007
+ExecStart=/usr/local/lib/secondbrain/SecondBrain.Extractor --socket /run/secondbrain/extractor.sock
+Environment=DOTNET_EnableDiagnostics=0
+Environment=TMPDIR=/tmp
+UnsetEnvironment=HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateNetwork=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX
+InaccessiblePaths=/srv/secondbrain /srv/secondbrain-incoming /etc/secondbrain
+ReadWritePaths=/run/secondbrain
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+KillMode=control-group
+TimeoutStopSec=5
+LimitCORE=0
+LimitCPU=120
+LimitFSIZE=536870912
+MemoryMax=1G
+TasksMax=64
+IPAddressDeny=any
