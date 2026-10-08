@@ -2,8 +2,10 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>brain</AssemblyName>
+    <RestoreEnablePackagePruning>false</RestoreEnablePackagePruning>
   </PropertyGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="../SecondBrain.Core/SecondBrain.Core.csproj" />
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />

@@ -1,4 +1,3 @@
-# Item 1 placeholder; lane C adds provisioning and deployment hardening in item 14.
 # Build with --platform linux/amd64: the pinned SDK archive targets linux-x64.
 FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317 AS build
 
@@ -16,15 +15,40 @@ RUN curl --fail --show-error --location \
 WORKDIR /source
 COPY . .
 RUN test "$(dotnet --version)" = 10.0.105 \
-    && dotnet restore src/SecondBrain.Server/SecondBrain.Server.csproj --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=false \
+    && dotnet restore SecondBrain.slnx --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=false \
     && dotnet publish src/SecondBrain.Server/SecondBrain.Server.csproj \
         --configuration Release --runtime linux-x64 --self-contained false --no-restore \
-        -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /app
+        -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/server \
+    && dotnet publish src/SecondBrain.Cli/SecondBrain.Cli.csproj \
+        --configuration Release --runtime linux-x64 --self-contained false --no-restore \
+        -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/cli \
+    && dotnet publish src/SecondBrain.Extractor/SecondBrain.Extractor.csproj \
+        --configuration Release --runtime linux-x64 --self-contained false --no-restore \
+        -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/extractor
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 AS runtime-base
 WORKDIR /app
-ENV ASPNETCORE_HTTP_PORTS=8080
+ENV DOTNET_EnableDiagnostics=0 \
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    SECONDBRAIN_CONFIG=/etc/secondbrain/config.yaml \
+    SECONDBRAIN_SERVER_PATH=/app/server/SecondBrain.Server.dll
+# The base image already reserves UID/GID 1654. Name the deployment identities
+# without any runtime ability to add users or switch UIDs.
+RUN sed -i 's/^app:/secondbrain:/' /etc/passwd /etc/group \
+    && printf 'secondbrain-extract:x:1655:1654:SecondBrain extractor:/nonexistent:/usr/sbin/nologin\nsecondbrain-sync:x:1656:1656:SecondBrain sync:/nonexistent:/usr/sbin/nologin\n' >> /etc/passwd \
+    && printf 'secondbrain-sync:x:1656:\n' >> /etc/group
+COPY --chmod=0555 deploy/docker/entrypoint.sh /app/entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+FROM runtime-base AS extractor
+COPY --from=build --chown=1655:1654 /publish/extractor/ /app/extractor/
+USER 1655:1654
+CMD ["dotnet", "/app/extractor/SecondBrain.Extractor.dll", "--socket", "/run/secondbrain/extractor.sock"]
+
+FROM runtime-base AS server
 EXPOSE 8080
-COPY --from=build --chown=1654:1654 /app/ .
+COPY --from=build --chown=1654:1654 /publish/server/ /app/server/
+COPY --from=build --chown=1654:1654 /publish/cli/ /app/cli/
+COPY --chown=1654:1654 deploy/ /app/deploy/
 USER 1654:1654
-ENTRYPOINT ["dotnet", "SecondBrain.Server.dll"]
+CMD ["dotnet", "/app/cli/brain.dll", "serve"]

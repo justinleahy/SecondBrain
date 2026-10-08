@@ -1,0 +1,15 @@
+[Unit]
+Description=SecondBrain extractor descriptor socket
+
+[Socket]
+ListenStream=/run/secondbrain/extractor.sock
+SocketUser=secondbrain-extract
+SocketGroup=secondbrain
+SocketMode=0660
+DirectoryMode=0750
+Accept=no
+RemoveOnStop=yes
+Service=secondbrain-extractor.service
+
+[Install]
+WantedBy=sockets.target

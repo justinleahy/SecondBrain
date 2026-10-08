@@ -1,0 +1,13 @@
+# Replace tunnel UUID and hostname, and configure an Access application first.
+# The process shares the daemon's network namespace; origin traffic is loopback.
+tunnel: 00000000-0000-0000-0000-000000000000
+credentials-file: /run/secrets/tunnel_credentials
+no-autoupdate: true
+protocol: http2
+edge-ip-version: "4"
+ingress:
+  - hostname: brain.example.com
+    service: http://127.0.0.1:7171
+    originRequest:
+      httpHostHeader: brain.example.com
+  - service: http_status:404

@@ -1,0 +1,180 @@
+name: secondbrain
+
+x-hardened: &hardened
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  init: true
+  restart: unless-stopped
+  ulimits:
+    core: { soft: 0, hard: 0 }
+
+services:
+  # The only privileged helper controls an isolated network namespace. It has
+  # NET_ADMIN only, no secrets/data/socket mounts, and no Docker socket.
+  egress:
+    <<: *hardened
+    image: secondbrain-egress:local
+    build:
+      context: ..
+      dockerfile: deploy/docker/Egress.Dockerfile
+    cap_add: [NET_ADMIN]
+    user: "0:0"
+    mem_limit: 64m
+    pids_limit: 32
+    tmpfs: ["/run:rw,noexec,nosuid,size=1m,mode=0700"]
+    environment:
+      SECONDBRAIN_PRIVATE_ADDRESS: ${SECONDBRAIN_PRIVATE_ADDRESS:?set a WireGuard, Tailscale, or loopback address}
+      SECONDBRAIN_DNS_IP: ${SECONDBRAIN_DNS_IP:-10.8.0.1}
+      SECONDBRAIN_LOCAL_ONLY: ${SECONDBRAIN_LOCAL_ONLY:-true}
+      SECONDBRAIN_PROVIDER_ALLOWLIST: ${SECONDBRAIN_PROVIDER_ALLOWLIST:-10.8.0.5:8000}
+      SECONDBRAIN_ACCESS_ALLOWLIST: ${SECONDBRAIN_ACCESS_ALLOWLIST:-192.0.2.1:443}
+      SECONDBRAIN_HOSTED_ALLOWLIST: ${SECONDBRAIN_HOSTED_ALLOWLIST:-}
+    networks:
+      restricted:
+        ipv4_address: ${SECONDBRAIN_DOCKER_ADDRESS:-172.30.0.2}
+    ports:
+      - target: 8080
+        published: "${SECONDBRAIN_PORT:-7171}"
+        host_ip: ${SECONDBRAIN_PRIVATE_ADDRESS:?set a WireGuard, Tailscale, or loopback address}
+        protocol: tcp
+    healthcheck:
+      test: [CMD, test, -f, /run/egress-ready]
+      interval: 2s
+      timeout: 1s
+      retries: 10
+
+  daemon:
+    <<: *hardened
+    image: secondbrain:local
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile
+      target: server
+    user: "1654:1654"
+    network_mode: service:egress
+    depends_on:
+      egress: { condition: service_healthy }
+      extractor: { condition: service_started }
+    mem_limit: 2g
+    pids_limit: 256
+    environment:
+      SECONDBRAIN_CONFIG: /etc/secondbrain/config.yaml
+      SECONDBRAIN_SECRETS_DIRECTORY: /etc/secondbrain/secrets
+      SECONDBRAIN_SYNC_UID: "1656"
+      ASPNETCORE_URLS: http://127.0.0.1:7171;http://${SECONDBRAIN_DOCKER_ADDRESS:-172.30.0.2}:8080
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=64m,mode=1777"]
+    volumes:
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/data
+        target: /srv/secondbrain
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/incoming
+        target: /srv/secondbrain-incoming
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config/config.yaml
+        target: /etc/secondbrain/config.yaml
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config/secrets
+        target: /etc/secondbrain/secrets
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/run
+        target: /run/secondbrain
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/resolv.conf
+        target: /etc/resolv.conf
+        read_only: true
+        bind: { create_host_path: false }
+
+  extractor:
+    <<: *hardened
+    image: secondbrain-extractor:local
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile
+      target: extractor
+    user: "1655:1654"
+    network_mode: none
+    mem_limit: 1g
+    pids_limit: 64
+    ulimits:
+      core: { soft: 0, hard: 0 }
+      cpu: { soft: 120, hard: 120 }
+      fsize: { soft: 536870912, hard: 536870912 }
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=512m,mode=1777"]
+    environment: { DOTNET_EnableDiagnostics: "0", TMPDIR: /tmp }
+    volumes:
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/run
+        target: /run/secondbrain
+        bind: { create_host_path: false }
+
+  cloudflared:
+    <<: *hardened
+    image: cloudflare/cloudflared:2026.9.0@sha256:ff69a2225ad7c6f85ed84fbd5f3087df46202426b2388ec60214098e0adf05e9
+    profiles: [tunnel]
+    user: "65532:65532"
+    network_mode: service:egress
+    depends_on:
+      egress: { condition: service_healthy }
+      daemon: { condition: service_started }
+    command: [tunnel, --config, /etc/cloudflared/config.yaml, --no-autoupdate, run]
+    mem_limit: 256m
+    pids_limit: 64
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m,mode=1777"]
+    secrets: [tunnel_credentials]
+    volumes:
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/cloudflared.yaml
+        target: /etc/cloudflared/config.yaml
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/resolv.conf
+        target: /etc/resolv.conf
+        read_only: true
+        bind: { create_host_path: false }
+
+  # One-shot root provisioning is explicit and never runs in the serving daemon.
+  provision:
+    image: secondbrain:local
+    platform: linux/amd64
+    profiles: [provision]
+    user: "0:0"
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, FOWNER, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    pids_limit: 64
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m,mode=1777"]
+    command: [dotnet, /app/cli/brain.dll, init, --provision, --deployment, compose, --skip-users, --templates, /app/deploy, --daemon-uid, "1654", --daemon-gid, "1654", --extractor-uid, "1655", --sync-uid, "1656", --compose-dir, /provision/project]
+    volumes:
+      - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/data:/srv/secondbrain
+      - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/incoming:/srv/secondbrain-incoming
+      - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config:/etc/secondbrain
+      - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/run:/run/secondbrain
+      - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/project:/provision/project
+
+networks:
+  restricted:
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      config:
+        - subnet: ${SECONDBRAIN_DOCKER_SUBNET:-172.30.0.0/24}
+
+secrets:
+  tunnel_credentials:
+    file: ${SECONDBRAIN_TUNNEL_CREDENTIALS:-/etc/secondbrain/secrets/cloudflared.json}
