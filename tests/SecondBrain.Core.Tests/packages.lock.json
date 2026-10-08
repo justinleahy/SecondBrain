@@ -393,10 +393,7 @@
         }
       },
       "secondbrain.mockprovider": {
-        "type": "Project",
-        "dependencies": {
-          "SecondBrain.Core": "[1.0.0, )"
-        }
+        "type": "Project"
       },
       "secondbrain.providers.openaicompatible": {
         "type": "Project",

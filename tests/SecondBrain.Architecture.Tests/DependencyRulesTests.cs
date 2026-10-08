@@ -38,6 +38,27 @@ public sealed class DependencyRulesTests
             $"{assemblyName} references {string.Join(", ", disallowed)}; allowed: {string.Join(", ", allowed)}.");
     }
 
+    [Theory]
+    [Trait("Rule", "AR-08")]
+    [InlineData("src/SecondBrain.Extractor/SecondBrain.Extractor.csproj")]
+    [InlineData("tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj")]
+    public void SandboxAndMockProjectsHaveNoProjectReferences(string projectPath)
+    {
+        var project = Repository.Project(projectPath);
+        Assert.Empty(project.ProjectReferences);
+    }
+
+    [Theory]
+    [Trait("Rule", "AR-08")]
+    [InlineData(Layers.ExtractorName)]
+    [InlineData(Layers.MockProviderName)]
+    public void SandboxAndMockAssembliesReferenceNoSecondBrainAssembly(string assemblyName)
+    {
+        var facts = AssemblyFacts.For(Layers.ByName(assemblyName));
+        Assert.Equal(assemblyName, facts.Name);
+        Assert.Empty(facts.SecondBrainReferences);
+    }
+
     [Fact]
     [Trait("Rule", "AR-10")]
     public void OnlyProviderAssembliesReferenceVendorSdkAssemblies()

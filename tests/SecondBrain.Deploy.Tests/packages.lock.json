@@ -241,15 +241,11 @@
       "secondbrain.extractor": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )",
-          "SecondBrain.Core": "[1.0.0, )"
+          "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )"
         }
       },
       "secondbrain.mockprovider": {
-        "type": "Project",
-        "dependencies": {
-          "SecondBrain.Core": "[1.0.0, )"
-        }
+        "type": "Project"
       },
       "secondbrain.providers.openaicompatible": {
         "type": "Project",
