@@ -1,0 +1,31 @@
+data_root: /srv/secondbrain
+server:
+  listeners:
+    - { scheme: http, bind: 127.0.0.1, port: 7171 }
+    - { scheme: http, bind: 172.30.0.2, port: 8080 }
+  hosts: [localhost, 127.0.0.1]
+  origins: [http://localhost:7171, http://127.0.0.1:7171]
+  trusted_proxies: [127.0.0.1]
+providers:
+  mock:
+    kind: openai_compatible
+    endpoint: http://127.0.0.1:8181/v1
+    trusted: true
+models:
+  chat: { provider: mock, model: mock-chat }
+  enrich: { provider: mock, model: mock-chat }
+  embed: { provider: mock, model: mock-embed }
+privacy:
+  local_only: true
+  trusted_services: [http://127.0.0.1:8181]
+  egress_canary: true
+  canary_target: 1.1.1.1:443
+  control_plane_egress: [dns]
+sources:
+  incoming_root: /srv/secondbrain-incoming
+  allowed_roots: [/srv/secondbrain-incoming]
+extractor:
+  socket_path: /run/secondbrain/extractor.sock
+logging:
+  level: info
+  debug_bodies: false

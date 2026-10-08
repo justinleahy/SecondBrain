@@ -105,7 +105,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Provision and serve as non-root in Compose
+      - name: Deploy.ComposeSmoke — initialize and serve as non-root
         env:
           SECONDBRAIN_PRIVATE_ADDRESS: 127.0.0.1
         run: deploy/tests/compose-smoke.sh

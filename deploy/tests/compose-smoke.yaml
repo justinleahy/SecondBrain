@@ -1,0 +1,29 @@
+# G1 fixture only: no provider is installed in the production Compose project.
+services:
+  mock-provider:
+    image: secondbrain-mock-provider:local
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile
+      target: mock-provider
+    user: "1654:1654"
+    network_mode: service:egress
+    depends_on:
+      egress: { condition: service_healthy }
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    mem_limit: 256m
+    pids_limit: 64
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m,mode=1777"]
+    healthcheck:
+      test: [CMD, bash, -c, "exec 3<>/dev/tcp/127.0.0.1/8181"]
+      interval: 2s
+      timeout: 1s
+      retries: 15
+
+  daemon:
+    depends_on:
+      mock-provider: { condition: service_healthy }

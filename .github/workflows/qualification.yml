@@ -2,6 +2,47 @@ name: Live provider qualification
 
 on:
   workflow_dispatch:
+    inputs:
+      runner:
+        description: Runner label with network access to the vLLM host
+        type: string
+        default: ubuntu-24.04
+        required: true
+      vllm_url:
+        description: Trusted OpenAI-compatible vLLM endpoint, including /v1
+        type: string
+        required: true
+      chat_model:
+        description: Reviewed native-tools chat model id
+        type: string
+        required: true
+      enrich_model:
+        description: Enrichment model id (defaults to chat_model)
+        type: string
+        required: false
+      embed_model:
+        description: Embedding model id
+        type: string
+        required: true
+      embed_dimensions:
+        description: Served embedding dimensions
+        type: string
+        required: true
+      chat_context_window:
+        description: Reviewed chat and enrichment context window
+        type: string
+        default: "8192"
+        required: true
+      chat_max_output_tokens:
+        description: Reviewed chat and enrichment output-token limit
+        type: string
+        default: "1024"
+        required: true
+      embed_max_input_tokens:
+        description: Reviewed embedding maximum input tokens
+        type: string
+        default: "8192"
+        required: true
 
 permissions:
   contents: read
@@ -14,8 +55,17 @@ env:
 jobs:
   qualification:
     name: Tests marked Category=Qualification
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 30
+    env:
+      SECONDBRAIN_QUAL_VLLM_URL: ${{ inputs.vllm_url }}
+      SECONDBRAIN_QUAL_VLLM_CHAT_MODEL: ${{ inputs.chat_model }}
+      SECONDBRAIN_QUAL_VLLM_ENRICH_MODEL: ${{ inputs.enrich_model || inputs.chat_model }}
+      SECONDBRAIN_QUAL_VLLM_EMBED_MODEL: ${{ inputs.embed_model }}
+      SECONDBRAIN_QUAL_VLLM_DIMENSIONS: ${{ inputs.embed_dimensions }}
+      SECONDBRAIN_QUAL_VLLM_CONTEXT_WINDOW: ${{ inputs.chat_context_window }}
+      SECONDBRAIN_QUAL_VLLM_MAX_OUTPUT_TOKENS: ${{ inputs.chat_max_output_tokens }}
+      SECONDBRAIN_QUAL_VLLM_MAX_INPUT_TOKENS: ${{ inputs.embed_max_input_tokens }}
     steps:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,7 +81,6 @@ jobs:
         run: dotnet restore SecondBrain.slnx --locked-mode
       - name: Build with warnings as errors
         run: dotnet build SecondBrain.slnx --configuration Release --no-restore -warnaserror -p:ContinuousIntegrationBuild=true
-      # Lane B adds provider configuration and network access when qualification tests land.
       - name: Run live qualification tests
         run: dotnet test SecondBrain.slnx --configuration Release --no-build --no-restore --filter 'Category=Qualification' --logger trx --results-directory TestResults
       - name: Upload qualification results

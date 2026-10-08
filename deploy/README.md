@@ -15,11 +15,14 @@ Copy `provision/compose.env.example` into a private environment file and supply
 it with `docker compose --env-file`. Set `SECONDBRAIN_PRIVATE_ADDRESS` to the
 actual WireGuard or Tailscale interface address; it is required, with no wildcard
 default. The helper refuses wildcard and publicly routable IPv4 host binds
-before becoming ready. `SECONDBRAIN_HOST_ROOT` contains `data`, `incoming`, `config`, `run`,
+before becoming ready. `SECONDBRAIN_HOST_ROOT` contains `data`, `incoming`, `config`,
 `project`, and an explicit `resolv.conf`. Docker bind mounts reject missing
 paths in serving services. The Compose default subnet is 172.30.0.0/24 and the
 namespace address is 172.30.0.2; if these conflict with your host routes, change
 both environment values and the bridge listener in `config.yaml` together.
+The daemon and extractor share a Compose-managed Linux `runtime` volume for
+their Unix socket. Provisioning creates its private group-writable directory;
+host file shares on Docker Desktop cannot reliably support socket permissions.
 
 From the repository root:
 
@@ -28,9 +31,14 @@ export SECONDBRAIN_PRIVATE_ADDRESS=100.64.0.2
 export SECONDBRAIN_HOST_ROOT=/srv/secondbrain-compose
 export SECONDBRAIN_DNS_IP=10.8.0.1
 docker compose -f deploy/compose.yaml build daemon extractor egress
-sudo mkdir -p "$SECONDBRAIN_HOST_ROOT"/{data,incoming,config,run,project}
+sudo mkdir -p "$SECONDBRAIN_HOST_ROOT"/{data,incoming,config,project}
 printf 'nameserver %s\n' "$SECONDBRAIN_DNS_IP" | sudo tee "$SECONDBRAIN_HOST_ROOT/resolv.conf"
 docker compose -f deploy/compose.yaml --profile provision run --rm provision
+# Configure providers, all required model roles, and exact trusted origins first.
+sudoedit "$SECONDBRAIN_HOST_ROOT/config/config.yaml"
+docker compose -f deploy/compose.yaml up -d egress extractor
+# Enter the account password and save the initial admin key shown once.
+docker compose -f deploy/compose.yaml run --rm --no-deps daemon dotnet /app/cli/brain.dll init
 docker compose -f deploy/compose.yaml up -d
 ```
 
@@ -42,12 +50,15 @@ config are starting templates, not production secrets.
 
 Provisioning uses the image's numeric identities (`secondbrain` 1654,
 `secondbrain-extract` 1655, `secondbrain-sync` 1656), without adding host users.
-It installs the Compose bootstrap config, which serves `/health` with no model
-vendor or model selected. Set providers, model IDs, allowed hosts/origins, and
-exact trusted service endpoints before enabling inference. Place external
+It installs the Compose bootstrap config with no model vendor or model selected.
+The daemon refuses to start until the required chat, enrich and embed bindings
+are configured. Set providers, model IDs, allowed hosts/origins, and
+exact trusted service endpoints before starting the daemon. Place external
 secrets in `config/secrets/<NAME>` and refer to them as `${NAME}` in YAML.
-Configure the daemon's bootstrap credential separately through `brain init`
-when convergence supplies store/account creation.
+Create the daemon's stores, account and bootstrap credential through `brain init`
+as the daemon user before `brain serve`. Supply the password interactively or
+through `SECONDBRAIN_BOOTSTRAP_PASSWORD` for the one-shot initialization process.
+Save the initial admin key once in a private credential store.
 
 The `egress` helper owns an isolated Docker network namespace and has only
 `NET_ADMIN`. It has no data, secrets, extractor socket, or Docker socket mount.
@@ -95,10 +106,23 @@ is `http://127.0.0.1:7171` in the shared namespace. It uses `http2` and IPv4, wi
 updates disabled; its endpoints are pinned from Cloudflare's official
 [firewall documentation](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/configure-tunnels/tunnel-with-firewall/).
 
-`tests/compose-smoke.sh` is G1's CI entrypoint. It builds both serving targets,
-runs root provisioning, starts `brain serve` as UID1654 and the extractor as
-UID1655, checks `/health`, rootfs immutability, capabilities, and the blocked
-public canary. Cloudflare credentials and live model providers are not needed.
+`tests/compose-smoke.sh` is G1's CI entrypoint. It builds both serving targets
+and an isolated mock fixture, runs root provisioning followed by non-root
+`brain init`, starts `brain serve` as UID1654 and the extractor as UID1655,
+and checks `/health`, `/ready`, CLI login/keys/providers/sessions/doctor, the Razor
+login and signed-in shell, rootfs immutability, capabilities and the blocked
+public canary. The script uses Python 3 on the host to validate JSON and HTML,
+and isolates CLI credentials in a disposable private file store.
+`tests/compose-smoke.yaml` and its valid loopback provider config
+are test fixtures only; the production Compose project supplies no mock provider.
+Cloudflare credentials and live model providers are not needed.
+
+For browser inspection after a successful run, use
+`SECONDBRAIN_SMOKE_KEEP=1 deploy/tests/compose-smoke.sh`. It prints the disposable
+project and root paths and leaves the stack running; failures still clean up.
+Stop the retained stack explicitly with the same environment and both Compose
+files using `docker compose --project-name <printed-project> -f deploy/compose.yaml
+-f deploy/tests/compose-smoke.yaml down --remove-orphans --volumes`.
 
 ## systemd
 

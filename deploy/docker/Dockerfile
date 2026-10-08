@@ -26,6 +26,11 @@ RUN test "$(dotnet --version)" = 10.0.105 \
         --configuration Release --runtime linux-x64 --self-contained false --no-restore \
         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/extractor
 
+# The mock is only copied into the explicit CI fixture target below.
+RUN dotnet publish tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj \
+    --configuration Release --runtime linux-x64 --self-contained false --no-restore \
+    -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/mock-provider
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 AS runtime-base
 WORKDIR /app
 ENV DOTNET_EnableDiagnostics=0 \
@@ -44,6 +49,11 @@ FROM runtime-base AS extractor
 COPY --from=build --chown=1655:1654 /publish/extractor/ /app/extractor/
 USER 1655:1654
 CMD ["dotnet", "/app/extractor/SecondBrain.Extractor.dll", "--socket", "/run/secondbrain/extractor.sock"]
+
+FROM runtime-base AS mock-provider
+COPY --from=build --chown=1654:1654 /publish/mock-provider/ /app/mock-provider/
+USER 1654:1654
+CMD ["dotnet", "/app/mock-provider/SecondBrain.MockProvider.dll", "--urls", "http://127.0.0.1:8181"]
 
 FROM runtime-base AS server
 EXPOSE 8080

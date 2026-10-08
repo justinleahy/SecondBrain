@@ -85,10 +85,9 @@ services:
         target: /etc/secondbrain/secrets
         read_only: true
         bind: { create_host_path: false }
-      - type: bind
-        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/run
+      - type: volume
+        source: runtime
         target: /run/secondbrain
-        bind: { create_host_path: false }
       - type: bind
         source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/resolv.conf
         target: /etc/resolv.conf
@@ -114,10 +113,9 @@ services:
     tmpfs: ["/tmp:rw,noexec,nosuid,size=512m,mode=1777"]
     environment: { DOTNET_EnableDiagnostics: "0", TMPDIR: /tmp }
     volumes:
-      - type: bind
-        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/run
+      - type: volume
+        source: runtime
         target: /run/secondbrain
-        bind: { create_host_path: false }
 
   cloudflared:
     <<: *hardened
@@ -164,7 +162,7 @@ services:
       - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/data:/srv/secondbrain
       - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/incoming:/srv/secondbrain-incoming
       - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config:/etc/secondbrain
-      - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/run:/run/secondbrain
+      - runtime:/run/secondbrain
       - ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/project:/provision/project
 
 networks:
@@ -178,3 +176,9 @@ networks:
 secrets:
   tunnel_credentials:
     file: ${SECONDBRAIN_TUNNEL_CREDENTIALS:-/etc/secondbrain/secrets/cloudflared.json}
+
+# Unix sockets require a native Linux filesystem; Docker Desktop host shares do
+# not support all socket permission operations. Provisioning owns/modes this
+# shared runtime volume before either unprivileged process uses it.
+volumes:
+  runtime:
