@@ -25,6 +25,36 @@ public sealed class DependencyRulesTests
         "System.Runtime.InteropServices.PosixSignalRegistration",
     ];
 
+    /// <summary>AR-06 (I/O, interop and environment): host access whose use belongs to Infrastructure.</summary>
+    private static readonly string[] CoreForbiddenHostTypes =
+    [
+        "System.IO.File",
+        "System.IO.Directory",
+        "System.IO.FileInfo",
+        "System.IO.DirectoryInfo",
+        "System.IO.FileSystemInfo",
+        "System.IO.FileStream",
+        "System.IO.DriveInfo",
+        "System.Runtime.InteropServices.Marshal",
+        "System.Runtime.InteropServices.NativeLibrary",
+        "System.Runtime.InteropServices.SafeHandle",
+        "System.Environment",
+        "System.Diagnostics.Process",
+    ];
+
+    /// <summary>
+    /// AR-06 (environment): the one <c>System.Environment</c> member Core may reach. The C# compiler emits it in
+    /// every iterator (<c>yield return</c>) to check thread affinity, so it is not host or environment access.
+    /// </summary>
+    private const string CompilerIteratorEnvironmentMember = "System.Environment::get_CurrentManagedThreadId";
+
+    /// <summary>AR-06 (interop): every type in this namespace is forbidden in Core.</summary>
+    private const string SafeHandlesNamespacePrefix = "Microsoft.Win32.SafeHandles.";
+
+    /// <summary>AR-07: the assemblies that may declare P/Invoke methods.</summary>
+    private static readonly string[] PinvokeAllowedAssemblies =
+        [Layers.InfrastructureName, Layers.StorageName, Layers.ExtractorName, Layers.CliName];
+
     /// <summary>AR-05: the only YamlDotNet type Core may reference.</summary>
     private static readonly string[] CoreAllowedYamlTypes = ["YamlDotNet.Serialization.YamlMemberAttribute"];
 
@@ -61,6 +91,19 @@ public sealed class DependencyRulesTests
         var disallowed = facts.SecondBrainReferences.Except(allowed, StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         Assert.True(disallowed.Length == 0,
             $"{assemblyName} references {string.Join(", ", disallowed)}; allowed: {string.Join(", ", allowed)}.");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-04")]
+    public void CoreReferencesNoAspNetCoreAssembly()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var violations = facts.AssemblyReferences
+            .Where(reference => reference.StartsWith("Microsoft.AspNetCore.", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Core references ASP.NET Core assemblies: {string.Join(", ", violations)}");
     }
 
     [Fact]
@@ -123,6 +166,76 @@ public sealed class DependencyRulesTests
         Assert.Contains("System.Net.Dns", facts.TypeReferences);
         Assert.Contains("System.Net.Sockets.TcpClient", facts.TypeReferences);
         Assert.Contains("System.Net.Sockets.UnixDomainSocketEndPoint", facts.TypeReferences);
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void CoreReferencesNoFileSystemInteropOrEnvironmentType()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var violations = facts.TypeReferences
+            .Where(type => CoreForbiddenHostTypes.Contains(type, StringComparer.Ordinal) ||
+                           type.StartsWith(SafeHandlesNamespacePrefix, StringComparison.Ordinal))
+            .Where(type => type != "System.Environment" || !OnlyCompilerIteratorEnvironmentMembers(facts))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Core references host access types that belong in SecondBrain.Infrastructure: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void CoreReachesSystemEnvironmentOnlyThroughCompilerGeneratedIterators()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var environmentMembers = facts.MemberReferences
+            .Where(member => member.StartsWith("System.Environment::", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(environmentMembers.All(member => member == CompilerIteratorEnvironmentMember),
+            $"SecondBrain.Core reads the process environment, which belongs in SecondBrain.Infrastructure: {string.Join(", ", environmentMembers)}");
+        // Guards the member-level check against reading metadata that never contains member references at all.
+        Assert.Contains("System.Threading.Monitor::Enter", AssemblyFacts.For(Layers.Infrastructure).MemberReferences);
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void InfrastructureIsWhereTheFileSystemAndInteropTypesAreReferenced()
+    {
+        // Guards the rule above against reading type references that never contain these names at all.
+        var facts = AssemblyFacts.For(Layers.Infrastructure);
+        Assert.Contains("System.IO.File", facts.TypeReferences);
+        Assert.Contains("System.IO.Directory", facts.TypeReferences);
+        Assert.Contains("System.Runtime.InteropServices.Marshal", facts.TypeReferences);
+        Assert.Contains(facts.TypeReferences, type => type.StartsWith(SafeHandlesNamespacePrefix, StringComparison.Ordinal));
+    }
+
+    private static bool OnlyCompilerIteratorEnvironmentMembers(AssemblyFacts facts) =>
+        facts.MemberReferences
+            .Where(member => member.StartsWith("System.Environment::", StringComparison.Ordinal))
+            .All(member => member == CompilerIteratorEnvironmentMember);
+
+    [Fact]
+    [Trait("Rule", "AR-07")]
+    public void PinvokeMethodsExistOnlyInTheAllowedAssemblies()
+    {
+        var violations = Layers.ShippedAssemblies
+            .Select(AssemblyFacts.For)
+            .Where(facts => !PinvokeAllowedAssemblies.Contains(facts.Name, StringComparer.Ordinal))
+            .SelectMany(facts => facts.PinvokeMethods.Select(method => $"{facts.Name}: {method}"))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"P/Invoke methods are declared outside {string.Join(", ", PinvokeAllowedAssemblies)}: {string.Join("; ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-07")]
+    public void InfrastructureIsWhereTheUnixPinvokeMethodsAreDeclared()
+    {
+        // Guards the rule above against reading metadata that never contains P/Invoke methods at all.
+        var facts = AssemblyFacts.For(Layers.Infrastructure);
+        Assert.Contains(facts.PinvokeMethods, method => method.StartsWith("SecondBrain.Infrastructure.Security.UnixPath::", StringComparison.Ordinal));
     }
 
     [Fact]

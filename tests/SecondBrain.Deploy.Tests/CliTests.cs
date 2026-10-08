@@ -8,6 +8,7 @@ using SecondBrain.Cli.Credentials;
 using SecondBrain.Cli.Provisioning;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Extractor;
 using Xunit;
 

@@ -12,11 +12,12 @@ internal sealed class AssemblyFacts
 {
     private static readonly ConcurrentDictionary<string, AssemblyFacts> Cache = new(StringComparer.Ordinal);
 
-    private AssemblyFacts(string name, IReadOnlySet<string> assemblyReferences, IReadOnlySet<string> typeReferences, IReadOnlyList<string> pinvokeMethods)
+    private AssemblyFacts(string name, IReadOnlySet<string> assemblyReferences, IReadOnlySet<string> typeReferences, IReadOnlySet<string> memberReferences, IReadOnlyList<string> pinvokeMethods)
     {
         Name = name;
         AssemblyReferences = assemblyReferences;
         TypeReferences = typeReferences;
+        MemberReferences = memberReferences;
         PinvokeMethods = pinvokeMethods;
     }
 
@@ -27,6 +28,9 @@ internal sealed class AssemblyFacts
 
     /// <summary>Every type reference as <c>Namespace.Name</c>; nested types as <c>Namespace.Outer+Inner</c>.</summary>
     public IReadOnlySet<string> TypeReferences { get; }
+
+    /// <summary>Every member reference whose parent is a type reference, as <c>Namespace.Name::Member</c>.</summary>
+    public IReadOnlySet<string> MemberReferences { get; }
 
     /// <summary>Every method definition carrying <see cref="MethodAttributes.PinvokeImpl"/>, as <c>Type::Method</c>.</summary>
     public IReadOnlyList<string> PinvokeMethods { get; }
@@ -67,6 +71,16 @@ internal sealed class AssemblyFacts
             typeReferences.Add(TypeReferenceName(reader, handle));
         }
 
+        var memberReferences = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var handle in reader.MemberReferences)
+        {
+            var member = reader.GetMemberReference(handle);
+            if (member.Parent.Kind == HandleKind.TypeReference)
+            {
+                memberReferences.Add($"{TypeReferenceName(reader, (TypeReferenceHandle)member.Parent)}::{reader.GetString(member.Name)}");
+            }
+        }
+
         var pinvokeMethods = new List<string>();
         foreach (var handle in reader.MethodDefinitions)
         {
@@ -77,7 +91,7 @@ internal sealed class AssemblyFacts
             }
         }
 
-        return new AssemblyFacts(name, assemblyReferences, typeReferences, pinvokeMethods);
+        return new AssemblyFacts(name, assemblyReferences, typeReferences, memberReferences, pinvokeMethods);
     }
 
     private static string TypeReferenceName(MetadataReader reader, TypeReferenceHandle handle)

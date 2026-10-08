@@ -5,6 +5,7 @@ using SecondBrain.Server.Http;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Server.Composition;
 using Xunit;
 

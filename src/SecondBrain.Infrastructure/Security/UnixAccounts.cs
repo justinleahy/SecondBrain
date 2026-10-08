@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace SecondBrain.Core.Security;
+namespace SecondBrain.Infrastructure.Security;
 
 public static class UnixAccounts
 {

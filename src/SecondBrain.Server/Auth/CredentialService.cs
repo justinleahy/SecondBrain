@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Server.Auth;
 

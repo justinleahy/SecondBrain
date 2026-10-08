@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Server.Http;
 

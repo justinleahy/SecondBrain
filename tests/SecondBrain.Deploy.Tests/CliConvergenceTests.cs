@@ -13,7 +13,7 @@ using SecondBrain.Cli;
 using SecondBrain.Cli.Credentials;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Configuration;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
 using SecondBrain.Extractor;
 using SecondBrain.MockProvider;

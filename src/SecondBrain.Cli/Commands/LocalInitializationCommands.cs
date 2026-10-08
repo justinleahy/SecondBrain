@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
 using SecondBrain.Server.Auth;
 using SecondBrain.Storage;

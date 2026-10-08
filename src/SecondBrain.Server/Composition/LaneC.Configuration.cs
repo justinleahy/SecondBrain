@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Server.Http;
 

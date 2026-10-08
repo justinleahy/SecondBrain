@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using Microsoft.AspNetCore.DataProtection;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 using Microsoft.AspNetCore.Routing;
 using SecondBrain.Core.Problems;
 using SecondBrain.Server.Http;

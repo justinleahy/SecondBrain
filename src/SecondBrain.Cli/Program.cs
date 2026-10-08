@@ -2,7 +2,7 @@ using System.CommandLine;
 using SecondBrain.Cli.Commands;
 using SecondBrain.Cli.Provisioning;
 using SecondBrain.Core.Configuration;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Infrastructure.FileSystem;
 
 namespace SecondBrain.Cli;

@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace SecondBrain.Core.Security;
+namespace SecondBrain.Infrastructure.Security;
 
 public sealed class DataRootLockedException : IOException
 {

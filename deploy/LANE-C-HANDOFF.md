@@ -19,6 +19,8 @@
   `FileKeyRing` persists ULID HMAC versions atomically with fsync, retains all versions
   for constant-time verification, initializes ASP.NET Data Protection and uses the
   four purposes from the plan. Routine rotation does not revoke credentials.
+  `FileKeyRing` and `IKeyRing` live in `SecondBrain.Infrastructure.Security`; `IHmacKeyRing`,
+  `IAccountEpochRevoker` and `KeyRingPurposes` stay in `SecondBrain.Core.Security`.
 - Item 14: pinned serving images, separate extractor/tunnel identities, restricted
   UID-specific egress namespace, read-only serving filesystems/secrets, capability
   removal, resource limits, systemd units/tmpfiles, deployment templates and G1 CI.

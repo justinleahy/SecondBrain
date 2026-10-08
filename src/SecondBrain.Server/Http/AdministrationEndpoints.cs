@@ -3,7 +3,7 @@ using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Providers;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Server.Http;
 

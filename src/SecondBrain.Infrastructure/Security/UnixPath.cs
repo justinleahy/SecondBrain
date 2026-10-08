@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace SecondBrain.Core.Security;
+namespace SecondBrain.Infrastructure.Security;
 
 /// <summary>Canonical paths, including symlinked parent directories, for configuration containment.</summary>
 public static class UnixPath

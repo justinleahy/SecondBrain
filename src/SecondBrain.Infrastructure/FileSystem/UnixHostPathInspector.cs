@@ -1,5 +1,5 @@
 using SecondBrain.Core.Configuration;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Infrastructure.FileSystem;
 

@@ -338,7 +338,6 @@
         "type": "Project",
         "dependencies": {
           "JsonSchema.Net": "[9.4.0, )",
-          "Microsoft.AspNetCore.DataProtection.Abstractions": "[10.0.12, )",
           "Microsoft.Extensions.AI": "[10.10.0, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.10.1, )",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "[10.0.12, )",
@@ -354,12 +353,6 @@
         "dependencies": {
           "JsonPointer.Net": "7.0.2"
         }
-      },
-      "Microsoft.AspNetCore.DataProtection.Abstractions": {
-        "type": "CentralTransitive",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "r9Rcg9xjKrTmYYHLqb7Ur64xkP8LzR+0EkxkKHqNIjGHFMgr/AuXxNuGXxZd2ScjPjwXM+VxfGfG7DPnYibkfw=="
       },
       "Microsoft.Extensions.AI": {
         "type": "CentralTransitive",

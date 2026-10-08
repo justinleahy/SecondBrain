@@ -375,7 +375,6 @@
         "type": "Project",
         "dependencies": {
           "JsonSchema.Net": "[9.4.0, )",
-          "Microsoft.AspNetCore.DataProtection.Abstractions": "[10.0.12, )",
           "Microsoft.Extensions.AI": "[10.10.0, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.10.1, )",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "[10.0.12, )",
@@ -386,8 +385,10 @@
       "secondbrain.infrastructure": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.AspNetCore.DataProtection.Abstractions": "[10.0.12, )",
           "Microsoft.Extensions.Options": "[10.0.12, )",
           "SecondBrain.Core": "[1.0.0, )",
+          "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
         }
       },

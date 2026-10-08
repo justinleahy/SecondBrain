@@ -271,6 +271,7 @@
         "type": "Project",
         "dependencies": {
           "SecondBrain.Core": "[1.0.0, )",
+          "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
         }
       },

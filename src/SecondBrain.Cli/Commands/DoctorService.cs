@@ -3,7 +3,7 @@ using System.Net.NetworkInformation;
 using System.Text.Json;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Extraction;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Cli.Commands;
 

@@ -1,23 +1,9 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
+using SecondBrain.Core.Security;
 
-namespace SecondBrain.Core.Security;
-
-/// <summary>Lane A binds this hook to its durable account epoch transaction.</summary>
-public interface IAccountEpochRevoker
-{
-    ValueTask BumpEpochAsync(CancellationToken cancellationToken = default);
-}
-
-public static class KeyRingPurposes
-{
-    public const string Session = "secondbrain.session";
-    public const string Cursor = "secondbrain.cursor";
-    public const string Antiforgery = "secondbrain.antiforgery";
-    public const string Capability = "secondbrain.capability";
-    public const string ApplicationName = "secondbrain";
-}
+namespace SecondBrain.Infrastructure.Security;
 
 /// <summary>Persistent versioned CSPRNG HMAC keys; ASP.NET Data Protection is supplied by the host.</summary>
 public sealed class FileKeyRing : IKeyRing, IDisposable

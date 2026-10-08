@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.WebUtilities;
 using SecondBrain.Core.Authorization;
-using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Server.Auth;
 

@@ -5,5 +5,7 @@
   <ItemGroup>
     <PackageReference Include="YamlDotNet" />
     <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" />
+    <PackageReference Include="Ulid" />
   </ItemGroup>
 </Project>
