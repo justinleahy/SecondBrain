@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Sources;
 
-namespace SecondBrain.Server.Sources;
+namespace SecondBrain.Infrastructure.FileSystem;
 
 /// <summary>Resolves every path segment, including symlinked parents, before applying FLD-1.</summary>
 public sealed class SourcePathValidator(IOptionsMonitor<SecondBrainOptions> options) : ISourcePathValidator

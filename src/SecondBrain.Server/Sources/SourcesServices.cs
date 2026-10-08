@@ -1,4 +1,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SecondBrain.Core.Sources;
+using SecondBrain.Infrastructure.FileSystem;
+using SecondBrain.Storage.Sources;
 
 namespace SecondBrain.Server.Sources;
 

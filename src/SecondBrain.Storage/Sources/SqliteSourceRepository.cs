@@ -1,9 +1,10 @@
 using System.Globalization;
 using System.Text.Json;
 using Dapper;
+using SecondBrain.Core.Sources;
 using SecondBrain.Core.Storage;
 
-namespace SecondBrain.Server.Sources;
+namespace SecondBrain.Storage.Sources;
 
 /// <summary>Uses lane A's queued writer and Appendix A column names without owning connections.</summary>
 public sealed class SqliteSourceRepository(IStateStore store) : ISourceRepository

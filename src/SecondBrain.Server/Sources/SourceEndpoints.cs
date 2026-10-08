@@ -1,5 +1,6 @@
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Authorization;
+using SecondBrain.Core.Sources;
 
 namespace SecondBrain.Server.Sources;
 

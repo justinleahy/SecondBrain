@@ -8,6 +8,7 @@ public sealed partial class SourceRulesTests
 {
     private static readonly string[] DomainDirectories = ["src/SecondBrain.Core/Domain", "src/SecondBrain.Core/Authorization"];
     private static readonly string[] DomainNamespaces = ["SecondBrain.Core.Domain", "SecondBrain.Core.Authorization"];
+    private const string StorageSourceDirectory = "src/SecondBrain.Storage";
 
     [Fact]
     [Trait("Rule", "AR-14")]
@@ -117,6 +118,44 @@ public sealed partial class SourceRulesTests
             $"brain references SecondBrain.Server for layout only; no extern alias is allowed in src/SecondBrain.Cli:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
     }
 
+    [Fact]
+    [Trait("Rule", "AR-15")]
+    public void SqlAppearsOnlyInStorageSource()
+    {
+        var files = Repository.SourceFiles("src");
+        Assert.NotEmpty(files);
+
+        var storageMatches = new List<string>();
+        var violations = new List<string>();
+        foreach (var file in files)
+        {
+            var inStorage = file.StartsWith(StorageSourceDirectory + "/", StringComparison.Ordinal);
+            var lines = Repository.ReadAllLines(file);
+            for (var index = 0; index < lines.Count; index++)
+            {
+                if (!SqlStatement().IsMatch(lines[index]))
+                {
+                    continue;
+                }
+
+                var location = $"{file}:{index + 1}: {lines[index].Trim()}";
+                if (inStorage)
+                {
+                    storageMatches.Add(location);
+                }
+                else
+                {
+                    violations.Add(location);
+                }
+            }
+        }
+
+        // Guards the rule against a pattern that never matches anything.
+        Assert.Contains(storageMatches, match => match.StartsWith("src/SecondBrain.Storage/Sources/SqliteSourceRepository.cs:", StringComparison.Ordinal));
+        Assert.True(violations.Count == 0,
+            $"SQL belongs in src/SecondBrain.Storage:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
+    }
+
     private static bool IsDomainNamespace(string name) =>
         DomainNamespaces.Any(ns => name == ns || name.StartsWith(ns + ".", StringComparison.Ordinal));
 
@@ -129,4 +168,8 @@ public sealed partial class SourceRulesTests
 
     [GeneratedRegex(@"\bSecondBrain\.Core\.\w+")]
     private static partial Regex CoreQualifiedName();
+
+    // AR-15: case-sensitive and line-based, so raw """ literals are covered line by line.
+    [GeneratedRegex(@"\b(SELECT\b.*\bFROM\b|INSERT INTO\b|UPDATE [a-z_]+ SET\b|DELETE FROM\b|CREATE TABLE\b)")]
+    private static partial Regex SqlStatement();
 }

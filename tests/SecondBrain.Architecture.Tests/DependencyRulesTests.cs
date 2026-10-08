@@ -68,7 +68,7 @@ public sealed class DependencyRulesTests
     /// <summary>AR-09: the alias that keeps the CLI's Server reference layout-only.</summary>
     private const string ServerLayoutAlias = "ServerLayout";
 
-    /// <summary>AR-12a: the SQL assemblies whose use belongs to Storage.</summary>
+    /// <summary>AR-12 and AR-12a: the SQL assemblies whose use belongs to Storage.</summary>
     private static readonly string[] SqlAssemblyNames = ["Dapper", "Microsoft.Data.Sqlite"];
     private const string SqlitePclAssemblyPrefix = "SQLitePCLRaw.";
 
@@ -364,6 +364,23 @@ public sealed class DependencyRulesTests
             .ToArray();
         Assert.True(violations.Length == 0,
             $"brain references SQL assemblies; SQL belongs in SecondBrain.Storage: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-12")]
+    public void OnlyStorageReferencesSqlAssemblies()
+    {
+        var violations = Layers.ShippedAssemblies
+            .Select(AssemblyFacts.For)
+            .Where(facts => facts.Name != Layers.StorageName)
+            .SelectMany(facts => facts.AssemblyReferences
+                .Where(reference => SqlAssemblyNames.Contains(reference, StringComparer.Ordinal) ||
+                                    reference.StartsWith(SqlitePclAssemblyPrefix, StringComparison.Ordinal))
+                .Select(reference => $"{facts.Name} -> {reference}"))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SQL assemblies are referenced outside SecondBrain.Storage: {string.Join("; ", violations)}");
     }
 
     [Fact]
