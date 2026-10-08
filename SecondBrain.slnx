@@ -8,6 +8,7 @@
     <Project Path="src/SecondBrain.Storage/SecondBrain.Storage.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/SecondBrain.Architecture.Tests/SecondBrain.Architecture.Tests.csproj" />
     <Project Path="tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj" />
     <Project Path="tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj" />
     <Project Path="tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj" />
