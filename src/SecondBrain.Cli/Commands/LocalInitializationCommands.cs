@@ -10,7 +10,6 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
-using SecondBrain.Server.Auth;
 using SecondBrain.Storage.Auth;
 using SecondBrain.Storage;
 

@@ -1,10 +1,9 @@
+using System.Buffers.Text;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.WebUtilities;
-using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
-using SecondBrain.Infrastructure.Security;
+using SecondBrain.Core.Security;
 
-namespace SecondBrain.Server.Auth;
+namespace SecondBrain.Core.Auth;
 
 /// <summary>Creation result: Plaintext is returned once and must never be logged.</summary>
 public sealed class CreatedCredential(CredentialRecord record, string plaintext)
@@ -22,7 +21,7 @@ public interface IAdminCredentialFactory
     InitializationRecords CreateInitializationRecords(string password, long accountEpoch = 1);
 }
 
-public sealed class CredentialFactory(IKeyRing keyRing, IPasswordHasher passwordHasher, TimeProvider clock) : IAdminCredentialFactory
+public sealed class CredentialFactory(IHmacKeyRing keyRing, IPasswordHasher passwordHasher, TimeProvider clock) : IAdminCredentialFactory
 {
     public InitializationRecords CreateInitializationRecords(string password, long accountEpoch = 1) =>
         new(CreateApiKey("admin", Enum.GetValues<Scope>().ToHashSet(), accountEpoch), CreateAccount(password));
@@ -41,11 +40,11 @@ public sealed class CredentialFactory(IKeyRing keyRing, IPasswordHasher password
         {
             var record = NewRecord(name, "api_key", secret, scopes, epoch);
             record.ExpiresAt = expiresAt is null ? null : AuthTime.Format(expiresAt.Value);
-            return new(record, $"sb_{record.Id}.{WebEncoders.Base64UrlEncode(secret)}");
+            return new(record, $"sb_{record.Id}.{Base64Url.EncodeToString(secret)}");
         }
         finally { CryptographicOperations.ZeroMemory(secret); }
     }
-    internal CreatedCredential CreateSession(string device, bool secure, long epoch, int idleHours, int absoluteDays, string? steppedUpAt = null)
+    public CreatedCredential CreateSession(string device, bool secure, long epoch, int idleHours, int absoluteDays, string? steppedUpAt = null)
     {
         var secret = RandomNumberGenerator.GetBytes(32);
         try
@@ -55,7 +54,7 @@ public sealed class CredentialFactory(IKeyRing keyRing, IPasswordHasher password
             record.IdleExpiresAt = AuthTime.Format(clock.GetUtcNow().AddHours(idleHours));
             record.AbsoluteExpiresAt = AuthTime.Format(clock.GetUtcNow().AddDays(absoluteDays));
             record.SteppedUpAt = steppedUpAt;
-            return new(record, WebEncoders.Base64UrlEncode(secret));
+            return new(record, Base64Url.EncodeToString(secret));
         }
         finally { CryptographicOperations.ZeroMemory(secret); }
     }

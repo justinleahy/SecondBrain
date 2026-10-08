@@ -18,7 +18,6 @@ using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
 using SecondBrain.Extractor;
 using SecondBrain.MockProvider;
-using SecondBrain.Server.Auth;
 using SecondBrain.Server.Composition;
 using SecondBrain.Server.Http;
 using Xunit;
@@ -309,7 +308,7 @@ public sealed class CliConvergenceTests
             extractor = socketServer.RunAsync(stopExtractor.Token);
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions
             {
-                ApplicationName = typeof(CredentialFactory).Assembly.GetName().Name,
+                ApplicationName = typeof(global::Program).Assembly.GetName().Name,
                 EnvironmentName = "Testing",
             });
             builder.Logging.ClearProviders();

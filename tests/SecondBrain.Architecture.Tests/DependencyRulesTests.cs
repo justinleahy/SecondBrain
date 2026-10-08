@@ -316,4 +316,29 @@ public sealed class DependencyRulesTests
         Assert.True(violations.Length == 0,
             $"Vendor SDK packages are referenced outside src/SecondBrain.Providers.* (spec §2.8): {string.Join("; ", violations)}");
     }
+
+    [Fact]
+    [Trait("Rule", "AR-11")]
+    public void OnlyInfrastructureReferencesArgon2Assemblies()
+    {
+        var violations = Layers.ShippedAssemblies
+            .Select(AssemblyFacts.For)
+            .Where(facts => facts.Name != Layers.InfrastructureName)
+            .SelectMany(facts => facts.AssemblyReferences
+                .Where(reference => reference.StartsWith("Isopoh.", StringComparison.Ordinal))
+                .Select(reference => $"{facts.Name} -> {reference}"))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"Isopoh.* assemblies are referenced outside SecondBrain.Infrastructure: {string.Join("; ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-11")]
+    public void InfrastructureIsWhereArgon2IsReferenced()
+    {
+        // Guards the rule above against reading metadata that never contains the Argon2 assembly at all.
+        var facts = AssemblyFacts.For(Layers.Infrastructure);
+        Assert.Contains(facts.AssemblyReferences, reference => reference.StartsWith("Isopoh.", StringComparison.Ordinal));
+    }
 }

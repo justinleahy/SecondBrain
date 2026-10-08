@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
+using SecondBrain.Core.Security;
 using SecondBrain.Core.Storage;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Server.Auth;
 using SecondBrain.Server.Http;
 using SecondBrain.Server.Limits;
@@ -22,6 +24,7 @@ public static class LaneDHttp
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton(provider => PasswordPolicy.Load(new SqlitePasswordPolicyStore(provider.GetRequiredService<IStateStore>())));
         services.TryAddSingleton<IPasswordHasher, PasswordHasher>();
+        services.TryAddSingleton<IHmacKeyRing>(provider => provider.GetRequiredService<IKeyRing>());
         services.TryAddSingleton(provider => ActivatorUtilities.CreateInstance<CredentialFactory>(provider));
         services.TryAddSingleton<IAdminCredentialFactory>(provider => provider.GetRequiredService<CredentialFactory>());
         services.TryAddSingleton<IAuthRepository>(provider => ActivatorUtilities.CreateInstance<AuthRepository>(provider));

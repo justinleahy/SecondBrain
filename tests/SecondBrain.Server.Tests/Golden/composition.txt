@@ -8,6 +8,7 @@ Singleton IDataProtectionProvider[keyring] -> factory
 Singleton IDataProtectionProvider -> factory
 Singleton FileKeyRing -> factory
 Singleton IKeyRing -> factory
+Singleton IHmacKeyRing -> factory
 Singleton IHostedService -> KeyRingStartup
 Singleton IReadinessContributor -> LockReadinessContributor
 Singleton IReadinessContributor -> ExtractorReadinessContributor

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
@@ -52,6 +53,7 @@ public static class LaneCConfiguration
             provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.DataRoot,
             provider.GetRequiredKeyedService<IDataProtectionProvider>("keyring")));
         services.AddSingleton<IKeyRing>(provider => provider.GetRequiredService<FileKeyRing>());
+        services.TryAddSingleton<IHmacKeyRing>(provider => provider.GetRequiredService<IKeyRing>());
         services.AddHostedService<KeyRingStartup>();
         services.AddSingleton<IReadinessContributor, LockReadinessContributor>();
         services.AddSingleton<IReadinessContributor, ExtractorReadinessContributor>();

@@ -4,7 +4,7 @@ All implementation is wired by the three existing composition calls through one 
 
 ## Storage and init
 
-`SecondBrain.Server.Auth.IAdminCredentialFactory.CreateInitializationRecords(password, accountEpoch = 1)` returns the admin key once (`AdminCredential.Plaintext`) plus `CredentialRecord` and `AccountRecord` for Appendix A insertion. `CredentialFactory` implements this contract and also exposes separate account/key creation. The secret must never be logged or printed again. Register the deployment host's calibrated `PasswordParameters` before resolving `CredentialFactory`. See ../Auth/Calibration.md.
+`SecondBrain.Core.Auth.IAdminCredentialFactory.CreateInitializationRecords(password, accountEpoch = 1)` returns the admin key once (`AdminCredential.Plaintext`) plus `CredentialRecord` and `AccountRecord` for Appendix A insertion. `CredentialFactory` implements this contract and also exposes separate account/key creation. The secret must never be logged or printed again. Register the deployment host's calibrated `PasswordParameters` before resolving `CredentialFactory`. See ../Auth/Calibration.md.
 
 `IAuthRepository` (in `SecondBrain.Core.Auth`, implemented by `AuthRepository` in `SecondBrain.Storage.Auth`) and `ISourceRepository` use only `IStateStore` leases/queued writers, Dapper, and existing Appendix A columns. Session security flags/device summaries are serialized in credentials.device; no schema additions are needed. Initialize meta.account_epoch to a positive integer. Account reset, restore, and revoke-all key rotation must atomically increment it.
 

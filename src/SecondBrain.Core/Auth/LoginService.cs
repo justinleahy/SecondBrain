@@ -1,7 +1,6 @@
 using System.Text;
-using SecondBrain.Core.Auth;
 
-namespace SecondBrain.Server.Auth;
+namespace SecondBrain.Core.Auth;
 
 public sealed record LoginDecision(bool Accepted, int RetryAfterSeconds = 0, long? AccountEpoch = null);
 

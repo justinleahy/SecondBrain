@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
+using SecondBrain.Core.Security;
 using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Server.Http;
@@ -6,7 +7,7 @@ namespace SecondBrain.Server.Http;
 /// <summary>Framework envelopes use the persistent ring without opening it on anonymous liveness requests.</summary>
 public sealed class KeyRingDataProtectionProvider(IServiceProvider services) : IDataProtectionProvider
 {
-    public IDataProtector CreateProtector(string purpose) => new Protector(services, ["secondbrain.antiforgery", purpose]);
+    public IDataProtector CreateProtector(string purpose) => new Protector(services, [KeyRingPurposes.Antiforgery, purpose]);
 
     private sealed class Protector(IServiceProvider services, string[] purposes) : IDataProtector
     {

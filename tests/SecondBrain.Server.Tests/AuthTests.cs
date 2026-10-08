@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
+using SecondBrain.Infrastructure.Security;
 using SecondBrain.Server.Auth;
 using SecondBrain.Server.Tests.Support;
 using Xunit;

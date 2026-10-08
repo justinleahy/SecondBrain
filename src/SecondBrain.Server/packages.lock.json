@@ -2,16 +2,6 @@
   "version": 2,
   "dependencies": {
     "net10.0": {
-      "Isopoh.Cryptography.Argon2": {
-        "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "8ytWN19j+qARb/XYi7KkNMm4Z8zS6tfGgnsZ1N5ihbQ5LXfyL+uYowfJxtGW9TO0S8NM2q0BaTKGOtOlsrhclQ==",
-        "dependencies": {
-          "Isopoh.Cryptography.Blake2b": "2.0.0",
-          "Isopoh.Cryptography.SecureArray": "2.0.0"
-        }
-      },
       "Microsoft.AspNetCore.App.Internal.Assets": {
         "type": "Direct",
         "requested": "[10.0.12, )",
@@ -207,6 +197,7 @@
       "secondbrain.infrastructure": {
         "type": "Project",
         "dependencies": {
+          "Isopoh.Cryptography.Argon2": "[2.0.0, )",
           "SecondBrain.Core": "[1.0.0, )",
           "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
@@ -234,6 +225,16 @@
         "requested": "[2.1.89, )",
         "resolved": "2.1.89",
         "contentHash": "1VjFE664wnxvuhlgP8kS4PeFFF4jqD3VkbIHW6Zlc52zuibgcz5ICnIHcQXlTp6pURpPNGLV0ZpNe5x9KePJnA=="
+      },
+      "Isopoh.Cryptography.Argon2": {
+        "type": "CentralTransitive",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "8ytWN19j+qARb/XYi7KkNMm4Z8zS6tfGgnsZ1N5ihbQ5LXfyL+uYowfJxtGW9TO0S8NM2q0BaTKGOtOlsrhclQ==",
+        "dependencies": {
+          "Isopoh.Cryptography.Blake2b": "2.0.0",
+          "Isopoh.Cryptography.SecureArray": "2.0.0"
+        }
       },
       "JsonSchema.Net": {
         "type": "CentralTransitive",

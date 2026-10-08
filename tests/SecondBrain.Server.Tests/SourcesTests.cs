@@ -4,7 +4,6 @@ using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
-using SecondBrain.Server.Auth;
 using SecondBrain.Server.Sources;
 using SecondBrain.Server.Tests.Support;
 using Xunit;

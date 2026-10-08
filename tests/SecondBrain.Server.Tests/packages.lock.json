@@ -270,6 +270,7 @@
       "secondbrain.infrastructure": {
         "type": "Project",
         "dependencies": {
+          "Isopoh.Cryptography.Argon2": "[2.0.0, )",
           "SecondBrain.Core": "[1.0.0, )",
           "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
@@ -289,7 +290,6 @@
       "secondbrain.server": {
         "type": "Project",
         "dependencies": {
-          "Isopoh.Cryptography.Argon2": "[2.0.0, )",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "[10.0.12, )",
           "Microsoft.AspNetCore.OpenApi": "[10.0.12, )",
           "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )",

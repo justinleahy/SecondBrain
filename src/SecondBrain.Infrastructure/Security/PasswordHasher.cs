@@ -4,7 +4,7 @@ using System.Text;
 using Isopoh.Cryptography.Argon2;
 using SecondBrain.Core.Auth;
 
-namespace SecondBrain.Server.Auth;
+namespace SecondBrain.Infrastructure.Security;
 
 public sealed record Argon2Calibration(PasswordParameters Parameters, double BaselineMilliseconds, double SelectedMilliseconds, string Hardware);
 

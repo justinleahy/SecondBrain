@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Security;
 using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Server.Auth;
@@ -13,7 +14,7 @@ public sealed class CredentialService(IAuthRepository repository, IKeyRing keyRi
     IOptionsMonitor<SecondBrainOptions> options, TimeProvider clock)
 {
     public const string CookieName = "sb_session";
-    private readonly IDataProtector protector = keyRing.DataProtectionProvider.CreateProtector("secondbrain.session");
+    private readonly IDataProtector protector = keyRing.DataProtectionProvider.CreateProtector(KeyRingPurposes.Session);
     public async Task<AuthenticatedCredential?> AuthenticateKeyAsync(string bearer, CancellationToken cancellationToken = default)
     {
         CredentialRecord? record = null;
@@ -96,15 +97,4 @@ public sealed class CredentialService(IAuthRepository repository, IKeyRing keyRi
         string.Equals(context.Request.Host.Host, config.Server.CloudflareAccess?.PublicHostname, StringComparison.OrdinalIgnoreCase);
     private static AuthenticatedCredential ToIdentity(CredentialRecord record) =>
         new(record.Id, record.Kind, record.Generation, record.AccountEpoch, record.GrantedScopes, record.SteppedUpAt);
-}
-
-/// <summary>Reusable authority check for jobs, cursors and future live transports.</summary>
-public interface ICredentialAuthority
-{
-    Task<bool> IsCurrentAsync(string credentialId, long generation, long accountEpoch, CancellationToken cancellationToken = default);
-}
-public sealed class CredentialAuthority(IAuthRepository repository) : ICredentialAuthority
-{
-    public Task<bool> IsCurrentAsync(string credentialId, long generation, long accountEpoch, CancellationToken cancellationToken = default) =>
-        repository.IsCurrentAsync(credentialId, generation, accountEpoch, cancellationToken);
 }

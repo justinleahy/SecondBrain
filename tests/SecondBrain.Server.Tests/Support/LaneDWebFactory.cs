@@ -16,7 +16,6 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
-using SecondBrain.Server.Auth;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

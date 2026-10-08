@@ -7,7 +7,6 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Infrastructure.Configuration;
-using SecondBrain.Server.Auth;
 
 namespace SecondBrain.Cli;
 
