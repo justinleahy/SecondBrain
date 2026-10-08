@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Problems;
 
 namespace SecondBrain.Server.Http;
@@ -57,7 +58,7 @@ public sealed class ProblemMiddleware(RequestDelegate next, ILogger<ProblemMiddl
             await ProblemResponses.WriteAsync(context, exception.StatusCode,
                 ProblemResponses.TypeForStatus(exception.StatusCode), "Invalid request");
         }
-        catch (Auth.AuthorityChangedException) when (!context.Response.HasStarted)
+        catch (AuthorityChangedException) when (!context.Response.HasStarted)
         {
             context.Response.Clear();
             await ProblemResponses.WriteAsync(context, 409, ProblemResponses.TypeForStatus(409),

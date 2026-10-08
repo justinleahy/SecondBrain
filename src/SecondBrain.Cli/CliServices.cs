@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using SecondBrain.Cli.Commands;
 using SecondBrain.Cli.Credentials;
 using SecondBrain.Cli.Provisioning;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
 using SecondBrain.Infrastructure.Security;

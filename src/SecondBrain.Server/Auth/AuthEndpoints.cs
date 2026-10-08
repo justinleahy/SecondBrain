@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Problems;
 using SecondBrain.Server.Http;

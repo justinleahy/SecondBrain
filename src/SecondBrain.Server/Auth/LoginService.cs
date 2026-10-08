@@ -1,4 +1,5 @@
 using System.Text;
+using SecondBrain.Core.Auth;
 
 namespace SecondBrain.Server.Auth;
 

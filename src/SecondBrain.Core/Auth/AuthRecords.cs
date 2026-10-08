@@ -1,6 +1,6 @@
 using SecondBrain.Core.Authorization;
 
-namespace SecondBrain.Server.Auth;
+namespace SecondBrain.Core.Auth;
 
 /// <summary>Appendix A credential row; verifiers never appear in HTTP responses.</summary>
 public sealed class CredentialRecord
@@ -43,14 +43,8 @@ public sealed class LoginAttempt
 public sealed record AuthenticatedCredential(string Id, string Kind, long Generation, long AccountEpoch, IReadOnlySet<Scope> Scopes, string? SteppedUpAt);
 public sealed record SessionTicket(string Id, string Secret, long Generation, long AccountEpoch, bool Secure);
 public sealed record SessionDevice(string Summary, bool Secure);
-public sealed record CredentialSummary(string Id, string Name, string Kind, string Scopes, long Generation, string? Device,
-    string CreatedAt, string? LastUsedAt, string? ExpiresAt, string? IdleExpiresAt, string? AbsoluteExpiresAt, string? RevokedAt)
-{
-    public static CredentialSummary From(CredentialRecord value) => new(value.Id, value.Name, value.Kind, value.Scopes,
-        value.Generation, value.Device, value.CreatedAt, value.LastUsedAt, value.ExpiresAt, value.IdleExpiresAt, value.AbsoluteExpiresAt, value.RevokedAt);
-}
 
-internal static class AuthTime
+public static class AuthTime
 {
     public static string Format(DateTimeOffset value) => value.ToUniversalTime().ToString("O", System.Globalization.CultureInfo.InvariantCulture);
     public static DateTimeOffset Parse(string value) => DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture);

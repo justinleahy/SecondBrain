@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Time.Testing;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Problems;

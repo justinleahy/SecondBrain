@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Problems;

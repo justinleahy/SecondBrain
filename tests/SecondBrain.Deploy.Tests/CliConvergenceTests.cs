@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SecondBrain.Cli;
 using SecondBrain.Cli.Credentials;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Infrastructure.Security;
@@ -21,6 +22,7 @@ using SecondBrain.Server.Auth;
 using SecondBrain.Server.Composition;
 using SecondBrain.Server.Http;
 using Xunit;
+using SecondBrain.Storage.Auth;
 
 namespace SecondBrain.Deploy.Tests;
 

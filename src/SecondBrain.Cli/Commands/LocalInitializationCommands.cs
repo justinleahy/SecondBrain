@@ -5,11 +5,13 @@ using System.Text.Json.Serialization;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
 using SecondBrain.Server.Auth;
+using SecondBrain.Storage.Auth;
 using SecondBrain.Storage;
 
 namespace SecondBrain.Cli.Commands;

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Runtime.ExceptionServices;
+using SecondBrain.Core.Auth;
 using SecondBrain.Extractor;
 using SecondBrain.MockProvider;
 using SecondBrain.Core.Authorization;

@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Security;
 

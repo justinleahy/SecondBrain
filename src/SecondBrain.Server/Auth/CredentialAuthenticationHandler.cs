@@ -1,3 +1,4 @@
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Problems;
 using System.Globalization;
 using System.Security.Claims;

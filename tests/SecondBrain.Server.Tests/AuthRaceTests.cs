@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Server.Auth;

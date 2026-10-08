@@ -4,6 +4,7 @@ using Dapper;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Server.Auth;
 using SecondBrain.Server.Limits;

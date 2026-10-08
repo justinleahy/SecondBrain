@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
+using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Server.Auth;
 using SecondBrain.Server.Sources;
