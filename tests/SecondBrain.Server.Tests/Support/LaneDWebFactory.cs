@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using SecondBrain.Core.Authorization;
@@ -47,21 +48,35 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
         ConfigureServices = configureServices;
     }
 
-    public TestStateStore Store { get; } = new();
-    public TestStateStore StateStore => Store;
+    /// <summary>Lane A's real stores, opened under a temporary data root; the account epoch is seeded as <c>brain init</c> would.</summary>
+    public RealStoreAccessor Store { get; } = new();
+    public RealStoreAccessor StateStore => Store;
     public TestKeyRing KeyRing { get; } = new();
     public FakeTimeProvider Clock { get; } = new(new DateTimeOffset(2026, 10, 8, 0, 0, 0, TimeSpan.Zero));
     public MutableOptionsMonitor<SecondBrainOptions> Options { get; }
     public MutableOptionsMonitor<SecondBrainOptions> OptionsMonitor => Options;
     public Action<IServiceCollection>? ConfigureServices { get; set; }
 
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        var host = base.CreateHost(builder);
+        Store.Attach(host.Services.GetRequiredService<IStateStore>());
+        Store.QueueWriteAsync(async (connection, transaction, token) =>
+        {
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = "INSERT INTO meta(key, value) VALUES ('account_epoch', '1') ON CONFLICT(key) DO NOTHING;";
+            await command.ExecuteNonQueryAsync(token);
+            return 0;
+        }).AsTask().GetAwaiter().GetResult();
+        return host;
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
         builder.ConfigureServices(services =>
         {
-            services.RemoveAll<IStateStore>();
-            services.AddSingleton<IStateStore>(Store);
             services.RemoveAll<IKeyRing>();
             services.AddSingleton<IKeyRing>(KeyRing);
             services.RemoveAll<IDataProtectionProvider>();

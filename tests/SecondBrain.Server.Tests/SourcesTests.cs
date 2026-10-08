@@ -44,8 +44,7 @@ public sealed class SourcesTests
         Assert.Equal(1, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM sources WHERE kind='folder' AND status='active'"));
         Assert.Contains("\"default_type\":\"note\"", await lease.Connection.QuerySingleAsync<string>("SELECT config_json FROM sources"), StringComparison.Ordinal);
         Assert.Equal(0, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM usage"));
-        var jobsTable = await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM sqlite_master WHERE name='jobs' AND type='table'");
-        Assert.Equal(0, jobsTable);
+        Assert.Equal(0, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM jobs"));
     }
 
     [Fact]
