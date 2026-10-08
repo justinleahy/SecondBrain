@@ -4,6 +4,7 @@ using Microsoft.Extensions.Time.Testing;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Providers;
+using SecondBrain.Infrastructure.Network;
 using Xunit;
 
 namespace SecondBrain.Core.Tests.Privacy;
@@ -22,7 +23,7 @@ public sealed class EgressCanaryTests
         var monitor = new PrivacyTestOptionsMonitor(options);
         var time = new FakeTimeProvider();
         using var policy = new PrivacyPolicy(monitor, new PrivacyTestDnsResolver(), time);
-        var canary = new EgressCanary(policy, monitor, time);
+        var canary = new EgressCanary(policy, monitor, time, new TcpCanaryConnector());
         var binding = new PrivacyTestBinding();
 
         Assert.Equal(ProblemTypes.EgressUnverified, policy.Evaluate(ModelRole.Chat, binding).ProblemType);

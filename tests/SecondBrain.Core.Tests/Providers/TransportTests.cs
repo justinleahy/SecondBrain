@@ -5,6 +5,7 @@ using Microsoft.Extensions.AI;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Providers;
+using SecondBrain.Infrastructure.Network;
 using SecondBrain.MockProvider;
 using SecondBrain.Providers.OpenAICompatible;
 using Xunit;
@@ -207,7 +208,7 @@ public sealed class Transport
         options.Privacy.EgressCanary = true;
         options.Privacy.CanaryTarget = target;
         context.Options.Reload(options);
-        var canary = new EgressCanary(context.Privacy, context.Options);
+        var canary = new EgressCanary(context.Privacy, context.Options, connector: new TcpCanaryConnector());
         Assert.Equal(CanaryState.Reachable, await canary.RunOnceAsync());
         var failure = await Assert.ThrowsAsync<PrivacyPolicyException>(async () => await context.Registry.GetProvider("test-local").ListModelsAsync());
         Assert.Equal(ProblemTypes.EgressUnverified, failure.ProblemType);

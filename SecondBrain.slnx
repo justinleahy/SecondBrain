@@ -3,6 +3,7 @@
     <Project Path="src/SecondBrain.Cli/SecondBrain.Cli.csproj" />
     <Project Path="src/SecondBrain.Core/SecondBrain.Core.csproj" />
     <Project Path="src/SecondBrain.Extractor/SecondBrain.Extractor.csproj" />
+    <Project Path="src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj" />
     <Project Path="src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj" />
     <Project Path="src/SecondBrain.Server/SecondBrain.Server.csproj" />
     <Project Path="src/SecondBrain.Storage/SecondBrain.Storage.csproj" />

@@ -7,6 +7,20 @@ public sealed class DependencyRulesTests
 {
     private static readonly string[] VendorSdkAssemblies = ["OpenAI", "Microsoft.Extensions.AI.OpenAI"];
 
+    /// <summary>AR-06 (network): the socket and DNS types whose use belongs to Infrastructure.</summary>
+    private static readonly string[] CoreForbiddenNetworkTypes =
+    [
+        "System.Net.Dns",
+        "System.Net.Sockets.Socket",
+        "System.Net.Sockets.TcpClient",
+        "System.Net.Sockets.UdpClient",
+        "System.Net.Sockets.NetworkStream",
+        "System.Net.Sockets.UnixDomainSocketEndPoint",
+    ];
+
+    private static readonly string[] CompositionAssemblyPrefixes =
+        ["Microsoft.Extensions.DependencyInjection", "Microsoft.Extensions.Hosting"];
+
     [Fact]
     [Trait("Rule", "AR-01")]
     public void CoreProjectHasNoProjectReferences()
@@ -26,6 +40,7 @@ public sealed class DependencyRulesTests
 
     [Theory]
     [Trait("Rule", "AR-03")]
+    [InlineData(Layers.InfrastructureName, new[] { Layers.CoreName })]
     [InlineData(Layers.StorageName, new[] { Layers.CoreName })]
     [InlineData(Layers.ProvidersOpenAICompatibleName, new[] { Layers.CoreName })]
     [InlineData(Layers.ServerName, new[] { Layers.CoreName, Layers.InfrastructureName, Layers.StorageName, Layers.ProvidersOpenAICompatibleName })]
@@ -36,6 +51,44 @@ public sealed class DependencyRulesTests
         var disallowed = facts.SecondBrainReferences.Except(allowed, StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         Assert.True(disallowed.Length == 0,
             $"{assemblyName} references {string.Join(", ", disallowed)}; allowed: {string.Join(", ", allowed)}.");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void CoreReferencesNoSocketOrDnsType()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var violations = facts.TypeReferences
+            .Intersect(CoreForbiddenNetworkTypes, StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Core references network types that belong in SecondBrain.Infrastructure: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void InfrastructureIsWhereTheSocketAndDnsTypesAreReferenced()
+    {
+        // Guards the rule above against reading type references that never contain these names at all.
+        var facts = AssemblyFacts.For(Layers.Infrastructure);
+        Assert.Contains("System.Net.Dns", facts.TypeReferences);
+        Assert.Contains("System.Net.Sockets.TcpClient", facts.TypeReferences);
+        Assert.Contains("System.Net.Sockets.UnixDomainSocketEndPoint", facts.TypeReferences);
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-16")]
+    public void InfrastructureReferencesNoCompositionAssembly()
+    {
+        var facts = AssemblyFacts.For(Layers.Infrastructure);
+        Assert.Equal(Layers.InfrastructureName, facts.Name);
+        var violations = facts.AssemblyReferences
+            .Where(reference => CompositionAssemblyPrefixes.Any(prefix => reference.StartsWith(prefix, StringComparison.Ordinal)))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Infrastructure references composition assemblies; composition stays in the hosts: {string.Join(", ", violations)}");
     }
 
     [Theory]

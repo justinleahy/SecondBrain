@@ -5,22 +5,6 @@ using SecondBrain.Core.Problems;
 
 namespace SecondBrain.Core.Privacy;
 
-/// <summary>The replaceable TCP operation, allowing deterministic timeout tests.</summary>
-public interface ICanaryConnector
-{
-    ValueTask ConnectAsync(string host, int port, CancellationToken cancellationToken);
-}
-
-/// <summary>Connects without sending application data, proxies or HTTP redirects.</summary>
-public sealed class TcpCanaryConnector : ICanaryConnector
-{
-    public async ValueTask ConnectAsync(string host, int port, CancellationToken cancellationToken)
-    {
-        using var client = new TcpClient();
-        await client.ConnectAsync(host, port, cancellationToken).ConfigureAwait(false);
-    }
-}
-
 /// <summary>
 /// Startup and hourly host egress checks (SEC-17). A reachable public target proves the
 /// host backstop is absent. A failed connection, including timeout, restores blocked state.
@@ -45,7 +29,7 @@ public sealed class EgressCanary
         ArgumentNullException.ThrowIfNull(options);
         _policy = policy;
         _timeProvider = timeProvider ?? TimeProvider.System;
-        _connector = connector ?? new TcpCanaryConnector();
+        _connector = connector ?? throw new ArgumentNullException(nameof(connector));
     }
 
     /// <summary>Runs one bounded check and publishes its result; caller cancellation publishes nothing.</summary>

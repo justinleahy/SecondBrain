@@ -5,7 +5,7 @@ using SecondBrain.Core.Problems;
 using SecondBrain.Core.Storage;
 using SecondBrain.Core.Security;
 using SecondBrain.Core.Providers;
-using SecondBrain.Core.Extraction;
+using SecondBrain.Infrastructure.Extraction;
 
 namespace SecondBrain.Server.Http;
 

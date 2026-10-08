@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SecondBrain.Core/SecondBrain.Core.csproj" />
+    <ProjectReference Include="../../src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj" />
     <ProjectReference Include="../../src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj" />
     <ProjectReference Include="../SecondBrain.MockProvider/SecondBrain.MockProvider.csproj" />
   </ItemGroup>

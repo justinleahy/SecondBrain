@@ -261,6 +261,12 @@
           "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )"
         }
       },
+      "secondbrain.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "SecondBrain.Core": "[1.0.0, )"
+        }
+      },
       "secondbrain.mockprovider": {
         "type": "Project"
       },
@@ -281,6 +287,7 @@
           "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )",
           "Microsoft.IdentityModel.Tokens": "[8.23.0, )",
           "SecondBrain.Core": "[1.0.0, )",
+          "SecondBrain.Infrastructure": "[1.0.0, )",
           "SecondBrain.Providers.OpenAICompatible": "[1.0.0, )",
           "SecondBrain.Storage": "[1.0.0, )",
           "System.IdentityModel.Tokens.Jwt": "[8.23.0, )"

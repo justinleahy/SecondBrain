@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Providers;
+using SecondBrain.Infrastructure.Network;
 using SecondBrain.MockProvider;
 using SecondBrain.Providers.OpenAICompatible;
 

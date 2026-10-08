@@ -3,7 +3,7 @@ using System.Reflection;
 namespace SecondBrain.Architecture.Tests.Support;
 
 /// <summary>
-/// One anchor type per SecondBrain assembly. The Infrastructure anchor is added when that assembly exists.
+/// One anchor type per SecondBrain assembly.
 /// </summary>
 internal static class Layers
 {
@@ -17,6 +17,8 @@ internal static class Layers
     public const string InfrastructureName = "SecondBrain.Infrastructure";
 
     public static Assembly Core => typeof(global::SecondBrain.Core.Problems.ProblemTypes).Assembly;
+
+    public static Assembly Infrastructure => typeof(global::SecondBrain.Infrastructure.Network.SystemDnsResolver).Assembly;
 
     public static Assembly Storage => typeof(global::SecondBrain.Storage.StorageServiceCollectionExtensions).Assembly;
 
@@ -32,7 +34,7 @@ internal static class Layers
 
     /// <summary>Every production assembly built from <c>src/</c>.</summary>
     public static IReadOnlyList<Assembly> SourceAssemblies =>
-        [Core, Storage, ProvidersOpenAICompatible, Server, Cli, Extractor];
+        [Core, Infrastructure, Storage, ProvidersOpenAICompatible, Server, Cli, Extractor];
 
     /// <summary>Every assembly that ships: the <c>src/</c> assemblies plus the mock provider fixture host.</summary>
     public static IReadOnlyList<Assembly> ShippedAssemblies => [.. SourceAssemblies, MockProvider];

@@ -30,12 +30,13 @@ public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IDisposab
 
     public PrivacyPolicy(
         IOptionsMonitor<SecondBrainOptions> options,
-        IDnsResolver? resolver = null,
+        IDnsResolver resolver,
         TimeProvider? timeProvider = null)
     {
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(resolver);
         _options = options;
-        _resolver = resolver ?? new SystemDnsResolver();
+        _resolver = resolver;
         _timeProvider = timeProvider ?? TimeProvider.System;
         _snapshot = Prepare(options.CurrentValue);
         _reloadSubscription = options.OnChange((candidate, _) =>

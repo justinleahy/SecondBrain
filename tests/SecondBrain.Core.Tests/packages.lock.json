@@ -392,6 +392,12 @@
           "YamlDotNet": "[18.1.0, )"
         }
       },
+      "secondbrain.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "SecondBrain.Core": "[1.0.0, )"
+        }
+      },
       "secondbrain.mockprovider": {
         "type": "Project"
       },

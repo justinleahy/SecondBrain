@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
     <ProjectReference Include="../SecondBrain.Core/SecondBrain.Core.csproj" />
+    <ProjectReference Include="../SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj" />
     <ProjectReference Include="../SecondBrain.Storage/SecondBrain.Storage.csproj" />
     <ProjectReference Include="../SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj" />
   </ItemGroup>

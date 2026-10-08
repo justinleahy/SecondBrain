@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.Json;
 using SecondBrain.Core.Configuration;
-using SecondBrain.Core.Extraction;
+using SecondBrain.Infrastructure.Extraction;
 using SecondBrain.Core.Security;
 
 namespace SecondBrain.Cli.Commands;

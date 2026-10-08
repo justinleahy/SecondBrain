@@ -5,6 +5,7 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Providers;
+using SecondBrain.Infrastructure.Network;
 using Xunit;
 
 namespace SecondBrain.Core.Tests.Privacy;
@@ -15,7 +16,7 @@ public sealed class PrivacyPolicyTests
     public void RefusesHostedAtStartup()
     {
         var options = PrivacyTestConfiguration.Hosted(localOnly: true);
-        var exception = Assert.Throws<PrivacyPolicyException>(() => new PrivacyPolicy(new PrivacyTestOptionsMonitor(options)));
+        var exception = Assert.Throws<PrivacyPolicyException>(() => new PrivacyPolicy(new PrivacyTestOptionsMonitor(options), new SystemDnsResolver()));
         Assert.Equal(ProblemTypes.PrivacyPolicy, exception.ProblemType);
     }
 
@@ -24,7 +25,7 @@ public sealed class PrivacyPolicyTests
     {
         var original = PrivacyTestConfiguration.Hosted(localOnly: false);
         var monitor = new PrivacyTestOptionsMonitor(original);
-        using var policy = new PrivacyPolicy(monitor);
+        using var policy = new PrivacyPolicy(monitor, new SystemDnsResolver());
         var exception = Assert.Throws<PrivacyPolicyException>(() => monitor.Reload(PrivacyTestConfiguration.Hosted(localOnly: true)));
         Assert.Equal(ProblemTypes.PrivacyPolicy, exception.ProblemType);
         Assert.False(policy.GetReadiness().IsReady);
@@ -64,7 +65,7 @@ public sealed class PrivacyPolicyTests
         var options = PrivacyTestConfiguration.Trusted();
         options.Privacy.TrustedServices.Clear();
         options.Providers["test"].Endpoint = "http://127.0.0.1:8123/v1";
-        Assert.Throws<PrivacyPolicyException>(() => new PrivacyPolicy(new PrivacyTestOptionsMonitor(options)));
+        Assert.Throws<PrivacyPolicyException>(() => new PrivacyPolicy(new PrivacyTestOptionsMonitor(options), new SystemDnsResolver()));
     }
 
     [Theory]
@@ -164,7 +165,7 @@ public sealed class PrivacyPolicyTests
         var options = PrivacyTestConfiguration.Trusted();
         options.Providers["test"] = new ProviderOptions { Kind = "in_process" };
         options.Privacy.TrustedServices.Clear();
-        using var policy = new PrivacyPolicy(new PrivacyTestOptionsMonitor(options));
+        using var policy = new PrivacyPolicy(new PrivacyTestOptionsMonitor(options), new SystemDnsResolver());
         Assert.True(policy.Evaluate(ModelRole.Chat, new PrivacyTestBinding { Endpoint = null }).Allowed);
     }
 

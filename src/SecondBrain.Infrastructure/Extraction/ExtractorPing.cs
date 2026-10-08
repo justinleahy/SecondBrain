@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 using System.Net.Sockets;
 using System.Text.Json;
 
-namespace SecondBrain.Core.Extraction;
+namespace SecondBrain.Infrastructure.Extraction;
 
 /// <summary>Bounded ping over the M0 extractor's versioned, big-endian length framing.</summary>
 public static class ExtractorPing

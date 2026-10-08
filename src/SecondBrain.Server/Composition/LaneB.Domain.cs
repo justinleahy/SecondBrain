@@ -3,6 +3,7 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Domain;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Providers;
+using SecondBrain.Infrastructure.Network;
 using SecondBrain.Providers.OpenAICompatible;
 using SecondBrain.Server.Http;
 
