@@ -54,6 +54,24 @@ public sealed class CompositionTests
         finally { if (Directory.Exists(root)) Directory.Delete(root, true); }
     }
 
+    [Fact]
+    public async Task StoreHandlesAreSingleUndecoratedInstances()
+    {
+        // PublicationCoordinator and MutationJournal key static locks by store instance.
+        var root = Path.Combine(Path.GetTempPath(), "secondbrain-composition-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            await using var provider = Provider(root);
+            var state = provider.GetRequiredService<IStateStore>();
+            Assert.Same(state, provider.GetRequiredService<IStateStore>());
+            Assert.Same(provider.GetRequiredService<SqliteStateStore>(), state);
+            var index = provider.GetRequiredService<IIndexStore>();
+            Assert.Same(index, provider.GetRequiredService<IIndexStore>());
+            Assert.Same(provider.GetRequiredService<SqliteIndexStore>(), index);
+        }
+        finally { if (Directory.Exists(root)) Directory.Delete(root, true); }
+    }
+
     private static ServiceProvider Provider(string root)
     {
         var services = new ServiceCollection();

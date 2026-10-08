@@ -1,0 +1,464 @@
+{
+  "operations": [
+    "DELETE /auth/sessions/{id}",
+    "DELETE /keys/{id}",
+    "DELETE /v1/auth/sessions/{id}",
+    "DELETE /v1/keys/{id}",
+    "GET /auth/antiforgery",
+    "GET /auth/me",
+    "GET /auth/sessions",
+    "GET /diagnostics",
+    "GET /health",
+    "GET /keys",
+    "GET /providers",
+    "GET /ready",
+    "GET /sources",
+    "GET /v1/auth/antiforgery",
+    "GET /v1/auth/me",
+    "GET /v1/auth/sessions",
+    "GET /v1/diagnostics",
+    "GET /v1/keys",
+    "GET /v1/providers",
+    "GET /v1/sources",
+    "POST /auth/login",
+    "POST /auth/logout",
+    "POST /auth/logout-all",
+    "POST /auth/step-up",
+    "POST /keys",
+    "POST /providers/test",
+    "POST /sources",
+    "POST /v1/auth/login",
+    "POST /v1/auth/logout",
+    "POST /v1/auth/logout-all",
+    "POST /v1/auth/step-up",
+    "POST /v1/keys",
+    "POST /v1/providers/test",
+    "POST /v1/sources"
+  ],
+  "schemas": {
+    "AntiforgeryResponse": {
+      "properties": {
+        "headerName": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "token",
+        "headerName"
+      ],
+      "type": "object"
+    },
+    "AuthenticatedCredential": {
+      "properties": {
+        "accountEpoch": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "generation": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "scopes": {
+          "items": {
+            "$ref": "#/components/schemas/Scope"
+          },
+          "type": "array"
+        },
+        "steppedUpAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "generation",
+        "accountEpoch",
+        "scopes",
+        "steppedUpAt"
+      ],
+      "type": "object"
+    },
+    "CreateKeyRequest": {
+      "properties": {
+        "expiresAt": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "scopes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "scopes"
+      ],
+      "type": "object"
+    },
+    "CreateSourceRequest": {
+      "properties": {
+        "default_type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "enrich": {
+          "type": "boolean"
+        },
+        "exclude": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "poll_interval_s": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "recursive": {
+          "type": "boolean"
+        },
+        "type_map": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "watch": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "CredentialSummary": {
+      "properties": {
+        "absoluteExpiresAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "device": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "expiresAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "generation": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "idleExpiresAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "lastUsedAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "revokedAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "scopes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "scopes",
+        "generation",
+        "device",
+        "createdAt",
+        "lastUsedAt",
+        "expiresAt",
+        "idleExpiresAt",
+        "absoluteExpiresAt",
+        "revokedAt"
+      ],
+      "type": "object"
+    },
+    "FolderSourceConfiguration": {
+      "properties": {
+        "default_type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "enrich": {
+          "type": "boolean"
+        },
+        "exclude": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "poll_interval_s": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "recursive": {
+          "type": "boolean"
+        },
+        "type_map": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "watch": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "include",
+        "exclude",
+        "recursive",
+        "mode",
+        "enrich",
+        "default_type",
+        "type_map",
+        "watch",
+        "poll_interval_s"
+      ],
+      "type": "object"
+    },
+    "KeyCreatedResponse": {
+      "properties": {
+        "expiresAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "key",
+        "scopes",
+        "expiresAt"
+      ],
+      "type": "object"
+    },
+    "LoginRequest": {
+      "properties": {
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "password"
+      ],
+      "type": "object"
+    },
+    "ProblemDetails": {
+      "properties": {
+        "detail": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "instance": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ProviderTestRequest": {
+      "properties": {
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Scope": {
+      "type": "integer"
+    },
+    "SourceRecord": {
+      "properties": {
+        "config": {
+          "$ref": "#/components/schemas/FolderSourceConfiguration"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "last_full_scan_at": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last_scan_at": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "name",
+        "config",
+        "status",
+        "last_scan_at",
+        "last_full_scan_at",
+        "created_at"
+      ],
+      "type": "object"
+    }
+  }
+}

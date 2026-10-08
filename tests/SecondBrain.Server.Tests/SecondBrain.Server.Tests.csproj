@@ -16,4 +16,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Golden/**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
