@@ -18,6 +18,16 @@ public sealed class DependencyRulesTests
         "System.Net.Sockets.UnixDomainSocketEndPoint",
     ];
 
+    /// <summary>AR-06 (watcher and signal): configuration reload hooks whose use belongs to Infrastructure.</summary>
+    private static readonly string[] CoreForbiddenReloadTypes =
+    [
+        "System.IO.FileSystemWatcher",
+        "System.Runtime.InteropServices.PosixSignalRegistration",
+    ];
+
+    /// <summary>AR-05: the only YamlDotNet type Core may reference.</summary>
+    private static readonly string[] CoreAllowedYamlTypes = ["YamlDotNet.Serialization.YamlMemberAttribute"];
+
     private static readonly string[] CompositionAssemblyPrefixes =
         ["Microsoft.Extensions.DependencyInjection", "Microsoft.Extensions.Hosting"];
 
@@ -51,6 +61,44 @@ public sealed class DependencyRulesTests
         var disallowed = facts.SecondBrainReferences.Except(allowed, StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         Assert.True(disallowed.Length == 0,
             $"{assemblyName} references {string.Join(", ", disallowed)}; allowed: {string.Join(", ", allowed)}.");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-05")]
+    public void CoreReferencesOnlyTheYamlMemberAttributeFromYamlDotNet()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var yamlTypes = facts.TypeReferences
+            .Where(type => type.StartsWith("YamlDotNet.", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(yamlTypes.SequenceEqual(CoreAllowedYamlTypes, StringComparer.Ordinal),
+            $"SecondBrain.Core may reference only {string.Join(", ", CoreAllowedYamlTypes)} from YamlDotNet; found: {string.Join(", ", yamlTypes)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void CoreReferencesNoFileWatcherOrSignalType()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var violations = facts.TypeReferences
+            .Intersect(CoreForbiddenReloadTypes, StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Core references reload types that belong in SecondBrain.Infrastructure: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void InfrastructureIsWhereTheFileWatcherAndSignalTypesAreReferenced()
+    {
+        // Guards the rule above against reading type references that never contain these names at all.
+        var facts = AssemblyFacts.For(Layers.Infrastructure);
+        foreach (var type in CoreForbiddenReloadTypes)
+        {
+            Assert.Contains(type, facts.TypeReferences);
+        }
     }
 
     [Fact]

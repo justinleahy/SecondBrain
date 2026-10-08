@@ -1,12 +1,11 @@
 using System.Net;
-using SecondBrain.Core.Security;
 
 namespace SecondBrain.Core.Configuration;
 
 /// <summary>Cross-field validation at startup and before publishing a reload.</summary>
 public static class ConfigurationValidator
 {
-    public static void Validate(SecondBrainOptions options)
+    public static void Validate(SecondBrainOptions options, IHostPathInspector paths)
     {
         if (!Path.IsPathFullyQualified(options.DataRoot)) Fail("data_root must be absolute.");
         if (options.Extractor is null || !Path.IsPathFullyQualified(options.Extractor.SocketPath)) Fail("extractor.socket_path must be absolute.");
@@ -26,15 +25,15 @@ public static class ConfigurationValidator
                 !Uri.TryCreate("http://" + host, UriKind.Absolute, out var uri) || uri.UserInfo.Length != 0 ||
                 uri.AbsolutePath != "/" || uri.Query.Length != 0 || uri.Fragment.Length != 0)
                 Fail("server.hosts entries must be explicit hostnames or addresses with an optional port.");
-        var data = UnixPath.Canonicalize(options.DataRoot);
+        var data = paths.Canonicalize(options.DataRoot);
         foreach (var root in options.Sources.AllowedRoots)
         {
             if (!Path.IsPathFullyQualified(root)) Fail("Every allowed root must be absolute.");
-            if (!Directory.Exists(root)) Fail("Every allowed root must exist.");
-            if (IsWithin(UnixPath.Canonicalize(root), data)) Fail("An allowed root must not be under data_root.");
+            if (!paths.DirectoryExists(root)) Fail("Every allowed root must exist.");
+            if (IsWithin(paths.Canonicalize(root), data)) Fail("An allowed root must not be under data_root.");
         }
         if (!Path.IsPathFullyQualified(options.Sources.IncomingRoot)) Fail("incoming_root must be absolute.");
-        var incoming = UnixPath.Canonicalize(options.Sources.IncomingRoot);
+        var incoming = paths.Canonicalize(options.Sources.IncomingRoot);
         if (IsWithin(incoming, data) || IsWithin(data, incoming)) Fail("incoming_root and data_root must be separate trees.");
         foreach (var listener in options.Server.Listeners)
         {

@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Core.Providers;
 using SecondBrain.MockProvider;
 using SecondBrain.Providers.OpenAICompatible;

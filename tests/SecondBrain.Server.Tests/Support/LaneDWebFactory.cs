@@ -12,6 +12,7 @@ using SecondBrain.Extractor;
 using SecondBrain.MockProvider;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Core.Security;
 using SecondBrain.Core.Storage;
 using SecondBrain.Server.Auth;

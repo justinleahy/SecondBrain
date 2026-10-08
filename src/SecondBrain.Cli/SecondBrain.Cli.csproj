@@ -13,5 +13,6 @@
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 </Project>

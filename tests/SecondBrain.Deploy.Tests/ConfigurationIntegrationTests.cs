@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using SecondBrain.Server.Http;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Core.Security;
 using SecondBrain.Server.Composition;
 using Xunit;

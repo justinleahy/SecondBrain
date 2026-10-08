@@ -1,4 +1,5 @@
 using SecondBrain.Core.Configuration;
+using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Core.Security;
 using System.Runtime.InteropServices;
 using Xunit;

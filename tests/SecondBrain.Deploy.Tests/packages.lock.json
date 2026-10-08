@@ -226,7 +226,8 @@
           "SecondBrain.Infrastructure": "[1.0.0, )",
           "SecondBrain.Server": "[1.0.0, )",
           "SecondBrain.Storage": "[1.0.0, )",
-          "System.CommandLine": "[2.0.12, )"
+          "System.CommandLine": "[2.0.12, )",
+          "YamlDotNet": "[18.1.0, )"
         }
       },
       "secondbrain.core": {
@@ -248,7 +249,8 @@
       "secondbrain.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "SecondBrain.Core": "[1.0.0, )"
+          "SecondBrain.Core": "[1.0.0, )",
+          "YamlDotNet": "[18.1.0, )"
         }
       },
       "secondbrain.mockprovider": {

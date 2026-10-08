@@ -1,7 +1,8 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using SecondBrain.Core.Configuration;
 
-namespace SecondBrain.Core.Configuration;
+namespace SecondBrain.Infrastructure.Configuration;
 
 /// <summary>Atomic validated snapshots with debounced file watching and POSIX SIGHUP.</summary>
 public sealed class ReloadingConfiguration : IDisposable

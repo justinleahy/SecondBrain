@@ -207,7 +207,8 @@
       "secondbrain.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "SecondBrain.Core": "[1.0.0, )"
+          "SecondBrain.Core": "[1.0.0, )",
+          "YamlDotNet": "[18.1.0, )"
         }
       },
       "secondbrain.providers.openaicompatible": {

@@ -4,8 +4,10 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using System.Security.Cryptography;
 using System.Text;
+using SecondBrain.Core.Configuration;
+using SecondBrain.Infrastructure.FileSystem;
 
-namespace SecondBrain.Core.Configuration;
+namespace SecondBrain.Infrastructure.Configuration;
 
 /// <summary>Loads the M0 subset of Appendix B, retaining secret references in options.</summary>
 public sealed class YamlConfigurationLoader
@@ -74,7 +76,7 @@ public sealed class YamlConfigurationLoader
             if (environment("SECONDBRAIN_DATA_ROOT") is { } rootOverride) options.DataRoot = rootOverride;
             if (options.Extractor is null) throw new ConfigurationException("extractor must not be null.");
             if (environment("SECONDBRAIN_EXTRACTOR_SOCKET") is { } socketOverride) options.Extractor.SocketPath = socketOverride;
-            ConfigurationValidator.Validate(options);
+            ConfigurationValidator.Validate(options, UnixHostPathInspector.Instance);
             return new ConfigurationSnapshot(options, sandboxMetadata);
         }
         catch (YamlException) { throw new ConfigurationException("Configuration YAML or schema is invalid; inspect field names and types."); }

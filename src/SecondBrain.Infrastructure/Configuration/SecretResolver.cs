@@ -1,12 +1,7 @@
 using System.Text.RegularExpressions;
+using SecondBrain.Core.Configuration;
 
-namespace SecondBrain.Core.Configuration;
-
-/// <summary>Resolves the references retained by the frozen provider configuration contract.</summary>
-public interface ISecretResolver
-{
-    string Resolve(string reference);
-}
+namespace SecondBrain.Infrastructure.Configuration;
 
 /// <summary>Environment takes precedence over a single named file in the read-only secrets directory.</summary>
 public sealed partial class SecretResolver(string? secretsDirectory = null, Func<string, string?>? environment = null) : ISecretResolver

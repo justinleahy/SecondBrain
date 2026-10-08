@@ -11,6 +11,8 @@
   watching and SIGHUP. Invalid or restart-only changes preserve the current snapshot.
   Notifications are serialized; reentrant reloads cannot deliver stale snapshots last.
   `AddConfiguration` exposes `IOptionsMonitor<SecondBrainOptions>` and `ISecretResolver`.
+  `YamlConfigurationLoader`, `ReloadingConfiguration` and `SecretResolver` live in
+  `SecondBrain.Infrastructure.Configuration`; `ISecretResolver` stays in `SecondBrain.Core.Configuration`.
 - Item 3a: root provisioning, idempotent templates/mode repair, dry-run, overridable
   directories and numeric identities; non-blocking lifetime flock; startup root
   ownership/mode/separation checks and distinct non-root daemon/sync identities.

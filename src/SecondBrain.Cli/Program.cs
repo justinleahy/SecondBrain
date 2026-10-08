@@ -3,6 +3,7 @@ using SecondBrain.Cli.Commands;
 using SecondBrain.Cli.Provisioning;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.FileSystem;
 
 namespace SecondBrain.Cli;
 
@@ -39,7 +40,7 @@ public static class Program
             var options = services.ReadConfiguration(parse.GetValue(config)!, parse.GetValue(secrets));
             var selectedRoot = positionalRoot ?? parse.GetValue(dataRoot);
             if (selectedRoot is not null) options.DataRoot = selectedRoot;
-            ConfigurationValidator.Validate(options);
+            ConfigurationValidator.Validate(options, UnixHostPathInspector.Instance);
             return options;
         }
         void Bind(Command command, Func<ParseResult, CancellationToken, Task<CliResult>> handler) => command.SetAction(async (parse, token) =>

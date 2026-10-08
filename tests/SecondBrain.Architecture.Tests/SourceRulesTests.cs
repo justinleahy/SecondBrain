@@ -53,6 +53,46 @@ public sealed partial class SourceRulesTests
             $"Domain and Authorization must not depend on outer namespaces:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
     }
 
+    [Fact]
+    [Trait("Rule", "AR-05")]
+    public void JsonSchemaIsUsedOnlyByTheCoreDomain()
+    {
+        var files = Repository.SourceFiles("src/SecondBrain.Core");
+        Assert.NotEmpty(files);
+
+        var users = new List<string>();
+        var violations = new List<string>();
+        foreach (var file in files)
+        {
+            var lines = Repository.ReadAllLines(file);
+            for (var index = 0; index < lines.Count; index++)
+            {
+                var usingMatch = UsingDirective().Match(lines[index]);
+                if (!usingMatch.Success)
+                {
+                    continue;
+                }
+
+                var target = usingMatch.Groups["target"].Value;
+                if (target != "Json.Schema" && !target.StartsWith("Json.Schema.", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                users.Add(file);
+                if (!file.StartsWith("src/SecondBrain.Core/Domain/", StringComparison.Ordinal))
+                {
+                    violations.Add($"{file}:{index + 1}: using {target}");
+                }
+            }
+        }
+
+        // Guards the rule against a pattern that never matches anything.
+        Assert.NotEmpty(users);
+        Assert.True(violations.Count == 0,
+            $"using Json.Schema is allowed only under src/SecondBrain.Core/Domain:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
+    }
+
     private static bool IsDomainNamespace(string name) =>
         DomainNamespaces.Any(ns => name == ns || name.StartsWith(ns + ".", StringComparison.Ordinal));
 
