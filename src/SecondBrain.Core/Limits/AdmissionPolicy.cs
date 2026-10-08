@@ -1,4 +1,4 @@
-namespace SecondBrain.Server.Limits;
+namespace SecondBrain.Core.Limits;
 
 /// <summary>The independently bounded work classes of spec §15.8.</summary>
 public enum AdmissionResource

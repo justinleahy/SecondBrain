@@ -10,6 +10,7 @@ using Microsoft.Extensions.Time.Testing;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Limits;
 using SecondBrain.Core.Problems;
 using SecondBrain.Server.Limits;
 using SecondBrain.Server.Tests.Support;

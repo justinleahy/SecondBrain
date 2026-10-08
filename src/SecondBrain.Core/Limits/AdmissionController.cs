@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 
-namespace SecondBrain.Server.Limits;
+namespace SecondBrain.Core.Limits;
 
 /// <summary>Token buckets and concurrency permits share a lock with global capacity admission.</summary>
 public sealed class AdmissionController(IOptionsMonitor<SecondBrainOptions> options, TimeProvider timeProvider, IDiskCapacity disk)
@@ -138,26 +138,6 @@ public sealed class AdmissionController(IOptionsMonitor<SecondBrainOptions> opti
             {
                 owner.Release(bucket, policy);
             }
-        }
-    }
-}
-
-public sealed class DiskCapacity : IDiskCapacity
-{
-    public long? AvailableBytes(string path)
-    {
-        try
-        {
-            var fullPath = Path.GetFullPath(path);
-            var volume = DriveInfo.GetDrives()
-                .Where(drive => drive.IsReady && (fullPath.Equals(drive.RootDirectory.FullName, StringComparison.Ordinal) || fullPath.StartsWith(drive.RootDirectory.FullName.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.Ordinal)))
-                .OrderByDescending(drive => drive.RootDirectory.FullName.Length)
-                .FirstOrDefault();
-            return volume?.AvailableFreeSpace;
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
-        {
-            return null;
         }
     }
 }

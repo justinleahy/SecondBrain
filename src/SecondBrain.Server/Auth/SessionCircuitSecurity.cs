@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
-using SecondBrain.Server.Limits;
+using SecondBrain.Core.Limits;
 
 namespace SecondBrain.Server.Auth;
 

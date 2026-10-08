@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
+using SecondBrain.Core.Limits;
 using SecondBrain.Server.Auth;
-using SecondBrain.Server.Limits;
 using SecondBrain.Server.Tests.Support;
 using Xunit;
 
