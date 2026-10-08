@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "true"
+  NUGET_XMLDOC_MODE: skip
+
+jobs:
+  build-test:
+    name: Build and deterministic tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pinned SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+      - name: Restore locked dependencies
+        run: dotnet restore SecondBrain.slnx --locked-mode
+      - name: Build with warnings as errors
+        run: dotnet build SecondBrain.slnx --configuration Release --no-restore -warnaserror -p:ContinuousIntegrationBuild=true
+      - name: Run deterministic tests
+        run: dotnet test SecondBrain.slnx --configuration Release --no-build --no-restore --filter 'Category!=Qualification' --logger trx --results-directory TestResults
+      - name: Check lock files remain unchanged
+        run: git diff --exit-code -- '**/packages.lock.json'
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results
+          path: TestResults/**/*.trx
+          if-no-files-found: ignore
+
+  publish:
+    name: Publish ${{ matrix.project }} for linux-x64
+    needs: build-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [Server, Cli, Extractor]
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pinned SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+      - name: Restore locked linux-x64 dependencies
+        run: dotnet restore src/SecondBrain.${{ matrix.project }}/SecondBrain.${{ matrix.project }}.csproj --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=true
+      - name: Publish self-contained binary
+        run: dotnet publish src/SecondBrain.${{ matrix.project }}/SecondBrain.${{ matrix.project }}.csproj --configuration Release --runtime linux-x64 --self-contained true --no-restore -warnaserror -p:ContinuousIntegrationBuild=true --output artifacts/${{ matrix.project }}
+      - name: Check lock files remain unchanged
+        run: git diff --exit-code -- '**/packages.lock.json'
+      - name: Upload published binary
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: secondbrain-${{ matrix.project }}-linux-x64
+          path: artifacts/${{ matrix.project }}/
+          if-no-files-found: error
+
+  docker:
+    name: Build Docker image
+    needs: build-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build non-root server image
+        run: docker build --platform linux/amd64 --file deploy/docker/Dockerfile --tag secondbrain:ci .
+
+  compose-smoke:
+    name: Compose smoke placeholder
+    needs: [publish, docker]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Lane C replaces this with the G1 Compose smoke after item 14 lands.
+      - name: Record deferred Compose smoke
+        run: echo '::notice::Compose smoke is a placeholder until lane C supplies the Compose project and provisioning flow.'

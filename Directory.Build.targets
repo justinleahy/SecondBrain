@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <!-- SDK 10.0.105 remains the compiler; releases carry the pinned current runtime. -->
+    <RuntimeFrameworkVersion Condition="'$(SelfContained)' == 'true'">$(SecondBrainRuntimeVersion)</RuntimeFrameworkVersion>
+  </PropertyGroup>
+  <!-- Blazor's implicit asset package must have the same version in local and publish restores. -->
+  <Target Name="PinSecondBrainBlazorAssets" BeforeTargets="ProcessFrameworkReferences">
+    <ItemGroup>
+      <KnownAspNetCorePack Update="Microsoft.AspNetCore.App.Internal.Assets"
+                          AspNetCorePackVersion="$(SecondBrainRuntimeVersion)" />
+    </ItemGroup>
+  </Target>
+</Project>
