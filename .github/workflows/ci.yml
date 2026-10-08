@@ -73,6 +73,12 @@ jobs:
         run: dotnet restore src/SecondBrain.${{ matrix.project }}/SecondBrain.${{ matrix.project }}.csproj --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=true
       - name: Publish self-contained binary
         run: dotnet publish src/SecondBrain.${{ matrix.project }}/SecondBrain.${{ matrix.project }}.csproj --configuration Release --runtime linux-x64 --self-contained true --no-restore -warnaserror -p:ContinuousIntegrationBuild=true --output artifacts/${{ matrix.project }}
+      - name: Check CLI artifact carries the daemon
+        if: matrix.project == 'Cli'
+        run: |
+          for f in SecondBrain.Server SecondBrain.Server.dll SecondBrain.Server.runtimeconfig.json; do
+            test -f "artifacts/Cli/$f" || { echo "missing $f"; exit 1; }
+          done
       - name: Check lock files remain unchanged
         run: git diff --exit-code -- '**/packages.lock.json'
       - name: Upload published binary

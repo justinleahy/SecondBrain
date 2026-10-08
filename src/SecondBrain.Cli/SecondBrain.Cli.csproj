@@ -9,7 +9,9 @@
     <ProjectReference Include="../SecondBrain.Core/SecondBrain.Core.csproj" />
     <ProjectReference Include="../SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj" />
     <ProjectReference Include="../SecondBrain.Storage/SecondBrain.Storage.csproj" />
-    <ProjectReference Include="../SecondBrain.Server/SecondBrain.Server.csproj" />
+    <!-- Layout only: copies the runnable daemon (apphost, dll, deps, runtimeconfig) beside brain so
+         `brain serve` finds it under systemd and in the CI artifact. Never write `extern alias ServerLayout`. -->
+    <ProjectReference Include="../SecondBrain.Server/SecondBrain.Server.csproj" Aliases="ServerLayout" />
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Http" />

@@ -93,12 +93,39 @@ public sealed partial class SourceRulesTests
             $"using Json.Schema is allowed only under src/SecondBrain.Core/Domain:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
     }
 
+    [Fact]
+    [Trait("Rule", "AR-09")]
+    public void CliSourceNeverOpensTheServerLayoutAlias()
+    {
+        var files = Repository.SourceFiles("src/SecondBrain.Cli");
+        Assert.NotEmpty(files);
+
+        var violations = new List<string>();
+        foreach (var file in files)
+        {
+            var lines = Repository.ReadAllLines(file);
+            for (var index = 0; index < lines.Count; index++)
+            {
+                if (ExternAliasDirective().IsMatch(lines[index]))
+                {
+                    violations.Add($"{file}:{index + 1}: {lines[index].Trim()}");
+                }
+            }
+        }
+
+        Assert.True(violations.Count == 0,
+            $"brain references SecondBrain.Server for layout only; no extern alias is allowed in src/SecondBrain.Cli:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
+    }
+
     private static bool IsDomainNamespace(string name) =>
         DomainNamespaces.Any(ns => name == ns || name.StartsWith(ns + ".", StringComparison.Ordinal));
 
     // using X; using static X; global using X; using Alias = X;
     [GeneratedRegex(@"^\s*(?:global\s+)?using\s+(?:static\s+)?(?:@?\w+\s*=\s*)?(?:global::)?(?<target>[A-Za-z_][\w.]*)\s*;")]
     private static partial Regex UsingDirective();
+
+    [GeneratedRegex(@"^\s*extern\s+alias\b")]
+    private static partial Regex ExternAliasDirective();
 
     [GeneratedRegex(@"\bSecondBrain\.Core\.\w+")]
     private static partial Regex CoreQualifiedName();

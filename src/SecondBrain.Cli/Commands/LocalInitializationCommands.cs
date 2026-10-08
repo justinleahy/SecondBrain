@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Auth;
@@ -31,11 +30,7 @@ public sealed class LocalInitializationCommands(
         var repository = Repository(services);
         if (await repository.GetAccountAsync(cancellationToken) is not null)
         {
-            await using var lease = await services.GetRequiredService<IStateStore>().OpenReadConnectionAsync(cancellationToken);
-            var existingId = await lease.Connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
-                "SELECT value FROM meta WHERE key='initial_admin_credential_id'", cancellationToken: cancellationToken));
-            existingId ??= await lease.Connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
-                "SELECT id FROM credentials WHERE kind='api_key' AND instr(',' || scopes || ',', ',admin,')>0 ORDER BY created_at,id LIMIT 1", cancellationToken: cancellationToken));
+            var existingId = await RecoveryStore(services).FindInitialAdminCredentialIdAsync(cancellationToken);
             if (existingId is null) throw new CliPreconditionException("The account exists without an initial admin credential; initialization will not overwrite existing state.");
             return CliResult.Ok("Stores and account are already initialized; the original admin key is not recoverable.", new { initialized = false, credentialId = existingId });
         }
@@ -73,17 +68,9 @@ public sealed class LocalInitializationCommands(
         using var ring = openKeyRing(options.DataRoot);
         var account = new CredentialFactory(ring, new PasswordHasher(parameters), TimeProvider.System).CreateAccount(password);
         // Password, deployment policy and epoch are one transaction: no stale credential survives recovery.
-        var epoch = await services.GetRequiredService<IStateStore>().QueueWriteAsync(async (connection, transaction, token) =>
-        {
-            var changed = await connection.ExecuteAsync(new CommandDefinition(
-                "UPDATE account SET password_hash=@PasswordHash,password_version=@PasswordVersion,updated_at=@UpdatedAt WHERE id=1", account, transaction, cancellationToken: token));
-            if (changed != 1) throw new CliPreconditionException("The account is not initialized.");
-            await connection.ExecuteAsync(new CommandDefinition(
-                "INSERT INTO meta(key,value) VALUES('password_parameters',@policy) ON CONFLICT(key) DO UPDATE SET value=excluded.value; UPDATE meta SET value=CAST(value AS INTEGER)+1 WHERE key='account_epoch'",
-                new { policy = JsonSerializer.Serialize(parameters) }, transaction, cancellationToken: token));
-            return await connection.QuerySingleAsync<long>(new CommandDefinition(
-                "SELECT CAST(value AS INTEGER) FROM meta WHERE key='account_epoch'", transaction: transaction, cancellationToken: token));
-        }, cancellationToken);
+        long epoch;
+        try { epoch = await RecoveryStore(services).ResetPasswordAsync(account, JsonSerializer.Serialize(parameters), cancellationToken); }
+        catch (AccountNotInitializedException) { throw new CliPreconditionException("The account is not initialized."); }
         return CliResult.Ok("Password reset; all existing credentials and sessions are invalidated.", new { accountEpoch = epoch, passwordParameters = parameters });
     }
 
@@ -105,6 +92,7 @@ public sealed class LocalInitializationCommands(
         return services.BuildServiceProvider();
     }
     private static AuthRepository Repository(IServiceProvider services) => new(services.GetRequiredService<IStateStore>(), TimeProvider.System);
+    private static SqliteAccountRecoveryStore RecoveryStore(IServiceProvider services) => new(services.GetRequiredService<IStateStore>());
     private static void RequirePassword(string password)
     {
         if (string.IsNullOrEmpty(password) || Encoding.UTF8.GetByteCount(password) > 1024)

@@ -12,10 +12,11 @@ internal sealed class AssemblyFacts
 {
     private static readonly ConcurrentDictionary<string, AssemblyFacts> Cache = new(StringComparer.Ordinal);
 
-    private AssemblyFacts(string name, IReadOnlySet<string> assemblyReferences, IReadOnlySet<string> typeReferences, IReadOnlySet<string> memberReferences, IReadOnlyList<string> pinvokeMethods)
+    private AssemblyFacts(string name, IReadOnlySet<string> assemblyReferences, IReadOnlySet<string> usedAssemblyReferences, IReadOnlySet<string> typeReferences, IReadOnlySet<string> memberReferences, IReadOnlyList<string> pinvokeMethods)
     {
         Name = name;
         AssemblyReferences = assemblyReferences;
+        UsedAssemblyReferences = usedAssemblyReferences;
         TypeReferences = typeReferences;
         MemberReferences = memberReferences;
         PinvokeMethods = pinvokeMethods;
@@ -25,6 +26,13 @@ internal sealed class AssemblyFacts
 
     /// <summary>Simple names of every referenced assembly.</summary>
     public IReadOnlySet<string> AssemblyReferences { get; }
+
+    /// <summary>
+    /// Simple names of the referenced assemblies that some type reference, exported type or manifest resource resolves to.
+    /// An assembly reference outside this set is not used by any compiled code; the compiler emits one, for example, for
+    /// every aliased reference so the portable PDB can record the extern alias.
+    /// </summary>
+    public IReadOnlySet<string> UsedAssemblyReferences { get; }
 
     /// <summary>Every type reference as <c>Namespace.Name</c>; nested types as <c>Namespace.Outer+Inner</c>.</summary>
     public IReadOnlySet<string> TypeReferences { get; }
@@ -66,9 +74,27 @@ internal sealed class AssemblyFacts
         }
 
         var typeReferences = new HashSet<string>(StringComparer.Ordinal);
+        var usedAssemblyReferences = new HashSet<string>(StringComparer.Ordinal);
         foreach (var handle in reader.TypeReferences)
         {
             typeReferences.Add(TypeReferenceName(reader, handle));
+            var scope = reader.GetTypeReference(handle).ResolutionScope;
+            while (scope.Kind == HandleKind.TypeReference)
+            {
+                scope = reader.GetTypeReference((TypeReferenceHandle)scope).ResolutionScope;
+            }
+
+            AddAssemblyReference(reader, scope, usedAssemblyReferences);
+        }
+
+        foreach (var handle in reader.ExportedTypes)
+        {
+            AddAssemblyReference(reader, reader.GetExportedType(handle).Implementation, usedAssemblyReferences);
+        }
+
+        foreach (var handle in reader.ManifestResources)
+        {
+            AddAssemblyReference(reader, reader.GetManifestResource(handle).Implementation, usedAssemblyReferences);
         }
 
         var memberReferences = new HashSet<string>(StringComparer.Ordinal);
@@ -91,7 +117,15 @@ internal sealed class AssemblyFacts
             }
         }
 
-        return new AssemblyFacts(name, assemblyReferences, typeReferences, memberReferences, pinvokeMethods);
+        return new AssemblyFacts(name, assemblyReferences, usedAssemblyReferences, typeReferences, memberReferences, pinvokeMethods);
+    }
+
+    private static void AddAssemblyReference(MetadataReader reader, EntityHandle handle, HashSet<string> names)
+    {
+        if (handle.Kind == HandleKind.AssemblyReference)
+        {
+            names.Add(reader.GetString(reader.GetAssemblyReference((AssemblyReferenceHandle)handle).Name));
+        }
     }
 
     private static string TypeReferenceName(MetadataReader reader, TypeReferenceHandle handle)

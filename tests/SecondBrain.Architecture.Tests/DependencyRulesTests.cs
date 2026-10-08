@@ -61,6 +61,29 @@ public sealed class DependencyRulesTests
     private static readonly string[] CompositionAssemblyPrefixes =
         ["Microsoft.Extensions.DependencyInjection", "Microsoft.Extensions.Hosting"];
 
+    /// <summary>AR-09: the only SecondBrain assemblies brain may compile against.</summary>
+    private static readonly string[] CliAllowedSecondBrainAssemblies =
+        [Layers.CoreName, Layers.InfrastructureName, Layers.StorageName];
+
+    /// <summary>AR-09: the alias that keeps the CLI's Server reference layout-only.</summary>
+    private const string ServerLayoutAlias = "ServerLayout";
+
+    /// <summary>AR-12a: the SQL assemblies whose use belongs to Storage.</summary>
+    private static readonly string[] SqlAssemblyNames = ["Dapper", "Microsoft.Data.Sqlite"];
+    private const string SqlitePclAssemblyPrefix = "SQLitePCLRaw.";
+
+    /// <summary>AR-03b: the exact <c>ProjectReference</c> set of every <c>src</c> project (§1.2), by referenced project name.</summary>
+    public static TheoryData<string, string[]> SourceProjectReferences => new()
+    {
+        { "src/SecondBrain.Core/SecondBrain.Core.csproj", [] },
+        { "src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj", [Layers.CoreName] },
+        { "src/SecondBrain.Storage/SecondBrain.Storage.csproj", [Layers.CoreName] },
+        { "src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj", [Layers.CoreName] },
+        { "src/SecondBrain.Server/SecondBrain.Server.csproj", [Layers.CoreName, Layers.InfrastructureName, Layers.StorageName, Layers.ProvidersOpenAICompatibleName] },
+        { "src/SecondBrain.Cli/SecondBrain.Cli.csproj", [Layers.CoreName, Layers.InfrastructureName, Layers.StorageName, Layers.ServerName] },
+        { "src/SecondBrain.Extractor/SecondBrain.Extractor.csproj", [] },
+    };
+
     [Fact]
     [Trait("Rule", "AR-01")]
     public void CoreProjectHasNoProjectReferences()
@@ -91,6 +114,29 @@ public sealed class DependencyRulesTests
         var disallowed = facts.SecondBrainReferences.Except(allowed, StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         Assert.True(disallowed.Length == 0,
             $"{assemblyName} references {string.Join(", ", disallowed)}; allowed: {string.Join(", ", allowed)}.");
+    }
+
+    [Theory]
+    [Trait("Rule", "AR-03")]
+    [MemberData(nameof(SourceProjectReferences))]
+    public void SourceProjectReferencesMatchTheDependencyTableExactly(string projectPath, string[] expected)
+    {
+        var actual = Repository.Project(projectPath).ProjectReferences
+            .Select(reference => reference.ProjectName)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        var wanted = expected.Order(StringComparer.Ordinal).ToArray();
+        Assert.True(actual.SequenceEqual(wanted, StringComparer.Ordinal),
+            $"{projectPath} references [{string.Join(", ", actual)}]; §1.2 allows exactly [{string.Join(", ", wanted)}].");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-03")]
+    public void EverySourceProjectHasAnExactProjectReferenceRule()
+    {
+        // A new src project must be added to the AR-03b table rather than escape it.
+        var covered = SourceProjectReferences.Select(row => (string)row[0]).Order(StringComparer.Ordinal).ToArray();
+        Assert.Equal(covered, Repository.SourceProjects());
     }
 
     [Fact]
@@ -271,6 +317,63 @@ public sealed class DependencyRulesTests
         var facts = AssemblyFacts.For(Layers.ByName(assemblyName));
         Assert.Equal(assemblyName, facts.Name);
         Assert.Empty(facts.SecondBrainReferences);
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-09")]
+    public void CliCompilesOnlyAgainstCoreInfrastructureAndStorage()
+    {
+        var facts = AssemblyFacts.For(Layers.Cli);
+        Assert.Equal(Layers.CliName, facts.Name);
+        // Guards the rule against reading metadata that never resolves a type into a SecondBrain assembly at all.
+        Assert.Contains(Layers.CoreName, facts.UsedAssemblyReferences);
+        Assert.Contains(Layers.StorageName, facts.UsedAssemblyReferences);
+
+        var used = facts.UsedAssemblyReferences.Where(Layers.IsSecondBrainAssembly)
+            .Except(CliAllowedSecondBrainAssemblies, StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        Assert.True(used.Length == 0,
+            $"brain compiles against types in {string.Join(", ", used)}; allowed: {string.Join(", ", CliAllowedSecondBrainAssemblies)}.");
+
+        // The ServerLayout alias makes the compiler emit an otherwise unused SecondBrain.Server assembly reference so the
+        // portable PDB can record the alias. No type resolves into it (checked above); any other SecondBrain reference fails.
+        var referenced = facts.SecondBrainReferences
+            .Except([.. CliAllowedSecondBrainAssemblies, Layers.ServerName], StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        Assert.True(referenced.Length == 0,
+            $"brain references {string.Join(", ", referenced)}; allowed: {string.Join(", ", CliAllowedSecondBrainAssemblies)} (plus the layout-only SecondBrain.Server alias record).");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-09")]
+    public void CliServerReferenceIsLayoutOnly()
+    {
+        var project = Repository.Project("src/SecondBrain.Cli/SecondBrain.Cli.csproj");
+        var server = Assert.Single(project.ProjectReferences, reference => reference.ProjectName == Layers.ServerName);
+        Assert.Equal(ServerLayoutAlias, server.Aliases);
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-12")]
+    public void CliReferencesNoSqlAssembly()
+    {
+        var facts = AssemblyFacts.For(Layers.Cli);
+        Assert.Equal(Layers.CliName, facts.Name);
+        var violations = facts.AssemblyReferences
+            .Where(reference => SqlAssemblyNames.Contains(reference, StringComparer.Ordinal) ||
+                                reference.StartsWith(SqlitePclAssemblyPrefix, StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"brain references SQL assemblies; SQL belongs in SecondBrain.Storage: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-12")]
+    public void StorageIsWhereTheSqlAssembliesAreReferenced()
+    {
+        // Guards the rule above against reading metadata that never contains the SQL assemblies at all.
+        var facts = AssemblyFacts.For(Layers.Storage);
+        Assert.Contains("Dapper", facts.AssemblyReferences);
+        Assert.Contains("Microsoft.Data.Sqlite", facts.AssemblyReferences);
     }
 
     [Fact]
