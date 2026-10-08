@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
+using SecondBrain.Server.Http;
 
 namespace SecondBrain.Server.Composition;
 
@@ -36,17 +37,22 @@ public static class LaneCConfiguration
             RootSecurityValidator.ValidateOrThrow(options.DataRoot, options.Sources.IncomingRoot, daemonUid, RootSecurityValidator.CurrentGid(), syncUid);
             return DataRootLock.Acquire(options.DataRoot);
         });
-        services.AddSingleton<IDataProtectionProvider>(provider =>
+        // The raw persisted provider must not resolve through HTTP's purpose-separated
+        // IKeyRing wrapper while the ring itself is being constructed.
+        services.AddKeyedSingleton<IDataProtectionProvider>("keyring", (provider, _) =>
         {
             _ = provider.GetRequiredService<DataRootLock>();
             var root = provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.DataRoot;
             return DataProtectionProvider.Create(new DirectoryInfo(Path.Combine(root, "keyring")), builder => builder.SetApplicationName(KeyRingPurposes.ApplicationName));
         });
+        services.AddSingleton<IDataProtectionProvider>(provider => provider.GetRequiredKeyedService<IDataProtectionProvider>("keyring"));
         services.AddSingleton<FileKeyRing>(provider => new FileKeyRing(
             provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.DataRoot,
-            provider.GetRequiredService<IDataProtectionProvider>()));
+            provider.GetRequiredKeyedService<IDataProtectionProvider>("keyring")));
         services.AddSingleton<IKeyRing>(provider => provider.GetRequiredService<FileKeyRing>());
         services.AddHostedService<KeyRingStartup>();
+        services.AddSingleton<IReadinessContributor, LockReadinessContributor>();
+        services.AddSingleton<IReadinessContributor, ExtractorReadinessContributor>();
         return services;
     }
 

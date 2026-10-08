@@ -28,7 +28,7 @@ public sealed class CliTests
     [InlineData("login", "http://127.0.0.1:7171")]
     public async Task Cli_UnboundCommandsReturnJsonPrecondition(params string[] arguments)
     {
-        var (exit, json, error) = await Run(arguments.Concat(["--json"]).ToArray());
+        var (exit, json, error) = await Run(arguments.Concat(["--json"]).ToArray(), new CliServices(bindDefaults: false));
         Assert.Equal(4, exit);
         Assert.Equal(4, json.RootElement.GetProperty("exitCode").GetInt32());
         Assert.Empty(error);
@@ -120,7 +120,7 @@ public sealed class CliTests
     {
         using var temporary = new CliTempRoot();
         temporary.CreateRoots();
-        var services = new CliServices { ReadConfiguration = (_, _) => temporary.Options(), Initialization = new InitializationStub() };
+        var services = new CliServices(bindDefaults: false) { ReadConfiguration = (_, _) => temporary.Options(), Initialization = new InitializationStub() };
         var initialized = await Run(temporary.Identities(["init", "--json"]), services);
         initialized.Json.Dispose();
         var manifest = Path.Combine(temporary.Data, "keyring", "hmac.json");
@@ -144,7 +144,7 @@ public sealed class CliTests
         using var temporary = new CliTempRoot();
         temporary.CreateRoots();
         var config = Path.Combine(temporary.Path, "config.yaml");
-        await File.WriteAllTextAsync(config, $"data_root: '{temporary.Data}'\nsources:\n  incoming_root: '{temporary.Incoming}'\n  allowed_roots: ['{temporary.Incoming}']\n");
+        await File.WriteAllTextAsync(config, $"data_root: '{temporary.Data}'\nserver:\n  listeners: [{{scheme: http, bind: 127.0.0.1, port: 7171}}]\n  hosts: [localhost, 127.0.0.1]\n  origins: ['http://127.0.0.1:7171']\nsources:\n  incoming_root: '{temporary.Incoming}'\n  allowed_roots: ['{temporary.Incoming}']\n");
         using var rootLock = DataRootLock.Acquire(temporary.Data);
         var executable = typeof(Cli.Program).Assembly.Location;
         var info = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
@@ -167,7 +167,7 @@ public sealed class CliTests
         using var temporary = new CliTempRoot();
         temporary.CreateRoots();
         if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(temporary.Data, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.OtherRead);
-        var services = new CliServices { ReadConfiguration = (_, _) => temporary.Options() };
+        var services = new CliServices { ReadConfiguration = (_, _) => temporary.Options(), DoctorExtension = new DoctorStub() };
         var (exit, json, _) = await Run(temporary.Identities(["doctor", "--extractor-socket", Path.Combine(temporary.Path, "missing.sock"), "--json"]), services);
         Assert.Equal(4, exit);
         var checks = json.RootElement.GetProperty("data").EnumerateArray().ToArray();
@@ -323,7 +323,12 @@ internal sealed class CliTempRoot : IDisposable
             File.SetUnixFileMode(Incoming, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute);
         }
     }
-    public SecondBrainOptions Options() => new() { DataRoot = Data, Sources = new() { IncomingRoot = Incoming, AllowedRoots = [Incoming] } };
+    public SecondBrainOptions Options() => new()
+    {
+        DataRoot = Data,
+        Server = new() { Listeners = [new ListenerOptions { Bind = "127.0.0.1", Port = 7171 }], Hosts = ["localhost", "127.0.0.1"], Origins = ["http://127.0.0.1:7171"] },
+        Sources = new() { IncomingRoot = Incoming, AllowedRoots = [Incoming] },
+    };
     public string[] Identities(string[] arguments) => arguments.Concat(["--daemon-uid", RootSecurityValidator.CurrentUid().ToString(CultureInfo.InvariantCulture),
         "--daemon-gid", RootSecurityValidator.CurrentGid().ToString(CultureInfo.InvariantCulture), "--sync-uid", RootSecurityValidator.CurrentUid().ToString(CultureInfo.InvariantCulture)]).ToArray();
     public void Dispose() { if (Directory.Exists(Path)) Directory.Delete(Path, recursive: true); }

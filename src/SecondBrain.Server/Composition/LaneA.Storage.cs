@@ -1,4 +1,5 @@
 using SecondBrain.Storage;
+using SecondBrain.Server.Http;
 
 namespace SecondBrain.Server.Composition;
 
@@ -6,5 +7,10 @@ namespace SecondBrain.Server.Composition;
 public static class LaneAStorage
 {
     /// <summary>Registers stores, migration/init services, publication/journal recovery, and storage readiness.</summary>
-    public static IServiceCollection AddStorage(this IServiceCollection services) => services.AddSecondBrainStorage();
+    public static IServiceCollection AddStorage(this IServiceCollection services)
+    {
+        services.AddSecondBrainStorage();
+        services.AddSingleton<IReadinessContributor, MigrationReadinessContributor>();
+        return services;
+    }
 }

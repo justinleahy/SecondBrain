@@ -27,12 +27,13 @@ public static class ProblemResponses
         401 or 403 => ProblemTypes.ScopeDenied,
         429 => ProblemTypes.LimitExceeded,
         503 => ProblemTypes.Capacity,
-        _ => $"https://secondbrain.dev/problems/{status switch
-        {
-            400 => "invalid-request", 404 => "not-found", 405 => "method-not-allowed",
-            409 => "conflict", 413 => "request-too-large", 415 => "unsupported-media-type",
-            _ => "internal-error"
-        }}"
+        400 => ProblemTypes.InvalidRequest,
+        404 => ProblemTypes.NotFound,
+        405 => ProblemTypes.MethodNotAllowed,
+        409 => ProblemTypes.Conflict,
+        413 => ProblemTypes.RequestTooLarge,
+        415 => ProblemTypes.UnsupportedMediaType,
+        _ => ProblemTypes.InternalError
     };
 }
 
@@ -61,6 +62,17 @@ public sealed class ProblemMiddleware(RequestDelegate next, ILogger<ProblemMiddl
             context.Response.Clear();
             await ProblemResponses.WriteAsync(context, 409, ProblemResponses.TypeForStatus(409),
                 "Credential authority changed; authenticate again");
+        }
+        catch (Core.Privacy.PrivacyPolicyException exception) when (!context.Response.HasStarted)
+        {
+            context.Response.Clear();
+            await ProblemResponses.WriteAsync(context, exception.ProblemType == ProblemTypes.EgressUnverified ? 503 : 403,
+                exception.ProblemType, "Provider request refused by privacy policy");
+        }
+        catch (Core.Providers.ProviderRequestException exception) when (!context.Response.HasStarted)
+        {
+            context.Response.Clear();
+            await ProblemResponses.WriteAsync(context, (int?)exception.StatusCode ?? 502, exception.ProblemType, "Provider request failed");
         }
         catch (Exception exception) when (!context.Response.HasStarted)
         {

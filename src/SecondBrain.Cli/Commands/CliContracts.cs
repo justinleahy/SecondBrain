@@ -92,6 +92,16 @@ public sealed class UnboundCommands : IInitializationCommands, ICredentialComman
 public sealed class CliPreconditionException(string message) : Exception(message);
 public sealed class CliUsageException(string message) : Exception(message);
 public sealed class DaemonUnreachableException(string message) : Exception(message);
+public sealed class DaemonCommandException(CliResult result) : Exception(result.Message)
+{
+    public CliResult Result { get; } = result;
+}
+
+/// <summary>Only initialization and new-key issuance may expose freshly created secrets.</summary>
+public interface IOneTimeSecret
+{
+    string Secret { get; }
+}
 
 internal static class CliOutput
 {
@@ -99,7 +109,14 @@ internal static class CliOutput
     internal static async Task<int> WriteAsync(CliResult result, bool json, TextWriter output, TextWriter error)
     {
         if (json) await output.WriteLineAsync(JsonSerializer.Serialize(result, JsonOptions));
-        else await (result.ExitCode == CliExitCode.Ok ? output : error).WriteLineAsync(result.Message);
+        else
+        {
+            await (result.ExitCode == CliExitCode.Ok ? output : error).WriteLineAsync(result.Message);
+            if (result.ExitCode == CliExitCode.Ok && result.Data is IOneTimeSecret issued) await output.WriteLineAsync(issued.Secret);
+            else if (result.Data is not null)
+                await (result.ExitCode == CliExitCode.Ok ? output : error).WriteLineAsync(JsonSerializer.Serialize(result.Data,
+                    new JsonSerializerOptions(JsonOptions) { WriteIndented = true }));
+        }
         return (int)result.ExitCode;
     }
 }

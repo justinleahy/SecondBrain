@@ -40,6 +40,10 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
     }
 
     public IReadOnlyList<string> ProviderNames { get { lock (sync) return snapshot.Providers.Keys.ToArray(); } }
+    public bool IsCurrentConfiguration(SecondBrainOptions options)
+    {
+        lock (sync) return ReferenceEquals(snapshot.Configuration, options);
+    }
     public IProviderBinding GetProvider(string name)
     {
         lock (sync) return snapshot.Providers.TryGetValue(name, out var binding)
@@ -132,7 +136,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
                 providers.Add(name, binding);
             }
             ownedBindings.AddRange(created);
-            return new(roles, providers);
+            return new(roles, providers, options);
 
             ProviderRoleBinding Create(ModelBindingOptions bindingOptions, ModelRole role)
             {
@@ -178,5 +182,5 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
     }
 
     private sealed record RegistrySnapshot(IReadOnlyDictionary<ModelRole, ProviderRoleBinding> Roles,
-        IReadOnlyDictionary<string, IProviderBinding> Providers);
+        IReadOnlyDictionary<string, IProviderBinding> Providers, SecondBrainOptions Configuration);
 }

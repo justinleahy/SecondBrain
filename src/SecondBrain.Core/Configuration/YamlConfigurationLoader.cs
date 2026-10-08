@@ -72,6 +72,8 @@ public sealed class YamlConfigurationLoader
                 .WithDuplicateKeyChecking()
                 .Build().Deserialize<SecondBrainOptions>(writer.ToString());
             if (environment("SECONDBRAIN_DATA_ROOT") is { } rootOverride) options.DataRoot = rootOverride;
+            if (options.Extractor is null) throw new ConfigurationException("extractor must not be null.");
+            if (environment("SECONDBRAIN_EXTRACTOR_SOCKET") is { } socketOverride) options.Extractor.SocketPath = socketOverride;
             ConfigurationValidator.Validate(options);
             return new ConfigurationSnapshot(options, sandboxMetadata);
         }

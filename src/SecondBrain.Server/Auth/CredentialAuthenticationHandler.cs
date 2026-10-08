@@ -1,3 +1,4 @@
+using SecondBrain.Core.Problems;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -42,16 +43,6 @@ public sealed class CredentialAuthenticationHandler(IOptionsMonitor<Authenticati
         Context.Items[typeof(AuthenticatedCredential)] = identity;
         return AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName)), SchemeName));
     }
-    protected override Task HandleChallengeAsync(AuthenticationProperties properties) => ProblemResponses.WriteAsync(Context, 401, AuthProblemTypes.AuthenticationRequired, "A valid credential is required.");
+    protected override Task HandleChallengeAsync(AuthenticationProperties properties) => ProblemResponses.WriteAsync(Context, 401, ProblemTypes.AuthenticationRequired, "A valid credential is required.");
     protected override Task HandleForbiddenAsync(AuthenticationProperties properties) => ProblemResponses.WriteAsync(Context, 403, SecondBrain.Core.Problems.ProblemTypes.ScopeDenied, "Required scope is missing.");
-}
-
-/// <summary>Additional stable problem types until the orchestrator extends the frozen central list.</summary>
-public static class AuthProblemTypes
-{
-    public const string AuthenticationRequired = "https://secondbrain.dev/problems/authentication-required";
-    public const string StepUpRequired = "https://secondbrain.dev/problems/step-up-required";
-    public const string AntiforgeryRejected = "https://secondbrain.dev/problems/antiforgery-rejected";
-    public const string InvalidRequest = "https://secondbrain.dev/problems/invalid-request";
-    public const string NotFound = "https://secondbrain.dev/problems/not-found";
 }

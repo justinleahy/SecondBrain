@@ -24,11 +24,15 @@ public static class Program
             DefaultValueFactory = _ => Environment.GetEnvironmentVariable("SECONDBRAIN_SECRETS_DIRECTORY") ?? Environment.GetEnvironmentVariable("SECONDBRAIN_SECRETS_DIR") };
         var dataRoot = new Option<string?>("--data-root") { Description = "Override data_root.", Recursive = true,
             DefaultValueFactory = _ => Environment.GetEnvironmentVariable("SECONDBRAIN_DATA_ROOT") };
+        var daemonUrl = new Option<string?>("--url") { Description = "Daemon HTTP(S) origin; defaults to the configured origin.", Recursive = true,
+            DefaultValueFactory = _ => Environment.GetEnvironmentVariable("SECONDBRAIN_URL") };
+        var credentialNameOption = new Option<string>("--credential-name") { Description = "Name of the stored login credential.", Recursive = true,
+            DefaultValueFactory = _ => Environment.GetEnvironmentVariable("SECONDBRAIN_CREDENTIAL_NAME") ?? Environment.MachineName };
         var daemonUid = new Option<uint>("--daemon-uid") { Recursive = true, DefaultValueFactory = _ => Identity("SECONDBRAIN_DAEMON_UID", RootSecurityValidator.CurrentUid() == 0 ? 1654 : RootSecurityValidator.CurrentUid()) };
         var daemonGid = new Option<uint>("--daemon-gid") { Recursive = true, DefaultValueFactory = _ => Identity("SECONDBRAIN_DAEMON_GID", RootSecurityValidator.CurrentGid() == 0 ? 1654 : RootSecurityValidator.CurrentGid()) };
         var syncUid = new Option<uint>("--sync-uid") { Recursive = true, DefaultValueFactory = _ => Identity("SECONDBRAIN_SYNC_UID", 1656) };
         var root = new RootCommand("SecondBrain administration CLI.");
-        foreach (var option in new Option[] { json, config, secrets, dataRoot, daemonUid, daemonGid, syncUid }) root.Options.Add(option);
+        foreach (var option in new Option[] { json, config, secrets, dataRoot, daemonUrl, credentialNameOption, daemonUid, daemonGid, syncUid }) root.Options.Add(option);
 
         SecondBrainOptions Load(ParseResult parse, string? positionalRoot = null)
         {
@@ -41,7 +45,12 @@ public static class Program
         void Bind(Command command, Func<ParseResult, CancellationToken, Task<CliResult>> handler) => command.SetAction(async (parse, token) =>
         {
             CliResult result;
-            try { result = await handler(parse, token); }
+            try
+            {
+                services.ConfigureDaemon(() => Load(parse), parse.GetValue(daemonUrl), parse.GetValue(credentialNameOption)!);
+                result = await handler(parse, token);
+            }
+            catch (DaemonCommandException ex) { result = ex.Result; }
             catch (CliUsageException ex) { result = new(CliExitCode.Usage, "usage", ex.Message); }
             catch (DaemonUnreachableException ex) { result = new(CliExitCode.DaemonUnreachable, "daemon-unreachable", ex.Message); }
             catch (HttpRequestException) { result = new(CliExitCode.DaemonUnreachable, "daemon-unreachable", "The daemon could not be reached."); }
@@ -115,10 +124,14 @@ public static class Program
         root.Subcommands.Add(login);
 
         var doctor = new Command("doctor", "Validate local installation and daemon preconditions.");
-        var socket = new Option<string>("--extractor-socket") { DefaultValueFactory = _ => Environment.GetEnvironmentVariable("SECONDBRAIN_EXTRACTOR_SOCKET") ?? "/run/secondbrain/extractor.sock" };
+        var socket = new Option<string?>("--extractor-socket") { DefaultValueFactory = _ => Environment.GetEnvironmentVariable("SECONDBRAIN_EXTRACTOR_SOCKET") };
         doctor.Options.Add(socket);
-        Bind(doctor, (parse, token) => new DoctorService().CheckAsync(Load(parse), parse.GetValue(daemonUid), parse.GetValue(daemonGid), parse.GetValue(syncUid),
-            parse.GetValue(socket)!, services.DoctorExtension, token));
+        Bind(doctor, (parse, token) =>
+        {
+            var loaded = Load(parse);
+            return new DoctorService().CheckAsync(loaded, parse.GetValue(daemonUid), parse.GetValue(daemonGid), parse.GetValue(syncUid),
+                parse.GetValue(socket) ?? loaded.Extractor.SocketPath, services.DoctorExtension, token);
+        });
         root.Subcommands.Add(doctor);
 
         var keys = new Command("keys", "Manage API keys.");
@@ -150,6 +163,7 @@ public static class Program
         {
             if (parse.GetValue(revokeEpoch) && services.EpochRevoker is null) throw new CliPreconditionException("--revoke-all requires the lane A account epoch adapter before any key is rotated.");
             var loaded = Load(parse);
+            services.ConfigureLocal(loaded);
             RootSecurityValidator.ValidateOrThrow(loaded.DataRoot, loaded.Sources.IncomingRoot, parse.GetValue(daemonUid), parse.GetValue(daemonGid), parse.GetValue(syncUid));
             using var rootLock = DataRootLock.Acquire(loaded.DataRoot);
             using var ring = services.CreateKeyRing(loaded.DataRoot);

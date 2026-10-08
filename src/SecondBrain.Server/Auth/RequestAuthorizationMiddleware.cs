@@ -16,11 +16,11 @@ public sealed class RequestAuthorizationMiddleware(RequestDelegate next)
         var identity = context.Items[typeof(AuthenticatedCredential)] as AuthenticatedCredential;
         if (policy is not null)
         {
-            if (identity is null) { await ProblemResponses.WriteAsync(context, 401, AuthProblemTypes.AuthenticationRequired, "A valid credential is required."); return; }
+            if (identity is null) { await ProblemResponses.WriteAsync(context, 401, ProblemTypes.AuthenticationRequired, "A valid credential is required."); return; }
             if (!scopePolicy.IsAllowed(policy.Operation, identity.Scopes) || policy.SessionOnly && identity.Kind != "session")
             { await ProblemResponses.WriteAsync(context, 403, ProblemTypes.ScopeDenied, "The credential cannot perform this operation."); return; }
             if (policy.StepUp && identity.Kind == "session" && (identity.SteppedUpAt is null || AuthTime.Parse(identity.SteppedUpAt).AddMinutes(options.CurrentValue.Auth.StepUpMinutes) <= clock.GetUtcNow()))
-            { await ProblemResponses.WriteAsync(context, 403, AuthProblemTypes.StepUpRequired, "Re-authenticate before this action."); return; }
+            { await ProblemResponses.WriteAsync(context, 403, ProblemTypes.StepUpRequired, "Re-authenticate before this action."); return; }
         }
         var unsafeMethod = !HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method) && !HttpMethods.IsOptions(context.Request.Method);
         // SignalR transport negotiation carries no domain mutation; its exact Origin is checked by the outer policy.
@@ -28,7 +28,7 @@ public sealed class RequestAuthorizationMiddleware(RequestDelegate next)
         if (!componentTransport && identity?.Kind == "session" && unsafeMethod && !context.Request.Headers.Authorization.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             try { await context.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(context); }
-            catch (AntiforgeryValidationException) { await ProblemResponses.WriteAsync(context, 400, AuthProblemTypes.AntiforgeryRejected, "The antiforgery token is missing or invalid."); return; }
+            catch (AntiforgeryValidationException) { await ProblemResponses.WriteAsync(context, 400, ProblemTypes.AntiforgeryRejected, "The antiforgery token is missing or invalid."); return; }
         }
         await next(context);
     }

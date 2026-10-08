@@ -39,12 +39,10 @@ public sealed class TrustedForwardedHeadersMiddleware(
 /// <summary>Allowlisted Host and exact browser Origin checks after trusted forwarding.</summary>
 public sealed class RequestPolicyMiddleware(RequestDelegate next, IOptionsMonitor<SecondBrainOptions> options)
 {
-    private static readonly string[] LocalHosts = ["localhost", "127.0.0.1", "[::1]"];
-
     public async Task InvokeAsync(HttpContext context)
     {
         var server = options.CurrentValue.Server;
-        IEnumerable<string> hosts = server.Hosts.Count == 0 ? LocalHosts : server.Hosts;
+        IEnumerable<string> hosts = server.Hosts;
         if (!context.Request.Host.HasValue || !hosts.Any(host => HostMatches(host, context.Request.Host)))
         {
             await ProblemResponses.WriteAsync(context, 400, ProblemTypes.HostRejected, "Host rejected");

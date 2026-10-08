@@ -34,4 +34,16 @@ public static class ProblemTypes
 
     /// <summary>A public-origin request lacks a valid Access assertion (spec §15.2, SEC-3).</summary>
     public const string AccessRequired = Prefix + "access-required";
+
+    public const string AuthenticationRequired = Prefix + "authentication-required";
+    public const string StepUpRequired = Prefix + "step-up-required";
+    public const string AntiforgeryRejected = Prefix + "antiforgery-rejected";
+    public const string InvalidRequest = Prefix + "invalid-request";
+    public const string SourcePathRejected = Prefix + "source-path-rejected";
+    public const string NotFound = Prefix + "not-found";
+    public const string MethodNotAllowed = Prefix + "method-not-allowed";
+    public const string Conflict = Prefix + "conflict";
+    public const string RequestTooLarge = Prefix + "request-too-large";
+    public const string UnsupportedMediaType = Prefix + "unsupported-media-type";
+    public const string InternalError = Prefix + "internal-error";
 }

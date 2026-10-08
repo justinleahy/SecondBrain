@@ -1,9 +1,8 @@
-using System.Buffers.Binary;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Text.Json;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Extraction;
 using SecondBrain.Core.Security;
 
 namespace SecondBrain.Cli.Commands;
@@ -26,8 +25,10 @@ public sealed class DoctorService
         if (extension is not null) checks.AddRange(await extension.CheckAsync(options, cancellationToken));
         else checks.Add(new("daemon.integration", false, "Store, provider, Access refresh and egress canary diagnostics require IDoctorExtension from lanes A/B/D."));
         var passed = checks.All(check => check.Passed);
-        return new(passed ? CliExitCode.Ok : CliExitCode.PreconditionFailed, passed ? "ok" : "precondition-failed",
-            passed ? "All diagnostics passed." : "Diagnostics found failed preconditions.", checks);
+        var unreachable = checks.Any(check => check.Name == "daemon.unreachable" && !check.Passed);
+        return new(passed ? CliExitCode.Ok : unreachable ? CliExitCode.DaemonUnreachable : CliExitCode.PreconditionFailed,
+            passed ? "ok" : unreachable ? "daemon-unreachable" : "precondition-failed",
+            passed ? "All diagnostics passed." : unreachable ? "The daemon could not be reached; local diagnostic results are included." : "Diagnostics found failed preconditions.", checks);
     }
 
     private static void CheckListeners(SecondBrainOptions options, List<DoctorCheck> checks)
@@ -112,31 +113,7 @@ public sealed class DoctorService
 
     private static async Task CheckExtractorAsync(string path, List<DoctorCheck> checks, CancellationToken cancellationToken)
     {
-        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeout.CancelAfter(TimeSpan.FromSeconds(2));
-        try
-        {
-            using var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-            await socket.ConnectAsync(new UnixDomainSocketEndPoint(path), timeout.Token);
-            await using var stream = new NetworkStream(socket, ownsSocket: false);
-            var payload = JsonSerializer.SerializeToUtf8Bytes(new { version = 1, id = "doctor-1", operation = "ping" });
-            var header = new byte[4];
-            BinaryPrimitives.WriteUInt32BigEndian(header, (uint)payload.Length);
-            await stream.WriteAsync(header, timeout.Token);
-            await stream.WriteAsync(payload, timeout.Token);
-            await stream.ReadExactlyAsync(header, timeout.Token);
-            var length = BinaryPrimitives.ReadUInt32BigEndian(header);
-            if (length is 0 or > 65536) throw new IOException("Extractor returned an invalid frame size.");
-            var response = new byte[length];
-            await stream.ReadExactlyAsync(response, timeout.Token);
-            using var document = JsonDocument.Parse(response);
-            var root = document.RootElement;
-            var ok = root.TryGetProperty("version", out var version) && version.GetInt32() == 1 && root.TryGetProperty("id", out var id) && id.GetString() == "doctor-1" &&
-                root.TryGetProperty("ok", out var success) && success.ValueKind == JsonValueKind.True && root.TryGetProperty("result", out var result) && result.GetString() == "pong";
-            checks.Add(new("extractor.socket", ok, ok ? "Extractor answered ping." : "Extractor response did not match the framing contract."));
-        }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { checks.Add(new("extractor.socket", false, "Extractor ping timed out.")); }
-        catch (Exception ex) when (ex is SocketException or IOException or JsonException or InvalidOperationException or PlatformNotSupportedException)
-        { checks.Add(new("extractor.socket", false, "Extractor socket ping failed: " + ex.Message)); }
+        var passed = await ExtractorPing.CheckAsync(path, cancellationToken);
+        checks.Add(new("extractor.socket", passed, passed ? "Extractor answered ping." : "Extractor socket ping failed or timed out."));
     }
 }

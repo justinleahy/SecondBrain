@@ -52,8 +52,11 @@ public sealed class AccessJwksCache(IAccessJwksTransport transport, IOptionsMoni
     private DateTimeOffset lastAttempt = DateTimeOffset.MinValue;
     private DateTimeOffset lastUnknownAttempt = DateTimeOffset.MinValue;
     private string? teamDomain;
+    private bool? lastRefreshSucceeded;
     public IReadOnlyList<SecurityKey> CurrentKeys => Volatile.Read(ref keys);
     public DateTimeOffset? LastSuccessfulRefresh => lastSuccess == DateTimeOffset.MinValue ? null : lastSuccess;
+    public DateTimeOffset? LastRefreshAttempt => lastAttempt == DateTimeOffset.MinValue ? null : lastAttempt;
+    public bool? LastRefreshSucceeded => lastRefreshSucceeded;
     public static TimeSpan UnknownKidRefreshInterval => TimeSpan.FromMinutes(1);
 
     public async Task EnsureKeysAsync(string? kid, CancellationToken cancellationToken)
@@ -69,6 +72,7 @@ public sealed class AccessJwksCache(IAccessJwksTransport transport, IOptionsMoni
                 teamDomain = issuer;
                 Volatile.Write(ref keys, []);
                 lastSuccess = lastAttempt = lastUnknownAttempt = DateTimeOffset.MinValue;
+                lastRefreshSucceeded = null;
             }
             var now = clock.GetUtcNow();
             var due = keys.Length == 0 || now - lastSuccess >= TimeSpan.FromDays(1);
@@ -90,6 +94,7 @@ public sealed class AccessJwksCache(IAccessJwksTransport transport, IOptionsMoni
     private async Task RefreshAsync(string issuer, DateTimeOffset now, CancellationToken cancellationToken)
     {
         lastAttempt = now;
+        lastRefreshSucceeded = false;
         try
         {
             var document = await transport.FetchAsync(new Uri(issuer + "/cdn-cgi/access/certs"), cancellationToken);
@@ -102,6 +107,7 @@ public sealed class AccessJwksCache(IAccessJwksTransport transport, IOptionsMoni
                 throw new InvalidOperationException("Access JWKS contains no usable bounded key set.");
             Volatile.Write(ref keys, valid);
             lastSuccess = now;
+            lastRefreshSucceeded = true;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
         catch (Exception exception)

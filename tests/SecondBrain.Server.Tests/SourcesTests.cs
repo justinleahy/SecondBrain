@@ -63,7 +63,9 @@ public sealed class SourcesTests
     [Fact]
     public async Task DeniesDataRoot()
     {
-        await using var factory = new LaneDWebFactory(options => options.Sources.AllowedRoots.Add(options.DataRoot));
+        await using var factory = new LaneDWebFactory();
+        // Deliberately bypass the validated loader to prove request-time defense in depth.
+        factory.Options.CurrentValue.Sources.AllowedRoots.Add(factory.Options.CurrentValue.DataRoot);
         using var client = await AdminClientAsync(factory);
         using var response = await client.PostAsJsonAsync("/v1/sources", new { path = factory.Options.CurrentValue.DataRoot });
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -114,7 +116,9 @@ public sealed class SourcesTests
     [InlineData("/")]
     public async Task ProtectedDirectoriesAreDeniedEvenWhenAllowed(string path)
     {
-        await using var factory = new LaneDWebFactory(options => options.Sources.AllowedRoots.Add(path));
+        await using var factory = new LaneDWebFactory();
+        // A production YAML load rejects nonexistent/protected roots before this point.
+        factory.Options.CurrentValue.Sources.AllowedRoots.Add(path);
         var validator = new SourcePathValidator(factory.Options);
         Assert.False(validator.Validate(path).Accepted);
         Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());

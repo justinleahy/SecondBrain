@@ -50,7 +50,7 @@ public static class AuthEndpoints
             }).WithMetadata(new EndpointPolicy("sessions.list", SessionOnly: true));
             endpoints.MapDelete(prefix + "/auth/sessions/{id}", async Task<Results<NoContent, ProblemHttpResult>> (string id, HttpContext context, IAuthRepository repository) =>
             {
-                if (!await repository.RevokeAsync(id, "session", context.RequestAborted)) return TypedResults.Problem(statusCode: 404, type: AuthProblemTypes.NotFound, title: "Session was not found.");
+                if (!await repository.RevokeAsync(id, "session", context.RequestAborted)) return TypedResults.Problem(statusCode: 404, type: ProblemTypes.NotFound, title: "Session was not found.");
                 if (id == Identity(context).Id) CredentialService.ClearCookie(context);
                 return TypedResults.NoContent();
             }).WithMetadata(new EndpointPolicy("sessions.revoke", SessionOnly: true));
@@ -67,16 +67,16 @@ public static class AuthEndpoints
             endpoints.MapPost(prefix + "/keys", async Task<Results<Created<KeyCreatedResponse>, ProblemHttpResult>> (CreateKeyRequest request, HttpContext context, IAuthRepository repository, CredentialFactory factory) =>
             {
                 if (request.Scopes is null || request.Scopes.Length > 4 || request.Scopes.Length == 0 || request.Scopes.Any(s => !Enum.TryParse<Scope>(s, true, out var scope) || !Enum.IsDefined(scope)))
-                    return TypedResults.Problem(statusCode: 400, type: AuthProblemTypes.InvalidRequest, title: "Scopes must be read, write, infer or admin.");
+                    return TypedResults.Problem(statusCode: 400, type: ProblemTypes.InvalidRequest, title: "Scopes must be read, write, infer or admin.");
                 CreatedCredential created;
                 try { created = factory.CreateApiKey(request.Name, request.Scopes.Select(s => Enum.Parse<Scope>(s, true)).ToHashSet(), await repository.GetEpochAsync(context.RequestAborted), request.ExpiresAt); }
-                catch (ArgumentException) { return TypedResults.Problem(statusCode: 400, type: AuthProblemTypes.InvalidRequest, title: "Credential name or expiry is invalid."); }
+                catch (ArgumentException) { return TypedResults.Problem(statusCode: 400, type: ProblemTypes.InvalidRequest, title: "Credential name or expiry is invalid."); }
                 await repository.AddAsync(created.Record, context.RequestAborted);
                 context.Response.Headers.CacheControl = "no-store";
                 return TypedResults.Created(prefix + "/keys/" + created.Record.Id, new KeyCreatedResponse(created.Record.Id, created.Plaintext, created.Record.Scopes, created.Record.ExpiresAt));
             }).WithMetadata(new EndpointPolicy("keys.create", StepUp: true));
             endpoints.MapDelete(prefix + "/keys/{id}", async Task<Results<NoContent, ProblemHttpResult>> (string id, HttpContext context, IAuthRepository repository) =>
-                await repository.RevokeAsync(id, "api_key", context.RequestAborted) ? TypedResults.NoContent() : TypedResults.Problem(statusCode: 404, type: AuthProblemTypes.NotFound, title: "Credential was not found."))
+                await repository.RevokeAsync(id, "api_key", context.RequestAborted) ? TypedResults.NoContent() : TypedResults.Problem(statusCode: 404, type: ProblemTypes.NotFound, title: "Credential was not found."))
                 .WithMetadata(new EndpointPolicy("keys.revoke", StepUp: true));
         }
     }
@@ -87,15 +87,15 @@ public static class AuthEndpoints
         if (form)
         {
             try { await antiforgery.ValidateRequestAsync(context); }
-            catch (AntiforgeryValidationException) { return TypedResults.Problem(statusCode: 400, type: AuthProblemTypes.AntiforgeryRejected, title: "The antiforgery token is missing or invalid."); }
+            catch (AntiforgeryValidationException) { return TypedResults.Problem(statusCode: 400, type: ProblemTypes.AntiforgeryRejected, title: "The antiforgery token is missing or invalid."); }
             request = new LoginRequest((await context.Request.ReadFormAsync(context.RequestAborted))["Password"].ToString());
         }
         else
         {
             try { request = await context.Request.ReadFromJsonAsync<LoginRequest>(context.RequestAborted); }
-            catch (JsonException) { return TypedResults.Problem(statusCode: 400, type: AuthProblemTypes.InvalidRequest, title: "Login requires a password."); }
+            catch (JsonException) { return TypedResults.Problem(statusCode: 400, type: ProblemTypes.InvalidRequest, title: "Login requires a password."); }
         }
-        if (request?.Password is null) return TypedResults.Problem(statusCode: 400, type: AuthProblemTypes.InvalidRequest, title: "Login requires a password.");
+        if (request?.Password is null) return TypedResults.Problem(statusCode: 400, type: ProblemTypes.InvalidRequest, title: "Login requires a password.");
         var decision = await login.VerifyAsync(request.Password, Source(context), context.RequestAborted);
         if (!decision.Accepted) return LoginFailure(context, decision);
         var previous = context.Items[typeof(AuthenticatedCredential)] as AuthenticatedCredential;
@@ -111,7 +111,7 @@ public static class AuthEndpoints
             context.Response.Headers.RetryAfter = decision.RetryAfterSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
             return TypedResults.Problem(statusCode: 429, type: ProblemTypes.LimitExceeded, title: "Login is temporarily delayed.");
         }
-        return TypedResults.Problem(statusCode: 401, type: AuthProblemTypes.AuthenticationRequired, title: "The password was not accepted.");
+        return TypedResults.Problem(statusCode: 401, type: ProblemTypes.AuthenticationRequired, title: "The password was not accepted.");
     }
     private static string Source(HttpContext context) => context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
     public static AuthenticatedCredential Identity(HttpContext context) => (AuthenticatedCredential)context.Items[typeof(AuthenticatedCredential)]!;

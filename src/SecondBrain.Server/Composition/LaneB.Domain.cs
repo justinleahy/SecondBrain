@@ -4,6 +4,7 @@ using SecondBrain.Core.Domain;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Providers;
 using SecondBrain.Providers.OpenAICompatible;
+using SecondBrain.Server.Http;
 
 namespace SecondBrain.Server.Composition;
 
@@ -21,10 +22,14 @@ public static class LaneBDomain
     public static IServiceCollection AddProviders(this IServiceCollection services)
     {
         services.TryAddSingleton<ModelCatalog>();
-        services.TryAddSingleton<IProviderCredentialResolver, EnvironmentProviderCredentialResolver>();
+        services.TryAddSingleton<IProviderCredentialResolver, ConfigurationProviderCredentialResolver>();
         services.TryAddSingleton<IPolicyHttpClientFactory, PolicyHttpClientFactory>();
         services.TryAddSingleton<IProviderRegistry, ProviderRegistry>();
         services.AddHostedService<ProviderStartup>();
+        services.AddSingleton<ProviderReadinessProbe>();
+        foreach (var role in new[] { ModelRole.Chat, ModelRole.Enrich, ModelRole.Embed })
+            services.AddSingleton<IReadinessContributor>(provider => new ProviderReadinessContributor(role, provider.GetRequiredService<ProviderReadinessProbe>()));
+        services.AddSingleton<IReadinessContributor>(provider => new OptionalRerankReadinessContributor(provider));
         return services;
     }
 
@@ -43,11 +48,26 @@ public static class LaneBDomain
         return services;
     }
 
-    private sealed class ProviderStartup(IProviderRegistry registry) : IHostedService
+    private sealed class ProviderStartup(IProviderRegistry registry, PrivacyPolicy privacy, ModelCatalog catalog,
+        IProviderCredentialResolver credentials, ReloadingConfiguration configuration) : IHostedService
     {
         // Materializing the registry rejects unresolved roles/capabilities/limits at startup.
-        public Task StartAsync(CancellationToken cancellationToken) { _ = registry.ProviderNames; return Task.CompletedTask; }
-        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            _ = registry.ProviderNames;
+            configuration.Validating += Validate;
+            return Task.CompletedTask;
+        }
+        private void Validate(SecondBrainOptions candidate)
+        {
+            ProviderRegistry.ValidateConfiguration(candidate, catalog, credentials);
+            privacy.ValidateConfiguration(candidate);
+        }
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            configuration.Validating -= Validate;
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class PrivacyCanaryHost(EgressCanary canary, TimeProvider timeProvider) : BackgroundService
@@ -67,5 +87,22 @@ public static class LaneBDomain
                 await canary.RunOnceAsync(stoppingToken);
             }
         }
+    }
+}
+
+internal sealed class ConfigurationProviderCredentialResolver(ISecretResolver secrets) : IProviderCredentialResolver
+{
+    public string? Resolve(string? reference) => reference is null ? null : secrets.Resolve(reference);
+}
+
+internal sealed class OptionalRerankReadinessContributor(IServiceProvider services) : IReadinessContributor
+{
+    public string Name => "provider:rerank";
+    public ValueTask<ReadinessStatus> CheckAsync(CancellationToken cancellationToken = default)
+    {
+        var options = services.GetRequiredService<Microsoft.Extensions.Options.IOptionsMonitor<SecondBrainOptions>>();
+        return options.CurrentValue.Models.Rerank is null
+            ? ValueTask.FromResult(new ReadinessStatus(true, "Optional rerank role is not configured.", services.GetRequiredService<TimeProvider>().GetUtcNow()))
+            : services.GetRequiredService<ProviderReadinessProbe>().CheckAsync(ModelRole.Rerank, cancellationToken);
     }
 }

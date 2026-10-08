@@ -3,6 +3,9 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Storage;
+using SecondBrain.Core.Security;
+using SecondBrain.Core.Providers;
+using SecondBrain.Core.Extraction;
 
 namespace SecondBrain.Server.Http;
 
@@ -85,14 +88,102 @@ public sealed class StoreReadinessContributor(IServiceProvider services) : IRead
     }
 }
 
-public sealed class CanaryReadinessContributor(IServiceProvider services, IOptionsMonitor<SecondBrainOptions> options) : IReadinessContributor
+public sealed class CanaryReadinessContributor(IPrivacyReadiness privacy) : IReadinessContributor
 {
     public string Name => "canary";
     public ValueTask<ReadinessStatus> CheckAsync(CancellationToken cancellationToken = default)
     {
-        var privacy = services.GetService<IPrivacyPolicy>();
-        return ValueTask.FromResult(!options.CurrentValue.Privacy.LocalOnly
-            ? new ReadinessStatus(true)
-            : new ReadinessStatus(privacy?.CanaryState == CanaryState.Blocked, "Local-only requires a blocked egress canary."));
+        var status = privacy.GetReadiness();
+        return ValueTask.FromResult(new ReadinessStatus(status.IsReady,
+            status.CanaryEnabled ? $"Egress canary: {status.CanaryState}. {status.Detail}" : status.Detail,
+            status.LastCheckedAt));
     }
+}
+
+public sealed class MigrationReadinessContributor(IStorageStatus storage) : IReadinessContributor
+{
+    public string Name => "migrations";
+    public ValueTask<ReadinessStatus> CheckAsync(CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(new ReadinessStatus(storage.Ready && storage.LastMigration is not null,
+            storage.Ready ? "Migrations and durability recovery completed." : "Storage startup is incomplete."));
+}
+
+public sealed class LockReadinessContributor(DataRootLock rootLock) : IReadinessContributor
+{
+    public string Name => "lock";
+    public ValueTask<ReadinessStatus> CheckAsync(CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(new ReadinessStatus(rootLock.IsHeld, "Exclusive data-root lock."));
+}
+
+public sealed class ExtractorReadinessContributor(IOptionsMonitor<SecondBrainOptions> options) : IReadinessContributor
+{
+    public string Name => "extractor";
+    public async ValueTask<ReadinessStatus> CheckAsync(CancellationToken cancellationToken = default)
+    {
+        var ready = await ExtractorPing.CheckAsync(options.CurrentValue.Extractor.SocketPath, cancellationToken);
+        return new(ready, ready ? "Extractor answered ping." : "Extractor socket ping failed.");
+    }
+}
+
+/// <summary>A single policy-owned role probe batch serves the contributors in one readiness request.</summary>
+public sealed class ProviderReadinessProbe(IProviderRegistry providers, IOptionsMonitor<SecondBrainOptions> options, TimeProvider clock) : IDisposable
+{
+    private readonly SemaphoreSlim gate = new(1, 1);
+    private IReadOnlyDictionary<ModelRole, ProviderHealthResult>? results;
+    private SecondBrainOptions? observedOptions;
+    private IReadOnlyDictionary<ModelRole, ProviderRoleBinding>? observedBindings;
+    public async ValueTask<ReadinessStatus> CheckAsync(ModelRole role, CancellationToken cancellationToken)
+    {
+        await gate.WaitAsync(cancellationToken);
+        try
+        {
+            var now = clock.GetUtcNow();
+            if (!providers.IsCurrentConfiguration(options.CurrentValue))
+                return new(false, "Provider configuration is still being validated.");
+            if (results is null || !ReferenceEquals(observedOptions, options.CurrentValue) ||
+                observedBindings is null || observedBindings.Any(binding => !ReferenceEquals(binding.Value, providers.GetRole(binding.Key))) ||
+                results.Values.Any(result => result.CheckedAt > now ||
+                    now - result.CheckedAt >= (result.IsHealthy ? TimeSpan.FromMinutes(5) : TimeSpan.FromSeconds(1))))
+            {
+                var candidate = options.CurrentValue;
+                var bindings = new[] { ModelRole.Chat, ModelRole.Enrich, ModelRole.Embed }
+                    .Concat(candidate.Models.Rerank is null ? [] : new[] { ModelRole.Rerank })
+                    .ToDictionary(configuredRole => configuredRole, providers.GetRole);
+                var checkedResults = await providers.TestAsync(cancellationToken);
+                if (!ReferenceEquals(candidate, options.CurrentValue) || !providers.IsCurrentConfiguration(candidate) ||
+                    bindings.Any(binding => !ReferenceEquals(binding.Value, providers.GetRole(binding.Key)) ||
+                        !MatchesConfiguration(binding.Key, binding.Value, candidate)))
+                {
+                    results = null;
+                    return new(false, "Provider configuration changed during its readiness observation.");
+                }
+                results = checkedResults;
+                observedOptions = candidate;
+                observedBindings = bindings;
+            }
+            return results.TryGetValue(role, out var status)
+                ? new(status.IsHealthy, status.Detail, status.CheckedAt)
+                : new(false, "Provider role is not configured.");
+        }
+        finally { gate.Release(); }
+    }
+    private static bool MatchesConfiguration(ModelRole role, ProviderRoleBinding binding, SecondBrainOptions options)
+    {
+        var configured = role switch
+        {
+            ModelRole.Chat => options.Models.Chat, ModelRole.Enrich => options.Models.Enrich,
+            ModelRole.Embed => options.Models.Embed, ModelRole.Rerank => options.Models.Rerank,
+            _ => null,
+        };
+        return configured is not null && configured.Provider == binding.Provider.ProviderName &&
+            configured.Model == binding.Model.Model && options.Providers.TryGetValue(configured.Provider, out var provider) &&
+            Uri.TryCreate(provider.Endpoint, UriKind.Absolute, out var endpoint) && endpoint == binding.Provider.Endpoint;
+    }
+    public void Dispose() => gate.Dispose();
+}
+
+public sealed class ProviderReadinessContributor(ModelRole role, ProviderReadinessProbe probe) : IReadinessContributor
+{
+    public string Name => "provider:" + role.ToString().ToLowerInvariant();
+    public ValueTask<ReadinessStatus> CheckAsync(CancellationToken cancellationToken = default) => probe.CheckAsync(role, cancellationToken);
 }

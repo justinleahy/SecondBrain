@@ -18,7 +18,8 @@ public sealed record StoreInitializationRequest(
     IReadOnlyCollection<string> Scopes,
     PasswordHashRecord Password,
     string CredentialName = "initial admin",
-    string TimeZone = "UTC");
+    string TimeZone = "UTC",
+    string? PasswordParametersJson = null);
 
 /// <summary>Whether bootstrap values were inserted and the persisted initial admin credential id.</summary>
 public sealed record StoreInitializationResult(bool Initialized, string CredentialId);

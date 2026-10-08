@@ -74,6 +74,10 @@ public sealed class StoreInitializer(IStateStore state, IMigrationRunner migrati
             await MigrationSql.ExecuteAsync(connection, transaction,
                 "INSERT INTO account(id, password_hash, password_version, updated_at) VALUES (1, $hash, $version, $at);", token,
                 ("$hash", request.Password.Hash), ("$version", request.Password.Version), ("$at", at)).ConfigureAwait(false);
+            if (request.PasswordParametersJson is not null)
+                await MigrationSql.ExecuteAsync(connection, transaction,
+                    "INSERT INTO meta(key,value) VALUES ('password_parameters', $parameters);", token,
+                    ("$parameters", request.PasswordParametersJson)).ConfigureAwait(false);
             await MigrationSql.ExecuteAsync(connection, transaction,
                 "INSERT INTO credentials(id, name, kind, verifier, scopes, generation, kid, account_epoch, created_at) VALUES ($id, $name, 'api_key', $verifier, $scopes, 1, $kid, 1, $at);", token,
                 ("$id", request.CredentialId), ("$name", request.CredentialName), ("$verifier", verifier), ("$scopes", scopes), ("$kid", request.Kid), ("$at", at)).ConfigureAwait(false);

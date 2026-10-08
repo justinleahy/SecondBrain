@@ -1,4 +1,5 @@
 using System.Net;
+using SecondBrain.Core.Configuration;
 
 namespace SecondBrain.Core.Providers;
 
@@ -24,6 +25,8 @@ public sealed record ProviderRoleBinding(ModelRole Role, IProviderBinding Provid
 /// <summary>Provider-neutral CLI/HTTP integration; all diagnostic network operations use policy transport.</summary>
 public interface IProviderRegistry
 {
+    /// <summary>Whether the registry has atomically accepted this exact validated options snapshot.</summary>
+    bool IsCurrentConfiguration(SecondBrainOptions options);
     ProviderRoleBinding GetRole(ModelRole role);
     IProviderBinding GetProvider(string name);
     IReadOnlyList<string> ProviderNames { get; }

@@ -42,6 +42,8 @@ public sealed class ReloadingConfiguration : IDisposable
 
     public SecondBrainOptions CurrentValue => Volatile.Read(ref current);
     public event Action<SecondBrainOptions>? Changed;
+    /// <summary>Collaborating model/privacy validators run before an options snapshot is published.</summary>
+    public event Action<SecondBrainOptions>? Validating;
 
     public bool TryReload()
     {
@@ -55,6 +57,8 @@ public sealed class ReloadingConfiguration : IDisposable
                 next = snapshot.Options;
                 if (RestartFingerprint(next) != RestartFingerprint(current) || snapshot.RestartMetadata != restartMetadata)
                     throw new ConfigurationException("Listeners, allowed roots, data root, Access and sandbox settings require a restart.");
+                try { Validating?.Invoke(next); }
+                catch (Exception) { throw new ConfigurationException("Model or privacy validation rejected the reload candidate."); }
                 Volatile.Write(ref current, next);
                 generation++;
             }
@@ -79,7 +83,7 @@ public sealed class ReloadingConfiguration : IDisposable
     }
 
     private static string RestartFingerprint(SecondBrainOptions options) => JsonSerializer.Serialize(new
-    { options.DataRoot, options.Server.Listeners, options.Server.Hosts, options.Server.Origins, options.Server.TrustedProxies, options.Server.CloudflareAccess, options.Sources });
+    { options.DataRoot, options.Server.Listeners, options.Server.Hosts, options.Server.Origins, options.Server.TrustedProxies, options.Server.CloudflareAccess, options.Sources, options.Extractor });
 
     private void Schedule(object? sender, FileSystemEventArgs args)
     {

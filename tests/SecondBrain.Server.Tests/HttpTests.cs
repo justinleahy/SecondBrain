@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
@@ -150,7 +151,7 @@ public sealed class HttpTests
     [Fact]
     public async Task ReadyFailsClosedWhenDependenciesAreMissing()
     {
-        await using var factory = new LaneDWebFactory();
+        await using var factory = new LaneDWebFactory(configureServices: services => services.RemoveAll<IReadinessContributor>());
         using var client = factory.CreatePrivateClient();
         using var response = await client.GetAsync("/ready");
         await AssertProblem(response, HttpStatusCode.ServiceUnavailable, ProblemTypes.Capacity);
@@ -232,8 +233,8 @@ public sealed class HttpTests
     [InlineData("127.0.0.1", "https", 7443)]
     public async Task InvalidListenerConfigurationIsRefused(string bind, string scheme, int port)
     {
-        await using var factory = new LaneDWebFactory(options => options.Server.Listeners =
-            [new ListenerOptions { Bind = bind, Scheme = scheme, Port = port }]);
+        await using var factory = new LaneDWebFactory();
+        factory.Options.CurrentValue.Server.Listeners = [new ListenerOptions { Bind = bind, Scheme = scheme, Port = port }];
         Assert.Throws<OptionsValidationException>(() => new ConfiguredKestrelOptions(factory.Options).Configure(new KestrelServerOptions()));
     }
 

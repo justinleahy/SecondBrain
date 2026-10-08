@@ -21,6 +21,8 @@ public sealed class ConfigurationTests : IDisposable
           embed: { provider: local, model: embed, dimensions: 1024 }
         server:
           listeners: [{ scheme: http, bind: 127.0.0.1, port: 7171 }]
+          hosts: [localhost, 127.0.0.1]
+          origins: [http://127.0.0.1:7171]
         sources:
           allowed_roots: [{{Incoming}}]
           incoming_root: {{Incoming}}
@@ -34,6 +36,35 @@ public sealed class ConfigurationTests : IDisposable
     }
 
     private YamlConfigurationLoader Loader(Func<string, string?>? environment = null) => new(Secrets, environment ?? (_ => null));
+
+    [Theory]
+    [InlineData("listeners: [{ scheme: http, bind: 127.0.0.1, port: 7171 }]", "listeners: []")]
+    [InlineData("hosts: [localhost, 127.0.0.1]", "hosts: []")]
+    [InlineData("origins: [http://127.0.0.1:7171]", "origins: []")]
+    public void ConfigRequiresExplicitServingSettings(string before, string after) =>
+        Assert.Throws<ConfigurationException>(() => Loader().LoadText(Valid.Replace(before, after, StringComparison.Ordinal)));
+
+    [Theory]
+    [InlineData("http://user:secret@localhost:7171")]
+    [InlineData("http://localhost:7171/path")]
+    [InlineData("http://localhost:7171/")]
+    [InlineData("http://localhost:7171?query=value")]
+    [InlineData("ftp://localhost:7171")]
+    public void ConfigRejectsNonOriginAllowlistEntries(string origin) =>
+        Assert.Throws<ConfigurationException>(() => Loader().LoadText(Valid.Replace("http://127.0.0.1:7171", origin, StringComparison.Ordinal)));
+
+    [Fact]
+    public void NullExtractorReloadWithEnvironmentOverrideKeepsLastGoodSnapshot()
+    {
+        var path = Path.Combine(root, "config.yaml");
+        File.WriteAllText(path, Valid);
+        using var configuration = new ReloadingConfiguration(path,
+            Loader(name => name == "SECONDBRAIN_EXTRACTOR_SOCKET" ? "/tmp/extractor.sock" : null), watch: false);
+        var previous = configuration.CurrentValue;
+        File.WriteAllText(path, Valid + "\nextractor: null\n");
+        Assert.False(configuration.TryReload());
+        Assert.Same(previous, configuration.CurrentValue);
+    }
 
     [Fact]
     public void ConfigLoadsSnakeCaseM0SubsetAndDeferredAppendixSections()
@@ -177,7 +208,7 @@ public sealed class ConfigurationTests : IDisposable
     public void ConfigSecretAliasCannotMutateReferenceOrExposeResolvedValue()
     {
         var yaml = Valid.Replace("adapter: in_process", "adapter: in_process, api_key: &key '${KEY}'", StringComparison.Ordinal)
-            .Replace("listeners:", "hosts: [*key]\n  listeners:", StringComparison.Ordinal);
+            .Replace("hosts: [localhost, 127.0.0.1]", "hosts: [*key]", StringComparison.Ordinal);
         var error = Assert.Throws<ConfigurationException>(() => Loader(_ => "secret-that-must-stay-private").LoadText(yaml));
         Assert.DoesNotContain("secret-that-must-stay-private", error.ToString());
         Assert.Contains("aliases", error.Message);

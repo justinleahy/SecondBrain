@@ -1,3 +1,4 @@
+using SecondBrain.Core.Problems;
 using SecondBrain.Core.Authorization;
 
 namespace SecondBrain.Server.Sources;
@@ -23,13 +24,13 @@ public static class SourceEndpoints
     {
         if (!ValidRequest(request))
         {
-            return Results.Problem(statusCode: 400, type: "https://secondbrain.dev/problems/invalid-request", title: "Invalid source configuration", detail: "Source names, globs, type mappings, mode, and watch settings must satisfy the source schema.");
+            return Results.Problem(statusCode: 400, type: ProblemTypes.InvalidRequest, title: "Invalid source configuration", detail: "Source names, globs, type mappings, mode, and watch settings must satisfy the source schema.");
         }
 
         var validation = paths.Validate(request.Path);
         if (!validation.Accepted)
         {
-            return Results.Problem(statusCode: 400, type: "https://secondbrain.dev/problems/source-path-rejected", title: "Source path rejected", detail: validation.Reason);
+            return Results.Problem(statusCode: 400, type: ProblemTypes.SourcePathRejected, title: "Source path rejected", detail: validation.Reason);
         }
 
         var canonical = validation.CanonicalPath!;

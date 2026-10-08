@@ -86,6 +86,9 @@ public sealed class AccessTests
         using var lastGood = await SendAsync(client, Token(second, "second", factory.Clock.GetUtcNow()));
         Assert.Equal(HttpStatusCode.OK, lastGood.StatusCode);
         Assert.Equal(4, jwks.Requests);
+        var cache = factory.Services.GetRequiredService<SecondBrain.Server.Http.AccessJwksCache>();
+        Assert.False(cache.LastRefreshSucceeded);
+        Assert.NotEmpty(cache.CurrentKeys);
         Assert.Equal(0, factory.KeyRing.HmacCalls);
     }
 

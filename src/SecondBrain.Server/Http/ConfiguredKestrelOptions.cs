@@ -12,6 +12,8 @@ public sealed class ConfiguredKestrelOptions(IOptionsMonitor<SecondBrainOptions>
     public void Configure(KestrelServerOptions kestrel)
     {
         kestrel.Limits.MaxRequestBodySize = 100L * 1024 * 1024;
+        if (options.CurrentValue.Server.Listeners.Count == 0)
+            throw new OptionsValidationException(nameof(SecondBrainOptions), typeof(SecondBrainOptions), ["At least one explicit private listener is required."]);
         foreach (var listener in options.CurrentValue.Server.Listeners)
         {
             if (!IPAddress.TryParse(listener.Bind, out var address) || !IsPrivateAddress(address))

@@ -17,7 +17,7 @@ public static class LaneDHttp
     public static IServiceCollection AddAuth(this IServiceCollection services)
     {
         services.TryAddSingleton(TimeProvider.System);
-        services.TryAddSingleton(new PasswordParameters());
+        services.TryAddSingleton(provider => PasswordPolicy.Load(provider.GetRequiredService<Core.Storage.IStateStore>()));
         services.TryAddSingleton<IPasswordHasher, PasswordHasher>();
         services.TryAddSingleton(provider => ActivatorUtilities.CreateInstance<CredentialFactory>(provider));
         services.TryAddSingleton<IAdminCredentialFactory>(provider => provider.GetRequiredService<CredentialFactory>());

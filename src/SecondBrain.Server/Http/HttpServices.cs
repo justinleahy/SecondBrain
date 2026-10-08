@@ -54,6 +54,7 @@ public sealed class LaneDStartupFilter : IStartupFilter
         {
             Auth.AuthEndpoints.Map(endpoints);
             Sources.SourceEndpoints.Map(endpoints);
+            AdministrationEndpoints.Map(endpoints);
             endpoints.MapGet("/ready", ReadinessService.RespondAsync).WithName("readiness");
             endpoints.MapOpenApi("/v1/openapi.json");
             endpoints.MapStaticAssets();

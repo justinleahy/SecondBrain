@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
+using SecondBrain.Server.Http;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Security;
 using SecondBrain.Server.Composition;
@@ -28,6 +30,24 @@ public sealed class ConfigurationIntegrationTests : IDisposable
     }
 
     [Fact]
+    public async Task ProductionKeyRingAndHttpProtectionComposeWithoutRecursion()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.Configure<SecondBrainOptions>(options => options.DataRoot = Data);
+        services.AddKeyRing();
+        // This fixture owns a real lock but does not require privileged incoming-root chown.
+        services.AddSingleton(_ => DataRootLock.Acquire(Data));
+        services.AddHttpHost();
+        await using var container = services.BuildServiceProvider();
+        var ring = container.GetRequiredService<IKeyRing>();
+        var framework = container.GetRequiredService<IDataProtectionProvider>().CreateProtector("framework");
+        var ciphertext = framework.Protect("probe");
+        Assert.Equal("probe", ring.DataProtectionProvider.CreateProtector(KeyRingPurposes.Antiforgery).CreateProtector("framework").Unprotect(ciphertext));
+        Assert.True(File.Exists(Path.Combine(Data, "keyring", "hmac.json")));
+    }
+
+    [Fact]
     public async Task KeyRingDataProtectionPersistsAndPurposesAreSeparated()
     {
         string protectedValue;
@@ -52,7 +72,7 @@ public sealed class ConfigurationIntegrationTests : IDisposable
     public void ConfigurationOptionsMonitorPublishesOnlyValidChangesAndDisposesSubscriptions()
     {
         var path = Path.Combine(root, "config.yaml");
-        var yaml = $"data_root: {Data}\nsources: {{ incoming_root: {Incoming}, allowed_roots: [{Incoming}] }}\nlogging: {{ level: info }}";
+        var yaml = $"data_root: {Data}\nserver: {{ listeners: [{{ bind: 127.0.0.1, port: 7171 }}], hosts: [localhost], origins: [http://localhost:7171] }}\nsources: {{ incoming_root: {Incoming}, allowed_roots: [{Incoming}] }}\nlogging: {{ level: info }}";
         File.WriteAllText(path, yaml);
         using var source = new ReloadingConfiguration(path, new YamlConfigurationLoader(environment: _ => null), watch: false);
         IOptionsMonitor<SecondBrainOptions> monitor = new SecondBrainOptionsMonitor(source);

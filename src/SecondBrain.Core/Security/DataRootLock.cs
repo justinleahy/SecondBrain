@@ -14,6 +14,7 @@ public sealed class DataRootLock : IDisposable
 {
     private readonly SafeFileHandle handle;
     private DataRootLock(SafeFileHandle handle) => this.handle = handle;
+    public bool IsHeld => !handle.IsClosed && !handle.IsInvalid;
 
     public static DataRootLock Acquire(string dataRoot)
     {

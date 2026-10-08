@@ -8,6 +8,7 @@
     <ProjectReference Include="../../src/SecondBrain.Server/SecondBrain.Server.csproj" />
     <ProjectReference Include="../../src/SecondBrain.Cli/SecondBrain.Cli.csproj" />
     <ProjectReference Include="../../src/SecondBrain.Extractor/SecondBrain.Extractor.csproj" />
+    <ProjectReference Include="../SecondBrain.MockProvider/SecondBrain.MockProvider.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

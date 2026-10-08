@@ -223,6 +223,8 @@
         "type": "Project",
         "dependencies": {
           "SecondBrain.Core": "[1.0.0, )",
+          "SecondBrain.Server": "[1.0.0, )",
+          "SecondBrain.Storage": "[1.0.0, )",
           "System.CommandLine": "[2.0.12, )"
         }
       },
@@ -240,6 +242,12 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )",
+          "SecondBrain.Core": "[1.0.0, )"
+        }
+      },
+      "secondbrain.mockprovider": {
+        "type": "Project",
+        "dependencies": {
           "SecondBrain.Core": "[1.0.0, )"
         }
       },

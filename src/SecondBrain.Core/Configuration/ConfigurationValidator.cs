@@ -9,10 +9,23 @@ public static class ConfigurationValidator
     public static void Validate(SecondBrainOptions options)
     {
         if (!Path.IsPathFullyQualified(options.DataRoot)) Fail("data_root must be absolute.");
+        if (options.Extractor is null || !Path.IsPathFullyQualified(options.Extractor.SocketPath)) Fail("extractor.socket_path must be absolute.");
         if (options.Server is null || options.Privacy is null || options.Models is null || options.Providers is null || options.Sources is null || options.Auth is null || options.Limits is null || options.Logging is null)
             Fail("M0 configuration sections must not be null.");
         if (options.Sources.AllowedRoots is null || options.Server.Listeners is null || options.Server.Hosts is null || options.Server.Origins is null || options.Server.TrustedProxies is null || options.Privacy.TrustedServices is null || options.Privacy.ControlPlaneEgress is null || options.Limits.PerCredential is null || options.Limits.Global is null)
             Fail("M0 configuration collections and limit groups must not be null.");
+        if (options.Server.Listeners.Count == 0 || options.Server.Hosts.Count == 0 || options.Server.Origins.Count == 0)
+            Fail("server.listeners, server.hosts and server.origins must be explicitly configured.");
+        foreach (var origin in options.Server.Origins)
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https") ||
+                uri.UserInfo.Length != 0 || uri.AbsolutePath != "/" || uri.Query.Length != 0 || uri.Fragment.Length != 0 ||
+                origin.EndsWith("/", StringComparison.Ordinal))
+                Fail("server.origins entries must be exact credential-free HTTP(S) origins without a path.");
+        foreach (var host in options.Server.Hosts)
+            if (string.IsNullOrWhiteSpace(host) || host.Contains('*', StringComparison.Ordinal) ||
+                !Uri.TryCreate("http://" + host, UriKind.Absolute, out var uri) || uri.UserInfo.Length != 0 ||
+                uri.AbsolutePath != "/" || uri.Query.Length != 0 || uri.Fragment.Length != 0)
+                Fail("server.hosts entries must be explicit hostnames or addresses with an optional port.");
         var data = UnixPath.Canonicalize(options.DataRoot);
         foreach (var root in options.Sources.AllowedRoots)
         {

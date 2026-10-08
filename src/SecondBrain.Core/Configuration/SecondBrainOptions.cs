@@ -51,4 +51,14 @@ public sealed class SecondBrainOptions
     /// <summary>The instance time zone and week boundary (§5.5).</summary>
     [YamlMember(Alias = "time")]
     public TimeOptions Time { get; set; } = new();
+
+    /// <summary>The isolated extractor's Unix socket, used for readiness and diagnostics.</summary>
+    [YamlMember(Alias = "extractor")]
+    public ExtractorOptions Extractor { get; set; } = new();
+}
+
+public sealed class ExtractorOptions
+{
+    [YamlMember(Alias = "socket_path")]
+    public string SocketPath { get; set; } = "/run/secondbrain/extractor.sock";
 }

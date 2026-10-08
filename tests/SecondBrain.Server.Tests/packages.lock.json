@@ -255,6 +255,13 @@
           "YamlDotNet": "[18.1.0, )"
         }
       },
+      "secondbrain.extractor": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )",
+          "SecondBrain.Core": "[1.0.0, )"
+        }
+      },
       "secondbrain.mockprovider": {
         "type": "Project",
         "dependencies": {
