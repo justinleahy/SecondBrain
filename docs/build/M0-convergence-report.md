@@ -1,5 +1,32 @@
 # M0 convergence report
 
+## M0 closure (2026-10-09)
+
+**M0 is closed for the reference Fedora x86_64 / Tailscale deployment.** The operator explicitly chose to close this working deployment and track the remaining integration qualifications as follow-ups. This is an accepted scope change: the Access portion of the original systemd egress spike remains unproved, and the live vLLM qualification is accepted from the local reference-host run rather than the remote workflow. None of the deferred checks is counted as passing.
+
+| Acceptance evidence | Result |
+| --- | --- |
+| Deterministic gates and deployment CI | All six jobs passed on implementation/evidence revision `8c7d24c`: locked build and deterministic tests, all three linux-x64 publishes, Docker build and G1 hardened Compose smoke. [GitHub Actions run 37947261649](https://github.com/justinleahy/SecondBrain/actions/runs/37947261649). The deterministic suite contains 750 passing cases; live qualification is separate. |
+| G2 live vLLM | `Qualification.VllmReady` passed twice on the RTX 5090 host with chat/enrich and embed on separate trusted loopback providers. `/ready` returned 200 through the production configuration and policy-owned transport; see the live qualification addendum below. |
+| Reference-host operation | systemd socket activation; cgroup-BPF public canary blockage with ready vLLM roles; `brain doctor`; native Linux Secret Service; and HTTPS 200 from the actual iPhone tailnet peer. See the target-host addendum below. |
+| M1 handoff | [M1 ingest/search plan](M1-ingest-and-search.md) is drafted. Extractor parsing/supervision, source reconciliation, durable admission, cursors and lineage/purge have M1 work items; pairing and assistant approval remain M2. |
+
+### Tracked follow-ups
+
+These remain open after M0 closure and carry their own acceptance checks:
+
+| Issue | Remaining qualification |
+| --- | --- |
+| [#2 — Remote live qualification runner](https://github.com/justinleahy/SecondBrain/issues/2) | Run the workflow on a trusted runner that can reach vLLM; the accepted local result does not prove the remote workflow. |
+| [#3 — Cloudflare Access and Tunnel](https://github.com/justinleahy/SecondBrain/issues/3) | Production JWKS refresh through the target-host egress policy, failed refresh with valid cached keys after removing the allowance, and the real Access/Tunnel login path. Local G12 fixture tests are already passing. |
+| [#4 — macOS Keychain](https://github.com/justinleahy/SecondBrain/issues/4) | Exercise native credential storage, authenticated CLI use and cleanup on macOS. |
+| [#5 — Linux arm64 descriptor ABI](https://github.com/justinleahy/SecondBrain/issues/5) | Run native descriptor, framing and cleanup checks on Linux arm64; Linux amd64 and macOS arm64 evidence already exists. |
+| [#6 — Certificate lifecycle](https://github.com/justinleahy/SecondBrain/issues/6) | Verify renewal adoption and missing/invalid/expired-certificate behavior. The current listener loads the certificate at startup; automatic reload is not claimed. Complete before the reference certificate expires on 2026-11-25. |
+
+The [M0 build plan](M0-foundations.md#accepted-closure-scope-2026-10-09) records the same acceptance decision. Earlier sections below are chronological evidence; their statements that M0 was open describe the state at those times and are superseded by this scoped closure.
+
+## Historical convergence record (2026-10-08)
+
 Recorded 2026-10-08 on branch `converge`, based on `cfecb8f`. All implementation work was confined to `.worktrees/converge`; no push, checkout, merge, rebase, or root-checkout changes were performed.
 
 The integrated solution and local gates pass. **M0 remains open:** the required live vLLM server is not set up, so `Qualification.VllmReady` has not exercised a live binding. The target-host operational spikes and the next GitHub CI run also need recorded evidence. Passing the unset-URL qualification no-op does not satisfy the live requirement.

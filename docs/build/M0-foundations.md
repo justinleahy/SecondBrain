@@ -6,6 +6,7 @@
 | **Duration** | Weeks 1–2 |
 | **Goal** | A daemon that starts hardened, authenticates, authorizes, enforces privacy and limits, persists through crash-safe stores, and proves it with automated gates. No ingestion, retrieval, chat, or UI beyond a login page. |
 | **Date** | 2026-10-08 |
+| **Status** | Closed 2026-10-09 for the reference Fedora x86_64 / Tailscale deployment; see the [accepted closure scope](#accepted-closure-scope-2026-10-09). |
 
 ---
 
@@ -301,3 +302,15 @@ Rules that keep the lanes from colliding:
 - The Dockerfile, Compose project, and systemd units ship in `deploy/` and are exercised by G1.
 - No `TODO` that affects a guarantee in §15 remains without a linked M1 or M2 work item.
 - `docs/build/M1-ingest-and-search.md` is drafted from §19 M1 before M0 is closed.
+
+### Accepted closure scope (2026-10-09)
+
+The operator accepted M0 for the working Fedora x86_64 / Tailscale deployment and explicitly moved the remaining integration qualifications to follow-up issues. This decision narrows the deployment qualification required for closure; it does not claim those checks passed. The original criteria above remain as the planning record.
+
+- G1–G12 automated coverage passes in GitHub CI; G2's live vLLM gate passed locally against the reference host through the production configuration and transport. The previously accepted local run satisfies this closure; running the remote qualification workflow remains [#2](https://github.com/justinleahy/SecondBrain/issues/2).
+- The target host proved socket activation, a blocked public canary with successful vLLM role probes, HTTPS from a real tailnet peer, `brain doctor`, and native Linux Secret Service.
+- The Access JWKS portion of the systemd egress spike and real Access/Tunnel integration are deferred to [#3](https://github.com/justinleahy/SecondBrain/issues/3). Local G12 tests do not prove that production network path.
+- Native macOS Keychain is [#4](https://github.com/justinleahy/SecondBrain/issues/4); Linux arm64 descriptor ABI is [#5](https://github.com/justinleahy/SecondBrain/issues/5); certificate renewal and expiry handling are [#6](https://github.com/justinleahy/SecondBrain/issues/6). Automatic certificate reload is not claimed.
+- The documented CLI/deployment evidence, M1 draft and links for deliberate M1/M2 stubs satisfy the remaining handoff requirements.
+
+The [convergence report](M0-convergence-report.md#m0-closure-2026-10-09) is the evidence index. This scoped closure permits M1 to start; it does not broaden platform support or qualify a public Cloudflare deployment.

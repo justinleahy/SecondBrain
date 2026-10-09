@@ -4,7 +4,7 @@
 
 A personal knowledge daemon built on .NET 10 and Blazor Interactive Server. M0 now connects validated YAML configuration, two crash-safe SQLite stores, provider-neutral model roles, privacy transport, credentials, browser sessions, admission limits, source registration, deployment, and the `brain` CLI. Ingestion, extraction beyond ping/descriptor probes, search, and chat land in later milestones.
 
-The local mock and hardened Docker gates are automated. The live vLLM qualification passed on 2026-10-09 against the two-server [deploy/vllm](deploy/vllm/README.md) Compose project on the RTX 5090 host; M0 remains open on the other recorded obligations. Target-host systemd egress and tailnet HTTPS spike procedures are in [deploy/README.md](deploy/README.md).
+**M0 is closed for the reference Fedora x86_64 / Tailscale deployment as of 2026-10-09.** The local mock and hardened Docker gates pass in CI, and the live vLLM qualification passed against the two-server [deploy/vllm](deploy/vllm/README.md) Compose project on the RTX 5090 host. Target-host evidence covers systemd socket activation, blocked canary with reachable vLLM roles, tailnet HTTPS from a real peer, `brain doctor`, and Linux Secret Service. The [closure record](docs/build/M0-convergence-report.md#m0-closure-2026-10-09) states the accepted scope and links the remaining Cloudflare, macOS Keychain, Linux arm64, certificate lifecycle and remote-runner follow-ups. [M1 — Ingest and search](docs/build/M1-ingest-and-search.md) is the next milestone.
 
 ## Build and test
 

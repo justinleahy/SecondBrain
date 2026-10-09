@@ -194,10 +194,14 @@ as well: allow the peer's exact address in a drop-in, and expect a request from
 the host's own tailnet address to be dropped unless that address is allowed too.
 From another tailnet peer, request `https://<name>:7443/health` with normal
 certificate verification (no `-k`) and record HTTP200, SAN, expiry, and peer
-identity. Check renewal reload
-and expired/missing certificate rejection. Kestrel's Tailscale selector/file
-support belongs to the HTTP lane; obtaining a certificate alone does not prove
-the HTTPS spike. No tailnet peer or systemd instance is available in the local
-macOS development environment, so these two operational spikes are target-host
-checks; the RTX 5090 workstation ran them on 2026-10-09, as recorded in
-[the M0 convergence report](../docs/build/M0-convergence-report.md).
+identity. Certificate loading currently happens at listener startup; file
+replacement alone does not establish renewal adoption. Renewal and
+expired/missing-certificate handling remain
+[#6](https://github.com/justinleahy/SecondBrain/issues/6), to complete before the
+reference certificate expires on 2026-11-25.
+
+The RTX 5090 workstation proved the canary/vLLM portion of the systemd spike
+and peer HTTPS on 2026-10-09. The Access JWKS portion of the egress spike and
+live Tunnel remain [#3](https://github.com/justinleahy/SecondBrain/issues/3).
+M0 closed for the Fedora/Tailscale deployment with these qualifications
+explicitly deferred; see [the closure record](../docs/build/M0-convergence-report.md#m0-closure-2026-10-09).
