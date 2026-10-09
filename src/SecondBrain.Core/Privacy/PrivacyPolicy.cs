@@ -27,6 +27,7 @@ public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IProvider
     private CanaryState _canaryState;
     private DateTimeOffset? _lastCheckedAt;
     private long _canaryGeneration;
+    private bool _admittingWrite;
 
     public PrivacyPolicy(
         IOptionsMonitor<SecondBrainOptions> options,
@@ -41,10 +42,15 @@ public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IProvider
         _snapshot = Prepare(options.CurrentValue);
         _reloadSubscription = options.OnChange((candidate, _) =>
         {
+            lock (_gate)
+            {
+                RefuseReentrantPublication();
+            }
             ValidateRegisteredConfiguration(candidate);
             var replacement = Prepare(candidate);
             lock (_gate)
             {
+                RefuseReentrantPublication();
                 if (_snapshot.CanaryTarget != replacement.CanaryTarget ||
                     _snapshot.CanaryEnabled != replacement.CanaryEnabled)
                 {
@@ -120,6 +126,41 @@ public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IProvider
         {
             throw Refusal("The provider request does not match its configured endpoint origin.");
         }
+    }
+
+    public ValueTask AdmitWrite(ModelRole role, IProviderBinding binding, Uri requestUri,
+        IPAddress connectedAddress, bool discovery, Func<ValueTask> initiateWrite)
+    {
+        ArgumentNullException.ThrowIfNull(initiateWrite);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(requestUri);
+        // Read adapter-owned context before admission; arbitrary binding implementations
+        // must never execute property callbacks while publication is excluded.
+        var providerName = binding.ProviderName;
+        var endpoint = binding.Endpoint;
+        var isLocal = binding.IsLocal;
+        lock (_gate)
+        {
+            if (_admittingWrite) throw Refusal("Nested provider write admission is refused.");
+            _admittingWrite = true;
+            try
+            {
+                ValidateBindingSnapshot(role, providerName, endpoint, isLocal, discovery);
+                if (endpoint is null || !SameOrigin(endpoint, requestUri))
+                    throw Refusal("The provider request does not match its configured endpoint origin.");
+                if (_snapshot.Pins.TryGetValue(Origin(requestUri), out var pinned))
+                    VerifyPins(pinned, [connectedAddress]);
+                // Only the adapter's trusted socket initiation runs here. The returned operation
+                // is awaited by the caller after the publication gate has been released.
+                return initiateWrite();
+            }
+            finally { _admittingWrite = false; }
+        }
+    }
+
+    private void RefuseReentrantPublication()
+    {
+        if (_admittingWrite) throw Refusal("Policy state cannot be published during provider write admission.");
     }
 
     /// <summary>A defensive copy of the approved addresses for an exact trusted origin.</summary>
@@ -209,6 +250,7 @@ public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IProvider
 
         lock (_gate)
         {
+            RefuseReentrantPublication();
             if (_snapshot.CanaryEnabled && configuration.Enabled && _canaryGeneration == configuration.Generation &&
                 string.Equals(_snapshot.CanaryTarget, configuration.Target, StringComparison.Ordinal))
             {
@@ -240,35 +282,40 @@ public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IProvider
     private Uri? ValidateBinding(ModelRole role, IProviderBinding binding, bool discovery)
     {
         ArgumentNullException.ThrowIfNull(binding);
-        lock (_gate)
+        var providerName = binding.ProviderName;
+        var endpoint = binding.Endpoint;
+        var isLocal = binding.IsLocal;
+        lock (_gate) return ValidateBindingSnapshot(role, providerName, endpoint, isLocal, discovery);
+    }
+
+    // Caller owns the policy gate. Only immutable request values enter this validation.
+    private Uri? ValidateBindingSnapshot(ModelRole role, string providerName, Uri? endpoint, bool isLocal, bool discovery)
+    {
+        var snapshot = _snapshot;
+        EnsureCurrentConfiguration(snapshot);
+        if (!snapshot.Providers.TryGetValue(providerName, out var configured))
         {
-            var snapshot = _snapshot;
-            EnsureCurrentConfiguration(snapshot);
-            if (!snapshot.Providers.TryGetValue(binding.ProviderName, out var configured))
-            {
-                throw Refusal("The provider binding is no longer configured.");
-            }
-
-            var endpoint = binding.Endpoint;
-            if (configured.Endpoint != endpoint ||
-                (endpoint is null && (!configured.InProcess || !binding.IsLocal)))
-            {
-                throw Refusal("The provider binding changed after policy approval.");
-            }
-
-            if (!discovery && !snapshot.Roles[role].Contains(binding.ProviderName))
-            {
-                throw Refusal("The provider is not bound to the requested model role.");
-            }
-
-            if (snapshot.LocalOnly && endpoint is not null && !snapshot.Pins.ContainsKey(Origin(endpoint)))
-            {
-                throw Refusal("local_only requires an in-process or exact trusted-service binding.");
-            }
-
-            CheckCanary(snapshot);
-            return endpoint;
+            throw Refusal("The provider binding is no longer configured.");
         }
+
+        if (configured.Endpoint != endpoint ||
+            (endpoint is null && (!configured.InProcess || !isLocal)))
+        {
+            throw Refusal("The provider binding changed after policy approval.");
+        }
+
+        if (!discovery && !snapshot.Roles[role].Contains(providerName))
+        {
+            throw Refusal("The provider is not bound to the requested model role.");
+        }
+
+        if (snapshot.LocalOnly && endpoint is not null && !snapshot.Pins.ContainsKey(Origin(endpoint)))
+        {
+            throw Refusal("local_only requires an in-process or exact trusted-service binding.");
+        }
+
+        CheckCanary(snapshot);
+        return endpoint;
     }
 
     private void EnsureCurrentConfiguration(PolicySnapshot snapshot)

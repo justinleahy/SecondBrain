@@ -6,7 +6,6 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Core.Providers;
 using SecondBrain.MockProvider;
-using SecondBrain.Providers.OpenAICompatible;
 using SecondBrain.Server.Tests.Support;
 using SecondBrain.Server.Http;
 using Xunit;
@@ -64,7 +63,7 @@ public sealed class Ready
         Assert.Equal(HttpStatusCode.OK, initial.StatusCode);
         var previous = factory.Configuration.CurrentValue;
         var yaml = await File.ReadAllTextAsync(factory.ConfigPath);
-        await File.WriteAllTextAsync(factory.ConfigPath, yaml.Replace("mock-chat", "unknown-model-without-capabilities", StringComparison.Ordinal));
+        await File.WriteAllTextAsync(factory.ConfigPath, yaml.Replace("tools: true", "tools: false", StringComparison.Ordinal));
         Assert.False(factory.Configuration.TryReload());
         Assert.Same(previous, factory.Configuration.CurrentValue);
         Assert.Same(previous, factory.Options.CurrentValue);
@@ -141,20 +140,18 @@ public sealed class Qualification
         var origin = new Uri(endpoint).GetLeftPart(UriPartial.Authority);
         var chatLimits = new ModelLimits { ContextTokens = ReadLimit("CONTEXT_WINDOW", 8192), MaxOutputTokens = ReadLimit("MAX_OUTPUT_TOKENS", 1024) };
         var embedLimits = new ModelLimits { EmbedDimensions = ReadLimit("DIMENSIONS", 4), EmbedMaxInputTokens = ReadLimit("MAX_INPUT_TOKENS", 8192), EmbedBatchMax = 32 };
+        // The workflow input names a reviewed native-tools streaming chat model. Declare that through
+        // the production models.<role>.capabilities configuration, which the factory round-trips through YAML.
+        var reviewedChat = new ModelCapabilityOptions { Tools = true, Streaming = true };
         await using var factory = new LaneDWebFactory(options =>
         {
             options.Providers = new() { ["vllm"] = new ProviderOptions { Kind = "openai_compatible", Endpoint = endpoint, Trusted = true } };
-            options.Models.Chat = new ModelBindingOptions { Provider = "vllm", Model = chat! };
-            options.Models.Enrich = new ModelBindingOptions { Provider = "vllm", Model = enrich };
-            options.Models.Embed = new ModelBindingOptions { Provider = "vllm", Model = embed! };
+            options.Models.Chat = new ModelBindingOptions { Provider = "vllm", Model = chat!, Limits = chatLimits, Capabilities = reviewedChat };
+            // A separately chosen enrichment model needs no tools and has no reviewed declaration.
+            options.Models.Enrich = new ModelBindingOptions { Provider = "vllm", Model = enrich, Limits = chatLimits,
+                Capabilities = enrich == chat ? reviewedChat : new() };
+            options.Models.Embed = new ModelBindingOptions { Provider = "vllm", Model = embed!, Limits = embedLimits };
             options.Privacy.TrustedServices = [origin];
-        }, services =>
-        {
-            var catalog = new ModelCatalog();
-            catalog.Register(chat!, new ModelCapabilities { Streaming = true, Tools = true }, chatLimits);
-            catalog.Register(enrich, new ModelCapabilities { Streaming = true, Tools = true }, chatLimits);
-            catalog.Register(embed!, new ModelCapabilities(), embedLimits);
-            services.AddSingleton(catalog);
         });
         using var client = factory.CreatePrivateClient();
         using var response = await client.GetAsync("/ready");

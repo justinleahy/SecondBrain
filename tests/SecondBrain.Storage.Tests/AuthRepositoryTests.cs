@@ -29,7 +29,7 @@ public sealed class AuthRepositoryTests
     }
 
     [Fact]
-    public async Task ListAsyncFiltersByKindAndOrdersByCreatedAtThenId()
+    public async Task ListPageAsyncFiltersByKindAndPagesByCreatedAtThenId()
     {
         await using var auth = await AuthStore.CreateAsync();
         await auth.Repository.AddAsync((Credential("b") with { CreatedAt = Format(Start.AddMinutes(2)) }).ToRecord());
@@ -37,9 +37,51 @@ public sealed class AuthRepositoryTests
         await auth.Repository.AddAsync((Credential("a") with { CreatedAt = Format(Start.AddMinutes(2)) }).ToRecord());
         await auth.Repository.AddAsync((Credential("s", kind: "session") with { CreatedAt = Format(Start) }).ToRecord());
 
-        Assert.Equal(["z", "a", "b"], (await auth.Repository.ListAsync("api_key")).Select(value => value.Id));
-        Assert.Equal(["s"], (await auth.Repository.ListAsync("session")).Select(value => value.Id));
-        Assert.Empty(await auth.Repository.ListAsync("cli"));
+        var first = await auth.Repository.ListPageAsync("api_key", activeOnly: false, after: null, limit: 2);
+        Assert.Equal(["z", "a"], first.Items.Select(value => value.Id));
+        Assert.Equal(new CredentialCursor(Format(Start.AddMinutes(2)), "a"), first.Next);
+        var second = await auth.Repository.ListPageAsync("api_key", activeOnly: false, first.Next, limit: 2);
+        Assert.Equal(["b"], second.Items.Select(value => value.Id));
+        Assert.Null(second.Next);
+        var exact = await auth.Repository.ListPageAsync("api_key", activeOnly: false, after: null, limit: 3);
+        Assert.Equal(["z", "a", "b"], exact.Items.Select(value => value.Id));
+        Assert.Null(exact.Next);
+        Assert.Equal(["s"], (await auth.Repository.ListPageAsync("session", activeOnly: false, after: null, limit: 10)).Items.Select(value => value.Id));
+        Assert.Empty((await auth.Repository.ListPageAsync("cli", activeOnly: false, after: null, limit: 10)).Items);
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => auth.Repository.ListPageAsync("api_key", activeOnly: false, after: null, limit: 0));
+    }
+
+    [Fact]
+    public async Task ListPageAsyncActiveOnlyFiltersHistoricalRowsBeforeTheLimit()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        var now = Format(Start);
+        var past = Format(Start.AddMinutes(-1));
+        var future = Format(Start.AddHours(1));
+        // 1,100 inactive sessions older than every active one: revoked, an earlier epoch, idle/absolute/hard expiry exactly at or before now.
+        await MigrationTestSql.WriteAsync(auth.State, $"""
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<1100)
+            INSERT INTO credentials (id,name,kind,verifier,scopes,generation,kid,account_epoch,idle_expires_at,absolute_expires_at,created_at,expires_at,revoked_at)
+            SELECT printf('h%05d', i), 'old', 'session', 'v', '', 1, 'k', CASE i % 5 WHEN 1 THEN 0 ELSE 1 END,
+              CASE i % 5 WHEN 2 THEN '{now}' ELSE '{future}' END, CASE i % 5 WHEN 3 THEN '{past}' ELSE '{future}' END,
+              '{Format(Start.AddDays(-1))}', CASE i % 5 WHEN 4 THEN '{now}' END, CASE i % 5 WHEN 0 THEN '{past}' END FROM n;
+            """);
+        foreach (var id in new[] { "c", "a", "b" })
+            await auth.Repository.AddAsync((Credential(id, kind: "session") with { IdleExpiresAt = future, AbsoluteExpiresAt = future }).ToRecord());
+
+        var active = await auth.Repository.ListPageAsync("session", activeOnly: true, after: null, limit: 1000);
+        Assert.Equal(["a", "b", "c"], active.Items.Select(value => value.Id));
+        Assert.Null(active.Next);
+        var history = new List<string>();
+        CredentialCursor? cursor = null;
+        do
+        {
+            var page = await auth.Repository.ListPageAsync("session", activeOnly: false, cursor, limit: 500);
+            history.AddRange(page.Items.Select(value => value.Id));
+            cursor = page.Next;
+        } while (cursor is not null);
+        Assert.Equal(1103, history.Distinct().Count());
+        Assert.Equal(["a", "b", "c"], history[^3..]);
     }
 
     [Fact]
@@ -49,6 +91,15 @@ public sealed class AuthRepositoryTests
         Assert.Equal(1, await auth.Repository.GetEpochAsync());
         await MigrationTestSql.WriteAsync(auth.State, "UPDATE meta SET value='7' WHERE key='account_epoch';");
         Assert.Equal(7, await auth.Repository.GetEpochAsync());
+    }
+
+    [Fact]
+    public async Task GetInstanceIdAsyncReadsTheMetaInstanceIdAndRefusesAnUninitializedStore()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        await Assert.ThrowsAsync<InvalidDataException>(() => auth.Repository.GetInstanceIdAsync());
+        await MigrationTestSql.WriteAsync(auth.State, "INSERT INTO meta(key, value) VALUES ('instance_id', '01J00000000000000000000000');");
+        Assert.Equal("01J00000000000000000000000", await auth.Repository.GetInstanceIdAsync());
     }
 
     [Fact]
@@ -281,16 +332,60 @@ public sealed class AuthRepositoryTests
     public async Task LoginAttemptsAsyncFiltersBySourceAndSinceInclusiveOrderedByTime()
     {
         await using var auth = await AuthStore.CreateAsync();
-        await auth.Repository.RecordLoginAsync("10.0.0.1", Start.AddMinutes(3), success: true);
+        await auth.Repository.RecordLoginAsync("10.0.0.1", Start.AddMinutes(3), success: false);
         await auth.Repository.RecordLoginAsync("10.0.0.1", Start.AddMinutes(1), success: false);
         await auth.Repository.RecordLoginAsync("10.0.0.1", Start, success: false);
         await auth.Repository.RecordLoginAsync("10.0.0.2", Start.AddMinutes(2), success: false);
 
-        var attempts = await auth.Repository.LoginAttemptsAsync("10.0.0.1", Start.AddMinutes(1));
+        var attempts = await auth.Repository.LoginAttemptsAsync("10.0.0.1", Start.AddMinutes(1), limit: 1000);
 
-        Assert.Equal([(Format(Start.AddMinutes(1)), false), (Format(Start.AddMinutes(3)), true)], attempts.Select(value => (value.At, value.Success)));
+        Assert.Equal([(Format(Start.AddMinutes(1)), false), (Format(Start.AddMinutes(3)), false)], attempts.Select(value => (value.At, value.Success)));
         Assert.All(attempts, value => Assert.Equal("10.0.0.1", value.Source));
-        Assert.Empty(await auth.Repository.LoginAttemptsAsync("10.0.0.3", Start));
+        Assert.Empty(await auth.Repository.LoginAttemptsAsync("10.0.0.3", Start, limit: 1000));
+    }
+
+    [Fact]
+    public async Task LoginAttemptsAsyncStartsAtTheLatestSuccessInTheWindow()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        await auth.Repository.RecordLoginAsync("10.0.0.1", Start, success: false);
+        await auth.Repository.RecordLoginAsync("10.0.0.1", Start.AddMinutes(1), success: true);
+        await auth.Repository.RecordLoginAsync("10.0.0.1", Start.AddMinutes(2), success: false);
+        await auth.Repository.RecordLoginAsync("10.0.0.1", Start.AddMinutes(3), success: true);
+        await auth.Repository.RecordLoginAsync("10.0.0.1", Start.AddMinutes(4), success: false);
+
+        Assert.Equal([(Format(Start.AddMinutes(3)), true), (Format(Start.AddMinutes(4)), false)],
+            (await auth.Repository.LoginAttemptsAsync("10.0.0.1", Start, limit: 1000)).Select(value => (value.At, value.Success)));
+        // A success before the window does not start the tail.
+        Assert.Equal([(Format(Start.AddMinutes(4)), false)],
+            (await auth.Repository.LoginAttemptsAsync("10.0.0.1", Start.AddMinutes(4), limit: 1000)).Select(value => (value.At, value.Success)));
+    }
+
+    [Fact]
+    public async Task LoginAttemptsAsyncBreaksIdenticalTimestampsByInsertionOrder()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        var at = Format(Start);
+        await MigrationTestSql.WriteAsync(auth.State, $"""
+            INSERT INTO login_attempts(source,at,success) VALUES ('s','{at}',0);
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<1500) INSERT INTO login_attempts(source,at,success) SELECT 's','{at}',1 FROM n;
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<5) INSERT INTO login_attempts(source,at,success) SELECT 's','{at}',0 FROM n;
+            """);
+
+        var attempts = await auth.Repository.LoginAttemptsAsync("s", Start, limit: 1000);
+
+        Assert.Equal([true, false, false, false, false, false], attempts.Select(value => value.Success));
+    }
+
+    [Fact]
+    public async Task LoginAttemptsAsyncKeepsTheNewestRowsChronologicallyWhenTheTailExceedsTheLimit()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        for (var i = 0; i < 10; i++) await auth.Repository.RecordLoginAsync("s", Start.AddMinutes(i), success: false);
+
+        var attempts = await auth.Repository.LoginAttemptsAsync("s", Start, limit: 3);
+
+        Assert.Equal([Format(Start.AddMinutes(7)), Format(Start.AddMinutes(8)), Format(Start.AddMinutes(9))], attempts.Select(value => value.At));
     }
 
     [Fact]
@@ -304,8 +399,8 @@ public sealed class AuthRepositoryTests
         await auth.Repository.RecordLoginAsync("b", Start, success: true);
 
         Assert.Equal(2L, await MigrationTestSql.ScalarAsync(auth.State, "SELECT COUNT(*) FROM login_attempts;"));
-        Assert.Equal([Format(Start.AddDays(-1))], (await auth.Repository.LoginAttemptsAsync("a", DateTimeOffset.MinValue)).Select(value => value.At));
-        Assert.Equal([(Format(Start), true)], (await auth.Repository.LoginAttemptsAsync("b", DateTimeOffset.MinValue)).Select(value => (value.At, value.Success)));
+        Assert.Equal([Format(Start.AddDays(-1))], (await auth.Repository.LoginAttemptsAsync("a", DateTimeOffset.MinValue, limit: 1000)).Select(value => value.At));
+        Assert.Equal([(Format(Start), true)], (await auth.Repository.LoginAttemptsAsync("b", DateTimeOffset.MinValue, limit: 1000)).Select(value => (value.At, value.Success)));
     }
 
     private static string Format(DateTimeOffset value) => AuthTime.Format(value);
@@ -331,6 +426,92 @@ public sealed class AuthRepositoryTests
             AccountEpoch = AccountEpoch, Device = Device, IdleExpiresAt = IdleExpiresAt, AbsoluteExpiresAt = AbsoluteExpiresAt,
             SteppedUpAt = SteppedUpAt, CreatedAt = CreatedAt, LastUsedAt = LastUsedAt, ExpiresAt = ExpiresAt, RevokedAt = RevokedAt,
         };
+    }
+
+    [Theory]
+    [InlineData("revoked")]
+    [InlineData("rotated")]
+    [InlineData("epoch")]
+    [InlineData("expired")]
+    [InlineData("step-up")]
+    public async Task QueuedMutationRechecksActorBeforeLookingUpTarget(string invalidation)
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        var actor = (Credential("actor", "session") with { SteppedUpAt = Format(Start), ExpiresAt = Format(Start.AddHours(1)) }).ToRecord();
+        await auth.Repository.AddAsync(actor);
+        await auth.Repository.AddAsync(Credential("target", "session").ToRecord());
+        var admitted = new AuthenticatedCredential(actor.Id, actor.Kind, actor.Generation, actor.AccountEpoch, actor.GrantedScopes, actor.SteppedUpAt);
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var blocker = auth.State.QueueWriteAsync(async (connection, transaction, token) =>
+        {
+            entered.SetResult();
+            await release.Task;
+            var sql = invalidation switch
+            {
+                "revoked" => "UPDATE credentials SET revoked_at='2026-10-08T00:00:00.0000000+00:00' WHERE id='actor'",
+                "rotated" => "UPDATE credentials SET generation=generation+1 WHERE id='actor'",
+                "epoch" => "UPDATE meta SET value='2' WHERE key='account_epoch'",
+                _ => "SELECT 1",
+            };
+            using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = sql;
+            await command.ExecuteNonQueryAsync(token);
+            return true;
+        });
+        await entered.Task;
+        var mutation = auth.Repository.RevokeAuthorizedAsync("target", "session", admitted, TimeSpan.FromMinutes(10));
+        var missing = auth.Repository.RevokeAuthorizedAsync("missing", "session", admitted, TimeSpan.FromMinutes(10));
+        if (invalidation == "expired") auth.Clock.Advance(TimeSpan.FromHours(1));
+        if (invalidation == "step-up") auth.Clock.Advance(TimeSpan.FromMinutes(10));
+        release.SetResult();
+        await blocker;
+        await Assert.ThrowsAsync<AuthorityChangedException>(() => mutation);
+        await Assert.ThrowsAsync<AuthorityChangedException>(() => missing);
+        Assert.Null((await auth.Repository.FindAsync("target"))!.RevokedAt);
+    }
+
+    [Fact]
+    public async Task CurrentActorsCanManageKeysAndSelfLogoutWithoutStepUp()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        var key = (Credential("admin") with { Scopes = "admin" }).ToRecord();
+        await auth.Repository.AddAsync(key);
+        var admin = new AuthenticatedCredential(key.Id, key.Kind, key.Generation, key.AccountEpoch, key.GrantedScopes, null);
+        await auth.Repository.AddAuthorizedAsync(Credential("new-key").ToRecord(), admin, TimeSpan.FromMinutes(10));
+        Assert.True(await auth.Repository.RevokeAuthorizedAsync("new-key", "api_key", admin, TimeSpan.FromMinutes(10)));
+        var session = Credential("self", "session").ToRecord();
+        await auth.Repository.AddAsync(session);
+        var identity = new AuthenticatedCredential(session.Id, session.Kind, session.Generation, session.AccountEpoch, session.GrantedScopes, null);
+        Assert.True(await auth.Repository.RevokeAuthorizedAsync("self", "session", identity, TimeSpan.FromMinutes(10)));
+    }
+
+    [Fact]
+    public async Task FreshSessionCanMutateButExpiredAuthorityCannotIssueOrLogoutAll()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        var row = (Credential("actor", "session") with { Scopes = "admin", SteppedUpAt = Format(Start) }).ToRecord();
+        await auth.Repository.AddAsync(row);
+        var actor = new AuthenticatedCredential(row.Id, row.Kind, row.Generation, row.AccountEpoch, row.GrantedScopes, row.SteppedUpAt);
+        await auth.Repository.AddAuthorizedAsync(Credential("key").ToRecord(), actor, TimeSpan.FromMinutes(10));
+        Assert.True(await auth.Repository.RevokeAuthorizedAsync("key", "api_key", actor, TimeSpan.FromMinutes(10)));
+        auth.Clock.Advance(TimeSpan.FromMinutes(10));
+        await Assert.ThrowsAsync<AuthorityChangedException>(() => auth.Repository.AddAuthorizedAsync(Credential("blocked").ToRecord(), actor, TimeSpan.FromMinutes(10)));
+        await Assert.ThrowsAsync<AuthorityChangedException>(() => auth.Repository.BumpEpochAuthorizedAsync(actor, TimeSpan.FromMinutes(10)));
+        Assert.Equal(1, await auth.Repository.GetEpochAsync());
+        Assert.Null(await auth.Repository.FindAsync("blocked"));
+    }
+
+    [Fact]
+    public async Task RotationRejectsHardExpiryAndReplacementEpochMismatch()
+    {
+        await using var auth = await AuthStore.CreateAsync();
+        await auth.Repository.AddAsync((Credential("actor", "session") with { ExpiresAt = Format(Start) }).ToRecord());
+        Assert.False(await auth.Repository.RotateAsync("actor", 1, 1, Credential("replacement", "session").ToRecord()));
+        await auth.Repository.AddAsync(Credential("current", "session").ToRecord());
+        Assert.False(await auth.Repository.RotateAsync("current", 1, 1, (Credential("replacement", "session") with { AccountEpoch = 2 }).ToRecord()));
+        Assert.Null((await auth.Repository.FindAsync("current"))!.RevokedAt);
     }
 
     private sealed class ManualClock(DateTimeOffset now) : TimeProvider

@@ -13,7 +13,7 @@ on:
         type: string
         required: true
       chat_model:
-        description: Reviewed native-tools chat model id
+        description: Reviewed native-tools streaming chat model id (declared through models.chat.capabilities)
         type: string
         required: true
       enrich_model:

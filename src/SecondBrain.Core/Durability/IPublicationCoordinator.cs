@@ -3,7 +3,10 @@ namespace SecondBrain.Core.Durability;
 /// <summary>Serializes a document's state and index publication without cross-store atomicity (§8).</summary>
 public interface IPublicationCoordinator
 {
-    /// <summary>Records a new revision, replaces its index snapshot, then marks it published.</summary>
+    /// <summary>
+    /// Records a new revision, replaces its index snapshot, then marks it published. A document with an active
+    /// (prepared or applied) journal mutation is Superseded until that mutation is finalized or conflicted.
+    /// </summary>
     ValueTask<PublicationOutcome> PublishAsync(DocumentPublication publication, CancellationToken cancellationToken = default);
 
     /// <summary>Publishes an existing revision only while both job fences remain current.</summary>

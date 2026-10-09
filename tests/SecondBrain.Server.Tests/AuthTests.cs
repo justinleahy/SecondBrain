@@ -160,6 +160,9 @@ public sealed class AuthTests(ITestOutputHelper output)
         var key = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Admin });
         keyClient.DefaultRequestHeaders.Authorization = new("Bearer", key.Plaintext);
         await AddCsrf(first);
+        Assert.Equal(HttpStatusCode.Forbidden, (await first.PostAsync("/auth/logout-all", null)).StatusCode);
+        Assert.Equal(1, await factory.Services.GetRequiredService<IAuthRepository>().GetEpochAsync());
+        await StepUp(first);
         Assert.Equal(HttpStatusCode.NoContent, (await first.PostAsync("/auth/logout-all", null)).StatusCode);
         Assert.Equal(2, await factory.Services.GetRequiredService<IAuthRepository>().GetEpochAsync());
         Assert.Equal(HttpStatusCode.Unauthorized, (await second.GetAsync("/auth/me")).StatusCode);
@@ -213,6 +216,9 @@ public sealed class AuthTests(ITestOutputHelper output)
         var list = (await first.GetFromJsonAsync<CredentialSummary[]>("/auth/sessions"))!;
         Assert.Equal(2, list.Length);
         await AddCsrf(first);
+        Assert.Equal(HttpStatusCode.Forbidden, (await first.DeleteAsync("/auth/sessions/" + row.Id)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await second.GetAsync("/auth/me")).StatusCode);
+        await StepUp(first);
         Assert.Equal(HttpStatusCode.NoContent, (await first.DeleteAsync("/auth/sessions/" + row.Id)).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await second.GetAsync("/auth/me")).StatusCode);
         Assert.Equal(HttpStatusCode.NoContent, (await first.PostAsync("/auth/logout", null)).StatusCode);
@@ -300,6 +306,13 @@ public sealed class AuthTests(ITestOutputHelper output)
         var response = await client.PostAsJsonAsync("/auth/login", new LoginRequest(password));
         Assert.True(response.StatusCode == HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
         return response;
+    }
+    private static async Task StepUp(HttpClient client)
+    {
+        await AddCsrf(client);
+        using var stepped = await client.PostAsJsonAsync("/auth/step-up", new LoginRequest("test-password"));
+        Assert.Equal(HttpStatusCode.OK, stepped.StatusCode);
+        await AddCsrf(client);
     }
     private static async Task AddCsrf(HttpClient client)
     {

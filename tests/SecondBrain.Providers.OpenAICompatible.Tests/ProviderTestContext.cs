@@ -49,9 +49,9 @@ internal sealed class ProviderTestContext : IAsyncDisposable
         },
         Models = new()
         {
-            Chat = new() { Provider = "test-local", Model = "mock-chat" },
-            Enrich = new() { Provider = "test-local", Model = "mock-chat" },
-            Embed = new() { Provider = "test-local", Model = "mock-embed" },
+            Chat = new() { Provider = "test-local", Model = "mock-chat", Capabilities = new() { Tools = true, Streaming = true }, Limits = new() { ContextTokens = 8192, MaxOutputTokens = 1024 } },
+            Enrich = new() { Provider = "test-local", Model = "mock-chat", Capabilities = new() { Tools = true, Streaming = true }, Limits = new() { ContextTokens = 8192, MaxOutputTokens = 1024 } },
+            Embed = new() { Provider = "test-local", Model = "mock-embed", Limits = new() { EmbedDimensions = 4, EmbedMaxInputTokens = 8192, EmbedBatchMax = 32 } },
         },
         Privacy = new() { LocalOnly = true, EgressCanary = false, TrustedServices = [endpoint.GetLeftPart(UriPartial.Authority)] },
     };

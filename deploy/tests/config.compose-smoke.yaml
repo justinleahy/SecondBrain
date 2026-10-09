@@ -12,9 +12,9 @@ providers:
     endpoint: http://127.0.0.1:8181/v1
     trusted: true
 models:
-  chat: { provider: mock, model: mock-chat }
-  enrich: { provider: mock, model: mock-chat }
-  embed: { provider: mock, model: mock-embed }
+  chat: { provider: mock, model: mock-chat, capabilities: { tools: true, streaming: true }, limits: { context_tokens: 8192, max_output_tokens: 1024 } }
+  enrich: { provider: mock, model: mock-chat, capabilities: { tools: true, streaming: true }, limits: { context_tokens: 8192, max_output_tokens: 1024 } }
+  embed: { provider: mock, model: mock-embed, limits: { embed_dimensions: 4, embed_max_input_tokens: 8192, embed_batch_max: 32 } }
 privacy:
   local_only: true
   trusted_services: [http://127.0.0.1:8181]

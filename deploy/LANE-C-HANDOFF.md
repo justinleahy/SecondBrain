@@ -43,6 +43,18 @@ accepts the older `SECONDBRAIN_SECRETS_DIR` alias. Lane B owns DNS pinning and t
 policy-owned provider transport; lane D owns listener/certificate and Access handling.
 Both can subscribe to the standard options monitor registered in composition.
 
+The daemon resolves `SECONDBRAIN_CONFIG` and `SECONDBRAIN_SECRETS_DIRECTORY` once
+into `RuntimeLocations`; the same values feed the loader and FLD-1 source
+registration. The configuration directory, the directory of every symlink hop of
+the configuration file, and the secrets directory are protected lexically and
+canonically, including their ancestors, even beneath an allowed root. Keep
+relocated configuration and secrets beside incoming/source roots, not inside them.
+
+`AddSecondBrainStorage` requires a registered `IDiskCapacity`; the daemon (lane A
+composition) and the CLI's local storage both register the mount-aware
+`DiskCapacity`, so the migration preflight measures the filesystem mounted at the
+data root and fails closed when that capacity is unknown.
+
 Bind the following `CliServices` adapters:
 
 | Interface | Owner and responsibility |

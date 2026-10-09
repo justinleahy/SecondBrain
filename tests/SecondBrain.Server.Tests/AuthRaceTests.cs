@@ -30,7 +30,7 @@ public sealed class AuthRaceTests
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.False(response.Headers.TryGetValues("Set-Cookie", out var cookies) && cookies.Any(cookie => cookie.StartsWith(CredentialService.CookieName + "=", StringComparison.Ordinal)));
-        Assert.Empty(await repository.ListAsync("session"));
+        Assert.Empty((await repository.ListPageAsync("session", activeOnly: false, after: null, limit: 100)).Items);
         Assert.Equal("reset-password-hash", (await repository.GetAccountAsync())!.PasswordHash);
         Assert.Equal(2, await repository.GetEpochAsync());
     }
@@ -49,7 +49,7 @@ public sealed class AuthRaceTests
         var context = new DefaultHttpContext { RequestServices = factory.Services };
         var credentials = factory.Services.GetRequiredService<CredentialService>();
         await Assert.ThrowsAsync<AuthorityChangedException>(() => credentials.IssueSessionAsync(context, verifiedEpoch: decision.AccountEpoch));
-        Assert.Empty(await repository.ListAsync("session"));
+        Assert.Empty((await repository.ListPageAsync("session", activeOnly: false, after: null, limit: 100)).Items);
         Assert.False(context.Response.Headers.ContainsKey("Set-Cookie"));
     }
 

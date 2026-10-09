@@ -13,11 +13,18 @@ and `embed` bindings must resolve before startup; `rerank` is optional.
   the previous options on rejection; any unapproved current options fail closed.
   The registry also registers its pure validation with the privacy policy, so
   rejected provider reloads cannot partially publish new privacy pins.
-- Unknown enrichment/rerank models can supply explicit limits. Unknown chat models
-  also need a reviewed concrete capabilities declaration through
-  `ModelCatalog.Register()`: tools are required and never inferred from an endpoint.
-  Unknown embedding models need all three embedding limits. `dimensions` overrides
-  the selected embedding dimensions.
+- Model names have no built-in limits or capabilities, including `mock-chat`, `gpt-4o`,
+  and familiar embedding names. Production YAML must declare limits for every binding.
+  Reviewed programmatic registrations use `Register(provider, model, capabilities, limits)`
+  and apply only to that exact pair; provider aliases and adapter kinds confer no metadata.
+  Enrichment/rerank models can supply explicit limits. Unknown chat models
+  also need a reviewed capability declaration in configuration, for example
+  `models.chat.capabilities: { tools: true, streaming: true }` (also
+  `structured_output`). Unset capabilities stay unsupported; tools are required for
+  chat and never inferred from an endpoint or provider. A declaration for a model in
+  the adapter catalog must agree with that catalog entry, or validation rejects it.
+  Fallbacks carry their own declarations. Unknown embedding models need all three
+  embedding limits. `dimensions` overrides the selected embedding dimensions.
 - Replace `IProviderCredentialResolver` with the configuration lane's secret
   resolver before calling `AddProviders()` when secrets may come from files. The
   default resolves `${NAME}` environment references and refuses literal keys.
@@ -44,10 +51,21 @@ and `embed` bindings must resolve before startup; `rerank` is optional.
 `SocketsHttpHandler` disables proxies, redirects and cookies. Every request checks
 the live role/configuration, request origin and canary, then resolves and checks
   DNS on every send. `ConnectCallback` resolves again, re-evaluates policy after DNS
-  and the socket connect, and connects only to checked addresses. Socket lifetime
+  and connects only to checked addresses. After the connect, and again before every
+  write on the connection, it checks the dialed address against the current pins and
+  re-evaluates the writing request's policy, so a repin accepted while a connect is in
+  flight cannot send to a removed address. This adapter currently sends exactly
+  HTTP/1.1 because its checks are written per connection and per request: HTTP/3
+  bypasses `ConnectCallback`, and HTTP/2 multiplexing does not fit the per-request
+  policy context those checks read. Either protocol would need its own reviewed
+  checks; this is a constraint of the current adapter, not of HTTP/2. Socket lifetime
   is zero so an accepted DNS repin cannot reuse a socket to the previous address;
   this deliberately gives up keep-alive until a pool-generation API is available.
   Adapter clients cannot expose vendor SDK clients or accept raw SDK option callbacks.
+
+Model discovery reads at most 8 MiB of `/models` response, 10,000 entries and
+512-character IDs, within the discovery client's timeout including the body. Larger
+responses are `provider-malformed` failures.
 
 The adapter disables SDK retries. Retry admission belongs to the engine; each
 future admitted retry still crosses the same transport and fresh policy check.

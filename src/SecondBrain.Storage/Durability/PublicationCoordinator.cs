@@ -53,6 +53,16 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
         var now = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
         var accepted = await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
+            // A prepared or applied journal mutation owns the next revision until it is finalized or conflicted.
+            await using (var reservation = Command(connection, transaction,
+                "SELECT 1 FROM meta WHERE key = $key", ("$key", MutationJournal.DocumentReservationKey(publication.DocumentId))))
+            {
+                if (await reservation.ExecuteScalarAsync(token) is not null)
+                {
+                    return false;
+                }
+            }
+
             await using (var lookup = Command(connection, transaction,
                 "SELECT revision FROM documents WHERE id = $id", ("$id", publication.DocumentId)))
             {
@@ -154,6 +164,8 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
         using var documentLock = await locks.AcquireAsync(expected.DocumentId, cancellationToken);
         var accepted = await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
+            await using var reservation = Command(connection, transaction, "SELECT 1 FROM meta WHERE key=$key", ("$key", MutationJournal.DocumentReservationKey(expected.DocumentId)));
+            if (await reservation.ExecuteScalarAsync(token) is not null) return false;
             if (!await FenceMatchesAsync(connection, transaction, expected, token))
             {
                 return false;

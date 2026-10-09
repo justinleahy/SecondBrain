@@ -49,4 +49,8 @@ public sealed class ModelBindingOptions
     /// <summary>Nullable overrides of the adapter's model limit catalog (§13.3).</summary>
     [YamlMember(Alias = "limits")]
     public ModelLimits Limits { get; set; } = new();
+
+    /// <summary>Explicit capability declarations for a model absent from the adapter catalog (§13.3).</summary>
+    [YamlMember(Alias = "capabilities")]
+    public ModelCapabilityOptions Capabilities { get; set; } = new();
 }

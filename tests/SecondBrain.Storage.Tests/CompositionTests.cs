@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Durability;
+using SecondBrain.Core.Limits;
 using SecondBrain.Core.Storage;
 using Xunit;
 
@@ -72,11 +73,38 @@ public sealed class CompositionTests
         finally { if (Directory.Exists(root)) Directory.Delete(root, true); }
     }
 
-    private static ServiceProvider Provider(string root)
+    [Fact]
+    public async Task MigrationStartupUsesTheRegisteredDataRootDiskProbe()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "secondbrain-composition-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var disk = new MigrationTestDisk(0);
+            await using (var provider = Provider(root, disk))
+            {
+                var error = await Assert.ThrowsAsync<IOException>(() => Assert.Single(provider.GetServices<IHostedService>()).StartAsync(default));
+                Assert.Contains("disk preflight", error.Message, StringComparison.Ordinal);
+                Assert.False(provider.GetRequiredService<IStorageStatus>().Ready);
+            }
+            Assert.Equal(new[] { Path.GetFullPath(root) }, disk.Queried);
+
+            // Composition without a probe cannot silently measure some other filesystem.
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddSingleton<IOptions<SecondBrainOptions>>(Options.Create(new SecondBrainOptions { DataRoot = root }));
+            services.AddSecondBrainStorage();
+            await using var unprobed = services.BuildServiceProvider();
+            Assert.Throws<InvalidOperationException>(() => unprobed.GetRequiredService<IMigrationRunner>());
+        }
+        finally { if (Directory.Exists(root)) Directory.Delete(root, true); }
+    }
+
+    private static ServiceProvider Provider(string root, IDiskCapacity? disk = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<IOptions<SecondBrainOptions>>(Options.Create(new SecondBrainOptions { DataRoot = root }));
+        services.AddSingleton(disk ?? new MigrationTestDisk(1L << 40));
         services.AddSecondBrainStorage();
         services.AddSecondBrainStorage();
         return services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });

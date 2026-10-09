@@ -45,6 +45,8 @@ public sealed class LaneDStartupFilter : IStartupFilter
         app.UseRouting();
         // Endpoint metadata adds anonymous-browser Origin requirements after routing.
         app.UseMiddleware<RequestPolicyMiddleware>();
+        // Password bodies are admitted and bounded after Origin/Access and before authentication's antiforgery read.
+        app.UseMiddleware<Auth.PasswordRequestMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseMiddleware<Auth.RequestAuthorizationMiddleware>();

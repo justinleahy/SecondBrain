@@ -1,3 +1,4 @@
+Singleton RuntimeLocations -> factory
 Singleton YamlConfigurationLoader -> factory
 Singleton ISecretResolver -> factory
 Singleton ReloadingConfiguration -> factory
@@ -12,6 +13,7 @@ Singleton IHmacKeyRing -> factory
 Singleton IHostedService -> KeyRingStartup
 Singleton IReadinessContributor -> LockReadinessContributor
 Singleton IReadinessContributor -> ExtractorReadinessContributor
+Singleton IDiskCapacity -> DiskCapacity
 Singleton SqliteStoreOptions -> instance:SqliteStoreOptions
 Singleton ICrashPoints -> NoOpCrashPoints
 Singleton SqliteStateStore -> factory
@@ -70,7 +72,6 @@ Transient CredentialAuthenticationHandler -> CredentialAuthenticationHandler
 Scoped AuthenticationStateProvider -> SessionRevalidationProvider
 Scoped CircuitHandler -> SessionCircuitHandler
 Singleton IScopePolicy -> M0ScopePolicy
-Singleton IDiskCapacity -> DiskCapacity
 Singleton IAdmissionController -> AdmissionController
 Singleton ISourcePathValidator -> SourcePathValidator
 Singleton ISourceRepository -> factory

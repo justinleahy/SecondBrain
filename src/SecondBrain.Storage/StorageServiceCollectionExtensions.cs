@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Durability;
+using SecondBrain.Core.Limits;
 using SecondBrain.Core.Storage;
 using SecondBrain.Storage.Durability;
 using SecondBrain.Storage.Initialization;
@@ -15,7 +16,10 @@ namespace SecondBrain.Storage;
 /// <summary>Shared daemon/CLI composition for the configured data root.</summary>
 public static class StorageServiceCollectionExtensions
 {
-    /// <summary>Registers stores and ordered migration/journal/publication startup. The host takes its data-root lock first.</summary>
+    /// <summary>
+    /// Registers stores and ordered migration/journal/publication startup. The host takes its data-root lock first
+    /// and must register a mount-aware <see cref="IDiskCapacity"/> for the migration disk preflight.
+    /// </summary>
     public static IServiceCollection AddSecondBrainStorage(this IServiceCollection services)
     {
         services.TryAddSingleton(new SqliteStoreOptions());
@@ -32,6 +36,7 @@ public static class StorageServiceCollectionExtensions
         services.TryAddSingleton<IMigrationRunner>(provider => new MigrationRunner(
             provider.GetRequiredService<IStateStore>(), provider.GetRequiredService<IIndexStore>(),
             provider.GetRequiredService<IOptions<SecondBrainOptions>>().Value.DataRoot,
+            provider.GetRequiredService<IDiskCapacity>(),
             provider.GetRequiredService<ICrashPoints>()));
         services.TryAddSingleton<IStoreInitializer, StoreInitializer>();
         services.TryAddSingleton<IMutationJournal>(provider => new MutationJournal(

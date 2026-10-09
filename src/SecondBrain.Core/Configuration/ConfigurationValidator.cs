@@ -69,6 +69,7 @@ public static class ConfigurationValidator
             if (options.Privacy.LocalOnly && !IsLocal(provider, options.Privacy)) Fail("local_only refuses a hosted model binding, including fallbacks.");
         }
         if (binding.Limits is null) Fail("Model limits must not be null.");
+        if (binding.Capabilities is null) Fail("Model capabilities must not be null.");
         if (binding.Dimensions is <= 0 || binding.Limits.EmbedDimensions is <= 0) Fail("Embedding dimensions must be positive.");
         if (binding.Dimensions.HasValue && binding.Limits.EmbedDimensions.HasValue && binding.Dimensions != binding.Limits.EmbedDimensions)
             Fail("Embedding dimensions conflict with limits.embed_dimensions.");

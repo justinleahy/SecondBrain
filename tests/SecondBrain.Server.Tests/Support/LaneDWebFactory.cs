@@ -52,9 +52,9 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
                 Providers = new() { ["mock"] = new ProviderOptions { Kind = "openai_compatible", Endpoint = endpoint + "/v1", Trusted = true } },
                 Models = new ModelRolesOptions
                 {
-                    Chat = new ModelBindingOptions { Provider = "mock", Model = "mock-chat" },
-                    Enrich = new ModelBindingOptions { Provider = "mock", Model = "mock-chat" },
-                    Embed = new ModelBindingOptions { Provider = "mock", Model = "mock-embed" },
+                    Chat = new ModelBindingOptions { Provider = "mock", Model = "mock-chat", Capabilities = new() { Tools = true, Streaming = true }, Limits = new() { ContextTokens = 8192, MaxOutputTokens = 1024 } },
+                    Enrich = new ModelBindingOptions { Provider = "mock", Model = "mock-chat", Capabilities = new() { Tools = true, Streaming = true }, Limits = new() { ContextTokens = 8192, MaxOutputTokens = 1024 } },
+                    Embed = new ModelBindingOptions { Provider = "mock", Model = "mock-embed", Limits = new() { EmbedDimensions = 4, EmbedMaxInputTokens = 8192, EmbedBatchMax = 32 } },
                 },
                 Privacy = new PrivacyOptions { LocalOnly = true, EgressCanary = false, TrustedServices = [endpoint] },
                 Extractor = new ExtractorOptions { SocketPath = ExtractorSocket },
@@ -99,7 +99,7 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
     private Task ExtractorTask { get; }
     private int resourcesDisposed;
 
-    /// <summary>Lane A's real stores, opened under a temporary data root; the account epoch is seeded as <c>brain init</c> would.</summary>
+    /// <summary>Lane A's real stores, opened under a temporary data root; the account epoch and instance id are seeded as <c>brain init</c> would.</summary>
     public RealStoreAccessor Store { get; } = new();
     public RealStoreAccessor StateStore => Store;
     public TestKeyRing KeyRing { get; } = new();
@@ -117,7 +117,11 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
         {
             await using var command = connection.CreateCommand();
             command.Transaction = transaction;
-            command.CommandText = "INSERT INTO meta(key, value) VALUES ('account_epoch', '1') ON CONFLICT(key) DO NOTHING;";
+            command.CommandText = "INSERT INTO meta(key, value) VALUES ('account_epoch', '1'), ('instance_id', $instance) ON CONFLICT(key) DO NOTHING;";
+            var instance = command.CreateParameter();
+            instance.ParameterName = "$instance";
+            instance.Value = Ulid.NewUlid().ToString();
+            command.Parameters.Add(instance);
             await command.ExecuteNonQueryAsync(token);
             return 0;
         }).AsTask().GetAwaiter().GetResult();

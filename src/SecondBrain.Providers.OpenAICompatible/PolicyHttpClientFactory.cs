@@ -18,6 +18,9 @@ public sealed class PolicyHttpClientFactory : IPolicyHttpClientFactory, IDisposa
     private readonly IProviderEgressPolicy policy;
     private readonly IDnsResolver resolver;
     private static readonly HttpRequestOptionsKey<RequestPolicyContext> RequestContextKey = new("SecondBrain.ProviderPolicy");
+    // The pool may hand a new connection to a queued request other than InitialRequestMessage.
+    // Writes run on the writing request's own async flow, so they validate that request.
+    private static readonly AsyncLocal<RequestPolicyContext?> WritingRequest = new();
 
     public PolicyHttpClientFactory(IProviderEgressPolicy policy, IDnsResolver resolver)
     {
@@ -49,21 +52,27 @@ public sealed class PolicyHttpClientFactory : IPolicyHttpClientFactory, IDisposa
     private async ValueTask<Stream> ConnectAsync(SocketsHttpConnectionContext context, CancellationToken cancellationToken)
     {
         var request = context.InitialRequestMessage;
-        if (!request.Options.TryGetValue(RequestContextKey, out var requestContext) || request.RequestUri is null)
+        if (!request.Options.TryGetValue(RequestContextKey, out var requestContext))
             throw new PrivacyPolicyException(SecondBrain.Core.Problems.ProblemTypes.PrivacyPolicy,
                 "Provider connection has no policy context.");
-        var addresses = await resolver.ResolveAsync(context.DnsEndPoint.Host, cancellationToken).ConfigureAwait(false);
-        policy.VerifyConnectionAddresses(context.DnsEndPoint.Host, context.DnsEndPoint.Port, addresses);
-        policy.ValidateRequest(requestContext.Role, requestContext.Binding, request.RequestUri, requestContext.Discovery);
+        var host = context.DnsEndPoint.Host;
+        var port = context.DnsEndPoint.Port;
+        var addresses = await resolver.ResolveAsync(host, cancellationToken).ConfigureAwait(false);
+        policy.VerifyConnectionAddresses(host, port, addresses);
+        policy.ValidateRequest(requestContext.Role, requestContext.Binding, requestContext.RequestUri, requestContext.Discovery);
         Exception? lastFailure = null;
         foreach (var address in addresses)
         {
             var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             try
             {
-                await socket.ConnectAsync(new IPEndPoint(address, context.DnsEndPoint.Port), cancellationToken).ConfigureAwait(false);
-                policy.ValidateRequest(requestContext.Role, requestContext.Binding, request.RequestUri, requestContext.Discovery);
-                return new NetworkStream(socket, ownsSocket: true);
+                await socket.ConnectAsync(new IPEndPoint(address, port), cancellationToken).ConfigureAwait(false);
+                // A reload can repin this origin while the connect is in flight. Check the
+                // address actually dialed against the current pins before HTTP sees the socket,
+                // and again before every write (including a TLS ClientHello).
+                var stream = new PolicyCheckedStream(new NetworkStream(socket, ownsSocket: true), policy, host, port, address, requestContext);
+                stream.Verify();
+                return stream;
             }
             catch (SocketException exception)
             {
@@ -105,7 +114,13 @@ public sealed class PolicyHttpClientFactory : IPolicyHttpClientFactory, IDisposa
                 uri.AbsolutePath != binding.Endpoint.AbsolutePath.TrimEnd('/') + "/models"))
                 throw new PrivacyPolicyException(SecondBrain.Core.Problems.ProblemTypes.PrivacyPolicy,
                     "Provider discovery transport cannot send inference requests.");
-            request.Options.Set(RequestContextKey, new RequestPolicyContext(role, binding, discovery));
+            // The checks below are per connection and per request. HTTP/3 bypasses ConnectCallback and
+            // HTTP/2 multiplexing does not fit that request context, so this adapter currently sends exactly HTTP/1.1.
+            request.Version = HttpVersion.Version11;
+            request.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
+            var requestContext = new RequestPolicyContext(role, binding, uri, discovery);
+            request.Options.Set(RequestContextKey, requestContext);
+            WritingRequest.Value = requestContext;
             policy.ValidateRequest(role, binding, uri, discovery);
             var addresses = await resolver.ResolveAsync(uri.IdnHost, cancellationToken).ConfigureAwait(false);
             policy.VerifyResolvedAddresses(uri, addresses);
@@ -153,5 +168,74 @@ public sealed class PolicyHttpClientFactory : IPolicyHttpClientFactory, IDisposa
         }
     }
 
-    private sealed record RequestPolicyContext(ModelRole Role, IProviderBinding Binding, bool Discovery);
+    private sealed record RequestPolicyContext(ModelRole Role, IProviderBinding Binding, Uri RequestUri, bool Discovery);
+
+    /// <summary>Re-checks the dialed address and the writing request against current policy before each write.</summary>
+    private sealed class PolicyCheckedStream(NetworkStream inner, IProviderEgressPolicy policy, string host, int port,
+        IPAddress address, RequestPolicyContext initial) : Stream
+    {
+        private readonly IPAddress[] connected = [address];
+
+        public void Verify()
+        {
+            policy.VerifyConnectionAddresses(host, port, connected);
+            var request = WritingRequest.Value ?? initial;
+            if (request.RequestUri.Port != port ||
+                !string.Equals(request.RequestUri.IdnHost.Trim('[', ']'), host.Trim('[', ']'), StringComparison.OrdinalIgnoreCase))
+                throw new PrivacyPolicyException(SecondBrain.Core.Problems.ProblemTypes.PrivacyPolicy,
+                    "Provider request does not match its connection origin.");
+            policy.ValidateRequest(request.Role, request.Binding, request.RequestUri, request.Discovery);
+        }
+
+        public override bool CanRead => inner.CanRead;
+        public override bool CanWrite => inner.CanWrite;
+        public override bool CanSeek => false;
+        public override bool CanTimeout => inner.CanTimeout;
+        public override int ReadTimeout { get => inner.ReadTimeout; set => inner.ReadTimeout = value; }
+        public override int WriteTimeout { get => inner.WriteTimeout; set => inner.WriteTimeout = value; }
+        public override long Length => throw new NotSupportedException();
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        public override int Read(byte[] buffer, int offset, int count) => inner.Read(buffer, offset, count);
+        public override int Read(Span<byte> buffer) => inner.Read(buffer);
+        public override int ReadByte() => inner.ReadByte();
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            => inner.ReadAsync(buffer, offset, count, cancellationToken);
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            => inner.ReadAsync(buffer, cancellationToken);
+
+        public override void Write(byte[] buffer, int offset, int count)
+            => WriteAsync(buffer.AsMemory(offset, count)).AsTask().GetAwaiter().GetResult();
+        public override void Write(ReadOnlySpan<byte> buffer)
+            => WriteAsync(buffer.ToArray().AsMemory()).AsTask().GetAwaiter().GetResult();
+        public override void WriteByte(byte value) => Write([value], 0, 1);
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+            => WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var request = WritingRequest.Value ?? throw new PrivacyPolicyException(
+                    SecondBrain.Core.Problems.ProblemTypes.PrivacyPolicy, "Provider write has no request policy context.");
+                if (request.RequestUri.Port != port ||
+                    !string.Equals(request.RequestUri.IdnHost.Trim('[', ']'), host.Trim('[', ']'), StringComparison.OrdinalIgnoreCase))
+                    throw new PrivacyPolicyException(SecondBrain.Core.Problems.ProblemTypes.PrivacyPolicy,
+                        "Provider request does not match its connection origin.");
+                return policy.AdmitWrite(request.Role, request.Binding, request.RequestUri, address, request.Discovery,
+                    () => inner.WriteAsync(buffer, cancellationToken));
+            }
+            catch (Exception exception) { return ValueTask.FromException(exception); }
+        }
+
+        public override void Flush() => inner.Flush();
+        public override Task FlushAsync(CancellationToken cancellationToken) => inner.FlushAsync(cancellationToken);
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) inner.Dispose();
+            base.Dispose(disposing);
+        }
+    }
 }

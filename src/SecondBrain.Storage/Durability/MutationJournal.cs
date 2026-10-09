@@ -51,8 +51,8 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         var hash = Hash(content);
         var now = Timestamp();
         var plan = new DurablePlan(1, finalization, request.DocumentReferences.ToArray(), result is null ? null : Hash(result), DateTimeOffset.UtcNow.ToString("yyyyMMddTHHmmssfffffffZ", CultureInfo.InvariantCulture));
-        var planBytes = JsonSerializer.SerializeToUtf8Bytes(plan);
-        if (planBytes.Length > 64 * 1024) throw new ArgumentException("Mutation finalization metadata exceeds 64 KiB.", nameof(request));
+
+        if (JsonSerializer.SerializeToUtf8Bytes(plan).Length > 64 * 1024) throw new ArgumentException("Mutation finalization metadata exceeds 64 KiB.", nameof(request));
 
         return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
         {
@@ -71,6 +71,25 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                 "SELECT count(*) FROM mutations WHERE destination=@destination AND status IN ('prepared','applied');",
                 new { destination }, transaction, ct)).ConfigureAwait(false);
             if (reserved != 0) throw new InvalidOperationException("Mutation destination is already reserved.");
+            if (plan.Finalization.DocumentId is { } documentId)
+            {
+                // The observed revision and the document reservation are one decision: publication cannot advance
+                // the revision while this mutation is active, so apply and finalization never act on a stale plan.
+                if (!await RevisionIsCurrentAsync(connection, transaction, plan.Finalization, ct).ConfigureAwait(false))
+                    throw new MutationRevisionException(documentId);
+                var holder = await connection.ExecuteScalarAsync<string?>(Command("SELECT value FROM meta WHERE key=@key;",
+                    new { key = DocumentReservationKey(documentId) }, transaction, ct)).ConfigureAwait(false);
+                if (holder is not null) throw new InvalidOperationException("Mutation document already has an active mutation.");
+                await connection.ExecuteAsync(Command("INSERT INTO meta(key,value) VALUES(@key,@id);",
+                    new { key = DocumentReservationKey(documentId), id = request.MutationId }, transaction, ct)).ConfigureAwait(false);
+            }
+            if (plan.Finalization.DocumentId is { } fenceId)
+            {
+                var expectedGeneration = await connection.ExecuteScalarAsync<string?>(Command("SELECT generation_json FROM publication_fences WHERE document_id=@id;", new { id = fenceId }, transaction, ct)).ConfigureAwait(false);
+                plan = plan with { ExpectedGenerationJson = expectedGeneration is null ? null : PublicationCoordinator.NormalizeGeneration(expectedGeneration), HasExpectedGeneration = true };
+            }
+            var planBytes = JsonSerializer.SerializeToUtf8Bytes(plan);
+            if (planBytes.Length > 64 * 1024) throw new ArgumentException("Mutation finalization metadata exceeds 64 KiB.", nameof(request));
             var contentId = PayloadId(request.MutationId, "content");
             var planId = PayloadId(request.MutationId, "plan");
             var resultId = result is null ? null : PayloadId(request.MutationId, "result");
@@ -101,18 +120,23 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
     {
         var entry = await ReadAsync(mutationId, cancellationToken).ConfigureAwait(false);
         if (entry.Status != "prepared") return Record(entry);
-        using var file = _files.Open(entry.Destination, entry.Id);
         var plan = ParsePlan(entry);
+        // Lock order is _gate, then the document lock. It is held across every filesystem effect.
+        using var documentLock = await AcquireDocumentLockAsync(plan, cancellationToken).ConfigureAwait(false);
+        using var file = _files.Open(entry.Destination, entry.Id);
         var conflictName = file.ConflictName(plan.ConflictTimestamp, entry.Id);
+        // A row prepared before document reservations existed may observe a superseded revision; never write it.
+        if (!await PlanIsCurrentAsync(plan, cancellationToken).ConfigureAwait(false))
+            return await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         if (entry.ResultingHash is not null && await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false) == entry.PayloadHash)
         {
             if (!await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, conflictName + ".external", cancellationToken).ConfigureAwait(false))
-                return await MarkConflictAsync(entry, file, await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+                return await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
             return await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
         }
         var currentHash = await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false);
-        if (currentHash != entry.ExpectedHash)
-            return await MarkConflictAsync(entry, file, currentHash, cancellationToken).ConfigureAwait(false);
+        if ((await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false)).Kind == ManagedMutationFiles.DestinationLease.EntryKind.Nonregular || currentHash != entry.ExpectedHash)
+            return await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         await file.WriteTempAsync(entry.Content, cancellationToken).ConfigureAwait(false);
         await _crashPoints.HitAsync(MutationCrashPointNames.AfterTempFlush, cancellationToken).ConfigureAwait(false);
         // Persist apply intent before rename. A prepared row with this hash can reconcile a rename-before-record crash.
@@ -120,7 +144,7 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             await connection.ExecuteAsync(Command("UPDATE mutations SET resulting_hash=@hash,updated_at=@now WHERE id=@id AND status='prepared';",
                 new { id = entry.Id, hash = entry.PayloadHash, now = Timestamp() }, transaction, ct)).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         if (!await file.CommitAsync(entry.ExpectedHash, entry.PayloadHash, conflictName + ".external", _crashPoints.HitAsync, cancellationToken).ConfigureAwait(false))
-            return await MarkConflictAsync(entry, file, await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+            return await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         await _crashPoints.HitAsync(MutationCrashPointNames.AfterRename, cancellationToken).ConfigureAwait(false);
         var applied = await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
         await _crashPoints.HitAsync(CrashPointNames.AfterApply, cancellationToken).ConfigureAwait(false);
@@ -147,25 +171,28 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         var entry = await ReadAsync(mutationId, cancellationToken).ConfigureAwait(false);
         if (entry.Status is "finalized" or "failed" or "conflict") return Record(entry);
         if (entry.Status != "applied") throw new InvalidOperationException("A mutation must be applied before finalization.");
+        var durable = ParsePlan(entry);
+        using var documentLock = await AcquireDocumentLockAsync(durable, cancellationToken).ConfigureAwait(false);
         using var file = _files.Open(entry.Destination, entry.Id);
         var currentHash = await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false);
         if (currentHash != entry.ResultingHash)
-            return await MarkConflictAsync(entry, file, currentHash, cancellationToken).ConfigureAwait(false);
-        var durable = ParsePlan(entry);
-        using var documentLock = durable.Finalization.DocumentId is null ? null :
-            await PublicationCoordinator.AcquireDocumentLockAsync(_state, durable.Finalization.DocumentId, cancellationToken).ConfigureAwait(false);
+            return await MarkConflictAsync(entry, durable, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         await _crashPoints.HitAsync(CrashPointNames.BeforeFinalize, cancellationToken).ConfigureAwait(false);
-        return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
+        var finalized = await _state.QueueWriteAsync<MutationRecord?>(async (connection, transaction, ct) =>
         {
             var fresh = (await LoadAsync(connection, transaction, mutationId, ct).ConfigureAwait(false))!;
             if (fresh.Status != "applied") return Record(fresh);
             var plan = ParsePlan(fresh);
+            // Only rows applied before document reservations existed can reach this; resolve them as conflicts below.
+            if (!await PlanIsCurrentAsync(connection, transaction, plan, ct).ConfigureAwait(false)) return null;
             var now = Timestamp();
-            await ApplyFinalizationAsync(connection, transaction, fresh, plan.Finalization, now, ct).ConfigureAwait(false);
+            await ApplyFinalizationAsync(connection, transaction, fresh, plan.HasExpectedGeneration ? plan.Finalization : plan.Finalization with { GenerationJson = null }, now, ct).ConfigureAwait(false);
             await connection.ExecuteAsync(Command("UPDATE mutations SET status='finalized',updated_at=@now WHERE id=@id AND status='applied';",
                 new { id = mutationId, now }, transaction, ct)).ConfigureAwait(false);
+            await ReleaseDocumentReservationAsync(connection, transaction, plan, mutationId, ct).ConfigureAwait(false);
             return Record((await LoadAsync(connection, transaction, mutationId, ct).ConfigureAwait(false))!);
         }, cancellationToken).ConfigureAwait(false);
+        return finalized ?? await MarkConflictAsync(entry, durable, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
     }
 
     public async ValueTask<MutationRecord> ExecuteAsync(MutationWriteRequest request, CancellationToken cancellationToken = default)
@@ -195,36 +222,20 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                     var entry = await ReadAsync(id, cancellationToken).ConfigureAwait(false);
                     if (entry.Status == "prepared")
                     {
-                        using var file = _files.Open(entry.Destination, entry.Id);
-                        var currentHash = await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false);
-                        if (entry.ResultingHash is not null && currentHash == entry.ResultingHash)
+                        switch (await RecoverPreparedAsync(entry, cancellationToken).ConfigureAwait(false))
                         {
-                            var plan = ParsePlan(entry);
-                            if (!await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, file.ConflictName(plan.ConflictTimestamp, entry.Id) + ".external", cancellationToken).ConfigureAwait(false))
-                            {
-                                await MarkConflictAsync(entry, file, await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+                            case PreparedRecovery.Conflict:
                                 conflicts++;
                                 continue;
-                            }
-                            await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
-                            reconciled++;
-                        }
-                        else if (entry.ResultingHash is not null && currentHash != entry.ExpectedHash)
-                        {
-                            await MarkConflictAsync(entry, file, currentHash, cancellationToken).ConfigureAwait(false);
-                            conflicts++;
-                            continue;
-                        }
-                        else
-                        {
-                            file.DeleteTemp();
-                            await _state.QueueWriteAsync(async (connection, transaction, ct) =>
-                                await connection.ExecuteAsync(Command("UPDATE mutations SET status='failed',updated_at=@now WHERE id=@id AND status='prepared';",
-                                    new { id, now = Timestamp() }, transaction, ct)).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
-                            discarded++;
-                            continue;
+                            case PreparedRecovery.Discarded:
+                                discarded++;
+                                continue;
+                            default:
+                                reconciled++;
+                                break;
                         }
                     }
+                    // The prepared row's document lock is released before finalization reacquires it.
                     var result = await FinalizeLockedAsync(id, cancellationToken).ConfigureAwait(false);
                     if (result.Status == "finalized") finalized++;
                     if (result.Status == "conflict") conflicts++;
@@ -235,18 +246,54 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         finally { _gate.Release(); }
     }
 
-    private async ValueTask<MutationRecord> MarkConflictAsync(DbMutation entry, ManagedMutationFiles.DestinationLease file, string? externalHash, CancellationToken cancellationToken)
+    private async ValueTask<PreparedRecovery> RecoverPreparedAsync(DbMutation entry, CancellationToken cancellationToken)
     {
         var plan = ParsePlan(entry);
-        using var documentLock = plan.Finalization.DocumentId is null ? null :
-            await PublicationCoordinator.AcquireDocumentLockAsync(_state, plan.Finalization.DocumentId, cancellationToken).ConfigureAwait(false);
+        using var documentLock = await AcquireDocumentLockAsync(plan, cancellationToken).ConfigureAwait(false);
+        using var file = _files.Open(entry.Destination, entry.Id);
+        var currentHash = await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false);
+        if (!await PlanIsCurrentAsync(plan, cancellationToken).ConfigureAwait(false))
+        {
+            await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+            return PreparedRecovery.Conflict;
+        }
+        if (entry.ResultingHash is not null && currentHash == entry.ResultingHash)
+        {
+            if (!await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, file.ConflictName(plan.ConflictTimestamp, entry.Id) + ".external", cancellationToken).ConfigureAwait(false))
+            {
+                await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+                return PreparedRecovery.Conflict;
+            }
+            await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
+            return PreparedRecovery.Reconciled;
+        }
+        if (entry.ResultingHash is not null && currentHash != entry.ExpectedHash)
+        {
+            await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+            return PreparedRecovery.Conflict;
+        }
+        file.DeleteTemp();
+        await _state.QueueWriteAsync(async (connection, transaction, ct) =>
+        {
+            var changed = await connection.ExecuteAsync(Command("UPDATE mutations SET status='failed',updated_at=@now WHERE id=@id AND status='prepared';",
+                new { id = entry.Id, now = Timestamp() }, transaction, ct)).ConfigureAwait(false);
+            await ReleaseDocumentReservationAsync(connection, transaction, plan, entry.Id, ct).ConfigureAwait(false);
+            return changed;
+        }, cancellationToken).ConfigureAwait(false);
+        return PreparedRecovery.Discarded;
+    }
+
+    /// <summary>Records a conflict. The caller holds the plan's document lock; the lock is not reentrant.</summary>
+    private async ValueTask<MutationRecord> MarkConflictAsync(DbMutation entry, DurablePlan plan, ManagedMutationFiles.DestinationLease file, ManagedMutationFiles.DestinationLease.Observation external, CancellationToken cancellationToken)
+    {
         if (entry.ResultingHash is not null)
         {
             await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, file.ConflictName(plan.ConflictTimestamp, entry.Id) + ".external", cancellationToken).ConfigureAwait(false);
-            externalHash = await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false);
+            external = await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false);
         }
         var conflictPath = await file.PreserveConflictAsync(file.ConflictName(plan.ConflictTimestamp, entry.Id), entry.Content, cancellationToken).ConfigureAwait(false);
-        var resultBytes = JsonSerializer.SerializeToUtf8Bytes(new ConflictResult(conflictPath, externalHash));
+        var externalHash = external.Hash;
+        var resultBytes = JsonSerializer.SerializeToUtf8Bytes(new ConflictResult(conflictPath, externalHash, external.Kind.ToString()));
         return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
         {
             var fresh = (await LoadAsync(connection, transaction, entry.Id, ct).ConfigureAwait(false))!;
@@ -259,20 +306,65 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                     new { id = plan.Finalization.PendingOperationId, now }, transaction, ct)).ConfigureAwait(false);
             if (plan.Finalization.DocumentId is not null && externalHash is not null)
             {
-                var count = await connection.ExecuteAsync(Command("UPDATE documents SET content_hash=@externalHash,revision=revision+1,publish_state='publishing',updated_at=@now WHERE id=@id AND revision=@before;",
-                    new { id = plan.Finalization.DocumentId, before = plan.Finalization.RevisionBefore, externalHash, now }, transaction, ct)).ConfigureAwait(false);
-                if (count != 0)
+                var document = await connection.QuerySingleOrDefaultAsync<DbDocument>(Command("SELECT revision AS Revision,content_hash AS ContentHash FROM documents WHERE id=@id;",
+                    new { id = plan.Finalization.DocumentId }, transaction, ct)).ConfigureAwait(false);
+                // A superseded plan (rows written before document reservations) records the on-disk bytes on top of
+                // the newer revision, keeping its metadata, and only when the authoritative hash actually differs.
+                var planWasCurrent = plan.HasExpectedGeneration && await PlanIsCurrentAsync(connection, transaction, plan, ct).ConfigureAwait(false);
+                if (document is not null && ((planWasCurrent && document.Revision == plan.Finalization.RevisionBefore) || document.ContentHash != externalHash))
                 {
-                    await connection.ExecuteAsync(Command("INSERT INTO revisions(document_id,revision,cause,content_hash,created_at) VALUES(@id,@revision,'external_edit',@externalHash,@now);",
-                        new { id = plan.Finalization.DocumentId, revision = plan.Finalization.RevisionBefore + 1, externalHash, now }, transaction, ct)).ConfigureAwait(false);
-                    await EnsurePublicationFenceAsync(connection, transaction, plan.Finalization, ct).ConfigureAwait(false);
+                    var count = await connection.ExecuteAsync(Command("UPDATE documents SET content_hash=@externalHash,revision=revision+1,publish_state='publishing',updated_at=@now WHERE id=@id AND revision=@current;",
+                        new { id = plan.Finalization.DocumentId, current = document.Revision, externalHash, now }, transaction, ct)).ConfigureAwait(false);
+                    if (count != 0)
+                    {
+                        await connection.ExecuteAsync(Command("INSERT INTO revisions(document_id,revision,cause,content_hash,created_at) VALUES(@id,@revision,'external_edit',@externalHash,@now);",
+                            new { id = plan.Finalization.DocumentId, revision = document.Revision + 1, externalHash, now }, transaction, ct)).ConfigureAwait(false);
+                        // A superseded plan's generation is older than the current fence; never roll that back.
+                        var fence = planWasCurrent ? plan.Finalization : plan.Finalization with { GenerationJson = null };
+                        await EnsurePublicationFenceAsync(connection, transaction, fence, ct).ConfigureAwait(false);
+                    }
                 }
             }
             await connection.ExecuteAsync(Command("UPDATE mutations SET status='conflict',result_payload_id=@resultId,updated_at=@now WHERE id=@id AND status IN ('prepared','applied');",
                 new { id = entry.Id, resultId, now }, transaction, ct)).ConfigureAwait(false);
+            await ReleaseDocumentReservationAsync(connection, transaction, plan, entry.Id, ct).ConfigureAwait(false);
             return Record((await LoadAsync(connection, transaction, entry.Id, ct).ConfigureAwait(false))!);
         }, cancellationToken).ConfigureAwait(false);
     }
+
+    /// <summary>The durable per-document fence shared with publication; its value is the active mutation id.</summary>
+    internal static string DocumentReservationKey(string documentId) => "mutation_document_reservation:" + documentId;
+
+    private static async ValueTask ReleaseDocumentReservationAsync(DbConnection connection, DbTransaction transaction, DurablePlan plan, string mutationId, CancellationToken ct)
+    {
+        if (plan.Finalization.DocumentId is null) return;
+        await connection.ExecuteAsync(Command("DELETE FROM meta WHERE key=@key AND value=@id;",
+            new { key = DocumentReservationKey(plan.Finalization.DocumentId), id = mutationId }, transaction, ct)).ConfigureAwait(false);
+    }
+
+    private async ValueTask<IDisposable?> AcquireDocumentLockAsync(DurablePlan plan, CancellationToken cancellationToken) =>
+        plan.Finalization.DocumentId is null ? null :
+            await PublicationCoordinator.AcquireDocumentLockAsync(_state, plan.Finalization.DocumentId, cancellationToken).ConfigureAwait(false);
+
+    private async ValueTask<bool> PlanIsCurrentAsync(DurablePlan plan, CancellationToken cancellationToken)
+    {
+        if (plan.Finalization.DocumentId is null) return true;
+        await using var read = await _state.OpenReadConnectionAsync(cancellationToken).ConfigureAwait(false);
+        return await PlanIsCurrentAsync(read.Connection, null, plan, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async ValueTask<bool> PlanIsCurrentAsync(DbConnection connection, DbTransaction? transaction, DurablePlan plan, CancellationToken ct)
+    {
+        if (!await RevisionIsCurrentAsync(connection, transaction, plan.Finalization, ct).ConfigureAwait(false)) return false;
+        if (!plan.HasExpectedGeneration || plan.Finalization.DocumentId is null) return true;
+        var current = await connection.ExecuteScalarAsync<string?>(Command("SELECT generation_json FROM publication_fences WHERE document_id=@id;", new { id = plan.Finalization.DocumentId }, transaction, ct)).ConfigureAwait(false);
+        return (current is null ? null : PublicationCoordinator.NormalizeGeneration(current)) ==
+            (plan.ExpectedGenerationJson is null ? null : PublicationCoordinator.NormalizeGeneration(plan.ExpectedGenerationJson));
+    }
+
+    private static async ValueTask<bool> RevisionIsCurrentAsync(DbConnection connection, DbTransaction? transaction, MutationFinalization finalize, CancellationToken ct) =>
+        finalize.DocumentId is null || await connection.ExecuteScalarAsync<long?>(Command("SELECT revision FROM documents WHERE id=@id;",
+            new { id = finalize.DocumentId }, transaction, ct)).ConfigureAwait(false) == finalize.RevisionBefore;
 
     private static async ValueTask ApplyFinalizationAsync(DbConnection connection, DbTransaction transaction, DbMutation entry, MutationFinalization finalize, string now, CancellationToken ct)
     {
@@ -400,8 +492,14 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
 
     public void Dispose() => _gate.Dispose();
 
-    private sealed record DurablePlan(int Version, MutationFinalization Finalization, string[] DocumentReferences, string? ReplayResultHash, string ConflictTimestamp);
-    private sealed record ConflictResult(string ConflictPath, string? ExternalHash);
+    private sealed record DurablePlan(int Version, MutationFinalization Finalization, string[] DocumentReferences, string? ReplayResultHash, string ConflictTimestamp, string? ExpectedGenerationJson = null, bool HasExpectedGeneration = false);
+    private sealed record ConflictResult(string ConflictPath, string? ExternalHash, string? ExternalKind = null);
+    private enum PreparedRecovery { Reconciled, Conflict, Discarded }
+    private sealed class DbDocument
+    {
+        public long Revision { get; init; }
+        public string? ContentHash { get; init; }
+    }
     private sealed class DbIdempotency
     {
         public string PayloadHash { get; init; } = "";

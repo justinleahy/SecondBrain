@@ -4,6 +4,7 @@ using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
+using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Sources;
 using SecondBrain.Infrastructure.FileSystem;
 using SecondBrain.Server.Sources;
@@ -80,7 +81,7 @@ public sealed class SourcesTests
         await using var factory = new LaneDWebFactory();
         var parent = Path.GetDirectoryName(factory.Options.CurrentValue.DataRoot)!;
         factory.Options.CurrentValue.Sources.AllowedRoots.Add(parent);
-        Assert.False(new SourcePathValidator(factory.Options).Validate(parent).Accepted);
+        Assert.False(new SourcePathValidator(factory.Options, DefaultLocations).Validate(parent).Accepted);
     }
 
     [Fact]
@@ -121,7 +122,7 @@ public sealed class SourcesTests
         await using var factory = new LaneDWebFactory();
         // A production YAML load rejects nonexistent/protected roots before this point.
         factory.Options.CurrentValue.Sources.AllowedRoots.Add(path);
-        var validator = new SourcePathValidator(factory.Options);
+        var validator = new SourcePathValidator(factory.Options, DefaultLocations);
         Assert.False(validator.Validate(path).Accepted);
         Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
     }
@@ -137,8 +138,8 @@ public sealed class SourcesTests
         Directory.CreateSymbolicLink(alias, outside);
         var escaped = Path.Combine(allowed, "escape");
         Directory.CreateSymbolicLink(escaped, Path.Combine(alias, "child"));
-        Assert.False(new SourcePathValidator(factory.Options).Validate(escaped).Accepted);
-        Assert.False(new SourcePathValidator(factory.Options).Validate(Path.Combine(escaped, "..")).Accepted);
+        Assert.False(new SourcePathValidator(factory.Options, DefaultLocations).Validate(escaped).Accepted);
+        Assert.False(new SourcePathValidator(factory.Options, DefaultLocations).Validate(Path.Combine(escaped, "..")).Accepted);
     }
 
     [Fact]
@@ -150,7 +151,7 @@ public sealed class SourcesTests
         Directory.CreateSymbolicLink(alias, actual);
         factory.Options.CurrentValue.DataRoot = alias;
         factory.Options.CurrentValue.Sources.AllowedRoots.Add(actual);
-        Assert.False(new SourcePathValidator(factory.Options).Validate(actual).Accepted);
+        Assert.False(new SourcePathValidator(factory.Options, DefaultLocations).Validate(actual).Accepted);
     }
 
     [Fact]
@@ -159,7 +160,7 @@ public sealed class SourcesTests
         await using var factory = new LaneDWebFactory();
         var allowed = factory.Options.CurrentValue.Sources.AllowedRoots[0];
         var sibling = Directory.CreateDirectory(allowed + "-sibling").FullName;
-        var validator = new SourcePathValidator(factory.Options);
+        var validator = new SourcePathValidator(factory.Options, DefaultLocations);
         Assert.False(validator.Validate(sibling).Accepted);
         Assert.False(validator.Validate(Path.Combine(allowed, "does-not-exist")).Accepted);
         Assert.False(validator.Validate("relative/path").Accepted);
@@ -171,7 +172,7 @@ public sealed class SourcesTests
         await using var factory = new LaneDWebFactory(options => options.Sources.AllowedRoots.Add(Path.GetDirectoryName(options.DataRoot)!));
         var actual = factory.Options.CurrentValue.DataRoot;
         var alternate = actual.ToUpperInvariant();
-        var validator = new SourcePathValidator(factory.Options);
+        var validator = new SourcePathValidator(factory.Options, DefaultLocations);
         Assert.False(validator.Validate(alternate).Accepted);
         // A volume that treats the alternate spelling as a distinct, nonexistent path also denies it.
         Assert.True(Directory.Exists(actual));
@@ -222,6 +223,141 @@ public sealed class SourcesTests
         Assert.Equal(HttpStatusCode.Forbidden, list.StatusCode);
         Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
     }
+
+    [Fact]
+    public async Task RelocatedConfigurationAndSecretsAreDeniedEvenUnderAnAllowedRoot()
+    {
+        await using var factory = new LaneDWebFactory();
+        var allowed = factory.Options.CurrentValue.Sources.AllowedRoots[0];
+        var configDirectory = Directory.CreateDirectory(Path.Combine(allowed, "config")).FullName;
+        var nested = Directory.CreateDirectory(Path.Combine(configDirectory, "nested")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(configDirectory, "config.yaml"), "server: {}");
+        var secrets = Directory.CreateDirectory(Path.Combine(allowed, "secrets")).FullName;
+        var inbox = Directory.CreateDirectory(Path.Combine(allowed, "inbox")).FullName;
+        var secretsAlias = Path.Combine(inbox, "secrets-alias");
+        Directory.CreateSymbolicLink(secretsAlias, secrets);
+        var allowedAlias = Path.Combine(factory.Store.DirectoryPath, "allowed-alias");
+        Directory.CreateSymbolicLink(allowedAlias, allowed);
+        var validator = new SourcePathValidator(factory.Options, new RuntimeLocations(Path.Combine(configDirectory, "config.yaml"), secrets));
+
+        foreach (var denied in new[] { configDirectory, nested, secrets, allowed, secretsAlias, Path.Combine(allowedAlias, "config"), Path.Combine(allowedAlias, "secrets") })
+            Assert.False(validator.Validate(denied).Accepted, denied);
+        // A legitimate sibling beneath the same allowed root stays registrable.
+        Assert.True(validator.Validate(inbox).Accepted);
+        // The default locations do not cover this layout; the protection comes from the loaded locations.
+        Assert.True(new SourcePathValidator(factory.Options, DefaultLocations).Validate(configDirectory).Accepted);
+    }
+
+    [Fact]
+    public async Task ConfigurationSymlinkTargetAndAliasedSecretsAreDenied()
+    {
+        await using var factory = new LaneDWebFactory();
+        var allowed = factory.Options.CurrentValue.Sources.AllowedRoots[0];
+        var realConfig = Directory.CreateDirectory(Path.Combine(allowed, "real-config")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(realConfig, "config.yaml"), "server: {}");
+        var etc = Directory.CreateDirectory(Path.Combine(factory.Store.DirectoryPath, "etc")).FullName;
+        var configLink = Path.Combine(etc, "config.yaml");
+        File.CreateSymbolicLink(configLink, Path.Combine(realConfig, "config.yaml"));
+        var secrets = Directory.CreateDirectory(Path.Combine(allowed, "vault-secrets")).FullName;
+        var secretsAlias = Path.Combine(factory.Store.DirectoryPath, "secrets-alias");
+        Directory.CreateSymbolicLink(secretsAlias, secrets);
+        var inbox = Directory.CreateDirectory(Path.Combine(allowed, "inbox")).FullName;
+        var validator = new SourcePathValidator(factory.Options, new RuntimeLocations(configLink, secretsAlias));
+
+        Assert.False(validator.Validate(realConfig).Accepted);
+        Assert.False(validator.Validate(secrets).Accepted);
+        Assert.True(validator.Validate(inbox).Accepted);
+    }
+
+    [Fact]
+    public async Task RelativeConfigurationLinkBeneathAliasedParentResolvesFromThePhysicalParent()
+    {
+        await using var factory = new LaneDWebFactory();
+        var allowed = factory.Options.CurrentValue.Sources.AllowedRoots[0];
+        var parent = Directory.CreateDirectory(Path.Combine(allowed, "parent")).FullName;
+        var vault = Directory.CreateDirectory(Path.Combine(allowed, "vault")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(vault, "config.yaml"), "server: {}");
+        File.CreateSymbolicLink(Path.Combine(parent, "config.yaml"), Path.Combine("..", "vault", "config.yaml"));
+        var entry = Directory.CreateDirectory(Path.Combine(factory.Store.DirectoryPath, "entry")).FullName;
+        var alias = Path.Combine(entry, "alias");
+        Directory.CreateSymbolicLink(alias, parent);
+        var secrets = Directory.CreateDirectory(Path.Combine(factory.Store.DirectoryPath, "relative-link-secrets")).FullName;
+        var inbox = Directory.CreateDirectory(Path.Combine(allowed, "inbox")).FullName;
+        var configPath = Path.Combine(alias, "config.yaml");
+        // The kernel follows the relative link from the alias target, so this reads allowed/vault/config.yaml.
+        Assert.Equal("server: {}", await File.ReadAllTextAsync(configPath));
+        var validator = new SourcePathValidator(factory.Options, new RuntimeLocations(configPath, secrets));
+
+        Assert.False(validator.Validate(vault).Accepted, vault);
+        Assert.False(validator.Validate(parent).Accepted, parent);
+        Assert.True(validator.Validate(inbox).Accepted);
+    }
+
+    [Fact]
+    public async Task ConfigurationLinkTraversingADirectoryLinkThenParentFollowsTheLinkTarget()
+    {
+        await using var factory = new LaneDWebFactory();
+        var allowed = factory.Options.CurrentValue.Sources.AllowedRoots[0];
+        var deep = Directory.CreateDirectory(Path.Combine(allowed, "deep")).FullName;
+        var inner = Directory.CreateDirectory(Path.Combine(deep, "inner")).FullName;
+        var vault = Directory.CreateDirectory(Path.Combine(deep, "vault")).FullName;
+        var final = Directory.CreateDirectory(Path.Combine(allowed, "final")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(final, "config.yaml"), "server: {}");
+        // Second hop: deep/vault/config.yaml -> ../../final/config.yaml, followed from the physical vault.
+        File.CreateSymbolicLink(Path.Combine(vault, "config.yaml"), Path.Combine("..", "..", "final", "config.yaml"));
+        Directory.CreateSymbolicLink(Path.Combine(factory.Store.DirectoryPath, "hop"), inner);
+        var etc = Directory.CreateDirectory(Path.Combine(factory.Store.DirectoryPath, "traversal-etc")).FullName;
+        var configPath = Path.Combine(etc, "config.yaml");
+        // hop/.. is the parent of hop's target (deep), not the directory holding hop.
+        File.CreateSymbolicLink(configPath, Path.Combine("..", "hop", "..", "vault", "config.yaml"));
+        var secrets = Directory.CreateDirectory(Path.Combine(factory.Store.DirectoryPath, "traversal-secrets")).FullName;
+        var inbox = Directory.CreateDirectory(Path.Combine(allowed, "inbox")).FullName;
+        Assert.Equal("server: {}", await File.ReadAllTextAsync(configPath));
+        var validator = new SourcePathValidator(factory.Options, new RuntimeLocations(configPath, secrets));
+
+        Assert.False(validator.Validate(vault).Accepted, vault);
+        Assert.False(validator.Validate(final).Accepted, final);
+        Assert.True(validator.Validate(inbox).Accepted);
+    }
+
+    [Fact]
+    public async Task DanglingConfigurationLinkProtectsItsTargetWithoutDenyingEverything()
+    {
+        await using var factory = new LaneDWebFactory();
+        var allowed = factory.Options.CurrentValue.Sources.AllowedRoots[0];
+        var etc = Directory.CreateDirectory(Path.Combine(allowed, "dangling-etc")).FullName;
+        var configPath = Path.Combine(etc, "config.yaml");
+        File.CreateSymbolicLink(configPath, Path.Combine("..", "missing", "config.yaml"));
+        var secrets = Directory.CreateDirectory(Path.Combine(factory.Store.DirectoryPath, "dangling-secrets")).FullName;
+        var inbox = Directory.CreateDirectory(Path.Combine(allowed, "inbox")).FullName;
+        var validator = new SourcePathValidator(factory.Options, new RuntimeLocations(configPath, secrets));
+
+        Assert.True(validator.Validate(inbox).Accepted);
+        var missing = Directory.CreateDirectory(Path.Combine(allowed, "missing")).FullName;
+        Assert.False(validator.Validate(missing).Accepted);
+        Assert.False(validator.Validate(etc).Accepted);
+    }
+
+    [Fact]
+    public async Task RegistrationUsesTheComposedRuntimeLocations()
+    {
+        await using var factory = new LaneDWebFactory();
+        var allowed = factory.Options.CurrentValue.Sources.AllowedRoots[0];
+        var secrets = Directory.CreateDirectory(Path.Combine(allowed, "secrets")).FullName;
+        var inbox = Directory.CreateDirectory(Path.Combine(allowed, "inbox")).FullName;
+        factory.ConfigureServices = services => services.AddSingleton(new RuntimeLocations(Path.Combine(allowed, "config", "config.yaml"), secrets));
+        using var client = await AdminClientAsync(factory);
+        using var rejected = await client.PostAsJsonAsync("/sources", new { path = secrets });
+        Assert.Equal(HttpStatusCode.BadRequest, rejected.StatusCode);
+        Assert.Contains("source-path-rejected", await rejected.Content.ReadAsStringAsync(), StringComparison.Ordinal);
+        Directory.CreateDirectory(Path.Combine(allowed, "config"));
+        using var config = await client.PostAsJsonAsync("/sources", new { path = Path.Combine(allowed, "config") });
+        Assert.Equal(HttpStatusCode.BadRequest, config.StatusCode);
+        using var accepted = await client.PostAsJsonAsync("/sources", new { path = inbox });
+        Assert.Equal(HttpStatusCode.Created, accepted.StatusCode);
+    }
+
+    private static RuntimeLocations DefaultLocations => new(null, null);
 
     private static async Task<HttpClient> AdminClientAsync(LaneDWebFactory factory, Scope scope = Scope.Admin)
     {

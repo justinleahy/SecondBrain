@@ -297,7 +297,7 @@ public sealed class PublicationTests
             var index = new SqliteIndexStore(dataRoot);
             try
             {
-                using var migration = new MigrationRunner(state, index, dataRoot);
+                using var migration = new MigrationRunner(state, index, dataRoot, new MigrationTestDisk(1L << 40));
                 await migration.MigrateAsync();
                 await WriteAsync(state, "INSERT OR IGNORE INTO sources(id,kind,name,created_at) VALUES('source','api','test','2026-10-08T00:00:00Z')");
                 return new PublicationSession(state, index);

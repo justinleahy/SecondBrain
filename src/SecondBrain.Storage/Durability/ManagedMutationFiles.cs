@@ -14,6 +14,8 @@ internal sealed class ManagedMutationFiles
     {
         if (!OperatingSystem.IsMacOS() && !OperatingSystem.IsLinux())
             throw new PlatformNotSupportedException("Mutation durability requires macOS or Linux filesystem primitives.");
+        if (RuntimeInformation.ProcessArchitecture is not (Architecture.X64 or Architecture.Arm64))
+            throw new PlatformNotSupportedException("Mutation metadata inspection requires the x64 or arm64 stat ABI.");
         ArgumentException.ThrowIfNullOrWhiteSpace(dataRoot);
         _root = Path.GetFullPath(dataRoot);
     }
@@ -74,18 +76,48 @@ internal sealed class ManagedMutationFiles
         internal async ValueTask<string?> HashTempAsync(CancellationToken cancellationToken) =>
             await HashAsync(tempName, cancellationToken).ConfigureAwait(false);
 
-        private async ValueTask<string?> HashAsync(string fileName, CancellationToken cancellationToken)
+        internal enum EntryKind { Missing, Regular, Nonregular }
+        internal sealed record Observation(EntryKind Kind, string? Hash);
+        internal ValueTask<Observation> ObserveDestinationAsync(CancellationToken cancellationToken) => ObserveAsync(name, cancellationToken);
+
+        private async ValueTask<string?> HashAsync(string fileName, CancellationToken cancellationToken) =>
+            (await ObserveAsync(fileName, cancellationToken).ConfigureAwait(false)).Hash;
+
+        private static bool IsRegular(byte[] metadata)
         {
-            // O_NONBLOCK prevents a substituted FIFO from blocking startup; FileStream rejects non-seekable handles.
+            // Darwin st_mode is ushort at 4; Linux x64 uses uint at 24, arm64 uint at 16.
+            var mode = OperatingSystem.IsMacOS() ? BitConverter.ToUInt16(metadata, 4)
+                : BitConverter.ToUInt32(metadata, RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? 16 : 24);
+            return (mode & 0xf000) == 0x8000;
+        }
+
+        private async ValueTask<Observation> ObserveAsync(string fileName, CancellationToken cancellationToken)
+        {
             var fd = Native.OpenAt(Descriptor(parent), fileName, NoFollowFlags | (OperatingSystem.IsMacOS() ? 4 : 0x800), 0);
             if (fd < 0)
             {
-                if (Marshal.GetLastPInvokeError() == 2) return null;
-                Throw("open mutation file without following symlinks");
+                var error = Marshal.GetLastPInvokeError();
+                if (error == 2) return new(EntryKind.Missing, null);
+                // Permission denial may hide an unreadable directory/FIFO. Metadata inspection needs only
+                // the retained parent's search permission; regular-file open errors still propagate.
+                if (error is 40 or 62 or 21 or 6 or 13)
+                {
+                    var metadata = new byte[512];
+                    if (Native.StatAt(Descriptor(parent), fileName, metadata, OperatingSystem.IsMacOS() ? 0x20 : 0x100) != 0)
+                    {
+                        if (Marshal.GetLastPInvokeError() == 2) return new(EntryKind.Missing, null);
+                        Throw("inspect mutation entry without following symlinks");
+                    }
+                    if (!IsRegular(metadata)) return new(EntryKind.Nonregular, null);
+                }
+                throw new IOException("Cannot open mutation file without following symlinks.", new Win32Exception(error));
             }
-            await using var stream = new FileStream(new SafeFileHandle((nint)fd, ownsHandle: true), FileAccess.Read);
-            if (!stream.CanSeek) throw new IOException("Mutation destinations must be regular files.");
-            return Convert.ToHexStringLower(await SHA256.HashDataAsync(stream, cancellationToken).ConfigureAwait(false));
+            using var handle = new SafeFileHandle((nint)fd, ownsHandle: true);
+            var stat = new byte[512];
+            if (Native.Stat(fd, stat) != 0) Throw("inspect mutation descriptor");
+            if (!IsRegular(stat)) return new(EntryKind.Nonregular, null);
+            await using var stream = new FileStream(handle, FileAccess.Read);
+            return new(EntryKind.Regular, Convert.ToHexStringLower(await SHA256.HashDataAsync(stream, cancellationToken).ConfigureAwait(false)));
         }
 
         internal async ValueTask WriteTempAsync(byte[] bytes, CancellationToken cancellationToken)
@@ -109,7 +141,8 @@ internal sealed class ManagedMutationFiles
         /// <summary>Atomic no-replace for creates; exchange-and-verify for edits preserves raced content.</summary>
         internal async ValueTask<bool> CommitAsync(string? expectedHash, string newHash, string rescueName, Func<string, CancellationToken, ValueTask> crashPoint, CancellationToken cancellationToken)
         {
-            if (!StringComparer.OrdinalIgnoreCase.Equals(await HashDestinationAsync(cancellationToken).ConfigureAwait(false), expectedHash))
+            var admitted = await ObserveDestinationAsync(cancellationToken).ConfigureAwait(false);
+            if (admitted.Kind == EntryKind.Nonregular || !StringComparer.OrdinalIgnoreCase.Equals(admitted.Hash, expectedHash))
                 return false;
             await crashPoint(SecondBrain.Core.Durability.MutationCrashPointNames.BeforeAtomicRename, cancellationToken).ConfigureAwait(false);
             if (expectedHash is null)
@@ -123,7 +156,8 @@ internal sealed class ManagedMutationFiles
             SyncDirectory();
             await crashPoint(SecondBrain.Core.Durability.MutationCrashPointNames.AfterAtomicExchange, cancellationToken).ConfigureAwait(false);
             // The displaced inode is checked after the atomic exchange, closing the hash-before-rename race.
-            if (!StringComparer.OrdinalIgnoreCase.Equals(await HashTempAsync(cancellationToken).ConfigureAwait(false), expectedHash))
+            var displaced = await ObserveAsync(tempName, cancellationToken).ConfigureAwait(false);
+            if (displaced.Kind != EntryKind.Regular || !StringComparer.OrdinalIgnoreCase.Equals(displaced.Hash, expectedHash))
             {
                 if (StringComparer.OrdinalIgnoreCase.Equals(await HashDestinationAsync(cancellationToken).ConfigureAwait(false), newHash))
                 {
@@ -144,8 +178,8 @@ internal sealed class ManagedMutationFiles
 
         internal async ValueTask<bool> ReconcileRenameAsync(string? expectedHash, string newHash, string rescueName, CancellationToken cancellationToken)
         {
-            var displaced = await HashTempAsync(cancellationToken).ConfigureAwait(false);
-            if (displaced is null || displaced == expectedHash || displaced == newHash)
+            var displaced = await ObserveAsync(tempName, cancellationToken).ConfigureAwait(false);
+            if (displaced.Kind == EntryKind.Missing || (displaced.Kind == EntryKind.Regular && (displaced.Hash == expectedHash || displaced.Hash == newHash)))
             {
                 DeleteTemp();
                 return true;
@@ -166,7 +200,9 @@ internal sealed class ManagedMutationFiles
 
         internal async ValueTask<string> PreserveConflictAsync(string conflictName, byte[] bytes, CancellationToken cancellationToken)
         {
-            var existing = await HashAsync(conflictName, cancellationToken).ConfigureAwait(false);
+            var observed = await ObserveAsync(conflictName, cancellationToken).ConfigureAwait(false);
+            if (observed.Kind == EntryKind.Nonregular) throw new IOException("Conflict destination is already occupied.");
+            var existing = observed.Hash;
             var expected = Convert.ToHexStringLower(SHA256.HashData(bytes));
             if (existing is null)
             {
@@ -198,6 +234,14 @@ internal sealed class ManagedMutationFiles
 
         private void Delete(string fileName)
         {
+            var metadata = new byte[512];
+            if (Native.StatAt(Descriptor(parent), fileName, metadata, OperatingSystem.IsMacOS() ? 0x20 : 0x100) != 0)
+            {
+                if (Marshal.GetLastPInvokeError() == 2) return;
+                Throw("inspect mutation cleanup entry");
+            }
+            // Preserve unexpected directories and nonregular entries; cleanup owns regular staged bytes only.
+            if (!IsRegular(metadata)) return;
             if (Native.UnlinkAt(Descriptor(parent), fileName, 0) < 0 && Marshal.GetLastPInvokeError() != 2)
                 Throw("remove mutation temp file");
             SyncDirectory();
@@ -235,6 +279,10 @@ internal sealed class ManagedMutationFiles
 
     private static class Native
     {
+        [DllImport("libc", EntryPoint = "fstat", SetLastError = true)]
+        internal static extern int Stat(int fd, [Out] byte[] metadata);
+        [DllImport("libc", EntryPoint = "fstatat", SetLastError = true)]
+        internal static extern int StatAt(int parent, [MarshalAs(UnmanagedType.LPUTF8Str)] string path, [Out] byte[] metadata, int flags);
         [DllImport("libc", EntryPoint = "open", SetLastError = true)]
         internal static extern int Open([MarshalAs(UnmanagedType.LPUTF8Str)] string path, int flags);
         internal static int OpenAt(int parent, string path, int flags, int mode)

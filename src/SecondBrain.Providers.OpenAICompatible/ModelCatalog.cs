@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Providers;
 
 namespace SecondBrain.Providers.OpenAICompatible;
@@ -6,32 +7,47 @@ namespace SecondBrain.Providers.OpenAICompatible;
 /// <summary>Explicit declarations for concrete model IDs. An endpoint never implies a model or vendor.</summary>
 public sealed class ModelCatalog
 {
-    private readonly ConcurrentDictionary<string, ModelDeclaration> models = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<(string Provider, string Model), ModelDeclaration> models = new();
 
-    public ModelCatalog()
+    /// <summary>Registers a reviewed declaration for one explicit provider/model pair.
+    /// No vendor metadata is inferred from an alias, adapter kind, endpoint, or familiar model ID.</summary>
+    public void Register(string provider, string model, ModelCapabilities capabilities, ModelLimits limits)
     {
-        Register("mock-chat", new ModelCapabilities { Streaming = true, Tools = true },
-            new ModelLimits { ContextTokens = 8192, MaxOutputTokens = 1024 });
-        Register("mock-embed", new ModelCapabilities(),
-            new ModelLimits { EmbedDimensions = 4, EmbedMaxInputTokens = 8192, EmbedBatchMax = 32 });
-        Register("gpt-4o", new ModelCapabilities { Streaming = true, Tools = true, StructuredOutput = true },
-            new ModelLimits { ContextTokens = 128000, MaxOutputTokens = 16384 });
-        Register("text-embedding-3-small", new ModelCapabilities(),
-            new ModelLimits { EmbedDimensions = 1536, EmbedMaxInputTokens = 8191, EmbedBatchMax = 2048 });
+        ArgumentException.ThrowIfNullOrWhiteSpace(provider);
+        ArgumentException.ThrowIfNullOrWhiteSpace(model);
+        models[(provider, model)] = new(capabilities, limits);
     }
 
-    /// <summary>Registers a reviewed concrete model declaration, including models served by local endpoints.</summary>
-    public void Register(string model, ModelCapabilities capabilities, ModelLimits limits)
+    /// <summary>
+    /// Resolves catalog declarations, then explicit configuration. Configured capabilities
+    /// describe only models absent from the catalog; for a catalog model they must agree.
+    /// </summary>
+    public ResolvedModel Resolve(string provider, string model, ModelLimits? overrides = null,
+        ModelCapabilityOptions? declaredCapabilities = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(model);
-        models[model] = new(capabilities, limits);
-    }
-
-    public ResolvedModel Resolve(string provider, string model, ModelLimits? overrides = null)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(model);
-        var declaration = models.GetValueOrDefault(model) ?? new(new ModelCapabilities(), new ModelLimits());
-        var limits = declaration.Limits;
+        ModelCapabilities capabilities;
+        ModelLimits limits;
+        if (models.TryGetValue((provider, model), out var declaration))
+        {
+            capabilities = declaration.Capabilities;
+            limits = declaration.Limits;
+            if (declaredCapabilities is not null &&
+                (declaredCapabilities.Tools is { } tools && tools != capabilities.Tools ||
+                 declaredCapabilities.Streaming is { } streaming && streaming != capabilities.Streaming ||
+                 declaredCapabilities.StructuredOutput is { } structured && structured != capabilities.StructuredOutput))
+                throw new InvalidOperationException("Configured model capabilities contradict the reviewed catalog declaration.");
+        }
+        else
+        {
+            capabilities = new ModelCapabilities
+            {
+                Tools = declaredCapabilities?.Tools ?? false,
+                Streaming = declaredCapabilities?.Streaming ?? false,
+                StructuredOutput = declaredCapabilities?.StructuredOutput ?? false,
+            };
+            limits = new ModelLimits();
+        }
         var resolved = new ModelLimits
         {
             ContextTokens = overrides?.ContextTokens ?? limits.ContextTokens,
@@ -43,7 +59,7 @@ public sealed class ModelCatalog
         if (new[] { resolved.ContextTokens, resolved.MaxOutputTokens, resolved.EmbedDimensions,
                 resolved.EmbedMaxInputTokens, resolved.EmbedBatchMax }.Any(value => value is <= 0))
             throw new InvalidOperationException("Provider model limits must be positive.");
-        return new(provider, model, declaration.Capabilities, resolved);
+        return new(provider, model, capabilities, resolved);
     }
 
     public static void ValidateRole(ModelRole role, ResolvedModel model)

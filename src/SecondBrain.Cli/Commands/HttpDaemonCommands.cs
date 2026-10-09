@@ -14,6 +14,8 @@ public sealed class HttpDaemonCommands(
     Func<string, CancellationToken, Task<string>> readPassword,
     Func<HttpClient>? createClient = null) : ICredentialCommands, IProviderCommands, ISessionCommands, ILoginCommands, IDoctorExtension
 {
+    /// <summary>Listings traverse every page up to this bound; exceeding it fails instead of truncating.</summary>
+    public const int MaxListPages = 1000;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private Func<SecondBrainOptions>? loadOptions;
     private string? configuredOrigin;
@@ -34,7 +36,11 @@ public sealed class HttpDaemonCommands(
         return CliResult.Ok("API key created. Save this key; it is shown once.", issued);
     }
 
-    Task<CliResult> ICredentialCommands.ListAsync(CancellationToken cancellationToken) => GetAsync("/keys", "API keys listed.", cancellationToken);
+    async Task<CliResult> ICredentialCommands.ListAsync(CancellationToken cancellationToken)
+    {
+        using var client = await OpenAsync(apiKey: true, cancellationToken);
+        return CliResult.Ok("API keys listed.", await GetAllPagesAsync(client, "/keys", cancellationToken));
+    }
     Task<CliResult> ICredentialCommands.RevokeAsync(string id, CancellationToken cancellationToken) =>
         DeleteAsync("/keys/" + EscapeId(id), "API key revoked.", cancellationToken);
     Task<CliResult> IProviderCommands.ListAsync(CancellationToken cancellationToken) => GetAsync("/providers", "Providers and models listed.", cancellationToken);
@@ -58,9 +64,7 @@ public sealed class HttpDaemonCommands(
         await LoginAsync(client, password, cancellationToken);
         try
         {
-            await SetAntiforgeryAsync(client, cancellationToken);
-            using (await SendAsync(client, HttpMethod.Post, "/auth/step-up", new { password }, cancellationToken)) { }
-            await SetAntiforgeryAsync(client, cancellationToken);
+            await StepUpAsync(client, password, cancellationToken);
             using var response = await SendAsync(client, HttpMethod.Post, "/keys", new { name, scopes }, cancellationToken);
             var created = await ReadCreatedKeyAsync(response, cancellationToken);
             return new LoginCredential(created.Key, created.Id);
@@ -74,10 +78,9 @@ public sealed class HttpDaemonCommands(
         var currentId = await LoginAsync(client, await readPassword("sessions", cancellationToken), cancellationToken);
         try
         {
-            using var response = await SendAsync(client, HttpMethod.Get, "/auth/sessions", null, cancellationToken);
-            var data = await ReadJsonAsync(response, cancellationToken);
+            var data = await GetAllPagesAsync(client, "/auth/sessions", cancellationToken);
             // The short-lived CLI transport session is closed below and is not useful in the returned active-session list.
-            var sessions = data.EnumerateArray().Where(item => item.GetProperty("id").GetString() != currentId).Select(item => item.Clone()).ToArray();
+            var sessions = data.Where(item => item.GetProperty("id").GetString() != currentId).ToArray();
             return CliResult.Ok("Browser sessions listed.", sessions);
         }
         finally { await LogoutAsync(client, cancellationToken); }
@@ -85,12 +88,15 @@ public sealed class HttpDaemonCommands(
 
     async Task<CliResult> ISessionCommands.RevokeAsync(string id, CancellationToken cancellationToken)
     {
+        var path = "/auth/sessions/" + EscapeId(id);
         using var client = await OpenAsync(apiKey: false, cancellationToken);
-        await LoginAsync(client, await readPassword("sessions", cancellationToken), cancellationToken);
+        var password = await readPassword("sessions", cancellationToken);
+        await LoginAsync(client, password, cancellationToken);
         try
         {
-            await SetAntiforgeryAsync(client, cancellationToken);
-            using (await SendAsync(client, HttpMethod.Delete, "/auth/sessions/" + EscapeId(id), null, cancellationToken)) { }
+            // Revoking another session needs a fresh step-up (SEC-10); the same password re-authenticates without a second prompt.
+            await StepUpAsync(client, password, cancellationToken);
+            using (await SendAsync(client, HttpMethod.Delete, path, null, cancellationToken)) { }
             return CliResult.Ok("Browser session revoked.", new { id });
         }
         finally { await LogoutAsync(client, cancellationToken); }
@@ -99,10 +105,11 @@ public sealed class HttpDaemonCommands(
     public async Task<CliResult> RevokeAllAsync(CancellationToken cancellationToken)
     {
         using var client = await OpenAsync(apiKey: false, cancellationToken);
-        await LoginAsync(client, await readPassword("sessions", cancellationToken), cancellationToken);
+        var password = await readPassword("sessions", cancellationToken);
+        await LoginAsync(client, password, cancellationToken);
         try
         {
-            await SetAntiforgeryAsync(client, cancellationToken);
+            await StepUpAsync(client, password, cancellationToken);
             using (await SendAsync(client, HttpMethod.Post, "/auth/logout-all", new { }, cancellationToken)) { }
             return CliResult.Ok("All sessions and API keys invalidated by the account epoch change.");
         }
@@ -123,6 +130,53 @@ public sealed class HttpDaemonCommands(
         catch (Exception ex) when (ex is HttpRequestException or DaemonUnreachableException)
         { return [new("daemon.unreachable", false, "The daemon diagnostics endpoint could not be reached.")]; }
         catch (CliPreconditionException ex) { return [new("daemon.diagnostics", false, ex.Message)]; }
+    }
+
+    /// <summary>
+    /// Follows <c>Link: rel="next"</c> only to the same origin and path, so credentials never reach another destination.
+    /// A repeated link, an invalid link or more than <see cref="MaxListPages"/> pages fails without a partial result.
+    /// </summary>
+    private static async Task<JsonElement[]> GetAllPagesAsync(HttpClient client, string path, CancellationToken cancellationToken)
+    {
+        var items = new List<JsonElement>();
+        var seen = new HashSet<string>(StringComparer.Ordinal) { path };
+        string? next = path;
+        for (var pages = 0; next is not null; pages++)
+        {
+            if (pages == MaxListPages)
+                throw ListingFailure("listing-incomplete", $"The daemon listing has more than {MaxListPages} pages; no partial result is returned.");
+            using var response = await SendAsync(client, HttpMethod.Get, next, null, cancellationToken);
+            var data = await ReadJsonAsync(response, cancellationToken);
+            if (data.ValueKind != JsonValueKind.Array) throw ListingFailure("listing-invalid", "The daemon returned a listing page that is not an array.");
+            items.AddRange(data.EnumerateArray().Select(item => item.Clone()));
+            next = NextPage(response, client.BaseAddress!, path);
+            if (next is not null && !seen.Add(next)) throw ListingFailure("listing-incomplete", "The daemon repeated a listing page link; no partial result is returned.");
+        }
+        return items.ToArray();
+    }
+    private static string? NextPage(HttpResponseMessage response, Uri origin, string path)
+    {
+        if (!response.Headers.TryGetValues("Link", out var values)) return null;
+        // RFC 8288 link-values: "<target>; rel=\"next\"", comma separated; the daemon's targets contain no commas.
+        var targets = values.SelectMany(value => value.Split(',')).Select(link => link.Split(';'))
+            .Where(parts => parts.Skip(1).Select(part => part.Split('=', 2)).Any(parameter => parameter.Length == 2 &&
+                parameter[0].Trim().Equals("rel", StringComparison.OrdinalIgnoreCase) &&
+                parameter[1].Trim().Trim('"').Split(' ', StringSplitOptions.RemoveEmptyEntries).Contains("next", StringComparer.OrdinalIgnoreCase)))
+            .Select(parts => parts[0].Trim()).ToArray();
+        if (targets.Length == 0) return null;
+        if (targets.Length > 1 || targets[0] is not ['<', .., '>'] || !Uri.TryCreate(origin, targets[0][1..^1], out var target) ||
+            Uri.Compare(target, origin, UriComponents.SchemeAndServer, UriFormat.UriEscaped, StringComparison.OrdinalIgnoreCase) != 0 ||
+            !string.IsNullOrEmpty(target.UserInfo) || !string.IsNullOrEmpty(target.Fragment) || target.AbsolutePath != path)
+            throw ListingFailure("listing-link-rejected", "The daemon returned a next-page link outside the listing path; it was not followed.");
+        return target.PathAndQuery;
+    }
+    private static DaemonCommandException ListingFailure(string code, string message) => new(new(CliExitCode.Error, code, message));
+    private static async Task StepUpAsync(HttpClient client, string password, CancellationToken cancellationToken)
+    {
+        // Step-up rotates the session, so the antiforgery token is refreshed for the following state change.
+        await SetAntiforgeryAsync(client, cancellationToken);
+        using (await SendAsync(client, HttpMethod.Post, "/auth/step-up", new { password }, cancellationToken)) { }
+        await SetAntiforgeryAsync(client, cancellationToken);
     }
 
     private async Task<CliResult> GetAsync(string path, string message, CancellationToken cancellationToken)

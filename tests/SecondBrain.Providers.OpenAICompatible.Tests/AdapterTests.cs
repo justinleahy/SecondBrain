@@ -165,8 +165,8 @@ public sealed class AdapterTests
     {
         await using var context = await ProviderTestContext.StartAsync();
         var candidate = ProviderTestContext.CreateOptions(context.Endpoint);
-        candidate.Models.Chat!.Limits = new() { MaxOutputTokens = 16 };
-        candidate.Models.Embed!.Limits = new() { EmbedBatchMax = 1 };
+        candidate.Models.Chat!.Limits = candidate.Models.Chat.Limits with { MaxOutputTokens = 16 };
+        candidate.Models.Embed!.Limits = candidate.Models.Embed.Limits with { EmbedBatchMax = 1 };
         context.Options.Reload(candidate);
         var chat = context.Registry.GetRole(ModelRole.Chat);
         await Assert.ThrowsAsync<InvalidOperationException>(() => chat.Provider.GetChatClient(chat.Model.Model)!

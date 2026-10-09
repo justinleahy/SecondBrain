@@ -6,7 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Limits;
 using SecondBrain.Core.Security;
+using SecondBrain.Infrastructure.FileSystem;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
 using SecondBrain.Storage.Auth;
@@ -88,6 +90,7 @@ public sealed class LocalInitializationCommands(
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<IOptions<SecondBrainOptions>>(Options.Create(options));
+        services.AddSingleton<IDiskCapacity, DiskCapacity>();
         services.AddSecondBrainStorage();
         return services.BuildServiceProvider();
     }

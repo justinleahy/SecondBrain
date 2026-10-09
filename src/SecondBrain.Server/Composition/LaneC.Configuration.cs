@@ -15,10 +15,12 @@ public static class LaneCConfiguration
     /// <summary>Registers configuration services; implemented in M0 item 2.</summary>
     public static IServiceCollection AddConfiguration(this IServiceCollection services)
     {
-        services.AddSingleton(_ => new YamlConfigurationLoader(Environment.GetEnvironmentVariable("SECONDBRAIN_SECRETS_DIRECTORY")));
+        // One resolution feeds the loader and FLD-1 source protection, so relocated files stay protected.
+        services.AddSingleton(_ => RuntimeLocations.FromEnvironment(Environment.GetEnvironmentVariable));
+        services.AddSingleton(provider => new YamlConfigurationLoader(provider.GetRequiredService<RuntimeLocations>().SecretsDirectory));
         services.AddSingleton<ISecretResolver>(provider => provider.GetRequiredService<YamlConfigurationLoader>().Secrets);
         services.AddSingleton(provider => new ReloadingConfiguration(
-            Environment.GetEnvironmentVariable("SECONDBRAIN_CONFIG") ?? "/etc/secondbrain/config.yaml",
+            provider.GetRequiredService<RuntimeLocations>().ConfigPath,
             provider.GetRequiredService<YamlConfigurationLoader>(),
             message => provider.GetRequiredService<ILogger<ReloadingConfiguration>>().LogWarning("{ConfigurationDiagnostic}", message)));
         services.AddSingleton<IOptionsMonitor<SecondBrainOptions>, SecondBrainOptionsMonitor>();

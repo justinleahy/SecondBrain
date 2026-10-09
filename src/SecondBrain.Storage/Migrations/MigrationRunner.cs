@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using Microsoft.Data.Sqlite;
 using SecondBrain.Core.Durability;
+using SecondBrain.Core.Limits;
 using SecondBrain.Core.Storage;
 
 namespace SecondBrain.Storage.Migrations;
@@ -22,19 +23,25 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
     private readonly IStateStore state;
     private readonly IIndexStore index;
     private readonly string dataRoot;
+    private readonly IDiskCapacity diskCapacity;
     private readonly ICrashPoints crashPoints;
     private readonly MigrationOptions options;
     private readonly SemaphoreSlim gate = new(1, 1);
 
-    /// <summary>The caller holds the exclusive data-root lock and owns the injected stores.</summary>
-    public MigrationRunner(IStateStore state, IIndexStore index, string dataRoot, ICrashPoints? crashPoints = null, MigrationOptions? options = null)
+    /// <summary>
+    /// The caller holds the exclusive data-root lock and owns the injected stores. The disk probe must measure
+    /// the filesystem actually mounted at the data root, which need not be the root filesystem.
+    /// </summary>
+    public MigrationRunner(IStateStore state, IIndexStore index, string dataRoot, IDiskCapacity diskCapacity, ICrashPoints? crashPoints = null, MigrationOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(index);
         ArgumentException.ThrowIfNullOrWhiteSpace(dataRoot);
+        ArgumentNullException.ThrowIfNull(diskCapacity);
         this.state = state;
         this.index = index;
         this.dataRoot = Path.GetFullPath(dataRoot);
+        this.diskCapacity = diskCapacity;
         this.crashPoints = crashPoints ?? new NoOpCrashPoints();
         this.options = options ?? new MigrationOptions();
         ArgumentOutOfRangeException.ThrowIfNegative(this.options.MinimumFreeBytes);
@@ -98,7 +105,9 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
         }
 
         var required = checked(options.MinimumFreeBytes + databaseBytes * 3);
-        var available = new DriveInfo(Path.GetPathRoot(dataRoot)!).AvailableFreeSpace;
+        // An unknown capacity fails closed; there is deliberately no fallback to the root filesystem.
+        var available = diskCapacity.AvailableBytes(dataRoot)
+            ?? throw new IOException("Migration disk preflight failed: available space on the data root's filesystem cannot be determined.");
         if (available < required)
         {
             throw new IOException($"Migration disk preflight failed: {required} bytes required; {available} bytes available.");

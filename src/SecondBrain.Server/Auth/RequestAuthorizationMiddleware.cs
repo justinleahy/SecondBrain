@@ -20,7 +20,7 @@ public sealed class RequestAuthorizationMiddleware(RequestDelegate next)
             if (identity is null) { await ProblemResponses.WriteAsync(context, 401, ProblemTypes.AuthenticationRequired, "A valid credential is required."); return; }
             if (!scopePolicy.IsAllowed(policy.Operation, identity.Scopes) || policy.SessionOnly && identity.Kind != "session")
             { await ProblemResponses.WriteAsync(context, 403, ProblemTypes.ScopeDenied, "The credential cannot perform this operation."); return; }
-            if (policy.StepUp && identity.Kind == "session" && (identity.SteppedUpAt is null || AuthTime.Parse(identity.SteppedUpAt).AddMinutes(options.CurrentValue.Auth.StepUpMinutes) <= clock.GetUtcNow()))
+            if (policy.StepUp && identity.Kind == "session" && !HasFreshStepUp(identity, options.CurrentValue, clock.GetUtcNow()))
             { await ProblemResponses.WriteAsync(context, 403, ProblemTypes.StepUpRequired, "Re-authenticate before this action."); return; }
         }
         var unsafeMethod = !HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method) && !HttpMethods.IsOptions(context.Request.Method);
@@ -33,4 +33,8 @@ public sealed class RequestAuthorizationMiddleware(RequestDelegate next)
         }
         await next(context);
     }
+
+    /// <summary>SEC-10: a step-up counts only within the configured window (ten minutes by default).</summary>
+    public static bool HasFreshStepUp(AuthenticatedCredential identity, SecondBrainOptions options, DateTimeOffset now) =>
+        identity.SteppedUpAt is not null && AuthTime.Parse(identity.SteppedUpAt).AddMinutes(options.Auth.StepUpMinutes) > now;
 }

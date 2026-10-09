@@ -55,6 +55,10 @@ faults, restores default parameters, and resets counters. Admin endpoints are
 test controls and have no authentication; bind this host only to the test
 interface.
 
+In-process tests can set `MockProviderState.ModelsResponse` to replace the
+`/v1/models` response, for example with an oversized, chunked or slow body.
+`Reset()` restores the standard list.
+
 For in-process Kestrel, call
 `MockProviderApplication.Build(["--urls", "http://127.0.0.1:0"])`, then
 `StartAsync()`, and read the selected address from `app.Urls`. Obtain the

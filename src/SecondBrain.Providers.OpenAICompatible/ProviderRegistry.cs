@@ -99,7 +99,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
             if (!options.Providers.TryGetValue(binding.Provider, out var provider))
                 throw new InvalidOperationException("Model role names an unknown provider.");
             ValidateProvider(provider);
-            ModelCatalog.ValidateRole(role, catalog.Resolve(binding.Provider, binding.Model, EffectiveLimits(binding, role)));
+            ModelCatalog.ValidateRole(role, catalog.Resolve(binding.Provider, binding.Model, EffectiveLimits(binding, role), binding.Capabilities));
             if (binding.Fallback is not null) Validate(binding.Fallback, role, visited);
         }
     }
@@ -132,7 +132,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
                 if (providers.ContainsKey(name)) continue;
                 if (provider.Kind is not ("openai_compatible" or "openai-compatible"))
                     throw new InvalidOperationException("Configured provider adapter is unavailable.");
-                var binding = NewBinding(name, provider, ModelRole.Enrich, null, null, null);
+                var binding = NewBinding(name, provider, ModelRole.Enrich, null, null, null, null);
                 providers.Add(name, binding);
             }
             ownedBindings.AddRange(created);
@@ -141,17 +141,18 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
             ProviderRoleBinding Create(ModelBindingOptions bindingOptions, ModelRole role)
             {
                 var provider = options.Providers[bindingOptions.Provider];
-                var resolved = catalog.Resolve(bindingOptions.Provider, bindingOptions.Model, EffectiveLimits(bindingOptions, role));
+                var resolved = catalog.Resolve(bindingOptions.Provider, bindingOptions.Model, EffectiveLimits(bindingOptions, role), bindingOptions.Capabilities);
                 var binding = NewBinding(bindingOptions.Provider, provider, role,
-                    role == ModelRole.Embed ? resolved.Limits.EmbedDimensions : null, resolved.Limits, resolved.Model);
+                    role == ModelRole.Embed ? resolved.Limits.EmbedDimensions : null, resolved.Limits, resolved.Model, bindingOptions.Capabilities);
                 providers.TryAdd(bindingOptions.Provider, binding);
                 return new(role, binding, resolved, bindingOptions.Fallback is null ? null : Create(bindingOptions.Fallback, role));
             }
 
-            OpenAICompatibleBinding NewBinding(string name, ProviderOptions provider, ModelRole role, int? dimensions, ModelLimits? limits, string? model)
+            OpenAICompatibleBinding NewBinding(string name, ProviderOptions provider, ModelRole role, int? dimensions, ModelLimits? limits,
+                string? model, ModelCapabilityOptions? capabilities)
             {
                 var binding = new OpenAICompatibleBinding(name, new Uri(provider.Endpoint ?? throw new InvalidOperationException("Provider endpoint is missing.")),
-                    role, factory, privacy, catalog, credentials.Resolve(provider.ApiKeyReference), dimensions, timeProvider, limits, model);
+                    role, factory, privacy, catalog, credentials.Resolve(provider.ApiKeyReference), dimensions, timeProvider, limits, model, capabilities);
                 created.Add(binding);
                 return binding;
             }

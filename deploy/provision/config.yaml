@@ -8,6 +8,13 @@ server:
   origins: [http://localhost:7171, http://127.0.0.1:7171]
   trusted_proxies: [127.0.0.1]
 providers: {}
+# A model outside the adapter catalog needs explicit limits, and chat also needs a
+# reviewed native-tools declaration; capabilities are never inferred from an endpoint:
+#   chat:
+#     provider: <name>
+#     model: <served model id>
+#     limits: { context_tokens: <n>, max_output_tokens: <n> }
+#     capabilities: { tools: true, streaming: true }
 models: {}
 privacy:
   local_only: true

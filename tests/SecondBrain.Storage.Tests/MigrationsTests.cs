@@ -1,6 +1,7 @@
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using SecondBrain.Core.Durability;
+using SecondBrain.Core.Limits;
 using SecondBrain.Core.Storage;
 using SecondBrain.Storage.Migrations;
 using Xunit;
@@ -200,6 +201,40 @@ public sealed class Migrations
     }
 
     [Fact]
+    public async Task DiskPreflightMeasuresTheDataRootFilesystemBeforeMigrationMarkers()
+    {
+        using var root = new MigrationTestDataRoot();
+        var shortDisk = new MigrationTestDisk(4096);
+        await using (var stores = new MigrationTestStores(root.Path, options: new MigrationOptions { MinimumFreeBytes = 8192 }, disk: shortDisk))
+        {
+            var error = await Assert.ThrowsAsync<IOException>(() => stores.Runner.MigrateAsync().AsTask());
+            Assert.Contains("disk preflight", error.Message, StringComparison.Ordinal);
+            Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM sqlite_schema WHERE name = 'migration_state';"));
+            Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.Index, "SELECT COUNT(*) FROM sqlite_schema WHERE name = 'migration_state';"));
+        }
+        // The data root itself is measured, never the filesystem root that contains its path.
+        Assert.Equal(new[] { Path.GetFullPath(root.Path) }, shortDisk.Queried);
+
+        var roomyDisk = new MigrationTestDisk(1L << 40);
+        await using (var stores = new MigrationTestStores(root.Path, options: new MigrationOptions { MinimumFreeBytes = 8192 }, disk: roomyDisk))
+        {
+            Assert.Equal(1, (await stores.Runner.MigrateAsync()).StateVersion);
+        }
+        Assert.Equal(new[] { Path.GetFullPath(root.Path) }, roomyDisk.Queried);
+    }
+
+    [Fact]
+    public async Task UnknownDiskCapacityFailsClosedBeforeMigrationMarkers()
+    {
+        using var root = new MigrationTestDataRoot();
+        await using var stores = new MigrationTestStores(root.Path, disk: new MigrationTestDisk(null));
+        var error = await Assert.ThrowsAsync<IOException>(() => stores.Runner.MigrateAsync().AsTask());
+        Assert.Contains("cannot be determined", error.Message, StringComparison.Ordinal);
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM sqlite_schema WHERE name = 'migration_state';"));
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.Index, "SELECT COUNT(*) FROM sqlite_schema WHERE name = 'migration_state';"));
+    }
+
+    [Fact]
     public async Task AlreadyAppliedStartupDoesNotRequireMigrationDiskReservation()
     {
         using var root = new MigrationTestDataRoot();
@@ -242,11 +277,11 @@ internal sealed class MigrationTestStores : IAsyncDisposable
     internal SqliteIndexStore Index { get; }
     internal MigrationRunner Runner { get; }
 
-    internal MigrationTestStores(string dataRoot, ICrashPoints? crashPoints = null, MigrationOptions? options = null)
+    internal MigrationTestStores(string dataRoot, ICrashPoints? crashPoints = null, MigrationOptions? options = null, IDiskCapacity? disk = null)
     {
         State = new SqliteStateStore(dataRoot);
         Index = new SqliteIndexStore(dataRoot);
-        Runner = new MigrationRunner(State, Index, dataRoot, crashPoints, options);
+        Runner = new MigrationRunner(State, Index, dataRoot, disk ?? new MigrationTestDisk(1L << 40), crashPoints, options);
     }
 
     public async ValueTask DisposeAsync()
@@ -264,6 +299,19 @@ internal sealed class MigrationTestCrashPoints(string expectedPoint) : ICrashPoi
 }
 
 internal sealed class MigrationTestCrashException : Exception;
+
+/// <summary>A fixed disk probe that records which path the preflight measured.</summary>
+internal sealed class MigrationTestDisk(long? availableBytes) : IDiskCapacity
+{
+    private readonly List<string> queried = [];
+    internal IReadOnlyList<string> Queried { get { lock (queried) return queried.ToArray(); } }
+
+    public long? AvailableBytes(string path)
+    {
+        lock (queried) queried.Add(path);
+        return availableBytes;
+    }
+}
 
 internal static class MigrationTestSql
 {

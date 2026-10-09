@@ -20,22 +20,27 @@ Both the paths below and their /v1-prefixed aliases are mapped.
 
 | Methods and path | Scope and additional authority |
 | --- | --- |
-| GET /keys | admin |
+| GET /keys | admin; full key history (including revoked and earlier-epoch keys), paged |
 | POST /keys | admin; browser session also requires step-up |
 | DELETE /keys/{id} | admin; browser session also requires step-up |
 | GET /sources | admin |
 | POST /sources | admin; browser session also requires step-up; stores only, schedules nothing |
-| POST /auth/login | anonymous password login; exact Origin always required |
+| POST /auth/login | anonymous password login; exact Origin always required; JSON or form only (other types 415); body bounded to 16 KiB (413) after non-blocking admission (429) |
 | GET /auth/antiforgery | anonymous/cookie session; returns token and header name |
 | GET /auth/me | browser session |
-| POST /auth/logout, /auth/logout-all | browser session |
-| GET /auth/sessions | browser session |
-| DELETE /auth/sessions/{id} | browser session |
-| POST /auth/step-up | browser session; rotates the session id |
+| POST /auth/logout | browser session |
+| POST /auth/logout-all | browser session with step-up |
+| GET /auth/sessions | browser session; active sessions only, paged |
+| DELETE /auth/sessions/{id} | browser session; another session's id also requires step-up, the current session's does not |
+| POST /auth/step-up | browser session; rotates the session id; same body bound and admission as login |
 | GET /health, /ready | anonymous on private host; public host still requires Access |
 | GET /v1/openapi.json | anonymous on private host; public host still requires Access |
 
-JSON key creation: `{ "name": "client", "scopes": ["read"], "expiresAt": null }`; returns `{ "id", "key", "scopes", "expiresAt" }` once, with no-store caching. Source creation schemas are in OpenAPI. Browser JSON clients obtain a fresh token from /auth/antiforgery after login or step-up and send it in X-CSRF-TOKEN for state changes. API keys can manage credentials/sources without interactive step-up; an admin grant does not imply read/write/infer. Cookie-only sensitive operations require step-up; paired CLI sessions/pairing and passkey enrollment remain outside M0.
+Listings return a bare JSON array in `(created_at, id)` order. `?limit=` accepts 1–500 (default 100). When more rows exist, the response carries `Link: <same-path?after=<opaque cursor>&limit=N>; rel="next"`; a malformed cursor or limit is a 400 invalid-request problem. Session filtering (not revoked, current account epoch, unexpired) happens in SQL before each page's limit, so historical rows never hide active ones. Clients follow `next` links only to the same origin and path.
+
+Password requests (`/auth/login`, `/auth/step-up`, both prefixes) pass `PasswordRequestMiddleware` after the Host/Origin/Access gates and before authentication. It admits at most 8 concurrent password requests, 4 per source, without waiting (429 with `Retry-After: 1`), rejects a declared or streamed body over 16 KiB with a 413 request-too-large problem, and allows 10 seconds for the body (408). The buffered body then serves antiforgery, form and JSON readers. A fully `\u`-escaped 1,024-byte password fits. Login lockout state is rebuilt from the attempts after the source's latest success in the hour, ordered by `(at, rowid)`. If that tail reaches 1,000 rows, the source fails closed into a fixed lock from its newest failure.
+
+JSON key creation: `{ "name": "client", "scopes": ["read"], "expiresAt": null }`; returns `{ "id", "key", "scopes", "expiresAt" }` once, with no-store caching. Source creation schemas are in OpenAPI. Browser JSON clients obtain a fresh token from /auth/antiforgery after login or step-up and send it in X-CSRF-TOKEN for state changes. API keys can manage credentials/sources without interactive step-up; an admin grant does not imply read/write/infer. Cookie-only sensitive operations require step-up, including logout-all and revoking another session; paired CLI sessions/pairing and passkey enrollment remain outside M0.
 
 ## Admission integration
 

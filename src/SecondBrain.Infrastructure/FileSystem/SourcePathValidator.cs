@@ -5,7 +5,11 @@ using SecondBrain.Core.Sources;
 namespace SecondBrain.Infrastructure.FileSystem;
 
 /// <summary>Resolves every path segment, including symlinked parents, before applying FLD-1.</summary>
-public sealed class SourcePathValidator(IOptionsMonitor<SecondBrainOptions> options) : ISourcePathValidator
+/// <remarks>
+/// Protected trees are the fixed system locations, the data root, and the configuration and secrets locations
+/// this process actually loaded (they may be relocated anywhere, including beneath an allowed root).
+/// </remarks>
+public sealed class SourcePathValidator(IOptionsMonitor<SecondBrainOptions> options, RuntimeLocations locations) : ISourcePathValidator
 {
     private static readonly string[] ProtectedRoots = ["/proc", "/sys", "/dev", "/etc/secondbrain", "/run/secrets", "/var/log", "/private/var/log", "/Library/Logs"];
 
@@ -20,7 +24,7 @@ public sealed class SourcePathValidator(IOptionsMonitor<SecondBrainOptions> opti
         {
             var config = options.CurrentValue;
             var lexical = Path.GetFullPath(path);
-            var denied = ProtectedRoots.Append(Path.GetFullPath(config.DataRoot)).ToArray();
+            var denied = ProtectedRoots.Append(Path.GetFullPath(config.DataRoot)).Concat(RuntimeProtectedRoots()).ToArray();
             if (denied.Any(root => OverlapsProtectedTree(lexical, root)))
             {
                 return Deny("The source path is within a protected directory.");
@@ -48,6 +52,38 @@ public sealed class SourcePathValidator(IOptionsMonitor<SecondBrainOptions> opti
     }
 
     private static SourcePathValidation Deny(string reason) => new(false, null, reason);
+
+    private List<string> RuntimeProtectedRoots()
+    {
+        // Each entry is also resolved physically by the caller, covering aliases of its ancestors.
+        List<string> roots = [locations.SecretsDirectory, locations.ConfigDirectory];
+        // A symlinked configuration file is read through every hop, so each hop's directory is a config directory too.
+        var current = locations.ConfigPath;
+        for (var links = 0; ; links++)
+        {
+            string? next;
+            try { next = new FileInfo(current).LinkTarget; }
+            catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException) { break; }
+            if (next is null) break;
+            if (links == 40) throw new IOException("Too many symbolic links.");
+            // The kernel follows a relative target from the link's physical directory and resolves a link/.. in the
+            // target from that link's destination, so neither may be collapsed lexically.
+            var target = Path.IsPathFullyQualified(next) ? next : Path.Combine(ResolveDirectory(Path.GetDirectoryName(current)!), next);
+            string directory;
+            try { directory = ResolveDirectory(Path.GetDirectoryName(target)!); }
+            catch (DirectoryNotFoundException)
+            {
+                // A dangling hop cannot be read through; protect its lexical location and stop.
+                roots.Add(Path.GetFullPath(Path.GetDirectoryName(target)!));
+                break;
+            }
+
+            roots.Add(directory);
+            current = Path.Combine(directory, Path.GetFileName(target));
+        }
+
+        return roots;
+    }
 
     private static bool OverlapsProtectedTree(string source, string protectedRoot) => AtOrBelow(source, protectedRoot) || AtOrBelow(protectedRoot, source);
 

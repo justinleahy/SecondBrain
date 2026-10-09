@@ -73,15 +73,23 @@ public static class MockProviderApplication
         });
 
         app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
-        app.MapGet("/v1/models", () => Results.Json(new
+        app.MapGet("/v1/models", (HttpContext context, MockProviderState state) =>
         {
-            @object = "list",
-            data = new[]
+            if (state.ModelsResponse is { } custom)
             {
-                new { id = ChatModel, @object = "model", created = 0, owned_by = "secondbrain-mock" },
-                new { id = EmbeddingModel, @object = "model", created = 0, owned_by = "secondbrain-mock" },
-            },
-        }));
+                return custom(context);
+            }
+
+            return Results.Json(new
+            {
+                @object = "list",
+                data = new[]
+                {
+                    new { id = ChatModel, @object = "model", created = 0, owned_by = "secondbrain-mock" },
+                    new { id = EmbeddingModel, @object = "model", created = 0, owned_by = "secondbrain-mock" },
+                },
+            }).ExecuteAsync(context);
+        });
         app.MapPost("/v1/chat/completions", ChatAsync);
         app.MapPost("/v1/embeddings", EmbeddingsAsync);
 

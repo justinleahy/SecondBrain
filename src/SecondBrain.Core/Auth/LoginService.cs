@@ -7,6 +7,8 @@ public sealed record LoginDecision(bool Accepted, int RetryAfterSeconds = 0, lon
 /// <summary>One bounded Argon2 verification at a time, with durable per-source cooldown and fixed lock windows.</summary>
 public sealed class LoginService(IAuthRepository repository, IPasswordHasher hasher, CredentialFactory factory, TimeProvider clock) : IDisposable
 {
+    /// <summary>Upper bound on the replayed tail; throttling keeps a real post-success tail far below it.</summary>
+    public const int AttemptHistoryLimit = 1000;
     private readonly SemaphoreSlim passwordSlot = new(1, 1);
     public async Task<LoginDecision> VerifyAsync(string password, string source, CancellationToken cancellationToken = default)
     {
@@ -15,7 +17,8 @@ public sealed class LoginService(IAuthRepository repository, IPasswordHasher has
         try
         {
             var now = clock.GetUtcNow();
-            var attempts = await repository.LoginAttemptsAsync(source, now.AddHours(-1), cancellationToken);
+            // A success resets every counter, so the tail from the latest success replays the whole window.
+            var attempts = await repository.LoginAttemptsAsync(source, now.AddHours(-1), AttemptHistoryLimit, cancellationToken);
             var failures = 0;
             DateTimeOffset? lastFailure = null;
             DateTimeOffset? lockedUntil = null;
@@ -27,6 +30,9 @@ public sealed class LoginService(IAuthRepository repository, IPasswordHasher has
                 failures++; lastFailure = at;
                 if (failures == 5) lockedUntil = at.AddMinutes(15);
             }
+            // A full tail may have lost its start and cannot be replayed; fail closed with a fixed lock from the newest failure.
+            if (attempts.Count >= AttemptHistoryLimit && attempts.LastOrDefault(attempt => !attempt.Success) is { } newest)
+                lockedUntil = AuthTime.Parse(newest.At).AddMinutes(15);
             // Rejected probes never add attempts, so a single source cannot slide its own lock window.
             if (lockedUntil > now) return new(false, (int)Math.Ceiling((lockedUntil.Value - now).TotalSeconds));
             if (lockedUntil is null && lastFailure is not null)

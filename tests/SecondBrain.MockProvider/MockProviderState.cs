@@ -21,6 +21,7 @@ public sealed class MockProviderState
     private long _totalRequests;
     private long _timeoutTicks = TimeSpan.FromSeconds(30).Ticks;
     private Uri _redirectTarget = new("https://example.com/mock-provider-redirect");
+    private Func<HttpContext, Task>? _modelsResponse;
 
     public MockFault Fault
     {
@@ -57,6 +58,16 @@ public sealed class MockProviderState
         }
     }
 
+    /// <summary>
+    /// In-process tests may replace the /v1/models response, for example with oversized,
+    /// chunked or slow discovery bodies. Null serves the standard model list.
+    /// </summary>
+    public Func<HttpContext, Task>? ModelsResponse
+    {
+        get => Volatile.Read(ref _modelsResponse);
+        set => Volatile.Write(ref _modelsResponse, value);
+    }
+
     /// <summary>Counts provider requests only; admin and liveness requests are excluded.</summary>
     public long TotalRequests => Interlocked.Read(ref _totalRequests);
 
@@ -76,6 +87,7 @@ public sealed class MockProviderState
         Fault = MockFault.None;
         RedirectTarget = new Uri("https://example.com/mock-provider-redirect");
         Timeout = TimeSpan.FromSeconds(30);
+        ModelsResponse = null;
         ResetCounts();
     }
 

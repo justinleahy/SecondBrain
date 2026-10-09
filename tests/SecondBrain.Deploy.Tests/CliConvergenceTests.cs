@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using Dapper;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SecondBrain.Cli;
+using SecondBrain.Cli.Commands;
 using SecondBrain.Cli.Credentials;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Configuration;
@@ -18,6 +20,7 @@ using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Storage;
 using SecondBrain.Extractor;
 using SecondBrain.MockProvider;
+using SecondBrain.Server.Auth;
 using SecondBrain.Server.Composition;
 using SecondBrain.Server.Http;
 using Xunit;
@@ -54,7 +57,7 @@ public sealed class CliConvergenceTests
         await using var read = await store.OpenReadConnectionAsync();
         var policy = await read.Connection.QuerySingleAsync<string>("SELECT value FROM meta WHERE key='password_parameters'");
         Assert.Equal(TestParameters, JsonSerializer.Deserialize<PasswordParameters>(policy));
-        var row = Assert.Single(await repository.ListAsync("api_key"));
+        var row = Assert.Single((await repository.ListPageAsync("api_key", activeOnly: false, after: null, limit: 100)).Items);
         Assert.Equal("read,write,infer,admin", row.Scopes);
         Assert.DoesNotContain(key, row.Verifier);
     }
@@ -91,7 +94,7 @@ public sealed class CliConvergenceTests
         var account = (await repository.GetAccountAsync())!;
         Assert.True(new PasswordHasher(TestParameters).Verify(account.PasswordHash, replacement));
         Assert.False(new PasswordHasher(TestParameters).Verify(account.PasswordHash, Password));
-        var oldKey = Assert.Single(await repository.ListAsync("api_key"));
+        var oldKey = Assert.Single((await repository.ListPageAsync("api_key", activeOnly: false, after: null, limit: 100)).Items);
         Assert.False(await repository.IsCurrentAsync(oldKey.Id, oldKey.Generation, oldKey.AccountEpoch));
     }
 
@@ -169,6 +172,101 @@ public sealed class CliConvergenceTests
     }
 
     [Fact]
+    public async Task Cli_ListingsTraverseEveryPagePastHistoricalRows()
+    {
+        await using var daemon = await CliDaemon.CreateAsync();
+        using var browser = daemon.Browser();
+        using var response = await browser.PostAsJsonAsync("/auth/login", new { password = Password });
+        response.EnsureSuccessStatusCode();
+        var browserSession = (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetString()!;
+        await daemon.LoginAdmin();
+        await daemon.SeedCredentialsAsync("h", "session", 1100, historical: true);
+        await daemon.SeedCredentialsAsync("a", "session", 150, historical: false);
+        await daemon.SeedCredentialsAsync("k", "api_key", 1100, historical: true);
+        var create = await daemon.Run(["keys", "create", "--scopes", "read", "--json"]);
+        var created = create.Json.GetProperty("data").GetProperty("id").GetString()!;
+
+        var keys = await daemon.Run(["keys", "list", "--json"]);
+        Assert.Equal(0, keys.Exit);
+        var keyIds = keys.Json.GetProperty("data").EnumerateArray().Select(item => item.GetProperty("id").GetString()!).ToArray();
+        Assert.Equal(keyIds.Length, keyIds.Distinct().Count());
+        Assert.Contains(created, keyIds);
+        Assert.Equal(1100, keyIds.Count(id => id.StartsWith('k')));
+
+        var sessions = await daemon.Run(["sessions", "list", "--json"]);
+        Assert.Equal(0, sessions.Exit);
+        var sessionIds = sessions.Json.GetProperty("data").EnumerateArray().Select(item => item.GetProperty("id").GetString()!).ToArray();
+        Assert.Equal(Enumerable.Range(1, 150).Select(i => $"a{i:D5}").Append(browserSession), sessionIds);
+
+        Assert.Equal(0, (await daemon.Run(["sessions", "revoke", "a00150", "--json"])).Exit);
+        var after = await daemon.Run(["sessions", "list", "--json"]);
+        Assert.DoesNotContain(after.Json.GetProperty("data").EnumerateArray(), item => item.GetProperty("id").GetString() == "a00150");
+        Assert.Equal(150, after.Json.GetProperty("data").GetArrayLength());
+    }
+
+    [Theory]
+    [InlineData("<http://attacker.test/keys?after=x>; rel=\"next\"")]
+    [InlineData("<//attacker.test/keys?after=x>; rel=\"next\"")]
+    [InlineData("<https://daemon.test/keys?after=x>; rel=\"next\"")]
+    [InlineData("<http://daemon.test:8080/keys?after=x>; rel=\"next\"")]
+    [InlineData("<http://user@daemon.test/keys?after=x>; rel=\"next\"")]
+    [InlineData("</auth/sessions?after=x>; rel=\"next\"")]
+    [InlineData("</keys?after=a>; rel=\"next\", </keys?after=b>; rel=next")]
+    [InlineData("/keys?after=x; rel=\"next\"")]
+    public async Task Cli_ListingRefusesNextLinksOutsideTheListing(string link)
+    {
+        var handler = new PagingHandler(_ => link);
+        var failure = await Assert.ThrowsAsync<DaemonCommandException>(() => ((ICredentialCommands)PagedCommands(handler)).ListAsync(default));
+        Assert.Equal("listing-link-rejected", failure.Result.Code);
+        Assert.Equal(CliExitCode.Error, failure.Result.ExitCode);
+        var request = Assert.Single(handler.Requests);
+        Assert.Equal("http://daemon.test/keys", request.ToString());
+    }
+
+    [Fact]
+    public async Task Cli_ListingFailsInsteadOfLoopingOrTruncating()
+    {
+        var looping = new PagingHandler(_ => "</keys?after=same>; rel=\"next\"");
+        var loop = await Assert.ThrowsAsync<DaemonCommandException>(() => ((ICredentialCommands)PagedCommands(looping)).ListAsync(default));
+        Assert.Equal("listing-incomplete", loop.Result.Code);
+        Assert.Equal(2, looping.Requests.Count);
+        var restarting = new PagingHandler(_ => "</keys>; rel=next");
+        await Assert.ThrowsAsync<DaemonCommandException>(() => ((ICredentialCommands)PagedCommands(restarting)).ListAsync(default));
+        Assert.Single(restarting.Requests);
+
+        var endless = new PagingHandler(page => $"</keys?after={page}>; rel=\"next\"");
+        var exhausted = await Assert.ThrowsAsync<DaemonCommandException>(() => ((ICredentialCommands)PagedCommands(endless)).ListAsync(default));
+        Assert.Equal("listing-incomplete", exhausted.Result.Code);
+        Assert.Equal(HttpDaemonCommands.MaxListPages, endless.Requests.Count);
+    }
+
+    [Fact]
+    public async Task Cli_ListingFollowsSameOriginNextLinksToTheEnd()
+    {
+        var handler = new PagingHandler(page => page switch
+        {
+            1 => "</keys?after=1&limit=1>; rel=\"next\"",
+            2 => "<http://daemon.test/keys?after=2>; rel = \"next\", </keys?after=0>; rel=\"prev\"",
+            _ => "</keys?after=0>; rel=\"prev\"",
+        });
+        var result = await ((ICredentialCommands)PagedCommands(handler)).ListAsync(default);
+        Assert.Equal(CliExitCode.Ok, result.ExitCode);
+        Assert.Equal(["k1", "k2", "k3"], ((JsonElement[])result.Data!).Select(item => item.GetProperty("id").GetString()));
+        Assert.Equal(["/keys", "/keys?after=1&limit=1", "/keys?after=2"], handler.Requests.Select(uri => uri.PathAndQuery));
+    }
+
+    [Theory]
+    [InlineData("length")]
+    [InlineData("chunked")]
+    public async Task Cli_DaemonBoundsLoginBodiesOnKestrel(string framing)
+    {
+        await using var daemon = await CliDaemon.CreateAsync();
+        var oversized = Encoding.UTF8.GetBytes("{\"password\":\"" + new string('a', PasswordRequestMiddleware.MaxBodyBytes) + "\"}");
+        Assert.Equal(413, await RawLoginAsync(daemon.Origin, framing, oversized, sendBody: framing == "chunked"));
+        Assert.Equal(200, await RawLoginAsync(daemon.Origin, framing, JsonSerializer.SerializeToUtf8Bytes(new { password = Password }), sendBody: true));
+    }
+
+    [Fact]
     public async Task Cli_DoctorChecksConvergedDaemonAndReturnsZero()
     {
         await using var daemon = await CliDaemon.CreateAsync();
@@ -227,6 +325,64 @@ public sealed class CliConvergenceTests
         using var document = JsonDocument.Parse(output.ToString());
         return new(exit, document.RootElement.Clone(), output.ToString(), error.ToString());
     }
+    private static HttpDaemonCommands PagedCommands(HttpMessageHandler handler)
+    {
+        var commands = new HttpDaemonCommands(() => new StaticCredentialStore(), (_, _) => Task.FromResult(Password),
+            () => new HttpClient(handler, disposeHandler: false));
+        commands.Configure(() => throw new InvalidOperationException("The configured origin is used."), "http://daemon.test", "paged");
+        return commands;
+    }
+
+    /// <summary>A real Kestrel exchange: either a declared over-limit length with no body sent, or the body itself.</summary>
+    private static async Task<int> RawLoginAsync(Uri origin, string framing, byte[] body, bool sendBody)
+    {
+        using var tcp = new TcpClient();
+        await tcp.ConnectAsync(origin.Host, origin.Port);
+        var stream = tcp.GetStream();
+        var authority = origin.GetLeftPart(UriPartial.Authority);
+        var headers = $"POST /auth/login HTTP/1.1\r\nHost: {origin.Authority}\r\nOrigin: {authority}\r\nContent-Type: application/json\r\nConnection: close\r\n" +
+            (framing == "chunked" ? "Transfer-Encoding: chunked\r\n" : $"Content-Length: {body.Length}\r\n") + "\r\n";
+        try
+        {
+            await stream.WriteAsync(Encoding.ASCII.GetBytes(headers));
+            if (sendBody && framing == "chunked")
+            {
+                foreach (var chunk in body.Chunk(4096))
+                {
+                    await stream.WriteAsync(Encoding.ASCII.GetBytes(chunk.Length.ToString("x", CultureInfo.InvariantCulture) + "\r\n"));
+                    await stream.WriteAsync(chunk);
+                    await stream.WriteAsync("\r\n"u8.ToArray());
+                }
+                await stream.WriteAsync("0\r\n\r\n"u8.ToArray());
+            }
+            else if (sendBody) await stream.WriteAsync(body);
+        }
+        catch (IOException) { } // The daemon may answer and close before an over-limit body is fully sent.
+        using var reader = new StreamReader(stream, Encoding.ASCII);
+        var status = await reader.ReadLineAsync().WaitAsync(TimeSpan.FromSeconds(30));
+        Assert.NotNull(status);
+        return int.Parse(status!.Split(' ')[1], CultureInfo.InvariantCulture);
+    }
+
+    private sealed class StaticCredentialStore : ICredentialStore
+    {
+        public Task StoreAsync(Uri origin, string name, string key, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task<string?> ReadAsync(Uri origin, string name, CancellationToken cancellationToken) => Task.FromResult<string?>("sb_paged.secret");
+    }
+
+    /// <summary>Serves one-item pages and a caller-chosen Link header per page number.</summary>
+    private sealed class PagingHandler(Func<int, string?> link) : HttpMessageHandler
+    {
+        public List<Uri> Requests { get; } = [];
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Requests.Add(request.RequestUri!);
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = JsonContent.Create(new[] { new { id = "k" + Requests.Count } }) };
+            if (link(Requests.Count) is { } value) response.Headers.TryAddWithoutValidation("Link", value);
+            return Task.FromResult(response);
+        }
+    }
+
     private static int Occurrences(string text, string value) => (text.Length - text.Replace(value, "", StringComparison.Ordinal).Length) / value.Length;
     private static int FreePort()
     {
@@ -279,9 +435,9 @@ public sealed class CliConvergenceTests
                 providers:
                   mock: {kind: openai_compatible, endpoint: '{{mockUrl}}/v1'}
                 models:
-                  chat: {provider: mock, model: mock-chat}
-                  enrich: {provider: mock, model: mock-chat}
-                  embed: {provider: mock, model: mock-embed}
+                  chat: {provider: mock, model: mock-chat, capabilities: {tools: true, streaming: true}, limits: {context_tokens: 8192, max_output_tokens: 1024} }
+                  enrich: {provider: mock, model: mock-chat, limits: {context_tokens: 8192, max_output_tokens: 1024} }
+                  embed: {provider: mock, model: mock-embed, limits: {embed_dimensions: 4, embed_max_input_tokens: 8192, embed_batch_max: 32} }
                 privacy:
                   local_only: true
                   trusted_services: ['{{mockUrl}}']
@@ -331,6 +487,22 @@ public sealed class CliConvergenceTests
         }
         public Task<CommandResult> Run(string[] args) => CliConvergenceTests.Run(root.Identities(args.Concat([
             "--config", configPath]).Concat(args.Contains("--credential-name", StringComparer.Ordinal) ? [] : new[] { "--credential-name", "admin-cli" }).ToArray()), services);
+        public Task SeedCredentialsAsync(string prefix, string kind, int count, bool historical)
+        {
+            var now = DateTimeOffset.UtcNow;
+            // Older than every credential the daemon issues; historical rows are revoked, earlier-epoch or expired.
+            return daemon!.Services.GetRequiredService<SecondBrain.Storage.IStateStore>().QueueWriteAsync(async (connection, transaction, token) =>
+                await connection.ExecuteAsync(new CommandDefinition("""
+                    WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<@count)
+                    INSERT INTO credentials (id,name,kind,verifier,scopes,generation,kid,account_epoch,idle_expires_at,absolute_expires_at,created_at,expires_at,revoked_at)
+                    SELECT @prefix || printf('%05d', i), 'seeded', @kind, 'AAAA', 'read', 1, 'seed',
+                      CASE WHEN @historical AND i % 4 = 1 THEN 0 ELSE 1 END,
+                      CASE WHEN @historical AND i % 4 = 2 THEN @past ELSE @future END, @future, @createdAt,
+                      CASE WHEN @historical AND i % 4 = 3 THEN @past END, CASE WHEN @historical AND i % 4 = 0 THEN @past END
+                    FROM n
+                    """, new { count, prefix, kind, historical, createdAt = AuthTime.Format(now.AddDays(-1)), past = AuthTime.Format(now.AddMinutes(-1)), future = AuthTime.Format(now.AddDays(1)) },
+                    transaction, cancellationToken: token))).AsTask();
+        }
         public async Task LoginAdmin() => Assert.Equal(0, (await Run(["login", Origin.ToString(), "--name", "admin-cli", "--scopes", "admin,read", "--json"])).Exit);
         public HttpClient Browser()
         {

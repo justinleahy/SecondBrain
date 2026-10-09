@@ -358,8 +358,165 @@ public sealed class JournalTests
         await Assert.ThrowsAsync<IOException>(() => session.Journal.PrepareAsync(Request(root, "new", null) with { Destination = System.IO.Path.Combine(root.Vault, "linked", "note.md") }).AsTask());
         File.CreateSymbolicLink(root.Destination, System.IO.Path.Combine(outside, "note.md"));
         await session.Journal.PrepareAsync(Request(root, "new", null));
-        await Assert.ThrowsAsync<IOException>(() => session.Journal.ApplyAsync("mutation").AsTask());
+        Assert.Equal("conflict", (await session.Journal.ApplyAsync("mutation")).Status);
+        Assert.Equal(new MutationRecoveryReport(0, 0, 0, 0), await session.Journal.RecoverAsync());
         Assert.Equal("outside", await File.ReadAllTextAsync(System.IO.Path.Combine(outside, "note.md")));
+    }
+
+    [Fact]
+    public async Task NonregularDestinationConflictsWithoutInventingARevision()
+    {
+        await using var root = new JournalRoot();
+        await using var session = await root.OpenAsync();
+        await SeedFinalizationAsync(session.State, Hash(Encoding.UTF8.GetBytes("old")));
+        Directory.CreateDirectory(root.Destination);
+        var marker = System.IO.Path.Combine(root.Destination, "external.txt");
+        await File.WriteAllTextAsync(marker, "external");
+        var request = Request(root, "new", null) with { Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2 } };
+        var result = await session.Journal.ExecuteAsync(request);
+        Assert.Equal("conflict", result.Status);
+        Assert.Equal("external", await File.ReadAllTextAsync(marker));
+        Assert.Equal(1, await ScalarAsync<long>(session.State, "SELECT revision FROM documents"));
+        Assert.Equal(0, await ScalarAsync<long>(session.State, "SELECT count(*) FROM meta WHERE key LIKE 'mutation_document_reservation:%'"));
+        Assert.Equal(result, await session.Journal.ExecuteAsync(request));
+        await using var restarted = await root.OpenAsync();
+        Assert.Equal(new MutationRecoveryReport(0, 0, 0, 0), await restarted.Journal.RecoverAsync());
+        Assert.Equal("external", await File.ReadAllTextAsync(marker));
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task RecoveryPreservesNonregularDisplacedEntryAndThenIsIdempotent(bool additionalReplacement, bool unreadable)
+    {
+        if (OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Journal durability requires Unix filesystem primitives.");
+        await using var root = new JournalRoot();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        await using (var session = await root.OpenAsync())
+        {
+            using var interrupted = new MutationJournal(session.State, root.Path, new ThrowAt(MutationCrashPointNames.AfterRename));
+            await Assert.ThrowsAsync<InjectedJournalCrash>(() => interrupted.ExecuteAsync(Request(root, "new", Hash(Encoding.UTF8.GetBytes("old")))).AsTask());
+        }
+        // Model a persisted interrupted exchange with an external directory in the displaced slot.
+        var suffix = Hash(Encoding.UTF8.GetBytes("mutation"));
+        var displaced = System.IO.Path.Combine(root.Vault, $".sb-{suffix}.tmp");
+        Directory.CreateDirectory(displaced);
+        await File.WriteAllTextAsync(System.IO.Path.Combine(displaced, "external.txt"), "external");
+        if (additionalReplacement) await File.WriteAllTextAsync(root.Destination, "latest external bytes");
+        var preservedDirectory = displaced;
+        var inspectMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
+        if (unreadable) File.SetUnixFileMode(displaced, UnixFileMode.None);
+        try
+        {
+            await using (var restarted = await root.OpenAsync())
+            {
+                Assert.Equal(new MutationRecoveryReport(0, 0, 1, 0), await restarted.Journal.RecoverAsync());
+                preservedDirectory = additionalReplacement ? Assert.Single(Directory.GetDirectories(root.Vault, "*.external")) : root.Destination;
+                Assert.True(Directory.Exists(preservedDirectory));
+                if (unreadable)
+                {
+                    Assert.Equal(UnixFileMode.None, File.GetUnixFileMode(preservedDirectory));
+                    File.SetUnixFileMode(preservedDirectory, inspectMode);
+                }
+                Assert.Equal("external", await File.ReadAllTextAsync(System.IO.Path.Combine(preservedDirectory, "external.txt")));
+                if (additionalReplacement) Assert.Equal("latest external bytes", await File.ReadAllTextAsync(root.Destination));
+                Assert.Equal("conflict", await ScalarAsync<string>(restarted.State, "SELECT status FROM mutations"));
+            }
+            if (unreadable) File.SetUnixFileMode(preservedDirectory, UnixFileMode.None);
+            await using var again = await root.OpenAsync();
+            Assert.Equal(new MutationRecoveryReport(0, 0, 0, 0), await again.Journal.RecoverAsync());
+            if (unreadable) File.SetUnixFileMode(preservedDirectory, inspectMode);
+            Assert.Equal("external", await File.ReadAllTextAsync(System.IO.Path.Combine(preservedDirectory, "external.txt")));
+            if (additionalReplacement) Assert.Equal("latest external bytes", await File.ReadAllTextAsync(root.Destination));
+        }
+        finally
+        {
+            // Restore test fixture permissions even if recovery/assertions fail, so cleanup can inspect it.
+            foreach (var candidate in Directory.GetDirectories(root.Vault))
+                File.SetUnixFileMode(candidate, inspectMode);
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GenerationReservationCoversPreparedAndAppliedMutation(bool applyFirst)
+    {
+        await using var root = new JournalRoot();
+        await using var session = await root.OpenAsync();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        var oldHash = Hash(Encoding.UTF8.GetBytes("old"));
+        await SeedFinalizationAsync(session.State, oldHash);
+        var publications = new PublicationCoordinator(session.State, session.Index);
+        await session.State.QueueWriteAsync(async (connection, transaction, ct) => await connection.ExecuteAsync(new CommandDefinition(
+            "INSERT INTO publication_fences(document_id,generation_json) VALUES('doc','{\"b\":1,\"a\":1}');", transaction: transaction, cancellationToken: ct)));
+        var request = Request(root, "new", oldHash) with { Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, GenerationJson = "{\"a\":1,\"b\":1}" } };
+        await session.Journal.PrepareAsync(request);
+        if (applyFirst) await session.Journal.ApplyAsync(request.MutationId);
+        Assert.Equal(PublicationOutcome.Superseded, await publications.ReprocessAsync(new PublicationGenerationChange(new PublicationFence("doc", 1, "{\"a\":1,\"b\":1}"), "{\"a\":2}")));
+        if (!applyFirst) await session.Journal.ApplyAsync(request.MutationId);
+        Assert.Equal("finalized", (await session.Journal.FinalizeAsync(request.MutationId)).Status);
+        Assert.Equal("{\"a\":1,\"b\":1}", await ScalarAsync<string>(session.State, "SELECT generation_json FROM publication_fences"));
+        Assert.Equal(PublicationOutcome.Published, await publications.ReprocessAsync(new PublicationGenerationChange(new PublicationFence("doc", 2, "{\"b\":1,\"a\":1}"), "{\"a\":2}")));
+        Assert.Equal("{\"a\":2}", await ScalarAsync<string>(session.State, "SELECT generation_json FROM publication_fences"));
+    }
+
+    [Fact]
+    public async Task AcceptedMutationMayAdvanceItsGenerationAndExternalConflictPreservesNewerFence()
+    {
+        await using var root = new JournalRoot();
+        await using var session = await root.OpenAsync();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        var oldHash = Hash(Encoding.UTF8.GetBytes("old"));
+        await SeedFinalizationAsync(session.State, oldHash);
+        await session.State.QueueWriteAsync(async (connection, transaction, ct) => await connection.ExecuteAsync(new CommandDefinition(
+            "INSERT INTO publication_fences(document_id,generation_json) VALUES('doc','{\"extractor\":1}');", transaction: transaction, cancellationToken: ct)));
+        var request = Request(root, "new", oldHash) with { Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, GenerationJson = "{\"extractor\":2}" } };
+        Assert.Equal("finalized", (await session.Journal.ExecuteAsync(request)).Status);
+        Assert.Equal("{\"extractor\":2}", await ScalarAsync<string>(session.State, "SELECT generation_json FROM publication_fences"));
+        var next = request with { MutationId = "next", OperationId = "next-operation", ExpectedHash = Hash(Encoding.UTF8.GetBytes("new")), Finalization = request.Finalization with { RevisionBefore = 2, RevisionAfter = 3 } };
+        await session.Journal.PrepareAsync(next);
+        await session.Journal.ApplyAsync(next.MutationId);
+        await session.State.QueueWriteAsync(async (connection, transaction, ct) => await connection.ExecuteAsync(new CommandDefinition(
+            "UPDATE publication_fences SET generation_json='{\"extractor\":3}' WHERE document_id='doc';", transaction: transaction, cancellationToken: ct)));
+        await File.WriteAllTextAsync(root.Destination, "external");
+        Assert.Equal("conflict", (await session.Journal.FinalizeAsync(next.MutationId)).Status);
+        Assert.Equal("{\"extractor\":3}", await ScalarAsync<string>(session.State, "SELECT generation_json FROM publication_fences"));
+        Assert.Equal(Hash(Encoding.UTF8.GetBytes("external")), await ScalarAsync<string>(session.State, "SELECT content_hash FROM documents"));
+        Assert.Equal("external", await File.ReadAllTextAsync(root.Destination));
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task SameRevisionNewGenerationNeverRollsBackDuringRecovery(bool applied, bool legacy)
+    {
+        await using var root = new JournalRoot();
+        await using var session = await root.OpenAsync();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        var oldHash = Hash(Encoding.UTF8.GetBytes("old"));
+        await SeedFinalizationAsync(session.State, oldHash);
+        await session.State.QueueWriteAsync(async (connection, transaction, ct) => await connection.ExecuteAsync(new CommandDefinition(
+            "INSERT INTO publication_fences(document_id,generation_json) VALUES('doc','{\"extractor\":1}');", transaction: transaction, cancellationToken: ct)));
+        var request = Request(root, "new", oldHash) with { Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, GenerationJson = "{\"extractor\":1}" } };
+        await session.Journal.PrepareAsync(request);
+        if (applied) await session.Journal.ApplyAsync(request.MutationId);
+        await session.State.QueueWriteAsync(async (connection, transaction, ct) =>
+        {
+            if (legacy) await connection.ExecuteAsync(new CommandDefinition("UPDATE payloads SET bytes=CAST(json_remove(CAST(bytes AS TEXT),'$.ExpectedGenerationJson','$.HasExpectedGeneration') AS BLOB) WHERE id LIKE '%_plan';", transaction: transaction, cancellationToken: ct));
+            return await connection.ExecuteAsync(new CommandDefinition("UPDATE publication_fences SET generation_json='{\"extractor\":2}' WHERE document_id='doc';", transaction: transaction, cancellationToken: ct));
+        });
+        await using var restarted = await root.OpenAsync();
+        var report = await restarted.Journal.RecoverAsync();
+        Assert.Equal(applied && legacy ? 1 : 0, report.Finalized);
+        Assert.Equal(legacy ? 0 : 1, report.Conflicts);
+        Assert.Equal(applied ? 2 : 1, await ScalarAsync<long>(session.State, "SELECT revision FROM documents"));
+        Assert.Equal("{\"extractor\":2}", await ScalarAsync<string>(session.State, "SELECT generation_json FROM publication_fences"));
+        Assert.Equal(new MutationRecoveryReport(0, 0, 0, 0), await restarted.Journal.RecoverAsync());
     }
 
     [Fact]
@@ -371,6 +528,190 @@ public sealed class JournalTests
         Assert.Equal(0, await ScalarAsync<long>(session.State, "SELECT count(*) FROM mutations"));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PublicationCannotAdvanceARevisionReservedByAMutation(bool publishAfterApply)
+    {
+        await using var root = new JournalRoot();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        await using var session = await root.OpenAsync();
+        var oldHash = Hash(Encoding.UTF8.GetBytes("old"));
+        await SeedFinalizationAsync(session.State, oldHash);
+        var publications = new PublicationCoordinator(session.State, session.Index);
+        var patch = new DocumentPublication("doc", "source", 1, "{}", "patch", "racing title", oldHash, "api:test");
+        var request = Request(root, "new", oldHash) with { Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2 } };
+        await session.Journal.PrepareAsync(request);
+        Assert.Equal("mutation", await ScalarAsync<string>(session.State, "SELECT value FROM meta WHERE key='mutation_document_reservation:doc'"));
+        // The original failure: publication advanced the revision between prepare and apply/finalize.
+        if (!publishAfterApply) Assert.Equal(PublicationOutcome.Superseded, await publications.PublishAsync(patch));
+        Assert.Equal("applied", (await session.Journal.ApplyAsync(request.MutationId)).Status);
+        if (publishAfterApply) Assert.Equal(PublicationOutcome.Superseded, await publications.PublishAsync(patch));
+        Assert.Equal("finalized", (await session.Journal.FinalizeAsync(request.MutationId)).Status);
+        Assert.Equal(2, await ScalarAsync<long>(session.State, "SELECT revision FROM documents"));
+        Assert.Equal("note", await ScalarAsync<string>(session.State, "SELECT title FROM documents"));
+        Assert.Equal(Hash(Encoding.UTF8.GetBytes("new")), await ScalarAsync<string>(session.State, "SELECT content_hash FROM documents"));
+        Assert.Equal(0, await ScalarAsync<long>(session.State, "SELECT count(*) FROM meta WHERE key LIKE 'mutation_document_reservation:%'"));
+        Assert.Equal("new", await File.ReadAllTextAsync(root.Destination));
+        // Once the mutation resolves, a publication against the current revision proceeds normally.
+        Assert.Equal(PublicationOutcome.Published, await publications.PublishAsync(patch with { ExpectedRevision = 2, ContentHash = Hash(Encoding.UTF8.GetBytes("new")) }));
+        Assert.Equal("racing title", await ScalarAsync<string>(session.State, "SELECT title FROM documents"));
+        Assert.Equal(new MutationRecoveryReport(0, 0, 0, 0), await session.Journal.RecoverAsync());
+    }
+
+    [Fact]
+    public async Task PrepareRejectsStaleRevisionsAndASecondMutationOfTheSameDocument()
+    {
+        await using var root = new JournalRoot();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        await using var session = await root.OpenAsync();
+        var oldHash = Hash(Encoding.UTF8.GetBytes("old"));
+        await SeedFinalizationAsync(session.State, oldHash);
+        var request = Request(root, "new", oldHash) with { Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2 } };
+        await Assert.ThrowsAsync<MutationRevisionException>(() => session.Journal.PrepareAsync(request with
+        {
+            Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 2, RevisionAfter = 3 }
+        }).AsTask());
+        await Assert.ThrowsAsync<MutationRevisionException>(() => session.Journal.PrepareAsync(request with
+        {
+            Finalization = new MutationFinalization { DocumentId = "missing", RevisionBefore = 1, RevisionAfter = 2 }
+        }).AsTask());
+        Assert.Equal(0, await ScalarAsync<long>(session.State, "SELECT count(*) FROM mutations"));
+        Assert.Equal(0, await ScalarAsync<long>(session.State, "SELECT count(*) FROM meta WHERE key LIKE 'mutation_document_reservation:%'"));
+
+        await session.Journal.PrepareAsync(request);
+        var other = request with { MutationId = "second", Destination = System.IO.Path.Combine(root.Vault, "other.md"), ExpectedHash = null };
+        // A different destination does not make a second revision of the same document safe.
+        await Assert.ThrowsAsync<InvalidOperationException>(() => session.Journal.PrepareAsync(other).AsTask());
+        Assert.Equal(1, await ScalarAsync<long>(session.State, "SELECT count(*) FROM mutations"));
+        Assert.Equal("finalized", (await session.Journal.ExecuteAsync(request)).Status);
+        var next = other with { Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 2, RevisionAfter = 3 } };
+        Assert.Equal("finalized", (await session.Journal.ExecuteAsync(next)).Status);
+        Assert.Equal(3, await ScalarAsync<long>(session.State, "SELECT revision FROM documents"));
+        Assert.Equal(0, await ScalarAsync<long>(session.State, "SELECT count(*) FROM meta WHERE key LIKE 'mutation_document_reservation:%'"));
+    }
+
+    [Fact]
+    public async Task LegacyStaleAppliedRowRecoversAsConflictKeepingBytesAndNewerMetadata()
+    {
+        await using var root = new JournalRoot();
+        var old = Encoding.UTF8.GetBytes("old");
+        var content = Encoding.UTF8.GetBytes("new");
+        await File.WriteAllBytesAsync(root.Destination, old);
+        await using (var session = await root.OpenAsync())
+        {
+            await SeedFinalizationAsync(session.State, Hash(old));
+            var request = Request(root, content, Hash(old)) with
+            {
+                Finalization = new MutationFinalization
+                {
+                    DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, PendingOperationId = "proposal", ToolExecutionId = "execution",
+                    GenerationJson = "{\"extractor\":1}",
+                    Idempotency = new MutationIdempotency("request-key", "credential", Hash(content), "{\"revision\":2}")
+                }
+            };
+            await session.Journal.PrepareAsync(request);
+            Assert.Equal("applied", (await session.Journal.ApplyAsync(request.MutationId)).Status);
+            // The state an earlier build could persist: no reservation, and a concurrent publication at revision 2.
+            await SimulateUnreservedPublicationAsync(session.State);
+            await session.State.QueueWriteAsync(async (connection, transaction, ct) => await connection.ExecuteAsync(new CommandDefinition(
+                "INSERT INTO publication_fences(document_id,generation_json) VALUES('doc','{\"extractor\":2}');", transaction: transaction, cancellationToken: ct)));
+        }
+        for (var restart = 0; restart < 2; restart++)
+        {
+            await using var restarted = await root.OpenAsync();
+            Assert.Equal(restart == 0 ? new MutationRecoveryReport(0, 0, 1, 0) : new MutationRecoveryReport(0, 0, 0, 0), await restarted.Journal.RecoverAsync());
+            Assert.Equal("conflict", await ScalarAsync<string>(restarted.State, "SELECT status FROM mutations"));
+            Assert.Equal(3, await ScalarAsync<long>(restarted.State, "SELECT revision FROM documents"));
+            Assert.Equal("newer title", await ScalarAsync<string>(restarted.State, "SELECT title FROM documents"));
+            Assert.Equal(Hash(content), await ScalarAsync<string>(restarted.State, "SELECT content_hash FROM documents"));
+            Assert.Equal("external_edit", await ScalarAsync<string>(restarted.State, "SELECT cause FROM revisions WHERE revision=3"));
+            Assert.Equal(3, await ScalarAsync<long>(restarted.State, "SELECT count(*) FROM revisions"));
+            Assert.Equal("target_changed", await ScalarAsync<string>(restarted.State, "SELECT status FROM pending_operations"));
+            Assert.Equal("{\"extractor\":2}", await ScalarAsync<string>(restarted.State, "SELECT generation_json FROM publication_fences"));
+            Assert.Equal("running", await ScalarAsync<string>(restarted.State, "SELECT status FROM tool_executions"));
+            Assert.Equal(0, await ScalarAsync<long>(restarted.State, "SELECT count(*) FROM idempotency"));
+            Assert.Equal(content, await File.ReadAllBytesAsync(root.Destination));
+            Assert.Equal(content, await File.ReadAllBytesAsync(Assert.Single(Directory.GetFiles(root.Vault, "*.conflict-*.md"))));
+            Assert.Empty(Directory.GetFiles(root.Vault, ".sb-*.tmp"));
+            if (restart == 0)
+            {
+                var publications = new PublicationCoordinator(restarted.State, restarted.Index);
+                Assert.Equal(1, await publications.RecoverAsync());
+                Assert.Equal(3L, await ScalarAsync<long>(restarted.Index, "SELECT revision FROM indexed_documents"));
+                Assert.Equal("newer title", await ScalarAsync<string>(restarted.Index, "SELECT title FROM indexed_documents"));
+            }
+        }
+    }
+
+    [Fact]
+    public async Task LegacyStalePreparedRowNeverWritesTheDestination()
+    {
+        await using var root = new JournalRoot();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        await using var session = await root.OpenAsync();
+        var oldHash = Hash(Encoding.UTF8.GetBytes("old"));
+        await SeedFinalizationAsync(session.State, oldHash);
+        var request = Request(root, "new", oldHash) with
+        {
+            Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, PendingOperationId = "proposal" }
+        };
+        await session.Journal.PrepareAsync(request);
+        await SimulateUnreservedPublicationAsync(session.State);
+        var result = await session.Journal.ApplyAsync(request.MutationId);
+        Assert.Equal("conflict", result.Status);
+        Assert.Equal("old", await File.ReadAllTextAsync(root.Destination));
+        Assert.Equal("new", await File.ReadAllTextAsync(result.ConflictPath!));
+        Assert.Null(await ScalarAsync<string?>(session.State, "SELECT resulting_hash FROM mutations"));
+        // The authoritative hash still matches the bytes on disk, so no revision is invented.
+        Assert.Equal(2, await ScalarAsync<long>(session.State, "SELECT revision FROM documents"));
+        Assert.Equal("newer title", await ScalarAsync<string>(session.State, "SELECT title FROM documents"));
+        Assert.Equal("target_changed", await ScalarAsync<string>(session.State, "SELECT status FROM pending_operations"));
+        Assert.Empty(Directory.GetFiles(root.Vault, ".sb-*.tmp"));
+        Assert.Equal(result, await session.Journal.ExecuteAsync(request));
+        Assert.Equal(new MutationRecoveryReport(0, 0, 0, 0), await session.Journal.RecoverAsync());
+    }
+
+    [Fact]
+    public async Task LegacyStaleRenamedPreparedRowIsReconciledThenConflicted()
+    {
+        await using var root = new JournalRoot();
+        await File.WriteAllTextAsync(root.Destination, "old");
+        var oldHash = Hash(Encoding.UTF8.GetBytes("old"));
+        await using (var session = await root.OpenAsync())
+        {
+            await SeedFinalizationAsync(session.State, oldHash);
+            using var crash = new MutationJournal(session.State, root.Path, new ThrowAt(MutationCrashPointNames.AfterRename));
+            await Assert.ThrowsAsync<InjectedJournalCrash>(() => crash.ExecuteAsync(Request(root, "new", oldHash) with
+            {
+                Finalization = new MutationFinalization { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2 }
+            }).AsTask());
+            await SimulateUnreservedPublicationAsync(session.State);
+        }
+        await using (var restarted = await root.OpenAsync())
+        {
+            Assert.Equal(new MutationRecoveryReport(0, 0, 1, 0), await restarted.Journal.RecoverAsync());
+            Assert.Equal("new", await File.ReadAllTextAsync(root.Destination));
+            Assert.Equal(3, await ScalarAsync<long>(restarted.State, "SELECT revision FROM documents"));
+            Assert.Equal(Hash(Encoding.UTF8.GetBytes("new")), await ScalarAsync<string>(restarted.State, "SELECT content_hash FROM documents"));
+            Assert.Equal("newer title", await ScalarAsync<string>(restarted.State, "SELECT title FROM documents"));
+        }
+        await using (var restartedAgain = await root.OpenAsync())
+        {
+            Assert.Equal(new MutationRecoveryReport(0, 0, 0, 0), await restartedAgain.Journal.RecoverAsync());
+            Assert.Equal(3, await ScalarAsync<long>(restartedAgain.State, "SELECT revision FROM documents"));
+        }
+    }
+
+    private static async ValueTask SimulateUnreservedPublicationAsync(IStateStore state) =>
+        await state.QueueWriteAsync(async (connection, transaction, ct) =>
+            await connection.ExecuteAsync(new CommandDefinition("""
+                DELETE FROM meta WHERE key LIKE 'mutation_document_reservation:%';
+                UPDATE documents SET revision=2,title='newer title',updated_at='2026-10-08T01:00:00Z' WHERE id='doc';
+                INSERT INTO revisions(document_id,revision,cause,content_hash,created_at)
+                SELECT id,2,'patch',content_hash,'2026-10-08T01:00:00Z' FROM documents WHERE id='doc';
+                """, transaction: transaction, cancellationToken: ct)));
+
     private static MutationWriteRequest Request(JournalRoot root, string content, string? expectedHash) => Request(root, Encoding.UTF8.GetBytes(content), expectedHash);
     private static MutationWriteRequest Request(JournalRoot root, byte[] content, string? expectedHash) => new()
     {
@@ -379,7 +720,7 @@ public sealed class JournalTests
     };
     private static string Hash(byte[] bytes) => Convert.ToHexStringLower(SHA256.HashData(bytes));
 
-    private static async ValueTask<T> ScalarAsync<T>(IStateStore state, string sql)
+    private static async ValueTask<T> ScalarAsync<T>(IStoreHandle state, string sql)
     {
         await using var read = await state.OpenReadConnectionAsync();
         return (await read.Connection.ExecuteScalarAsync<T>(sql))!;
@@ -417,7 +758,7 @@ public sealed class JournalTests
             var index = new SqliteIndexStore(Path);
             try
             {
-                using var migrations = new MigrationRunner(state, index, Path);
+                using var migrations = new MigrationRunner(state, index, Path, new MigrationTestDisk(1L << 40));
                 await migrations.MigrateAsync();
                 return new JournalSession(state, index, Path);
             }
@@ -439,11 +780,12 @@ public sealed class JournalTests
     private sealed class JournalSession(SqliteStateStore state, SqliteIndexStore index, string root) : IAsyncDisposable
     {
         public SqliteStateStore State { get; } = state;
+        public SqliteIndexStore Index { get; } = index;
         public MutationJournal Journal { get; } = new(state, root);
         public async ValueTask DisposeAsync()
         {
             Journal.Dispose();
-            await index.DisposeAsync();
+            await Index.DisposeAsync();
             await State.DisposeAsync();
         }
     }

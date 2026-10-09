@@ -43,7 +43,11 @@ dotnet test --no-build --no-restore --filter 'Category!=Qualification'
 
 CLI uses Core, Infrastructure and Storage for credential generation, calibrated password hashing and the local account SQL; its Server reference is layout-only, so the daemon is copied beside `brain`. HTTP diagnostic routes are `/providers`, `/providers/test` and `/diagnostics` (also `/v1` aliases), all requiring `admin`. `/ready` checks migrations, both stores, the lifetime lock, canary, every required provider role, and a real extractor ping. Healthy provider observations expire at five minutes and are invalidated when their accepted configuration changes.
 
-Configuration comes from `--config`/`SECONDBRAIN_CONFIG`, normally `/etc/secondbrain/config.yaml`; `SECONDBRAIN_DATA_ROOT` overrides the YAML root. Provider endpoints, model IDs, listeners, Hosts and Origins must be explicit. `extractor.socket_path` defaults to `/run/secondbrain/extractor.sock` and can be overridden with `SECONDBRAIN_EXTRACTOR_SOCKET`. Secret fields contain `${NAME}` references resolved from the environment or `SECONDBRAIN_SECRETS_DIRECTORY`, never literal secrets. Invalid reloads keep the previous validated snapshot.
+Configuration comes from `--config`/`SECONDBRAIN_CONFIG`, normally `/etc/secondbrain/config.yaml`; `SECONDBRAIN_DATA_ROOT` overrides the YAML root. Provider endpoints, model IDs, listeners, Hosts and Origins must be explicit. The model catalog contains only reviewed registrations for concrete `(provider, model)` pairs, with no unqualified model-name entries or built-in defaults. A binding without a reviewed registration needs explicit `limits`, and a chat model also needs a reviewed `capabilities: { tools: true }` declaration (optionally `streaming` and `structured_output`); capabilities are never inferred from a provider alias, familiar model name, endpoint, or `openai_compatible` adapter kind. `extractor.socket_path` defaults to `/run/secondbrain/extractor.sock` and can be overridden with `SECONDBRAIN_EXTRACTOR_SOCKET`. Secret fields contain `${NAME}` references resolved from the environment or `SECONDBRAIN_SECRETS_DIRECTORY`, never literal secrets. Invalid reloads keep the previous validated snapshot.
+
+Credential issuance, revocation and logout-all revalidate the actor's generation, current account epoch, revocation, expiry, kind, scopes and required session step-up in the same writer transaction as the mutation. Admin API keys retain credential-management permission without session step-up; self-logout requires a current session but no step-up. Provider policy publication shares an atomic boundary with final validation and socket-write initiation; writes already admitted may finish, and their asynchronous completion is awaited outside that boundary.
+
+Mutation preparation validates the revision, captures the current generation in a durable expected fence, and reserves the document in the same transaction. Apply and finalize recheck revision and generation. Publication and reprocessing respect that reservation, and legacy recovery never regresses a newer fence. Nonregular entries displaced by an atomic exchange are restored or quarantined as conflicts, never followed or deleted; no content revision is invented without a regular-file hash.
 
 ## Disposable local Docker run
 
@@ -104,9 +108,9 @@ server:
 providers:
   mock: {adapter: openai_compatible, base_url: http://127.0.0.1:8181/v1, trusted: true}
 models:
-  chat: {provider: mock, model: mock-chat}
-  enrich: {provider: mock, model: mock-chat}
-  embed: {provider: mock, model: mock-embed}
+  chat: {provider: mock, model: mock-chat, capabilities: {tools: true, streaming: true}, limits: {context_tokens: 8192, max_output_tokens: 1024}}
+  enrich: {provider: mock, model: mock-chat, capabilities: {tools: true, streaming: true}, limits: {context_tokens: 8192, max_output_tokens: 1024}}
+  embed: {provider: mock, model: mock-embed, limits: {embed_dimensions: 4, embed_max_input_tokens: 8192, embed_batch_max: 32}}
 privacy:
   local_only: true
   trusted_services: [http://127.0.0.1:8181]
@@ -154,7 +158,7 @@ This host-only example disables the canary explicitly; doctor reports it as disa
 
 `brain init --reset-password` resets the account and atomically invalidates all old keys/sessions. `brain maintenance rotate-keys` retains old HMAC versions; `--revoke-all` also advances the account epoch. Local maintenance requires the daemon to be stopped because both retain the same exclusive root lock. Calibrated Argon2 parameters are persisted with the account and reused by the daemon.
 
-Login defaults to `read`; request `--scopes admin` for administrative CLI commands. Match login `--name` with later `--credential-name` (both otherwise default to the machine name). Session commands prompt for the account password, use a temporary browser cookie plus fresh CSRF tokens, and close that temporary session; persistent browser pairing is M2. For an Access-protected public origin, provide a valid `SECONDBRAIN_ACCESS_ASSERTION` in addition to the SecondBrain credential. Token acquisition and live Access configuration require the operator's setup.
+Login defaults to `read`; request `--scopes admin` for administrative CLI commands. Match login `--name` with later `--credential-name` (both otherwise default to the machine name). Session commands prompt for the account password, use a temporary browser cookie plus fresh CSRF tokens, and close that temporary session. `sessions revoke` and `revoke-all` reuse that password for the step-up these actions require. `keys list` and `sessions list` follow every result page, or fail without a partial result; persistent browser pairing is M2. For an Access-protected public origin, provide a valid `SECONDBRAIN_ACCESS_ASSERTION` in addition to the SecondBrain credential. Token acquisition and live Access configuration require the operator's setup.
 
 Every command supports `--json`. Exit codes are `0` success, `1` error, `2` usage, `3` daemon unreachable and `4` failed precondition. Native credential storage uses macOS Keychain/Linux Secret Service; a private 0600 file under a 0700 directory is the Unix fallback. Keys appear only at initial/new creation, never in login output or list/revoke responses.
 
@@ -171,7 +175,7 @@ export SECONDBRAIN_QUAL_VLLM_DIMENSIONS=YOUR_EMBEDDING_DIMENSIONS
 dotnet test tests/SecondBrain.Server.Tests --no-restore --filter 'Category=Qualification'
 ```
 
-The qualification test registers the explicitly supplied model declarations and probes all configured roles through production transport and `/ready`. A passing mock test or unset-URL no-op is not a substitute for this live run.
+The qualification test writes the supplied models, limits and `models.<role>.capabilities` declarations to YAML, loads them through the production configuration path, and probes all configured roles through production transport and `/ready`. A passing mock test or unset-URL no-op is not a substitute for this live run.
 
 [The M0 plan](docs/build/M0-foundations.md) defines the guarantees. [The M1 ingest and search draft](docs/build/M1-ingest-and-search.md) maps upcoming work and planned acceptance tests to the hooks delivered by M0.
 
