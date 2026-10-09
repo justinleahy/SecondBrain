@@ -8,7 +8,7 @@
 | **Status** | Draft for M0 handoff. Every M1 test named below is **planned**, not an existing or passing test. |
 | **Date** | 2026-10-08 |
 
-This plan is for the engineer implementing M1. It identifies the behavior to ship, the M0 contracts to extend, and the evidence required to close the milestone. The [M0 build plan](M0-foundations.md) remains the prerequisite; this draft does not waive an unfinished M0 gate or operational qualification.
+This plan is for the engineer implementing M1. It identifies the behavior to ship, the M0 contracts to extend, and the evidence required to close the milestone. The [M0 build plan](M0-foundations.md) remains the prerequisite. M0 closed on 2026-10-09 for the reference Fedora x86_64 / Tailscale deployment under the operator's [accepted closure scope](M0-convergence-report.md#m0-closure-2026-10-09); the remaining integration qualifications have explicit follow-up issues and are not passing evidence.
 
 ## 1. Scope
 
@@ -179,4 +179,4 @@ Bind `brain add <path|->`, `search` and `query` to daemon HTTP routes with scope
 
 The spec has two wording conflicts to treat consistently: §15.3 SEC-6 and §15.12 SEC-32 still mention cryptographic keys in the secrets directory, while §6 and §15.9 SEC-23 explicitly place the writable ring in the data root. Follow the latter layout and the M0 key-ring contract. The general model-spend sentence in §15.8 is qualified by the explicit scope rules in §§7.3 and 15.4: query/index embeddings, classification and search-time rerank are implicit `read`/`write` services; assistant calls and explicit enrichment require `infer`.
 
-M0's live vLLM qualification, target-host systemd egress enforcement and HTTPS from a tailnet peer remain M0 proof obligations if their results have not been recorded. Assigning work in this draft does not close those checks.
+M0's live vLLM qualification, target-host canary/vLLM egress checks and HTTPS from a tailnet peer have recorded evidence. The unexercised Access egress path, additional platforms, certificate lifecycle and remote workflow remain the [tracked M0 follow-ups](M0-convergence-report.md#tracked-follow-ups). M1 must preserve the qualified Fedora/Tailscale behavior and must not treat those deferred checks as complete.

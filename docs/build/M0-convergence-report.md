@@ -1,5 +1,32 @@
 # M0 convergence report
 
+## M0 closure (2026-10-09)
+
+**M0 is closed for the reference Fedora x86_64 / Tailscale deployment.** The operator explicitly chose to close this working deployment and track the remaining integration qualifications as follow-ups. This is an accepted scope change: the Access portion of the original systemd egress spike remains unproved, and the live vLLM qualification is accepted from the local reference-host run rather than the remote workflow. None of the deferred checks is counted as passing.
+
+| Acceptance evidence | Result |
+| --- | --- |
+| Deterministic gates and deployment CI | All six jobs passed on implementation/evidence revision `8c7d24c`: locked build and deterministic tests, all three linux-x64 publishes, Docker build and G1 hardened Compose smoke. [GitHub Actions run 37947261649](https://github.com/justinleahy/SecondBrain/actions/runs/37947261649). The deterministic suite contains 750 passing cases; live qualification is separate. |
+| G2 live vLLM | `Qualification.VllmReady` passed twice on the RTX 5090 host with chat/enrich and embed on separate trusted loopback providers. `/ready` returned 200 through the production configuration and policy-owned transport; see the live qualification addendum below. |
+| Reference-host operation | systemd socket activation; cgroup-BPF public canary blockage with ready vLLM roles; `brain doctor`; native Linux Secret Service; and HTTPS 200 from the actual iPhone tailnet peer. See the target-host addendum below. |
+| M1 handoff | [M1 ingest/search plan](M1-ingest-and-search.md) is drafted. Extractor parsing/supervision, source reconciliation, durable admission, cursors and lineage/purge have M1 work items; pairing and assistant approval remain M2. |
+
+### Tracked follow-ups
+
+These remain open after M0 closure and carry their own acceptance checks:
+
+| Issue | Remaining qualification |
+| --- | --- |
+| [#2 — Remote live qualification runner](https://github.com/justinleahy/SecondBrain/issues/2) | Run the workflow on a trusted runner that can reach vLLM; the accepted local result does not prove the remote workflow. |
+| [#3 — Cloudflare Access and Tunnel](https://github.com/justinleahy/SecondBrain/issues/3) | Production JWKS refresh through the target-host egress policy, failed refresh with valid cached keys after removing the allowance, and the real Access/Tunnel login path. Local G12 fixture tests are already passing. |
+| [#4 — macOS Keychain](https://github.com/justinleahy/SecondBrain/issues/4) | Exercise native credential storage, authenticated CLI use and cleanup on macOS. |
+| [#5 — Linux arm64 descriptor ABI](https://github.com/justinleahy/SecondBrain/issues/5) | Run native descriptor, framing and cleanup checks on Linux arm64; Linux amd64 and macOS arm64 evidence already exists. |
+| [#6 — Certificate lifecycle](https://github.com/justinleahy/SecondBrain/issues/6) | Verify renewal adoption and missing/invalid/expired-certificate behavior. The current listener loads the certificate at startup; automatic reload is not claimed. Complete before the reference certificate expires on 2026-11-25. |
+
+The [M0 build plan](M0-foundations.md#accepted-closure-scope-2026-10-09) records the same acceptance decision. Earlier sections below are chronological evidence; their statements that M0 was open describe the state at those times and are superseded by this scoped closure.
+
+## Historical convergence record (2026-10-08)
+
 Recorded 2026-10-08 on branch `converge`, based on `cfecb8f`. All implementation work was confined to `.worktrees/converge`; no push, checkout, merge, rebase, or root-checkout changes were performed.
 
 The integrated solution and local gates pass. **M0 remains open:** the required live vLLM server is not set up, so `Qualification.VllmReady` has not exercised a live binding. The target-host operational spikes and the next GitHub CI run also need recorded evidence. Passing the unset-URL qualification no-op does not satisfy the live requirement.
@@ -245,3 +272,76 @@ Focused `JournalTests|PublicationTests` passed **54/54** as non-root UID 501 on 
 A fresh independent GPT-6.1 Sol read-only candidate review found an EACCES (13) residual gap in nonregular recovery. The parent confirmed it; the durability correction and mode-000 regression variants are included in the final gates above. No other concrete issue was found. There was **no second independent review after that correction**; the parent inspected the changed source and regressions. The optional symlink-race harness was blocked and was not retried. Dynamic coverage therefore models persisted directory displacement, existing regular-file exchange and symlink admission rather than claiming that blocked race experiment ran.
 
 Linux/arm64 native descriptor ABI qualification, full target-host checks, live vLLM, remote CI and external integrations remain pending. The deterministic suite excludes `Qualification.VllmReady`; its unset-URL path is not live qualification. **M0 remains open.**
+
+## Addendum: 2026-10-09 live vLLM qualification
+
+Recorded against the uncommitted local `main` tree based on `0e90c97`, then pushed as branch `vllm-provider-qualification` (pull request #1). This addendum closes item 1 of "Remaining qualifications and boundaries" (live vLLM) and records item 2's remote CI evidence below. Items 3–4 (target-host Linux spikes, external integrations) and the M0 stubs are unchanged, so **M0 remains open** on those obligations.
+
+### Provider
+
+The reference vLLM host is the RTX 5090 workstation itself (Fedora 44, driver 615.71.09, 32 GB VRAM). vLLM hosts one model per server, so [deploy/vllm/compose.yaml](../../deploy/vllm/compose.yaml) runs two `vllm/vllm-openai:v0.31.0` containers on the one GPU, offline against a read-only, user-owned Hugging Face cache, with every capability dropped:
+
+| Role | Provider | Endpoint | Model | Served limits |
+| --- | --- | --- | --- | --- |
+| chat, enrich | `vllm` | `http://127.0.0.1:8000/v1` | `Qwen/Qwen3-8B` (bf16) | 32768-token context, 4096 declared output tokens, Hermes tool parser, Qwen3 reasoning parser, thinking off by default, 38,080-token KV cache at 70 % of GPU memory |
+| embed | `vllm-embed` | `http://127.0.0.1:8001/v1` | `Qwen/Qwen3-Embedding-0.6B` | 1024 dimensions (Matryoshka 32–1024), 8192-token input, batch 32, 18,976-token KV cache at 12 % of GPU memory |
+
+Steady state uses 27.4 GB of the 32.6 GB card (chat 21.9 GB, embed 4.1 GB, desktop compositor 0.5 GB). The chat engine initialised in 141 s (22 s torch.compile, 103 s CUDA graph capture); the embedding engine's first start took 87 s.
+
+### Capability evidence for the reviewed declaration
+
+`models.chat.capabilities: { tools: true, streaming: true }` was checked directly against the served model with `curl` before it was declared:
+
+- A `get_weather` tool request returned `finish_reason: tool_calls` with the structured call `{"city": "Boston"}`, both in the non-thinking default (0 reasoning tokens, 20 completion tokens) and in thinking mode during the first bring-up (76 reasoning tokens).
+- `stream: true` produced six `data:` chunks ending in `data: [DONE]` with the requested text.
+- With thinking on by default, a 400-token budget was spent entirely on reasoning and returned no content, so the Compose file sets `--default-chat-template-kwargs '{"enable_thinking": false}'`. A request carrying `chat_template_kwargs: {"enable_thinking": true}` still works: 17×23 answered `391` with 934 reasoning tokens kept in `reasoning_content`, not `content`.
+- `/v1/embeddings` returned 1024-dimensional vectors, and 256 with `dimensions: 256`.
+
+### Qualification run
+
+`Qualification.VllmReady` gained an optional `SECONDBRAIN_QUAL_VLLM_EMBED_URL` (an optional `embed_url` input in `qualification.yml`). A distinct value becomes a second trusted provider, `vllm-embed`, in the YAML the test writes and loads through the production configuration path; unset, the single-provider shape is unchanged. The deterministic suite passed **750/750** after that change (`dotnet test SecondBrain.slnx --no-build --no-restore --filter 'Category!=Qualification'`: Architecture 58, Core 109, Infrastructure 76, Storage 134, Providers.OpenAICompatible 69, Deploy 122, Server 182).
+
+The live gate then ran twice from this checkout, the second time against the final Compose file above:
+
+```sh
+export SECONDBRAIN_QUAL_VLLM_URL=http://127.0.0.1:8000/v1
+export SECONDBRAIN_QUAL_VLLM_EMBED_URL=http://127.0.0.1:8001/v1
+export SECONDBRAIN_QUAL_VLLM_CHAT_MODEL=Qwen/Qwen3-8B
+export SECONDBRAIN_QUAL_VLLM_EMBED_MODEL=Qwen/Qwen3-Embedding-0.6B
+export SECONDBRAIN_QUAL_VLLM_DIMENSIONS=1024
+export SECONDBRAIN_QUAL_VLLM_CONTEXT_WINDOW=32768
+export SECONDBRAIN_QUAL_VLLM_MAX_OUTPUT_TOKENS=4096
+export SECONDBRAIN_QUAL_VLLM_MAX_INPUT_TOKENS=8192
+dotnet test tests/SecondBrain.Server.Tests --no-build --no-restore --filter 'Category=Qualification' --logger trx
+```
+
+**`SecondBrain.Server.Tests.Qualification.VllmReady`: Passed** (0.69 s). `/ready` answered 200 with every component ready, including `provider:chat`, `provider:enrich` and `provider:embed` probed through the policy-owned transport. The TRX is kept at `/tmp/secondbrain-vllm-qualification-2026-10-09.trx`. G2's live column is therefore satisfied on this host.
+
+### Remote CI and the deferred remote qualification
+
+GitHub Actions ran the CI workflow twice on 2026-10-09 with every job green: run `37934907738` on the push of `0e90c97` to `main` (3 m 49 s) and run `37940748698` on pull request #1 (3 m 48 s: build and deterministic tests, Docker image, G1 hardened Compose smoke, and the three linux-x64 publishes). That is the remote CI evidence item 2 asked for.
+
+The live `qualification.yml` workflow still has no runner that can reach the vLLM host: the hosted `ubuntu-24.04` label cannot see this machine's loopback, and the public repository has no self-hosted runner. The operator decided on 2026-10-09 to keep the live qualification local for now; registering a self-hosted runner and recording a remote run is tracked as issue #2.
+
+## Addendum: 2026-10-09 target-host systemd spikes on the RTX 5090 workstation
+
+Recorded on branch `vllm-provider-qualification` after the live vLLM qualification above. The workstation that serves vLLM also served as the Linux target host: Fedora Linux 44 (KDE Plasma Desktop Edition), kernel `7.2.5-200.fc44.x86_64`, systemd 259 (`+BPF_FRAMEWORK`), cgroup v2, SELinux enforcing, `kernel.unprivileged_bpf_disabled=2`. The published self-contained linux-x64 Server, CLI and Extractor outputs were merged into `/usr/local/lib/secondbrain`; `brain init --provision --deployment systemd` created the 1654/1655/1656 identities and directories; the configuration bound chat and enrich to `http://127.0.0.1:8000/v1`, embed to `http://127.0.0.1:8001/v1`, enabled the canary against `1.1.1.1:443`, and declared an HTTP listener on `127.0.0.1:7171` plus an HTTPS listener on the tailnet address `100.67.195.36:7443` with the `tailscale cert` certificate for `fedora.tail9a7993.ts.net`. A drop-in added one tailnet peer (`100.127.250.19`) to `IPAddressAllow`. The operator ran the root steps; the bundle and its teardown live under the untracked `artifacts/systemd-spike/`.
+
+### Findings fixed before the units ran
+
+1. **SELinux domain.** Files under `/usr/local/lib` are labelled `lib_t`, so systemd kept `brain serve` in the confined `init_t` domain and the kernel denied the data-root lock: `avc: denied { read write } ... name=".lock" ... tcontext=unconfined_u:object_r:var_t:s0`. Labelling the three executables `bin_t` through `semanage fcontext` moves them to `unconfined_service_t`; after that no AVC denial mentions the daemon or extractor.
+2. **Incomplete layout.** The CLI publish carries a layout copy of the daemon but not `SecondBrain.Server.staticwebassets.endpoints.json` or `wwwroot`, so the daemon failed at startup with "The static resources manifest file ... was not found" until the Server publish was merged in. `deploy/README.md` now states both requirements.
+3. **Extractor cold start.** Socket activation worked on the first connection (`Extractor socket ready at /run/secondbrain/extractor.sock; activated: True`), but the service took 5.0 s from `Started` to "socket ready" while `ExtractorPing` gives up after 2 s, so the first two `/ready` calls answered 503 with "Extractor socket ping failed" and the extractor logged the two abandoned clients. The next call passed and the service stayed up (`NRestarts=0`).
+
+### Results
+
+| Check | Result |
+| --- | --- |
+| Socket activation | `secondbrain-extractor.socket` listening on `/run/secondbrain/extractor.sock`; the service started on the daemon's first ping and kept running; `/ready` reports "Extractor answered ping" |
+| Egress enforcement | `IPAddressDeny=0.0.0.0/0 ::/0`, `IPAddressAllow=127.0.0.0/8 ::1/128 100.127.250.19/32` plus the template pins, `IPAccounting=yes`; `/ready` 200 with canary "Egress canary: Blocked. Egress canary state is current." while `provider:chat`, `provider:enrich` and `provider:embed` are ready through the loopback allowance; the unit's lifetime IP accounting stayed in the kilobytes |
+| Access JWKS refresh | Not exercised: no Cloudflare Access team is configured and the `192.0.2.1` placeholder remains, so this half of the egress spike stays with the external-integration item |
+| HTTPS on the tailnet address | Kestrel bound `100.67.195.36:7443` with the Let's Encrypt certificate (subject and SAN `fedora.tail9a7993.ts.net`, issuer Let's Encrypt `YE1`, valid until 2026-11-25). A request from the host's own tailnet address is dropped by the unit's ingress filter because that address is not allowed, which is the documented behaviour. With the drop-in allowing exactly `100.103.184.124/32`, the tailnet peer `iphone192.tail9a7993.ts.net` (iOS, `leahyjustin@icloud.com`, reached through the `mia` relay) loaded `https://fedora.tail9a7993.ts.net:7443/health` in Safari with normal certificate verification: the journal records three `HTTP/2 GET https://fedora.tail9a7993.ts.net:7443/health` responses with status 200 at 10:49:22, 10:49:53 and 10:49:56 local time, and the unit's ingress accounting rose to 27 packets. `/health` answers 200 with an empty body and no content type, which Safari presents as a download; the first attempt had failed only because the drop-in still named the operator's previous phone |
+| `brain doctor` | Run as the `secondbrain` identity with a disposable file credential store, because only root and the daemon can read the 0600 configuration. Every local precondition passed: root modes and ownership, both listeners on assigned private or loopback interfaces with no public bind, the HTTPS certificate file, the key ring directory, Data Protection and HMAC material, the extractor ping, and the model bindings. The daemon half then passed through the policy-owned transport: the journal records `POST /auth/login` 200 at 10:42:37 and `GET /diagnostics` 200 at 10:42:38 local time, after one 401 caused by an empty password prompt in zsh |
+| Native Linux Secret Service | Exercised earlier the same day against the retained Compose smoke daemon: `brain login` stored "SecondBrain API credential" (attributes `application=secondbrain`, `account=<origin>/<name>`), `keys list` and `providers test` authenticated through the stored entry, and the entry was removed afterwards. macOS Keychain remains |
+
+Renewal reload and expired-certificate rejection were not exercised. Linux arm64 descriptor ABI, the Access and Tunnel integrations, the macOS Keychain store and the remote qualification run (issue #2) remain open. **M0 remains open** on those items.

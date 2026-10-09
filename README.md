@@ -4,7 +4,7 @@
 
 A personal knowledge daemon built on .NET 10 and Blazor Interactive Server. M0 now connects validated YAML configuration, two crash-safe SQLite stores, provider-neutral model roles, privacy transport, credentials, browser sessions, admission limits, source registration, deployment, and the `brain` CLI. Ingestion, extraction beyond ping/descriptor probes, search, and chat land in later milestones.
 
-The local mock and hardened Docker gates are automated. M0 remains open until the live vLLM qualification passes once; the server has not been set up yet. Target-host systemd egress and tailnet HTTPS spike procedures are in [deploy/README.md](deploy/README.md).
+**M0 is closed for the reference Fedora x86_64 / Tailscale deployment as of 2026-10-09.** The local mock and hardened Docker gates pass in CI, and the live vLLM qualification passed against the two-server [deploy/vllm](deploy/vllm/README.md) Compose project on the RTX 5090 host. Target-host evidence covers systemd socket activation, blocked canary with reachable vLLM roles, tailnet HTTPS from a real peer, `brain doctor`, and Linux Secret Service. The [closure record](docs/build/M0-convergence-report.md#m0-closure-2026-10-09) states the accepted scope and links the remaining Cloudflare, macOS Keychain, Linux arm64, certificate lifecycle and remote-runner follow-ups. [M1 — Ingest and search](docs/build/M1-ingest-and-search.md) is the next milestone.
 
 ## Build and test
 
@@ -164,10 +164,11 @@ Every command supports `--json`. Exit codes are `0` success, `1` error, `2` usag
 
 ## Qualification and milestone evidence
 
-[G1–G12 evidence and known gaps](docs/build/M0-convergence-report.md) records actual test names, command results and remaining operational qualifications. To run the live readiness gate once a vLLM binding exists:
+[G1–G12 evidence and known gaps](docs/build/M0-convergence-report.md) records actual test names, command results and remaining operational qualifications. [deploy/vllm](deploy/vllm/README.md) runs the reference vLLM servers (one per model, because vLLM hosts a single model per server) on the RTX 5090 host. To run the live readiness gate against a vLLM binding:
 
 ```sh
 export SECONDBRAIN_QUAL_VLLM_URL=http://YOUR_VLLM_HOST:8000/v1
+export SECONDBRAIN_QUAL_VLLM_EMBED_URL=http://YOUR_VLLM_HOST:8001/v1  # optional second server for the embedding model
 export SECONDBRAIN_QUAL_VLLM_CHAT_MODEL=YOUR_REVIEWED_NATIVE_TOOLS_MODEL
 export SECONDBRAIN_QUAL_VLLM_EMBED_MODEL=YOUR_EMBEDDING_MODEL
 export SECONDBRAIN_QUAL_VLLM_DIMENSIONS=YOUR_EMBEDDING_DIMENSIONS
@@ -175,7 +176,7 @@ export SECONDBRAIN_QUAL_VLLM_DIMENSIONS=YOUR_EMBEDDING_DIMENSIONS
 dotnet test tests/SecondBrain.Server.Tests --no-restore --filter 'Category=Qualification'
 ```
 
-The qualification test writes the supplied models, limits and `models.<role>.capabilities` declarations to YAML, loads them through the production configuration path, and probes all configured roles through production transport and `/ready`. A passing mock test or unset-URL no-op is not a substitute for this live run.
+The qualification test writes the supplied models, limits and `models.<role>.capabilities` declarations to YAML, loads them through the production configuration path, and probes all configured roles through production transport and `/ready`. A distinct embed URL becomes a second trusted provider, `vllm-embed`, in that configuration. A passing mock test or unset-URL no-op is not a substitute for this live run.
 
 [The M0 plan](docs/build/M0-foundations.md) defines the guarantees. [The M1 ingest and search draft](docs/build/M1-ingest-and-search.md) maps upcoming work and planned acceptance tests to the hooks delivered by M0.
 

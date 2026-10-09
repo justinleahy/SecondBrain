@@ -137,7 +137,14 @@ public sealed class Qualification
         var enrichSetting = Environment.GetEnvironmentVariable("SECONDBRAIN_QUAL_VLLM_ENRICH_MODEL");
         var enrich = string.IsNullOrWhiteSpace(enrichSetting) ? chat! : enrichSetting;
         static int ReadLimit(string suffix, int fallback) => int.TryParse(Environment.GetEnvironmentVariable("SECONDBRAIN_QUAL_VLLM_" + suffix), out var value) ? value : fallback;
+        // vLLM hosts one model per server, so the embedding model may sit on a second trusted
+        // endpoint and provider; an unset or identical embed URL keeps the single-provider shape.
+        var embedEndpointSetting = Environment.GetEnvironmentVariable("SECONDBRAIN_QUAL_VLLM_EMBED_URL");
+        var embedEndpoint = string.IsNullOrWhiteSpace(embedEndpointSetting) ? endpoint : embedEndpointSetting;
+        var separateEmbedProvider = new Uri(embedEndpoint) != new Uri(endpoint);
+        var embedProvider = separateEmbedProvider ? "vllm-embed" : "vllm";
         var origin = new Uri(endpoint).GetLeftPart(UriPartial.Authority);
+        var embedOrigin = new Uri(embedEndpoint).GetLeftPart(UriPartial.Authority);
         var chatLimits = new ModelLimits { ContextTokens = ReadLimit("CONTEXT_WINDOW", 8192), MaxOutputTokens = ReadLimit("MAX_OUTPUT_TOKENS", 1024) };
         var embedLimits = new ModelLimits { EmbedDimensions = ReadLimit("DIMENSIONS", 4), EmbedMaxInputTokens = ReadLimit("MAX_INPUT_TOKENS", 8192), EmbedBatchMax = 32 };
         // The workflow input names a reviewed native-tools streaming chat model. Declare that through
@@ -146,12 +153,14 @@ public sealed class Qualification
         await using var factory = new LaneDWebFactory(options =>
         {
             options.Providers = new() { ["vllm"] = new ProviderOptions { Kind = "openai_compatible", Endpoint = endpoint, Trusted = true } };
+            if (separateEmbedProvider)
+                options.Providers[embedProvider] = new ProviderOptions { Kind = "openai_compatible", Endpoint = embedEndpoint, Trusted = true };
             options.Models.Chat = new ModelBindingOptions { Provider = "vllm", Model = chat!, Limits = chatLimits, Capabilities = reviewedChat };
             // A separately chosen enrichment model needs no tools and has no reviewed declaration.
             options.Models.Enrich = new ModelBindingOptions { Provider = "vllm", Model = enrich, Limits = chatLimits,
                 Capabilities = enrich == chat ? reviewedChat : new() };
-            options.Models.Embed = new ModelBindingOptions { Provider = "vllm", Model = embed!, Limits = embedLimits };
-            options.Privacy.TrustedServices = [origin];
+            options.Models.Embed = new ModelBindingOptions { Provider = embedProvider, Model = embed!, Limits = embedLimits };
+            options.Privacy.TrustedServices = origin == embedOrigin ? [origin] : [origin, embedOrigin];
         });
         using var client = factory.CreatePrivateClient();
         using var response = await client.GetAsync("/ready");

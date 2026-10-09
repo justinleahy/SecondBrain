@@ -9,6 +9,10 @@ Directories need traversal bits: config/secrets are private traversable
 directories, not 0600 directories. The shared runtime directory must be group
 writable for the standalone extractor, with its socket at 0660.
 
+The reference model provider is the separate [vllm](vllm/README.md) Compose
+project: two vLLM servers on the GPU host, one per model, whose `IP:port` pairs
+belong in `SECONDBRAIN_PROVIDER_ALLOWLIST` and `privacy.trusted_services`.
+
 ## Compose
 
 Copy `provision/compose.env.example` into a private environment file and supply
@@ -127,7 +131,17 @@ files using `docker compose --project-name <printed-project> -f deploy/compose.y
 ## systemd
 
 Install the published self-contained binaries into `/usr/local/lib/secondbrain`
-and run `brain init --provision --deployment systemd --templates /path/to/deploy`.
+and run `brain init --provision --deployment systemd --templates /path/to/deploy`
+with explicit `--daemon-uid`, `--daemon-gid`, `--extractor-uid` and `--sync-uid`
+values; the defaults follow the invoking user. Merge all three published outputs,
+Server, CLI and Extractor, into that one directory: the CLI output carries a layout
+copy of the daemon but not the Blazor static-assets manifest
+(`SecondBrain.Server.staticwebassets.endpoints.json`) or `wwwroot`, and without
+them `brain serve` fails at startup. On SELinux-enforcing hosts, label the three
+executables `bin_t` (`semanage fcontext -a -t bin_t` for the `brain`,
+`SecondBrain.Server` and `SecondBrain.Extractor` paths, then `restorecon -RF` on
+the directory). Files under `/usr/local/lib` default to `lib_t`, which keeps the
+daemon in the confined `init_t` domain where its own data root is denied.
 The template daemon unit uses loopback HTTP and default-deny IP rules. Replace
 the sample trusted provider (10.8.0.5), resolver (10.8.0.1), and documentation-only
 Access address (192.0.2.1) with resolved, pinned production addresses in a drop-in
@@ -136,6 +150,10 @@ Both units drop all capabilities, isolate the filesystem, disable core dumps,
 and limit resources; the extractor also isolates its network and can access no
 store, incoming tree, or external secret. The socket activates one service with
 `LISTEN_FDS=1`, which consumes fd3 and answers the shared ping/framing contract.
+The first connection starts the extractor; on the reference workstation its cold
+start took about 5 s while the daemon's ping waits 2 s, so the first `/ready`
+after boot can report the extractor as not ready. The next probe passes and the
+service stays up.
 
 ```sh
 sudo systemd-analyze verify /etc/systemd/system/secondbrain.service \
@@ -171,11 +189,19 @@ On a tailnet-connected Linux host, obtain a certificate using `tailscale cert`
 for the host's actual `*.ts.net` name. Install the certificate/private key in the
 read-only secrets directory, with private-key mode0600 and daemon ownership.
 Configure an HTTPS listener on the tailnet IP and a file certificate accepted
-by the HTTP lane; add exact Host/Origin values. From another tailnet peer,
-request `https://<name>:7443/health` with normal certificate verification (no
-`-k`) and record HTTP200, SAN, expiry, and peer identity. Check renewal reload
-and expired/missing certificate rejection. Kestrel's Tailscale selector/file
-support belongs to the HTTP lane; obtaining a certificate alone does not prove
-the HTTPS spike. No tailnet peer or systemd instance is available in the local
-macOS development environment, so these two operational spikes remain target-
-host checks.
+by the HTTP lane; add exact Host/Origin values. `IPAddressAllow` governs ingress
+as well: allow the peer's exact address in a drop-in, and expect a request from
+the host's own tailnet address to be dropped unless that address is allowed too.
+From another tailnet peer, request `https://<name>:7443/health` with normal
+certificate verification (no `-k`) and record HTTP200, SAN, expiry, and peer
+identity. Certificate loading currently happens at listener startup; file
+replacement alone does not establish renewal adoption. Renewal and
+expired/missing-certificate handling remain
+[#6](https://github.com/justinleahy/SecondBrain/issues/6), to complete before the
+reference certificate expires on 2026-11-25.
+
+The RTX 5090 workstation proved the canary/vLLM portion of the systemd spike
+and peer HTTPS on 2026-10-09. The Access JWKS portion of the egress spike and
+live Tunnel remain [#3](https://github.com/justinleahy/SecondBrain/issues/3).
+M0 closed for the Fedora/Tailscale deployment with these qualifications
+explicitly deferred; see [the closure record](../docs/build/M0-convergence-report.md#m0-closure-2026-10-09).
