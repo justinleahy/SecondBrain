@@ -54,6 +54,27 @@ public sealed class DependencyRulesTests
     /// <summary>AR-06 (data access): every type in these namespaces is forbidden in Core; store handles belong to Storage.</summary>
     private const string SystemDataNamespacePrefix = "System.Data.";
 
+    /// <summary>AR-02: the exact <c>PackageReference</c> set of <c>SecondBrain.Core.csproj</c> (§1.2).</summary>
+    private static readonly string[] CorePackageReferences =
+        ["Microsoft.Extensions.AI.Abstractions", "Microsoft.Extensions.Options", "YamlDotNet", "JsonSchema.Net", "Ulid"];
+
+    /// <summary>AR-04: assemblies Core must never reference, matched by exact simple name.</summary>
+    private static readonly string[] CoreForbiddenAssemblyNames =
+        ["Microsoft.Extensions.AI", "Dapper", "OpenAI", "Microsoft.Extensions.AI.OpenAI"];
+
+    /// <summary>AR-04: assemblies Core must never reference, matched by simple-name prefix.</summary>
+    private static readonly string[] CoreForbiddenAssemblyPrefixes =
+    [
+        "Microsoft.AspNetCore.",
+        "Microsoft.Extensions.Configuration",
+        "Microsoft.Extensions.DependencyInjection",
+        "Microsoft.Extensions.Hosting",
+        "Microsoft.Extensions.Http",
+        "Microsoft.Data.",
+        "SQLitePCLRaw.",
+        "Isopoh.",
+    ];
+
     /// <summary>AR-07: the assemblies that may declare P/Invoke methods.</summary>
     private static readonly string[] PinvokeAllowedAssemblies =
         [Layers.InfrastructureName, Layers.StorageName, Layers.ExtractorName, Layers.CliName];
@@ -153,6 +174,42 @@ public sealed class DependencyRulesTests
             .ToArray();
         Assert.True(violations.Length == 0,
             $"SecondBrain.Core references ASP.NET Core assemblies: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-02")]
+    public void CoreProjectReferencesExactlyTheAllowedPackages()
+    {
+        var project = Repository.Project("src/SecondBrain.Core/SecondBrain.Core.csproj");
+        Assert.Empty(project.ProjectReferences);
+        var actual = project.PackageReferences.Order(StringComparer.Ordinal).ToArray();
+        var wanted = CorePackageReferences.Order(StringComparer.Ordinal).ToArray();
+        Assert.True(actual.SequenceEqual(wanted, StringComparer.Ordinal),
+            $"SecondBrain.Core.csproj references packages [{string.Join(", ", actual)}]; §1.2 allows exactly [{string.Join(", ", wanted)}].");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-04")]
+    public void CoreReferencesNoForbiddenAssembly()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var violations = facts.AssemblyReferences
+            .Where(reference => CoreForbiddenAssemblyNames.Contains(reference, StringComparer.Ordinal) ||
+                CoreForbiddenAssemblyPrefixes.Any(prefix => reference.StartsWith(prefix, StringComparison.Ordinal)))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Core references assemblies that belong in outer layers: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-04")]
+    public void CoreReferencesTheAllowedPackageAssemblies()
+    {
+        // Guards the rule above against reading assembly references that never contain package assemblies at all.
+        var facts = AssemblyFacts.For(Layers.Core);
+        Assert.Contains("Microsoft.Extensions.AI.Abstractions", facts.AssemblyReferences);
+        Assert.Contains("Microsoft.Extensions.Options", facts.AssemblyReferences);
     }
 
     [Fact]
