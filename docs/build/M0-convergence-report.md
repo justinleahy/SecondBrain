@@ -101,3 +101,34 @@ No package version changed in `Directory.Packages.props`. Regenerated lock files
 5. **M0 hooks remain deliberate stubs.** The extractor implements ping/descriptor probes, source registration has no watcher, and no ingest/search/chat projections are promised. M1 work items explicitly cover parsing/supervision, durable admission, source reconciliation, cursors and lineage/purge; M2 covers paired CLI sessions, assistant approval and MCP. No outstanding TODO affecting the security guarantees was found without that milestone linkage.
 
 The software convergence deliverables are implemented and locally verified. The live qualification, remote CI evidence and target-host spike results must be recorded before claiming the full M0 definition of done.
+
+## Addendum: clean-architecture refactor
+
+Recorded 2026-10-08 on branch `refactor/clean-architecture`, from baseline `37d47fb` (steps S0–S16 of [clean-architecture-plan.md](clean-architecture-plan.md)). The evidence above is the original convergence record and is unchanged. The refactor changes no behaviour, contract, exit code or deployment artifact; it adds `SecondBrain.Infrastructure`, moves all SQL into Storage, removes the CLI's compile-time use of Server (its Server reference is now layout-only), and adds architecture tests.
+
+Five test classes moved to new projects. Their class and method names are unchanged, so read the gate names above through this map; for example `Transport:` now means `SecondBrain.Providers.OpenAICompatible.Tests.Transport`.
+
+| Before | After |
+| --- | --- |
+| `SecondBrain.Core.Tests.Configuration.ConfigurationTests` | `SecondBrain.Infrastructure.Tests.Configuration.ConfigurationTests` |
+| `SecondBrain.Core.Tests.Security.KeyRingAndRootTests` | `SecondBrain.Infrastructure.Tests.Security.KeyRingAndRootTests` |
+| `SecondBrain.Core.Tests.Providers.Ready` | `SecondBrain.Providers.OpenAICompatible.Tests.Ready` |
+| `SecondBrain.Core.Tests.Providers.AdapterTests` | `SecondBrain.Providers.OpenAICompatible.Tests.AdapterTests` |
+| `SecondBrain.Core.Tests.Providers.Transport` (G3, G4 and G5 evidence) | `SecondBrain.Providers.OpenAICompatible.Tests.Transport` |
+
+`SecondBrain.Core.Tests.Privacy.*` (G3 and G5 evidence), `SecondBrain.Core.Tests.Domain.*`, `SecondBrain.Server.Tests.*` (including `Qualification`), `SecondBrain.Storage.Tests.*` and `SecondBrain.Deploy.Tests.*` did not move.
+
+Totals after the refactor (`dotnet test SecondBrain.slnx --configuration Release`, every test passing):
+
+| Test project | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| SecondBrain.Architecture.Tests (new) | 58 | 0 | 0 |
+| SecondBrain.Core.Tests | 104 | 0 | 0 |
+| SecondBrain.Infrastructure.Tests (new) | 71 | 0 | 0 |
+| SecondBrain.Providers.OpenAICompatible.Tests (new) | 34 | 0 | 0 |
+| SecondBrain.Storage.Tests | 100 | 0 | 0 |
+| SecondBrain.Deploy.Tests | 109 | 0 | 0 |
+| SecondBrain.Server.Tests | 137 | 0 | 0 |
+| **Total** | **613** | **0** | **0** |
+
+All 516 baseline tests are still present and passing, under the names above. The other 97 are new: 58 architecture rules, 33 Storage characterization tests for the relocated auth, password-policy, account-recovery and sources SQL plus composition, 4 Server guards (composition and OpenAPI golden files, Base64Url equivalence), and 2 Core guards (YAML key golden file, `KeyRingPurposes` values). CI's `Category!=Qualification` filter runs 612; the extra one is still the unset-URL qualification no-op, which does not count as live qualification. The M0 closure items in "Remaining qualifications and boundaries" are unchanged.

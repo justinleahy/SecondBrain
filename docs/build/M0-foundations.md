@@ -92,6 +92,8 @@ deploy/
   provision/                    files written by brain init --provision (templates)
 ```
 
+> **Note (2026-10-08):** this layout is the original M0 plan and is kept as written. The clean-architecture refactor later added `src/SecondBrain.Infrastructure` (platform adapters: configuration loading, secrets, Unix helpers, the data-root lock, the key ring and Argon2), moved all SQL and the store handles into Storage, and added `tests/SecondBrain.Architecture.Tests`, `tests/SecondBrain.Infrastructure.Tests` and `tests/SecondBrain.Providers.OpenAICompatible.Tests`. See [clean-architecture-plan.md](clean-architecture-plan.md) for the current projects and allowed references.
+
 Packages for M0 (exact versions pinned in `Directory.Packages.props`): `Microsoft.Data.Sqlite` (bundle `e_sqlite3`), `Dapper`, `Microsoft.Extensions.AI`, `Microsoft.Extensions.AI.OpenAI`, `Microsoft.AspNetCore.OpenApi`, `Microsoft.AspNetCore.DataProtection`, `Microsoft.AspNetCore.Authentication.JwtBearer`, an Argon2id implementation (`Isopoh.Cryptography.Argon2`), `YamlDotNet`, `JsonSchema.Net`, `System.CommandLine`, `xunit`, `Microsoft.AspNetCore.Mvc.Testing`.
 
 ---

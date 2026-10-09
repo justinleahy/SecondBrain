@@ -21,6 +21,8 @@
   four purposes from the plan. Routine rotation does not revoke credentials.
   `FileKeyRing` and `IKeyRing` live in `SecondBrain.Infrastructure.Security`; `IHmacKeyRing`,
   `IAccountEpochRevoker` and `KeyRingPurposes` stay in `SecondBrain.Core.Security`.
+  The lifetime lock (`DataRootLock`), root checks (`RootSecurityValidator`) and Unix helpers
+  (`UnixPath`, `UnixSecurity`, `UnixAccounts`) also live in `SecondBrain.Infrastructure.Security`.
 - Item 14: pinned serving images, separate extractor/tunnel identities, restricted
   UID-specific egress namespace, read-only serving filesystems/secrets, capability
   removal, resource limits, systemd units/tmpfiles, deployment templates and G1 CI.

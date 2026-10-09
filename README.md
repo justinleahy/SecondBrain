@@ -31,13 +31,15 @@ dotnet test --no-build --no-restore --filter 'Category!=Qualification'
 
 | Project | Responsibility |
 | --- | --- |
-| `SecondBrain.Core` | Contracts, domain/type registry, configuration/secrets, privacy, scope matrix, lock and key ring; no project references |
-| `SecondBrain.Storage` | State/index stores, migrations, initialization, publication and journal recovery |
+| `SecondBrain.Core` | Domain model, application use cases, policies and ports; no project references; no I/O |
+| `SecondBrain.Infrastructure` | Platform adapters shared by the daemon and `brain`: YAML configuration loading and reload, secrets, Unix helpers, the data-root lock, the file key ring, Argon2, DNS/TCP defaults, the extractor ping client and host file-system checks |
+| `SecondBrain.Storage` | State/index stores and their handles, migrations, initialization, publication, journal recovery, and all SQL (auth, sources, password policy, account recovery) |
 | `SecondBrain.Providers.OpenAICompatible` | Reviewed model capabilities, role registry and policy-owned HTTP transport |
 | `SecondBrain.Server` | Composition, HTTP/HTTPS, Access assertions, account/API keys/sessions, limits, sources, diagnostics and mounted Razor shell |
 | `SecondBrain.Cli` | `brain` commands; local storage/account bootstrap and daemon HTTP adapters |
 | `SecondBrain.Extractor` | Isolated Unix-socket ping and descriptor-probe stub |
 | `tests/SecondBrain.MockProvider` | Explicit `mock-chat` and four-dimensional `mock-embed` test models |
+| `tests/SecondBrain.Architecture.Tests` | Dependency and layering rules for the projects above (see [docs/build/clean-architecture-plan.md](docs/build/clean-architecture-plan.md)) |
 
 CLI uses Core, Infrastructure and Storage for credential generation, calibrated password hashing and the local account SQL; its Server reference is layout-only, so the daemon is copied beside `brain`. HTTP diagnostic routes are `/providers`, `/providers/test` and `/diagnostics` (also `/v1` aliases), all requiring `admin`. `/ready` checks migrations, both stores, the lifetime lock, canary, every required provider role, and a real extractor ping. Healthy provider observations expire at five minutes and are invalidated when their accepted configuration changes.
 

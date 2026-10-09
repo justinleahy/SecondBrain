@@ -73,3 +73,8 @@ metadata in `src/SecondBrain.{Cli,Extractor,Storage}/packages.lock.json` and
 --force-evaluate` after merging the lanes, then stage those lane-owned lock files.
 No package versions change. Lane B commits only its own and explicitly approved
 project/lock files.
+
+After the clean-architecture refactor, Core's packages reach the lock files of every
+project that references Core, including `src/SecondBrain.Infrastructure/packages.lock.json`;
+`src/SecondBrain.Extractor` no longer references Core. Regenerate with
+`dotnet restore SecondBrain.slnx --force-evaluate` and commit every changed lock file.
