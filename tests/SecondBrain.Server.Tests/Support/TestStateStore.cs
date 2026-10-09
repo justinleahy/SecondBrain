@@ -1,6 +1,7 @@
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using SecondBrain.Core.Storage;
+using SecondBrain.Storage;
 
 namespace SecondBrain.Server.Tests.Support;
 

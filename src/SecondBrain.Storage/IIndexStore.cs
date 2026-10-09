@@ -1,4 +1,4 @@
-namespace SecondBrain.Core.Storage;
+namespace SecondBrain.Storage;
 
 /// <summary>
 /// Handle to the disposable index store and its committed metadata snapshots;

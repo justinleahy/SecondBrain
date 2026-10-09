@@ -1,6 +1,6 @@
 using System.Data.Common;
 
-namespace SecondBrain.Core.Storage;
+namespace SecondBrain.Storage;
 
 /// <summary>
 /// A store with a bounded read pool and a single queued writer; implementations

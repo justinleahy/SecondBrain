@@ -1,5 +1,6 @@
 using System.Data.Common;
 using SecondBrain.Core.Storage;
+using SecondBrain.Storage;
 
 namespace SecondBrain.Server.Tests.Support;
 

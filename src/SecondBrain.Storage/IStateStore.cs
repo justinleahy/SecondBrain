@@ -1,4 +1,4 @@
-namespace SecondBrain.Core.Storage;
+namespace SecondBrain.Storage;
 
 /// <summary>
 /// Handle to the authoritative state store; it never provides cross-store atomicity

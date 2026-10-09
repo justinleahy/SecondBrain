@@ -1,4 +1,4 @@
-namespace SecondBrain.Core.Storage;
+namespace SecondBrain.Storage;
 
 /// <summary>Online snapshots of a store, used under the exclusive data-root lock during migrations.</summary>
 public interface IStoreSnapshot

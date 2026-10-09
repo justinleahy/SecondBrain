@@ -51,6 +51,9 @@ public sealed class DependencyRulesTests
     /// <summary>AR-06 (interop): every type in this namespace is forbidden in Core.</summary>
     private const string SafeHandlesNamespacePrefix = "Microsoft.Win32.SafeHandles.";
 
+    /// <summary>AR-06 (data access): every type in these namespaces is forbidden in Core; store handles belong to Storage.</summary>
+    private const string SystemDataNamespacePrefix = "System.Data.";
+
     /// <summary>AR-07: the assemblies that may declare P/Invoke methods.</summary>
     private static readonly string[] PinvokeAllowedAssemblies =
         [Layers.InfrastructureName, Layers.StorageName, Layers.ExtractorName, Layers.CliName];
@@ -254,6 +257,29 @@ public sealed class DependencyRulesTests
         Assert.Contains("System.IO.Directory", facts.TypeReferences);
         Assert.Contains("System.Runtime.InteropServices.Marshal", facts.TypeReferences);
         Assert.Contains(facts.TypeReferences, type => type.StartsWith(SafeHandlesNamespacePrefix, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void CoreReferencesNoSystemDataType()
+    {
+        var facts = AssemblyFacts.For(Layers.Core);
+        var violations = facts.TypeReferences
+            .Where(type => type.StartsWith(SystemDataNamespacePrefix, StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Core references data access types that belong in SecondBrain.Storage: {string.Join(", ", violations)}");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-06")]
+    public void StorageIsWhereTheSystemDataTypesAreReferenced()
+    {
+        // Guards the rule above against reading type references that never contain these names at all.
+        var facts = AssemblyFacts.For(Layers.Storage);
+        Assert.Contains("System.Data.Common.DbConnection", facts.TypeReferences);
+        Assert.Contains("System.Data.Common.DbTransaction", facts.TypeReferences);
     }
 
     private static bool OnlyCompilerIteratorEnvironmentMembers(AssemblyFacts facts) =>

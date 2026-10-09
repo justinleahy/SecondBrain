@@ -6,6 +6,7 @@ using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Security;
 using SecondBrain.Core.Storage;
+using SecondBrain.Storage;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Server.Auth;
 using SecondBrain.Server.Http;

@@ -3,6 +3,7 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Privacy;
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Storage;
+using SecondBrain.Storage;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Core.Providers;
 using SecondBrain.Infrastructure.Extraction;
