@@ -13,7 +13,7 @@ namespace SecondBrain.Core.Privacy;
 /// Validates provider-data policy on construction, options reload, and every request.
 /// Approved endpoint origins and DNS pins are immutable between successful reloads.
 /// </summary>
-public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IDisposable
+public sealed class PrivacyPolicy : IPrivacyPolicy, IPrivacyReadiness, IProviderEgressPolicy, IDisposable
 {
     public static readonly TimeSpan TrustedHostResolutionTimeout = TimeSpan.FromSeconds(10);
     private readonly IOptionsMonitor<SecondBrainOptions> _options;

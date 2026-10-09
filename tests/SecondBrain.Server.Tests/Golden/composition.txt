@@ -44,6 +44,7 @@ Singleton ICanaryConnector -> TcpCanaryConnector
 Singleton PrivacyPolicy -> PrivacyPolicy
 Singleton IPrivacyPolicy -> factory
 Singleton IPrivacyReadiness -> factory
+Singleton IProviderEgressPolicy -> factory
 Singleton EgressCanary -> EgressCanary
 Singleton IHostedService -> PrivacyCanaryHost
 Singleton IHostedService -> DataProtectionHostedService

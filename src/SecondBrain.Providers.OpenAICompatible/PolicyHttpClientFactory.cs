@@ -15,11 +15,11 @@ public interface IPolicyHttpClientFactory
 public sealed class PolicyHttpClientFactory : IPolicyHttpClientFactory, IDisposable
 {
     private readonly SocketsHttpHandler sockets;
-    private readonly PrivacyPolicy policy;
+    private readonly IProviderEgressPolicy policy;
     private readonly IDnsResolver resolver;
     private static readonly HttpRequestOptionsKey<RequestPolicyContext> RequestContextKey = new("SecondBrain.ProviderPolicy");
 
-    public PolicyHttpClientFactory(PrivacyPolicy policy, IDnsResolver resolver)
+    public PolicyHttpClientFactory(IProviderEgressPolicy policy, IDnsResolver resolver)
     {
         this.policy = policy;
         this.resolver = resolver;
@@ -95,7 +95,7 @@ public sealed class PolicyHttpClientFactory : IPolicyHttpClientFactory, IDisposa
         }
     }
 
-    private sealed class RequestPolicyHandler(PrivacyPolicy policy, IDnsResolver resolver,
+    private sealed class RequestPolicyHandler(IProviderEgressPolicy policy, IDnsResolver resolver,
         ModelRole role, IProviderBinding binding, bool discovery) : DelegatingHandler
     {
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

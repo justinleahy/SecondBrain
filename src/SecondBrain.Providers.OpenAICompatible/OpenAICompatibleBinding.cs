@@ -12,7 +12,7 @@ namespace SecondBrain.Providers.OpenAICompatible;
 /// <summary>A configured compatible endpoint. No vendor endpoint or model is selected implicitly.</summary>
 public sealed class OpenAICompatibleBinding : IProviderBinding, IDisposable
 {
-    private readonly PrivacyPolicy privacy;
+    private readonly IProviderEgressPolicy privacy;
     private readonly ModelCatalog catalog;
     private readonly ModelRole role;
     private readonly HttpClient inferenceClient;
@@ -26,7 +26,7 @@ public sealed class OpenAICompatibleBinding : IProviderBinding, IDisposable
     private readonly ConcurrentDictionary<string, IEmbeddingGenerator<string, Embedding<float>>> embeddingClients = new(StringComparer.Ordinal);
 
     public OpenAICompatibleBinding(string providerName, Uri endpoint, ModelRole role,
-        IPolicyHttpClientFactory factory, PrivacyPolicy privacy, ModelCatalog catalog,
+        IPolicyHttpClientFactory factory, IProviderEgressPolicy privacy, ModelCatalog catalog,
         string? apiKey = null, int? dimensions = null, TimeProvider? timeProvider = null,
         ModelLimits? configuredLimits = null, string? configuredModel = null)
     {

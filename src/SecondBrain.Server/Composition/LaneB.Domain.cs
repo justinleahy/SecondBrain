@@ -45,6 +45,7 @@ public static class LaneBDomain
         services.TryAddSingleton<PrivacyPolicy>();
         services.TryAddSingleton<IPrivacyPolicy>(provider => provider.GetRequiredService<PrivacyPolicy>());
         services.TryAddSingleton<IPrivacyReadiness>(provider => provider.GetRequiredService<PrivacyPolicy>());
+        services.TryAddSingleton<IProviderEgressPolicy>(provider => provider.GetRequiredService<PrivacyPolicy>());
         services.TryAddSingleton<EgressCanary>();
         services.AddHostedService<PrivacyCanaryHost>();
         return services;

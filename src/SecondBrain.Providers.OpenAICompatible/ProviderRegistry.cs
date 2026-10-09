@@ -9,7 +9,7 @@ namespace SecondBrain.Providers.OpenAICompatible;
 public sealed class ProviderRegistry : IProviderRegistry, IDisposable
 {
     private readonly IPolicyHttpClientFactory factory;
-    private readonly PrivacyPolicy privacy;
+    private readonly IProviderEgressPolicy privacy;
     private readonly ModelCatalog catalog;
     private readonly IProviderCredentialResolver credentials;
     private readonly TimeProvider timeProvider;
@@ -20,7 +20,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
     private RegistrySnapshot snapshot;
 
     public ProviderRegistry(IOptionsMonitor<SecondBrainOptions> options, IPolicyHttpClientFactory factory,
-        PrivacyPolicy privacy, ModelCatalog catalog, IProviderCredentialResolver credentials, TimeProvider? timeProvider = null)
+        IProviderEgressPolicy privacy, ModelCatalog catalog, IProviderCredentialResolver credentials, TimeProvider? timeProvider = null)
     {
         this.factory = factory;
         this.privacy = privacy;

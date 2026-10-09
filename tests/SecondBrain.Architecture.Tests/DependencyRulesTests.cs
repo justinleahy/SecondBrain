@@ -461,4 +461,23 @@ public sealed class DependencyRulesTests
         var facts = AssemblyFacts.For(Layers.Infrastructure);
         Assert.Contains(facts.AssemblyReferences, reference => reference.StartsWith("Isopoh.", StringComparison.Ordinal));
     }
+
+    [Fact]
+    [Trait("Rule", "AR-13")]
+    public void ProviderAdapterDoesNotReferenceTheConcretePrivacyPolicy()
+    {
+        var facts = AssemblyFacts.For(Layers.ProvidersOpenAICompatible);
+        Assert.True(!facts.TypeReferences.Contains("SecondBrain.Core.Privacy.PrivacyPolicy"),
+            "SecondBrain.Providers.OpenAICompatible references SecondBrain.Core.Privacy.PrivacyPolicy; depend on IProviderEgressPolicy instead.");
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-13")]
+    public void ProviderAdapterDependsOnTheEgressPolicyPort()
+    {
+        // Guards the rule above against reading type references that never contain Core privacy types at all.
+        var facts = AssemblyFacts.For(Layers.ProvidersOpenAICompatible);
+        Assert.Contains("SecondBrain.Core.Privacy.IProviderEgressPolicy", facts.TypeReferences);
+        Assert.Contains("SecondBrain.Core.Privacy.PrivacyPolicyException", facts.TypeReferences);
+    }
 }
