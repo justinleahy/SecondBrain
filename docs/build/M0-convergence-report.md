@@ -248,7 +248,7 @@ Linux/arm64 native descriptor ABI qualification, full target-host checks, live v
 
 ## Addendum: 2026-10-09 live vLLM qualification
 
-Recorded against the uncommitted local `main` tree based on `0e90c97`. This addendum closes item 1 of "Remaining qualifications and boundaries" (live vLLM). Items 2–4 (remote CI, target-host Linux spikes, external integrations) and the M0 stubs are unchanged, so **M0 remains open** on those obligations.
+Recorded against the uncommitted local `main` tree based on `0e90c97`, then pushed as branch `vllm-provider-qualification` (pull request #1). This addendum closes item 1 of "Remaining qualifications and boundaries" (live vLLM) and records item 2's remote CI evidence below. Items 3–4 (target-host Linux spikes, external integrations) and the M0 stubs are unchanged, so **M0 remains open** on those obligations.
 
 ### Provider
 
@@ -288,4 +288,10 @@ export SECONDBRAIN_QUAL_VLLM_MAX_INPUT_TOKENS=8192
 dotnet test tests/SecondBrain.Server.Tests --no-build --no-restore --filter 'Category=Qualification' --logger trx
 ```
 
-**`SecondBrain.Server.Tests.Qualification.VllmReady`: Passed** (0.69 s). `/ready` answered 200 with every component ready, including `provider:chat`, `provider:enrich` and `provider:embed` probed through the policy-owned transport. The TRX is kept at `/tmp/secondbrain-vllm-qualification-2026-10-09.trx`. G2's live column is therefore satisfied on this host. The GitHub `qualification.yml` workflow has not yet run on a remote runner, which stays part of item 2.
+**`SecondBrain.Server.Tests.Qualification.VllmReady`: Passed** (0.69 s). `/ready` answered 200 with every component ready, including `provider:chat`, `provider:enrich` and `provider:embed` probed through the policy-owned transport. The TRX is kept at `/tmp/secondbrain-vllm-qualification-2026-10-09.trx`. G2's live column is therefore satisfied on this host.
+
+### Remote CI and the deferred remote qualification
+
+GitHub Actions ran the CI workflow twice on 2026-10-09 with every job green: run `37934907738` on the push of `0e90c97` to `main` (3 m 49 s) and run `37940748698` on pull request #1 (3 m 48 s: build and deterministic tests, Docker image, G1 hardened Compose smoke, and the three linux-x64 publishes). That is the remote CI evidence item 2 asked for.
+
+The live `qualification.yml` workflow still has no runner that can reach the vLLM host: the hosted `ubuntu-24.04` label cannot see this machine's loopback, and the public repository has no self-hosted runner. The operator decided on 2026-10-09 to keep the live qualification local for now; registering a self-hosted runner and recording a remote run is tracked as issue #2.
