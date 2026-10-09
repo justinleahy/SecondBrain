@@ -245,3 +245,47 @@ Focused `JournalTests|PublicationTests` passed **54/54** as non-root UID 501 on 
 A fresh independent GPT-6.1 Sol read-only candidate review found an EACCES (13) residual gap in nonregular recovery. The parent confirmed it; the durability correction and mode-000 regression variants are included in the final gates above. No other concrete issue was found. There was **no second independent review after that correction**; the parent inspected the changed source and regressions. The optional symlink-race harness was blocked and was not retried. Dynamic coverage therefore models persisted directory displacement, existing regular-file exchange and symlink admission rather than claiming that blocked race experiment ran.
 
 Linux/arm64 native descriptor ABI qualification, full target-host checks, live vLLM, remote CI and external integrations remain pending. The deterministic suite excludes `Qualification.VllmReady`; its unset-URL path is not live qualification. **M0 remains open.**
+
+## Addendum: 2026-10-09 live vLLM qualification
+
+Recorded against the uncommitted local `main` tree based on `0e90c97`. This addendum closes item 1 of "Remaining qualifications and boundaries" (live vLLM). Items 2–4 (remote CI, target-host Linux spikes, external integrations) and the M0 stubs are unchanged, so **M0 remains open** on those obligations.
+
+### Provider
+
+The reference vLLM host is the RTX 5090 workstation itself (Fedora 44, driver 615.71.09, 32 GB VRAM). vLLM hosts one model per server, so [deploy/vllm/compose.yaml](../../deploy/vllm/compose.yaml) runs two `vllm/vllm-openai:v0.31.0` containers on the one GPU, offline against a read-only, user-owned Hugging Face cache, with every capability dropped:
+
+| Role | Provider | Endpoint | Model | Served limits |
+| --- | --- | --- | --- | --- |
+| chat, enrich | `vllm` | `http://127.0.0.1:8000/v1` | `Qwen/Qwen3-8B` (bf16) | 32768-token context, 4096 declared output tokens, Hermes tool parser, Qwen3 reasoning parser, thinking off by default, 38,080-token KV cache at 70 % of GPU memory |
+| embed | `vllm-embed` | `http://127.0.0.1:8001/v1` | `Qwen/Qwen3-Embedding-0.6B` | 1024 dimensions (Matryoshka 32–1024), 8192-token input, batch 32, 18,976-token KV cache at 12 % of GPU memory |
+
+Steady state uses 27.4 GB of the 32.6 GB card (chat 21.9 GB, embed 4.1 GB, desktop compositor 0.5 GB). The chat engine initialised in 141 s (22 s torch.compile, 103 s CUDA graph capture); the embedding engine's first start took 87 s.
+
+### Capability evidence for the reviewed declaration
+
+`models.chat.capabilities: { tools: true, streaming: true }` was checked directly against the served model with `curl` before it was declared:
+
+- A `get_weather` tool request returned `finish_reason: tool_calls` with the structured call `{"city": "Boston"}`, both in the non-thinking default (0 reasoning tokens, 20 completion tokens) and in thinking mode during the first bring-up (76 reasoning tokens).
+- `stream: true` produced six `data:` chunks ending in `data: [DONE]` with the requested text.
+- With thinking on by default, a 400-token budget was spent entirely on reasoning and returned no content, so the Compose file sets `--default-chat-template-kwargs '{"enable_thinking": false}'`. A request carrying `chat_template_kwargs: {"enable_thinking": true}` still works: 17×23 answered `391` with 934 reasoning tokens kept in `reasoning_content`, not `content`.
+- `/v1/embeddings` returned 1024-dimensional vectors, and 256 with `dimensions: 256`.
+
+### Qualification run
+
+`Qualification.VllmReady` gained an optional `SECONDBRAIN_QUAL_VLLM_EMBED_URL` (an optional `embed_url` input in `qualification.yml`). A distinct value becomes a second trusted provider, `vllm-embed`, in the YAML the test writes and loads through the production configuration path; unset, the single-provider shape is unchanged. The deterministic suite passed **750/750** after that change (`dotnet test SecondBrain.slnx --no-build --no-restore --filter 'Category!=Qualification'`: Architecture 58, Core 109, Infrastructure 76, Storage 134, Providers.OpenAICompatible 69, Deploy 122, Server 182).
+
+The live gate then ran twice from this checkout, the second time against the final Compose file above:
+
+```sh
+export SECONDBRAIN_QUAL_VLLM_URL=http://127.0.0.1:8000/v1
+export SECONDBRAIN_QUAL_VLLM_EMBED_URL=http://127.0.0.1:8001/v1
+export SECONDBRAIN_QUAL_VLLM_CHAT_MODEL=Qwen/Qwen3-8B
+export SECONDBRAIN_QUAL_VLLM_EMBED_MODEL=Qwen/Qwen3-Embedding-0.6B
+export SECONDBRAIN_QUAL_VLLM_DIMENSIONS=1024
+export SECONDBRAIN_QUAL_VLLM_CONTEXT_WINDOW=32768
+export SECONDBRAIN_QUAL_VLLM_MAX_OUTPUT_TOKENS=4096
+export SECONDBRAIN_QUAL_VLLM_MAX_INPUT_TOKENS=8192
+dotnet test tests/SecondBrain.Server.Tests --no-build --no-restore --filter 'Category=Qualification' --logger trx
+```
+
+**`SecondBrain.Server.Tests.Qualification.VllmReady`: Passed** (0.69 s). `/ready` answered 200 with every component ready, including `provider:chat`, `provider:enrich` and `provider:embed` probed through the policy-owned transport. The TRX is kept at `/tmp/secondbrain-vllm-qualification-2026-10-09.trx`. G2's live column is therefore satisfied on this host. The GitHub `qualification.yml` workflow has not yet run on a remote runner, which stays part of item 2.

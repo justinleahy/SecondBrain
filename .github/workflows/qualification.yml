@@ -12,6 +12,10 @@ on:
         description: Trusted OpenAI-compatible vLLM endpoint, including /v1
         type: string
         required: true
+      embed_url:
+        description: Trusted OpenAI-compatible endpoint serving the embedding model, including /v1 (defaults to vllm_url)
+        type: string
+        required: false
       chat_model:
         description: Reviewed native-tools streaming chat model id (declared through models.chat.capabilities)
         type: string
@@ -59,6 +63,7 @@ jobs:
     timeout-minutes: 30
     env:
       SECONDBRAIN_QUAL_VLLM_URL: ${{ inputs.vllm_url }}
+      SECONDBRAIN_QUAL_VLLM_EMBED_URL: ${{ inputs.embed_url || inputs.vllm_url }}
       SECONDBRAIN_QUAL_VLLM_CHAT_MODEL: ${{ inputs.chat_model }}
       SECONDBRAIN_QUAL_VLLM_ENRICH_MODEL: ${{ inputs.enrich_model || inputs.chat_model }}
       SECONDBRAIN_QUAL_VLLM_EMBED_MODEL: ${{ inputs.embed_model }}

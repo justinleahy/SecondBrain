@@ -1,0 +1,98 @@
+name: secondbrain-vllm
+
+# Two vLLM servers on one GPU. vLLM hosts exactly one model per server, so the
+# chat/enrichment model and the embedding model are separate OpenAI-compatible
+# endpoints and SecondBrain binds each role to its own provider (see README.md).
+# The release tag is pinned; both servers share one Hugging Face cache and keep
+# their compile caches in named volumes so restarts skip warm-up work.
+x-vllm: &vllm
+  image: vllm/vllm-openai:v0.31.0
+  init: true
+  restart: unless-stopped
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  shm_size: 8g
+  ulimits:
+    core: { soft: 0, hard: 0 }
+  environment:
+    # The servers never contact the Hub: weights are downloaded beforehand into
+    # the user-owned cache, which is mounted read-only (with every capability
+    # dropped, root in the container could not write there anyway).
+    HF_HUB_OFFLINE: ${HF_HUB_OFFLINE:-1}
+  volumes:
+    - type: bind
+      source: ${VLLM_HF_CACHE:-${HOME}/.cache/huggingface}
+      target: /root/.cache/huggingface
+      read_only: true
+      bind: { create_host_path: false }
+    - type: volume
+      source: vllm-cache
+      target: /root/.cache/vllm
+    - type: volume
+      source: flashinfer-cache
+      target: /root/.cache/flashinfer
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+  healthcheck:
+    test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+    interval: 10s
+    timeout: 10s
+    retries: 90
+    start_period: 120s
+
+services:
+  # The small embedding server starts first so the chat server's memory
+  # profiling already sees it. Qwen3-Embedding-0.6B emits 1024 dimensions and
+  # accepts the Matryoshka `dimensions` request parameter (32-1024).
+  embed:
+    <<: *vllm
+    command:
+      - Qwen/Qwen3-Embedding-0.6B
+      - --host=0.0.0.0
+      - --port=8000
+      - --runner=pooling
+      - --convert=embed
+      - --max-model-len=8192
+      - --max-num-seqs=32
+      - --gpu-memory-utilization=${VLLM_EMBED_GPU_FRACTION:-0.12}
+      - '--hf-overrides={"is_matryoshka": true}'
+    ports:
+      - target: 8000
+        published: "${VLLM_EMBED_PORT:-8001}"
+        host_ip: ${VLLM_BIND:-127.0.0.1}
+        protocol: tcp
+
+  # Qwen3-8B in bf16 (about 16.4 GB of weights) with native Hermes-style tool
+  # calls. Thinking is off by default so an output budget goes to the answer;
+  # a request can turn it on with chat_template_kwargs {"enable_thinking": true},
+  # and the Qwen3 reasoning parser then keeps that reasoning out of `content`.
+  # The parsers are model-specific: changing the model means reviewing them.
+  chat:
+    <<: *vllm
+    depends_on:
+      embed: { condition: service_healthy }
+    command:
+      - Qwen/Qwen3-8B
+      - --host=0.0.0.0
+      - --port=8000
+      - --max-model-len=32768
+      - --max-num-seqs=16
+      - --gpu-memory-utilization=${VLLM_CHAT_GPU_FRACTION:-0.70}
+      - --enable-auto-tool-choice
+      - --tool-call-parser=hermes
+      - --reasoning-parser=qwen3
+      - '--default-chat-template-kwargs={"enable_thinking": false}'
+    ports:
+      - target: 8000
+        published: "${VLLM_CHAT_PORT:-8000}"
+        host_ip: ${VLLM_BIND:-127.0.0.1}
+        protocol: tcp
+
+volumes:
+  vllm-cache:
+  flashinfer-cache:

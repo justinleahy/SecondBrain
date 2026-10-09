@@ -9,6 +9,10 @@ Directories need traversal bits: config/secrets are private traversable
 directories, not 0600 directories. The shared runtime directory must be group
 writable for the standalone extractor, with its socket at 0660.
 
+The reference model provider is the separate [vllm](vllm/README.md) Compose
+project: two vLLM servers on the GPU host, one per model, whose `IP:port` pairs
+belong in `SECONDBRAIN_PROVIDER_ALLOWLIST` and `privacy.trusted_services`.
+
 ## Compose
 
 Copy `provision/compose.env.example` into a private environment file and supply
