@@ -102,7 +102,8 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
     public RealStoreAccessor Store { get; } = new();
     public RealStoreAccessor StateStore => Store;
     public TestKeyRing KeyRing { get; } = new();
-    public FakeTimeProvider Clock { get; } = new(new DateTimeOffset(2026, 10, 8, 0, 0, 0, TimeSpan.Zero));
+    // Starts at the real clock so cookies the daemon issues are not already expired for HttpClient; every test advances relative to this.
+    public FakeTimeProvider Clock { get; } = new(DateTimeOffset.UtcNow);
     public MutableOptionsMonitor<SecondBrainOptions> Options { get; }
     public MutableOptionsMonitor<SecondBrainOptions> OptionsMonitor => Options;
     public Action<IServiceCollection>? ConfigureServices { get; set; }
