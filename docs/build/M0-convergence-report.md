@@ -295,3 +295,26 @@ dotnet test tests/SecondBrain.Server.Tests --no-build --no-restore --filter 'Cat
 GitHub Actions ran the CI workflow twice on 2026-10-09 with every job green: run `37934907738` on the push of `0e90c97` to `main` (3 m 49 s) and run `37940748698` on pull request #1 (3 m 48 s: build and deterministic tests, Docker image, G1 hardened Compose smoke, and the three linux-x64 publishes). That is the remote CI evidence item 2 asked for.
 
 The live `qualification.yml` workflow still has no runner that can reach the vLLM host: the hosted `ubuntu-24.04` label cannot see this machine's loopback, and the public repository has no self-hosted runner. The operator decided on 2026-10-09 to keep the live qualification local for now; registering a self-hosted runner and recording a remote run is tracked as issue #2.
+
+## Addendum: 2026-10-09 target-host systemd spikes on the RTX 5090 workstation
+
+Recorded on branch `vllm-provider-qualification` after the live vLLM qualification above. The workstation that serves vLLM also served as the Linux target host: Fedora Linux 44 (KDE Plasma Desktop Edition), kernel `7.2.5-200.fc44.x86_64`, systemd 259 (`+BPF_FRAMEWORK`), cgroup v2, SELinux enforcing, `kernel.unprivileged_bpf_disabled=2`. The published self-contained linux-x64 Server, CLI and Extractor outputs were merged into `/usr/local/lib/secondbrain`; `brain init --provision --deployment systemd` created the 1654/1655/1656 identities and directories; the configuration bound chat and enrich to `http://127.0.0.1:8000/v1`, embed to `http://127.0.0.1:8001/v1`, enabled the canary against `1.1.1.1:443`, and declared an HTTP listener on `127.0.0.1:7171` plus an HTTPS listener on the tailnet address `100.67.195.36:7443` with the `tailscale cert` certificate for `fedora.tail9a7993.ts.net`. A drop-in added one tailnet peer (`100.127.250.19`) to `IPAddressAllow`. The operator ran the root steps; the bundle and its teardown live under the untracked `artifacts/systemd-spike/`.
+
+### Findings fixed before the units ran
+
+1. **SELinux domain.** Files under `/usr/local/lib` are labelled `lib_t`, so systemd kept `brain serve` in the confined `init_t` domain and the kernel denied the data-root lock: `avc: denied { read write } ... name=".lock" ... tcontext=unconfined_u:object_r:var_t:s0`. Labelling the three executables `bin_t` through `semanage fcontext` moves them to `unconfined_service_t`; after that no AVC denial mentions the daemon or extractor.
+2. **Incomplete layout.** The CLI publish carries a layout copy of the daemon but not `SecondBrain.Server.staticwebassets.endpoints.json` or `wwwroot`, so the daemon failed at startup with "The static resources manifest file ... was not found" until the Server publish was merged in. `deploy/README.md` now states both requirements.
+3. **Extractor cold start.** Socket activation worked on the first connection (`Extractor socket ready at /run/secondbrain/extractor.sock; activated: True`), but the service took 5.0 s from `Started` to "socket ready" while `ExtractorPing` gives up after 2 s, so the first two `/ready` calls answered 503 with "Extractor socket ping failed" and the extractor logged the two abandoned clients. The next call passed and the service stayed up (`NRestarts=0`).
+
+### Results
+
+| Check | Result |
+| --- | --- |
+| Socket activation | `secondbrain-extractor.socket` listening on `/run/secondbrain/extractor.sock`; the service started on the daemon's first ping and kept running; `/ready` reports "Extractor answered ping" |
+| Egress enforcement | `IPAddressDeny=0.0.0.0/0 ::/0`, `IPAddressAllow=127.0.0.0/8 ::1/128 100.127.250.19/32` plus the template pins, `IPAccounting=yes`; `/ready` 200 with canary "Egress canary: Blocked. Egress canary state is current." while `provider:chat`, `provider:enrich` and `provider:embed` are ready through the loopback allowance; the unit's lifetime IP accounting stayed in the kilobytes |
+| Access JWKS refresh | Not exercised: no Cloudflare Access team is configured and the `192.0.2.1` placeholder remains, so this half of the egress spike stays with the external-integration item |
+| HTTPS on the tailnet address | Kestrel bound `100.67.195.36:7443` with the Let's Encrypt certificate (SAN `fedora.tail9a7993.ts.net`); a request from the host's own tailnet address is dropped by the unit's ingress filter because that address is not allowed, which is the documented behaviour; the request from the allowed peer is pending until that device is online |
+| `brain doctor` | Not yet recorded; the configuration is readable only by root and the daemon identity, so the command has to run as `secondbrain` with a file credential store |
+| Native Linux Secret Service | Exercised earlier the same day against the retained Compose smoke daemon: `brain login` stored "SecondBrain API credential" (attributes `application=secondbrain`, `account=<origin>/<name>`), `keys list` and `providers test` authenticated through the stored entry, and the entry was removed afterwards. macOS Keychain remains |
+
+Linux arm64 descriptor ABI, the Access and Tunnel integrations, the tailnet peer request, the doctor record and the remote qualification run (issue #2) remain open. **M0 remains open** on those items.
