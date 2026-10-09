@@ -10,7 +10,7 @@ using SecondBrain.MockProvider;
 using SecondBrain.Providers.OpenAICompatible;
 using Xunit;
 
-namespace SecondBrain.Core.Tests.Providers;
+namespace SecondBrain.Providers.OpenAICompatible.Tests;
 
 public sealed class Transport
 {

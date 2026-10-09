@@ -14,6 +14,7 @@
     <Project Path="tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj" />
     <Project Path="tests/SecondBrain.Infrastructure.Tests/SecondBrain.Infrastructure.Tests.csproj" />
     <Project Path="tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj" />
+    <Project Path="tests/SecondBrain.Providers.OpenAICompatible.Tests/SecondBrain.Providers.OpenAICompatible.Tests.csproj" />
     <Project Path="tests/SecondBrain.Server.Tests/SecondBrain.Server.Tests.csproj" />
     <Project Path="tests/SecondBrain.Storage.Tests/SecondBrain.Storage.Tests.csproj" />
   </Folder>

@@ -96,6 +96,9 @@ public sealed class DependencyRulesTests
     private static readonly string[] SqlAssemblyNames = ["Dapper", "Microsoft.Data.Sqlite"];
     private const string SqlitePclAssemblyPrefix = "SQLitePCLRaw.";
 
+    /// <summary>AR-19: the only projects <c>SecondBrain.Core.Tests</c> may reference; adapter tests live in their own project.</summary>
+    private static readonly string[] CoreTestsAllowedProjectReferences = [Layers.CoreName, Layers.InfrastructureName];
+
     /// <summary>AR-03b: the exact <c>ProjectReference</c> set of every <c>src</c> project (§1.2), by referenced project name.</summary>
     public static TheoryData<string, string[]> SourceProjectReferences => new()
     {
@@ -562,5 +565,19 @@ public sealed class DependencyRulesTests
         var facts = AssemblyFacts.For(Layers.ProvidersOpenAICompatible);
         Assert.Contains("SecondBrain.Core.Privacy.IProviderEgressPolicy", facts.TypeReferences);
         Assert.Contains("SecondBrain.Core.Privacy.PrivacyPolicyException", facts.TypeReferences);
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-19")]
+    public void CoreTestsProjectReferencesOnlyCoreAndInfrastructure()
+    {
+        var references = Repository.Project("tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj").ProjectReferences
+            .Select(reference => reference.ProjectName)
+            .ToArray();
+        // Guards the rule below against reading a project file that has no references at all.
+        Assert.Contains(Layers.CoreName, references);
+        var disallowed = references.Except(CoreTestsAllowedProjectReferences, StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
+        Assert.True(disallowed.Length == 0,
+            $"tests/SecondBrain.Core.Tests references {string.Join(", ", disallowed)}; allowed: {string.Join(", ", CoreTestsAllowedProjectReferences)}.");
     }
 }

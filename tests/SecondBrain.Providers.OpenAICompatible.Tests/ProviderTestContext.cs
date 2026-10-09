@@ -9,7 +9,7 @@ using SecondBrain.Infrastructure.Network;
 using SecondBrain.MockProvider;
 using SecondBrain.Providers.OpenAICompatible;
 
-namespace SecondBrain.Core.Tests.Providers;
+namespace SecondBrain.Providers.OpenAICompatible.Tests;
 
 internal sealed class ProviderTestContext : IAsyncDisposable
 {
