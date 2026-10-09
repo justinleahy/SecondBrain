@@ -4,7 +4,7 @@ using SecondBrain.Core.Security;
 using SecondBrain.Infrastructure.Security;
 using Xunit;
 
-namespace SecondBrain.Core.Tests.Security;
+namespace SecondBrain.Infrastructure.Tests.Security;
 
 public sealed class KeyRingAndRootTests : IDisposable
 {

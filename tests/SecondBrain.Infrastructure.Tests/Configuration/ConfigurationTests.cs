@@ -4,7 +4,7 @@ using SecondBrain.Infrastructure.Security;
 using System.Runtime.InteropServices;
 using Xunit;
 
-namespace SecondBrain.Core.Tests.Configuration;
+namespace SecondBrain.Infrastructure.Tests.Configuration;
 
 public sealed class ConfigurationTests : IDisposable
 {
