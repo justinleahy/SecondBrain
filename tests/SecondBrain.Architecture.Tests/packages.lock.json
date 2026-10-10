@@ -230,21 +230,35 @@
         "dependencies": {
           "JsonSchema.Net": "[9.4.0, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.10.1, )",
+          "SecondBrain.Extraction.Contracts": "[1.0.0, )",
           "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
         }
       },
+      "secondbrain.extraction.contracts": {
+        "type": "Project"
+      },
       "secondbrain.extractor": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )"
+          "AngleSharp": "[1.5.0, )",
+          "Microsoft.Extensions.Hosting.Systemd": "[10.0.12, )",
+          "PdfPig": "[0.1.13, )",
+          "SecondBrain.Extraction.Contracts": "[1.0.0, )",
+          "SecondBrain.Extractor.Wire": "[1.0.0, )",
+          "YamlDotNet": "[18.1.0, )"
         }
+      },
+      "secondbrain.extractor.wire": {
+        "type": "Project"
       },
       "secondbrain.infrastructure": {
         "type": "Project",
         "dependencies": {
           "Isopoh.Cryptography.Argon2": "[2.0.0, )",
           "SecondBrain.Core": "[1.0.0, )",
+          "SecondBrain.Extraction.Contracts": "[1.0.0, )",
+          "SecondBrain.Extractor.Wire": "[1.0.0, )",
           "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
         }
@@ -282,6 +296,12 @@
           "SQLitePCLRaw.bundle_e_sqlite3": "[3.0.5, )",
           "SecondBrain.Core": "[1.0.0, )"
         }
+      },
+      "AngleSharp": {
+        "type": "CentralTransitive",
+        "requested": "[1.5.0, )",
+        "resolved": "1.5.0",
+        "contentHash": "REAdFOAlTxr6yqmxWFFLLMB/+uvIS3N6tXXUAWjoexA0LsQB/CfZYadg+z+DkcpAwJk8gF1VF4YLsq4U1Gficg=="
       },
       "Dapper": {
         "type": "CentralTransitive",
@@ -377,6 +397,12 @@
         "dependencies": {
           "System.ClientModel": "1.15.0"
         }
+      },
+      "PdfPig": {
+        "type": "CentralTransitive",
+        "requested": "[0.1.13, )",
+        "resolved": "0.1.13",
+        "contentHash": "2AUWNKHbkDr2Ofgi2vVPN/Ya++jhsuHd54xeKveqKOwDiAy2E2QhczOUKyU29ADRHoEJgQUhwHFgtbD6nCZ2WA=="
       },
       "SQLitePCLRaw.bundle_e_sqlite3": {
         "type": "CentralTransitive",

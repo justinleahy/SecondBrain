@@ -1,0 +1,1951 @@
+{
+  "markdown": {
+    "completion_mode": "keyword plus complete vectors",
+    "documents": [
+      {
+        "admission_seconds": 0.10637444094754755,
+        "bytes": 8347,
+        "document_id": "01M4HX443DDKTWT3DNSES1CT5E",
+        "keyword_seconds": 0.38016029505524784,
+        "pages": null,
+        "vector_coverage_seconds": 0.4877164229983464
+      },
+      {
+        "admission_seconds": 0.25986757897771895,
+        "bytes": 8347,
+        "document_id": "01M4HX447F2FXJNQCCTDJVJY3Q",
+        "keyword_seconds": 0.42543929803650826,
+        "pages": null,
+        "vector_coverage_seconds": 0.6685926950303838
+      },
+      {
+        "admission_seconds": 0.1651985519565642,
+        "bytes": 8347,
+        "document_id": "01M4HX445J0FAEJNCVXK581PAY",
+        "keyword_seconds": 0.4301634859293699,
+        "pages": null,
+        "vector_coverage_seconds": 0.5473082358948886
+      },
+      {
+        "admission_seconds": 0.3629253420513123,
+        "bytes": 8347,
+        "document_id": "01M4HX44AEX91F381JZG3KGJRR",
+        "keyword_seconds": 0.5229790010489523,
+        "pages": null,
+        "vector_coverage_seconds": 0.7683739070780575
+      },
+      {
+        "admission_seconds": 0.12378479796461761,
+        "bytes": 8347,
+        "document_id": "01M4HX44J94AVK3Z8YTJ8NQFY4",
+        "keyword_seconds": 0.2793478610692546,
+        "pages": null,
+        "vector_coverage_seconds": 0.3950676020467654
+      },
+      {
+        "admission_seconds": 0.1863283149432391,
+        "bytes": 8347,
+        "document_id": "01M4HX44NKNKKV8VPVFSCSB3P5",
+        "keyword_seconds": 0.35347952600568533,
+        "pages": null,
+        "vector_coverage_seconds": 0.4765042719664052
+      },
+      {
+        "admission_seconds": 0.17051702796015888,
+        "bytes": 8347,
+        "document_id": "01M4HX44SD3GTW24SFMTHWBWAZ",
+        "keyword_seconds": 0.33606507803779095,
+        "pages": null,
+        "vector_coverage_seconds": 0.45686734502669424
+      },
+      {
+        "admission_seconds": 0.2225140780210495,
+        "bytes": 8347,
+        "document_id": "01M4HX44WPYVH3MEQP9C8PDSTQ",
+        "keyword_seconds": 0.41342759504914284,
+        "pages": null,
+        "vector_coverage_seconds": 0.529211173998192
+      },
+      {
+        "admission_seconds": 0.2284084940329194,
+        "bytes": 8347,
+        "document_id": "01M4HX451N99GEG5B2W1075ZJY",
+        "keyword_seconds": 0.38812589610461146,
+        "pages": null,
+        "vector_coverage_seconds": 0.5115559570258483
+      },
+      {
+        "admission_seconds": 0.2497878159629181,
+        "bytes": 8347,
+        "document_id": "01M4HX455PQ0611XPHMT22F988",
+        "keyword_seconds": 0.5299726360244676,
+        "pages": null,
+        "vector_coverage_seconds": 0.6442861889954656
+      },
+      {
+        "admission_seconds": 0.253507660003379,
+        "bytes": 8428,
+        "document_id": "01M4HX45A8YEW17G0BJF1ZVANE",
+        "keyword_seconds": 0.42568920901976526,
+        "pages": null,
+        "vector_coverage_seconds": 0.5317875500768423
+      },
+      {
+        "admission_seconds": 0.2581830609124154,
+        "bytes": 8428,
+        "document_id": "01M4HX45DWFEAAY9TNM3C7J6H2",
+        "keyword_seconds": 0.4191365069709718,
+        "pages": null,
+        "vector_coverage_seconds": 0.5360633250093088
+      },
+      {
+        "admission_seconds": 0.24100215500220656,
+        "bytes": 8428,
+        "document_id": "01M4HX45K57SMWBKZEC0XJ8THP",
+        "keyword_seconds": 0.38061210804153234,
+        "pages": null,
+        "vector_coverage_seconds": 0.49171369802206755
+      },
+      {
+        "admission_seconds": 0.1536934010218829,
+        "bytes": 8428,
+        "document_id": "01M4HX45QRAG1R1JGMGN914DMC",
+        "keyword_seconds": 0.31497702607885003,
+        "pages": null,
+        "vector_coverage_seconds": 0.44073725200723857
+      },
+      {
+        "admission_seconds": 0.26045816799160093,
+        "bytes": 8428,
+        "document_id": "01M4HX45TX72QE3JDAYWFJMKRW",
+        "keyword_seconds": 0.5714854969410226,
+        "pages": null,
+        "vector_coverage_seconds": 0.6783595909364522
+      },
+      {
+        "admission_seconds": 0.1998036940349266,
+        "bytes": 8428,
+        "document_id": "01M4HX45YXCDNGXBZ6QYC793TS",
+        "keyword_seconds": 0.38401039503514767,
+        "pages": null,
+        "vector_coverage_seconds": 0.4951520130271092
+      },
+      {
+        "admission_seconds": 0.27702482498716563,
+        "bytes": 8428,
+        "document_id": "01M4HX461XN0P19VNPBJJSXY8T",
+        "keyword_seconds": 0.44156560208648443,
+        "pages": null,
+        "vector_coverage_seconds": 0.5713000730611384
+      },
+      {
+        "admission_seconds": 0.194801006000489,
+        "bytes": 8428,
+        "document_id": "01M4HX466787JA7FT4D397QTK3",
+        "keyword_seconds": 0.3548068170202896,
+        "pages": null,
+        "vector_coverage_seconds": 0.4748479810077697
+      },
+      {
+        "admission_seconds": 0.13147715805098414,
+        "bytes": 8428,
+        "document_id": "01M4HX46BYGX5M6PRGKJWDDFQR",
+        "keyword_seconds": 0.2889172330033034,
+        "pages": null,
+        "vector_coverage_seconds": 0.42210069904103875
+      },
+      {
+        "admission_seconds": 0.23160332697443664,
+        "bytes": 8428,
+        "document_id": "01M4HX46FRFKBWGDHJ27ZFGFEG",
+        "keyword_seconds": 0.3894574869191274,
+        "pages": null,
+        "vector_coverage_seconds": 0.5413801509421319
+      },
+      {
+        "admission_seconds": 0.22253102797549218,
+        "bytes": 8428,
+        "document_id": "01M4HX46K7VP1YPM27RX22XBHG",
+        "keyword_seconds": 0.4281273710075766,
+        "pages": null,
+        "vector_coverage_seconds": 0.5570124039659277
+      },
+      {
+        "admission_seconds": 0.25623855204321444,
+        "bytes": 8428,
+        "document_id": "01M4HX46P63YD5AV4WP32H6YK0",
+        "keyword_seconds": 0.4658631490310654,
+        "pages": null,
+        "vector_coverage_seconds": 0.5829789789859205
+      },
+      {
+        "admission_seconds": 0.21045611600857228,
+        "bytes": 8428,
+        "document_id": "01M4HX46TQ01429G9E93PZ5MRN",
+        "keyword_seconds": 0.37821192597039044,
+        "pages": null,
+        "vector_coverage_seconds": 0.4975779940141365
+      },
+      {
+        "admission_seconds": 0.24319485598243773,
+        "bytes": 8428,
+        "document_id": "01M4HX46Z697FQ8REN3F9ET4DT",
+        "keyword_seconds": 0.4077555719995871,
+        "pages": null,
+        "vector_coverage_seconds": 0.5289730029180646
+      },
+      {
+        "admission_seconds": 0.23142869293224066,
+        "bytes": 8428,
+        "document_id": "01M4HX474AY5SF81A1ADGP2XMP",
+        "keyword_seconds": 0.3945085930172354,
+        "pages": null,
+        "vector_coverage_seconds": 0.5172995269531384
+      },
+      {
+        "admission_seconds": 0.21861517999786884,
+        "bytes": 8428,
+        "document_id": "01M4HX47889R1DRMZC4ZDD9AW5",
+        "keyword_seconds": 0.38378274301066995,
+        "pages": null,
+        "vector_coverage_seconds": 0.4943833410507068
+      },
+      {
+        "admission_seconds": 0.2334496909752488,
+        "bytes": 8428,
+        "document_id": "01M4HX47BXCXXC6RKASF1J78Q6",
+        "keyword_seconds": 0.4190751500427723,
+        "pages": null,
+        "vector_coverage_seconds": 0.5358715030597523
+      },
+      {
+        "admission_seconds": 0.25341973395552486,
+        "bytes": 8428,
+        "document_id": "01M4HX47FPSK21T6VDTFNYYVYZ",
+        "keyword_seconds": 0.43349154596216977,
+        "pages": null,
+        "vector_coverage_seconds": 0.5456731459125876
+      },
+      {
+        "admission_seconds": 0.2118298769928515,
+        "bytes": 8428,
+        "document_id": "01M4HX47N6NDD2RVAH2N5JH4S6",
+        "keyword_seconds": 0.3745251999935135,
+        "pages": null,
+        "vector_coverage_seconds": 0.4916263410123065
+      },
+      {
+        "admission_seconds": 0.2576464799931273,
+        "bytes": 8428,
+        "document_id": "01M4HX47QS0R7M1T1ZNK4EF3FE",
+        "keyword_seconds": 0.42213772900868207,
+        "pages": null,
+        "vector_coverage_seconds": 0.5314281040336937
+      },
+      {
+        "admission_seconds": 0.21383585396688432,
+        "bytes": 8428,
+        "document_id": "01M4HX47WM0BHV63TAM0E2422M",
+        "keyword_seconds": 0.37056792399380356,
+        "pages": null,
+        "vector_coverage_seconds": 0.49945729691535234
+      },
+      {
+        "admission_seconds": 0.171541502000764,
+        "bytes": 8428,
+        "document_id": "01M4HX47ZF1RW125VKH7RDCFTJ",
+        "keyword_seconds": 0.36061967606656253,
+        "pages": null,
+        "vector_coverage_seconds": 0.4897458690684289
+      },
+      {
+        "admission_seconds": 0.21151319798082113,
+        "bytes": 8428,
+        "document_id": "01M4HX4840478R3PB0TT0VDBZY",
+        "keyword_seconds": 0.3703378129284829,
+        "pages": null,
+        "vector_coverage_seconds": 0.5948948960285634
+      },
+      {
+        "admission_seconds": 0.23887899203691632,
+        "bytes": 8428,
+        "document_id": "01M4HX486SDF8XK233CVBB74T0",
+        "keyword_seconds": 0.4003070220351219,
+        "pages": null,
+        "vector_coverage_seconds": 0.5237374330172315
+      },
+      {
+        "admission_seconds": 0.23725211201235652,
+        "bytes": 8428,
+        "document_id": "01M4HX48CS6F85EDVZ3AAC2B85",
+        "keyword_seconds": 0.4078185190446675,
+        "pages": null,
+        "vector_coverage_seconds": 0.5369067640276626
+      },
+      {
+        "admission_seconds": 0.20157792000100017,
+        "bytes": 8428,
+        "document_id": "01M4HX48FTXWVCYB8NPB0065MA",
+        "keyword_seconds": 0.511278596939519,
+        "pages": null,
+        "vector_coverage_seconds": 0.6354185820091516
+      },
+      {
+        "admission_seconds": 0.1519267549738288,
+        "bytes": 8428,
+        "document_id": "01M4HX48M8ETGQQ8AK36GCH18B",
+        "keyword_seconds": 0.3260628320276737,
+        "pages": null,
+        "vector_coverage_seconds": 0.43486457504332066
+      },
+      {
+        "admission_seconds": 0.18350080598611385,
+        "bytes": 8428,
+        "document_id": "01M4HX48QCZXJ750DMRVM335EK",
+        "keyword_seconds": 0.3601225829916075,
+        "pages": null,
+        "vector_coverage_seconds": 0.48417980200611055
+      },
+      {
+        "admission_seconds": 0.23503776302095503,
+        "bytes": 8428,
+        "document_id": "01M4HX48VDP429ZS864MM8NCFD",
+        "keyword_seconds": 0.4123446849407628,
+        "pages": null,
+        "vector_coverage_seconds": 0.5304563289973885
+      },
+      {
+        "admission_seconds": 0.1422605370171368,
+        "bytes": 8428,
+        "document_id": "01M4HX491ABMRD4SJCJC04N3MB",
+        "keyword_seconds": 0.29376182705163956,
+        "pages": null,
+        "vector_coverage_seconds": 0.4134368950035423
+      },
+      {
+        "admission_seconds": 0.2288421979174018,
+        "bytes": 8428,
+        "document_id": "01M4HX495AENE4DAMDABD9S41H",
+        "keyword_seconds": 0.3940511599648744,
+        "pages": null,
+        "vector_coverage_seconds": 0.5063145569292828
+      },
+      {
+        "admission_seconds": 0.22779704595450312,
+        "bytes": 8428,
+        "document_id": "01M4HX498KXSZTMF9E5Y2V4X3E",
+        "keyword_seconds": 0.37579252291470766,
+        "pages": null,
+        "vector_coverage_seconds": 0.5072235339321196
+      },
+      {
+        "admission_seconds": 0.22045214311219752,
+        "bytes": 8428,
+        "document_id": "01M4HX49BZ5W0Y9XYG5XPF0XZY",
+        "keyword_seconds": 0.4025910390773788,
+        "pages": null,
+        "vector_coverage_seconds": 0.5177359021035954
+      },
+      {
+        "admission_seconds": 0.23671510093845427,
+        "bytes": 8428,
+        "document_id": "01M4HX49GS5GY3KS6SZX72VZKT",
+        "keyword_seconds": 0.4022157919825986,
+        "pages": null,
+        "vector_coverage_seconds": 0.5308900929521769
+      },
+      {
+        "admission_seconds": 0.2489641261054203,
+        "bytes": 8428,
+        "document_id": "01M4HX49NEG4VZMYGKT5PJZS8S",
+        "keyword_seconds": 0.4233065660810098,
+        "pages": null,
+        "vector_coverage_seconds": 0.5348295300500467
+      },
+      {
+        "admission_seconds": 0.24635369004681706,
+        "bytes": 8428,
+        "document_id": "01M4HX49S3NRJXEJXKFZT3EVVE",
+        "keyword_seconds": 0.3912888300837949,
+        "pages": null,
+        "vector_coverage_seconds": 0.497999259037897
+      },
+      {
+        "admission_seconds": 0.23735492792911828,
+        "bytes": 8428,
+        "document_id": "01M4HX49W6553812ASZC0C3QZJ",
+        "keyword_seconds": 0.3920707219513133,
+        "pages": null,
+        "vector_coverage_seconds": 0.5144526709336787
+      },
+      {
+        "admission_seconds": 0.21520237403456122,
+        "bytes": 8428,
+        "document_id": "01M4HX4A1BCQA9DQQRTN2QFN81",
+        "keyword_seconds": 0.38198404805734754,
+        "pages": null,
+        "vector_coverage_seconds": 0.6177445640787482
+      },
+      {
+        "admission_seconds": 0.20416884508449584,
+        "bytes": 8428,
+        "document_id": "01M4HX4A4YDE7ZC42PMJ259XCX",
+        "keyword_seconds": 0.37319352803751826,
+        "pages": null,
+        "vector_coverage_seconds": 0.4977114300709218
+      },
+      {
+        "admission_seconds": 0.2871543769724667,
+        "bytes": 8428,
+        "document_id": "01M4HX4A8E81CVRRANZK6ZR3PQ",
+        "keyword_seconds": 0.4600425800308585,
+        "pages": null,
+        "vector_coverage_seconds": 0.5742182870162651
+      },
+      {
+        "admission_seconds": 0.203277516993694,
+        "bytes": 8428,
+        "document_id": "01M4HX4ADDKTXE9KFBSAYAEJH4",
+        "keyword_seconds": 0.3610381600446999,
+        "pages": null,
+        "vector_coverage_seconds": 0.4716627571033314
+      },
+      {
+        "admission_seconds": 0.14981420198455453,
+        "bytes": 8428,
+        "document_id": "01M4HX4AJBT4DEG27676WSWSWD",
+        "keyword_seconds": 0.3125055260024965,
+        "pages": null,
+        "vector_coverage_seconds": 0.4357279340038076
+      },
+      {
+        "admission_seconds": 0.24621167592704296,
+        "bytes": 8428,
+        "document_id": "01M4HX4AP1M7Y7FAEVD997XJBN",
+        "keyword_seconds": 0.4186000769259408,
+        "pages": null,
+        "vector_coverage_seconds": 0.6488706530071795
+      },
+      {
+        "admission_seconds": 0.2123457380803302,
+        "bytes": 8428,
+        "document_id": "01M4HX4ASC7K4SFP8AZ2X578XE",
+        "keyword_seconds": 0.41525719896890223,
+        "pages": null,
+        "vector_coverage_seconds": 0.5421033659949899
+      },
+      {
+        "admission_seconds": 0.27270771202165633,
+        "bytes": 8428,
+        "document_id": "01M4HX4AX0C1S43VV55V2NJT4D",
+        "keyword_seconds": 0.4386620370205492,
+        "pages": null,
+        "vector_coverage_seconds": 0.5583291350631043
+      },
+      {
+        "admission_seconds": 0.18260083999484777,
+        "bytes": 8428,
+        "document_id": "01M4HX4B19VAXZ2YB6FE941012",
+        "keyword_seconds": 0.34753002191428095,
+        "pages": null,
+        "vector_coverage_seconds": 0.45918552100192755
+      },
+      {
+        "admission_seconds": 0.14465390902478248,
+        "bytes": 8428,
+        "document_id": "01M4HX4B6Z7GKY1NPCCH2EDB62",
+        "keyword_seconds": 0.3116890840465203,
+        "pages": null,
+        "vector_coverage_seconds": 0.4274338550167158
+      },
+      {
+        "admission_seconds": 0.21465117402840406,
+        "bytes": 8428,
+        "document_id": "01M4HX4BAC93HAQ2ZAZ30AVX7Y",
+        "keyword_seconds": 0.40006249106954783,
+        "pages": null,
+        "vector_coverage_seconds": 0.5233263580594212
+      },
+      {
+        "admission_seconds": 0.22141432797070593,
+        "bytes": 8428,
+        "document_id": "01M4HX4BDVD9PCDDSQ8H1XEG6R",
+        "keyword_seconds": 0.41339679702650756,
+        "pages": null,
+        "vector_coverage_seconds": 0.5291471870150417
+      },
+      {
+        "admission_seconds": 0.2470472559798509,
+        "bytes": 8428,
+        "document_id": "01M4HX4BGZ549PNVQVN8711HRS",
+        "keyword_seconds": 0.4071129650110379,
+        "pages": null,
+        "vector_coverage_seconds": 0.530856164987199
+      },
+      {
+        "admission_seconds": 0.2366649730829522,
+        "bytes": 8428,
+        "document_id": "01M4HX4BMXTZR1NF41432G5DN2",
+        "keyword_seconds": 0.40416318201459944,
+        "pages": null,
+        "vector_coverage_seconds": 0.5225161080015823
+      },
+      {
+        "admission_seconds": 0.18534871004521847,
+        "bytes": 8428,
+        "document_id": "01M4HX4BTKF232AEKKH195FHXG",
+        "keyword_seconds": 0.36207051295787096,
+        "pages": null,
+        "vector_coverage_seconds": 0.48670918005518615
+      },
+      {
+        "admission_seconds": 0.25993846694473177,
+        "bytes": 8428,
+        "document_id": "01M4HX4BXTGJBTWAFMN5M9PBB3",
+        "keyword_seconds": 0.4353185190120712,
+        "pages": null,
+        "vector_coverage_seconds": 0.556340217939578
+      },
+      {
+        "admission_seconds": 0.24979717598762363,
+        "bytes": 8428,
+        "document_id": "01M4HX4C2WZ4DCNG41RD32VN47",
+        "keyword_seconds": 0.44353446108289063,
+        "pages": null,
+        "vector_coverage_seconds": 0.5605488850269467
+      },
+      {
+        "admission_seconds": 0.18753036099951714,
+        "bytes": 8428,
+        "document_id": "01M4HX4C5C56QK91SM0F75Y2WX",
+        "keyword_seconds": 0.35216647293418646,
+        "pages": null,
+        "vector_coverage_seconds": 0.48224495293106884
+      },
+      {
+        "admission_seconds": 0.25393819506280124,
+        "bytes": 8428,
+        "document_id": "01M4HX4C9DZYS9KNR188NB3Q4C",
+        "keyword_seconds": 0.4256226820871234,
+        "pages": null,
+        "vector_coverage_seconds": 0.5400908290175721
+      },
+      {
+        "admission_seconds": 0.18598735600244254,
+        "bytes": 8428,
+        "document_id": "01M4HX4CEM6W8B5DS33PXTV8WC",
+        "keyword_seconds": 0.34950666897930205,
+        "pages": null,
+        "vector_coverage_seconds": 0.47613148496020585
+      },
+      {
+        "admission_seconds": 0.23432829801458865,
+        "bytes": 8428,
+        "document_id": "01M4HX4CJEACECKASVXGCE3H7T",
+        "keyword_seconds": 0.41111207904759794,
+        "pages": null,
+        "vector_coverage_seconds": 0.5282699989620596
+      },
+      {
+        "admission_seconds": 0.23182369000278413,
+        "bytes": 8428,
+        "document_id": "01M4HX4CPSJE07E8QR9EKQXM80",
+        "keyword_seconds": 0.3785865029785782,
+        "pages": null,
+        "vector_coverage_seconds": 0.6061935250181705
+      },
+      {
+        "admission_seconds": 0.22255241603124887,
+        "bytes": 8428,
+        "document_id": "01M4HX4CSWRPZ2PFYRJJ5T0JEW",
+        "keyword_seconds": 0.3930725749814883,
+        "pages": null,
+        "vector_coverage_seconds": 0.5073432290228084
+      },
+      {
+        "admission_seconds": 0.23810232104733586,
+        "bytes": 8428,
+        "document_id": "01M4HX4CYC7SZ0X6NZQ2MQRSY5",
+        "keyword_seconds": 0.5239071670221165,
+        "pages": null,
+        "vector_coverage_seconds": 0.6330481780460104
+      },
+      {
+        "admission_seconds": 0.22858183702919632,
+        "bytes": 8428,
+        "document_id": "01M4HX4D2MPSJPJZJA414T9B7X",
+        "keyword_seconds": 0.4203573929844424,
+        "pages": null,
+        "vector_coverage_seconds": 0.5440036159707233
+      },
+      {
+        "admission_seconds": 0.18270890496205539,
+        "bytes": 8428,
+        "document_id": "01M4HX4D73S90HGQ0CWYM0YAQ2",
+        "keyword_seconds": 0.3584401150001213,
+        "pages": null,
+        "vector_coverage_seconds": 0.473891536006704
+      },
+      {
+        "admission_seconds": 0.25821275007911026,
+        "bytes": 8428,
+        "document_id": "01M4HX4DBQM7Z7DDAVMGGBWCKY",
+        "keyword_seconds": 0.4322556210681796,
+        "pages": null,
+        "vector_coverage_seconds": 0.5599958950188011
+      },
+      {
+        "admission_seconds": 0.1925926359836012,
+        "bytes": 8428,
+        "document_id": "01M4HX4DG39D77WNE8T64PGNQV",
+        "keyword_seconds": 0.37803351308684796,
+        "pages": null,
+        "vector_coverage_seconds": 0.4990037730894983
+      },
+      {
+        "admission_seconds": 0.21468192304018885,
+        "bytes": 8428,
+        "document_id": "01M4HX4DN9B9ZV7QS3ZPMKSSX0",
+        "keyword_seconds": 0.37674020894337445,
+        "pages": null,
+        "vector_coverage_seconds": 0.5977843309519812
+      },
+      {
+        "admission_seconds": 0.2528111860156059,
+        "bytes": 8428,
+        "document_id": "01M4HX4DQAW4BH5FPKDV5TJKD1",
+        "keyword_seconds": 0.42739077704027295,
+        "pages": null,
+        "vector_coverage_seconds": 0.5460849000373855
+      },
+      {
+        "admission_seconds": 0.24499755003489554,
+        "bytes": 8428,
+        "document_id": "01M4HX4DWKFZM19QDQPBGV4TKS",
+        "keyword_seconds": 0.41955971193965524,
+        "pages": null,
+        "vector_coverage_seconds": 0.6515200569992885
+      },
+      {
+        "admission_seconds": 0.17330147698521614,
+        "bytes": 8428,
+        "document_id": "01M4HX4E0KE0X721KHNQ0W4JK4",
+        "keyword_seconds": 0.3583374680019915,
+        "pages": null,
+        "vector_coverage_seconds": 0.48236865794751793
+      },
+      {
+        "admission_seconds": 0.2075588220031932,
+        "bytes": 8428,
+        "document_id": "01M4HX4E521W0MSVS6G6Z6RGBV",
+        "keyword_seconds": 0.3770223589381203,
+        "pages": null,
+        "vector_coverage_seconds": 0.4858217629371211
+      },
+      {
+        "admission_seconds": 0.24086778098717332,
+        "bytes": 8428,
+        "document_id": "01M4HX4E9ZQGH859CTAHP9NSMM",
+        "keyword_seconds": 0.399269670015201,
+        "pages": null,
+        "vector_coverage_seconds": 0.5252710280474275
+      },
+      {
+        "admission_seconds": 0.15395984100177884,
+        "bytes": 8428,
+        "document_id": "01M4HX4EEMN29CPG94D744ENHJ",
+        "keyword_seconds": 0.3132357189897448,
+        "pages": null,
+        "vector_coverage_seconds": 0.42681588791310787
+      },
+      {
+        "admission_seconds": 0.22985722101293504,
+        "bytes": 8428,
+        "document_id": "01M4HX4EHZDWM60QEN8K5CQDAK",
+        "keyword_seconds": 0.3767022700048983,
+        "pages": null,
+        "vector_coverage_seconds": 0.5993872920516878
+      },
+      {
+        "admission_seconds": 0.20911372499540448,
+        "bytes": 8428,
+        "document_id": "01M4HX4EMNS4WJFN6RY4XFWHFR",
+        "keyword_seconds": 0.3815210850443691,
+        "pages": null,
+        "vector_coverage_seconds": 0.49863873596768826
+      },
+      {
+        "admission_seconds": 0.23934916604775935,
+        "bytes": 8428,
+        "document_id": "01M4HX4ES5AGFCWHGXTE24X21K",
+        "keyword_seconds": 0.41031375899910927,
+        "pages": null,
+        "vector_coverage_seconds": 0.5260743090184405
+      },
+      {
+        "admission_seconds": 0.2374103959882632,
+        "bytes": 8428,
+        "document_id": "01M4HX4EXNN52Y2VGRWXJFYAG1",
+        "keyword_seconds": 0.4125381379853934,
+        "pages": null,
+        "vector_coverage_seconds": 0.5400971890194342
+      },
+      {
+        "admission_seconds": 0.15844190795905888,
+        "bytes": 8428,
+        "document_id": "01M4HX4F2CC55HSGDW3CEWDT5X",
+        "keyword_seconds": 0.3247095509432256,
+        "pages": null,
+        "vector_coverage_seconds": 0.4530675429850817
+      },
+      {
+        "admission_seconds": 0.26068614004179835,
+        "bytes": 8428,
+        "document_id": "01M4HX4F54R0G60767VEEBYGFC",
+        "keyword_seconds": 0.43592602701392025,
+        "pages": null,
+        "vector_coverage_seconds": 0.5437173569807783
+      },
+      {
+        "admission_seconds": 0.22218825900927186,
+        "bytes": 8428,
+        "document_id": "01M4HX4FA7NA449VT4G67Z5045",
+        "keyword_seconds": 0.3918211900163442,
+        "pages": null,
+        "vector_coverage_seconds": 0.5083551219431683
+      },
+      {
+        "admission_seconds": 0.22103009198326617,
+        "bytes": 8428,
+        "document_id": "01M4HX4FD7XE61EQCZN0F00AYY",
+        "keyword_seconds": 0.3866101000458002,
+        "pages": null,
+        "vector_coverage_seconds": 0.5049685359699652
+      },
+      {
+        "admission_seconds": 0.22912541800178587,
+        "bytes": 8428,
+        "document_id": "01M4HX4FJ8830Z05M7HH2CCDCG",
+        "keyword_seconds": 0.38180964498315006,
+        "pages": null,
+        "vector_coverage_seconds": 0.4937008658889681
+      },
+      {
+        "admission_seconds": 0.23198849300388247,
+        "bytes": 8428,
+        "document_id": "01M4HX4FNNATKX103QCD33STQG",
+        "keyword_seconds": 0.3935768159572035,
+        "pages": null,
+        "vector_coverage_seconds": 0.5057234379928559
+      },
+      {
+        "admission_seconds": 0.2389800390228629,
+        "bytes": 8428,
+        "document_id": "01M4HX4FTG0PGD9VSXXT74V80B",
+        "keyword_seconds": 0.4095009979791939,
+        "pages": null,
+        "vector_coverage_seconds": 0.5345016419887543
+      },
+      {
+        "admission_seconds": 0.21705947606824338,
+        "bytes": 8428,
+        "document_id": "01M4HX4FXS14XXC94GJJVQFHBJ",
+        "keyword_seconds": 0.3965043399948627,
+        "pages": null,
+        "vector_coverage_seconds": 0.5190300440881401
+      },
+      {
+        "admission_seconds": 0.2652025849092752,
+        "bytes": 8428,
+        "document_id": "01M4HX4G24G2JV5Z07844TGZDJ",
+        "keyword_seconds": 0.4477238069521263,
+        "pages": null,
+        "vector_coverage_seconds": 0.561792048974894
+      },
+      {
+        "admission_seconds": 0.25536532304249704,
+        "bytes": 8428,
+        "document_id": "01M4HX4G6BMBJKH63ME2VANN02",
+        "keyword_seconds": 0.4401143540162593,
+        "pages": null,
+        "vector_coverage_seconds": 0.5793627409730107
+      },
+      {
+        "admission_seconds": 0.26050222595222294,
+        "bytes": 8428,
+        "document_id": "01M4HX4GBGXNKTBEE1F3WJWPTF",
+        "keyword_seconds": 0.5546575989574194,
+        "pages": null,
+        "vector_coverage_seconds": 0.6667778709670529
+      },
+      {
+        "admission_seconds": 0.23100108897779137,
+        "bytes": 8428,
+        "document_id": "01M4HX4GFBWHHER3SAARBQAP1Z",
+        "keyword_seconds": 0.3910053300205618,
+        "pages": null,
+        "vector_coverage_seconds": 0.6142750510480255
+      },
+      {
+        "admission_seconds": 0.26662039395887405,
+        "bytes": 8428,
+        "document_id": "01M4HX4GJDVMFTBRFE72N99994",
+        "keyword_seconds": 0.4360969510162249,
+        "pages": null,
+        "vector_coverage_seconds": 0.5466304210713133
+      },
+      {
+        "admission_seconds": 0.20459978003054857,
+        "bytes": 8428,
+        "document_id": "01M4HX4GR0VV30MB4EW3AX1DHS",
+        "keyword_seconds": 0.34926412906497717,
+        "pages": null,
+        "vector_coverage_seconds": 0.4566404540091753
+      }
+    ],
+    "elapsed_seconds": 13.346036570030265,
+    "files": 100,
+    "files_per_minute": 449.5716738461173,
+    "keyword_p95_seconds": 0.511278596939519,
+    "observed_rate_meets_target": true,
+    "publication_observer": {
+      "errors": [],
+      "overlap_required": false,
+      "query_samples": 51,
+      "samples": [
+        {
+          "elapsed_seconds": 0.04972563195042312,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 0,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.030870876973494887,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 2,
+          "verified_chunk_locators": 0,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.07065268000587821,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.0430380649631843,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.06493527896236628,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06808139500208199,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.058493152959272265,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.05156515503767878,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.0658078360138461,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.0633747250540182,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06891679402906448,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.052957784035243094,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06890948407817632,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.05855930002871901,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.0754071680130437,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06739016901701689,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.0903831230243668,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.08712636202108115,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.06135096901562065,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.08711457205936313,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.06123187392950058,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.05143400002270937,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.078424048027955,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.05687842098996043,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.08531278802547604,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06251740595325828,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.053545342991128564,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.042791504063643515,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.038238268927671015,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.057682342012412846,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.07103675696998835,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.07854534301441163,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.06983423104975373,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.07030653301626444,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.06878435797989368,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.08697928697802126,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.04200145206414163,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.051408720086328685,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.10046308592427522,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.07999793102499098,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06319522194098681,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.0706910090520978,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.09736087894998491,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.07616208004765213,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06636161706410348,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.07250989298336208,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.05939574004150927,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06588483403902501,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.05600345297716558,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.05914505897089839,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.0322156889596954,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        }
+      ],
+      "scope": "supplemental deployed query/publication overlap; immutable fixture documents",
+      "unique_verified_chunk_locators": 4,
+      "validated_overlap_samples": 19
+    },
+    "target_files_per_minute": 100,
+    "workers": 4
+  },
+  "memory": {
+    "full_scale_memory_qualification": "not established by 120-file throughput workload",
+    "managed_heap_qualification": "not established",
+    "measurement": "container/cgroup memory; managed heap not measured",
+    "sample_errors": [],
+    "samples": [
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "3.86%",
+            "docker_memory_usage": "316MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "2.49%",
+            "docker_memory_usage": "25.48MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 3.110596567974426
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "4.40%",
+            "docker_memory_usage": "360.6MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "3.08%",
+            "docker_memory_usage": "31.53MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 8.222567123011686
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "4.35%",
+            "docker_memory_usage": "356.4MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "3.79%",
+            "docker_memory_usage": "38.76MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 13.329445042996667
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "3.56%",
+            "docker_memory_usage": "291.3MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "7.24%",
+            "docker_memory_usage": "74.11MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 18.4382599319797
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "4.55%",
+            "docker_memory_usage": "372.9MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "4.10%",
+            "docker_memory_usage": "41.97MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 23.546477083000354
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "5.51%",
+            "docker_memory_usage": "451.2MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "4.09%",
+            "docker_memory_usage": "41.91MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 28.650605452945456
+      }
+    ]
+  },
+  "pdf": {
+    "completion_mode": "keyword plus complete vectors",
+    "documents": [
+      {
+        "admission_seconds": 0.11707584199029952,
+        "bytes": 56358,
+        "document_id": "01M4HX4H4KSW6KMJ572W5NRW66",
+        "keyword_seconds": 0.7111016290728003,
+        "pages": 12,
+        "vector_coverage_seconds": 0.9251110460609198
+      },
+      {
+        "admission_seconds": 0.19663267908617854,
+        "bytes": 56358,
+        "document_id": "01M4HX4H74PBBFA98X7ABTYJ02",
+        "keyword_seconds": 0.7866610620403662,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2320126960985363
+      },
+      {
+        "admission_seconds": 0.2787610429804772,
+        "bytes": 56358,
+        "document_id": "01M4HX4H9F216Q5X0MXM7Z7WA7",
+        "keyword_seconds": 0.7687508329981938,
+        "pages": 12,
+        "vector_coverage_seconds": 1.5306591350818053
+      },
+      {
+        "admission_seconds": 0.37955554691143334,
+        "bytes": 56358,
+        "document_id": "01M4HX4HC28XNT7Y4HYS0RQ33M",
+        "keyword_seconds": 0.9579452329780906,
+        "pages": 12,
+        "vector_coverage_seconds": 1.8542499869363382
+      },
+      {
+        "admission_seconds": 0.12467936601024121,
+        "bytes": 56358,
+        "document_id": "01M4HX4J17DX1DAERB2BC42C3E",
+        "keyword_seconds": 0.7003049029735848,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2492542989784852
+      },
+      {
+        "admission_seconds": 0.10790907591581345,
+        "bytes": 56358,
+        "document_id": "01M4HX4JAMHN50PSNPAM7Q2X20",
+        "keyword_seconds": 1.126237632939592,
+        "pages": 12,
+        "vector_coverage_seconds": 1.4507422619499266
+      },
+      {
+        "admission_seconds": 0.09174881398212165,
+        "bytes": 56358,
+        "document_id": "01M4HX4JKPNYARWHGFCB8WKTCZ",
+        "keyword_seconds": 1.1446063349721953,
+        "pages": 12,
+        "vector_coverage_seconds": 1.4785784999839962
+      },
+      {
+        "admission_seconds": 0.09643080295063555,
+        "bytes": 56358,
+        "document_id": "01M4HX4JY86WT207FWXTYEBR3S",
+        "keyword_seconds": 0.8183758489321917,
+        "pages": 12,
+        "vector_coverage_seconds": 1.460903772036545
+      },
+      {
+        "admission_seconds": 0.11085935903247446,
+        "bytes": 56358,
+        "document_id": "01M4HX4K83TB600EW9GS5PZT6A",
+        "keyword_seconds": 0.7240491890115663,
+        "pages": 12,
+        "vector_coverage_seconds": 1.4907357570482418
+      },
+      {
+        "admission_seconds": 0.12101761798840016,
+        "bytes": 56358,
+        "document_id": "01M4HX4KR0630SRP3TYDWJVG7D",
+        "keyword_seconds": 0.7036108110332862,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2470145899569616
+      },
+      {
+        "admission_seconds": 0.11405359208583832,
+        "bytes": 56898,
+        "document_id": "01M4HX4M1SXXNE292G4Q0RY7HS",
+        "keyword_seconds": 0.7969638870563358,
+        "pages": 12,
+        "vector_coverage_seconds": 1.238093464053236
+      },
+      {
+        "admission_seconds": 0.12207345094066113,
+        "bytes": 56898,
+        "document_id": "01M4HX4MC333WT59E01RP95FW1",
+        "keyword_seconds": 0.8044221259187907,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2587077459320426
+      },
+      {
+        "admission_seconds": 0.098407551064156,
+        "bytes": 56898,
+        "document_id": "01M4HX4MPCMDYBBRSVDPMRDH6J",
+        "keyword_seconds": 0.8057743069948629,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2444497040705755
+      },
+      {
+        "admission_seconds": 0.08964605000801384,
+        "bytes": 56898,
+        "document_id": "01M4HX4MYJ1HSQD6Q26Y0YHWNX",
+        "keyword_seconds": 0.8919597520725802,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2289771659998223
+      },
+      {
+        "admission_seconds": 0.13526142097543925,
+        "bytes": 56898,
+        "document_id": "01M4HX4N921P34VYK915D91EZZ",
+        "keyword_seconds": 1.1769931269809604,
+        "pages": 12,
+        "vector_coverage_seconds": 1.5121293689589947
+      },
+      {
+        "admission_seconds": 0.10589048895053566,
+        "bytes": 56898,
+        "document_id": "01M4HX4NK09RW421MQKCBK352A",
+        "keyword_seconds": 1.1458347500301898,
+        "pages": 12,
+        "vector_coverage_seconds": 1.4804720910033211
+      },
+      {
+        "admission_seconds": 0.09694515401497483,
+        "bytes": 56898,
+        "document_id": "01M4HX4NXWEG56RSK1G0MGE7E6",
+        "keyword_seconds": 0.8090851460583508,
+        "pages": 12,
+        "vector_coverage_seconds": 1.4661265020258725
+      },
+      {
+        "admission_seconds": 0.11932874994818121,
+        "bytes": 56898,
+        "document_id": "01M4HX4P5PB0GHWQSNDYTTFQT3",
+        "keyword_seconds": 0.7115701619768515,
+        "pages": 12,
+        "vector_coverage_seconds": 1.5709444000385702
+      },
+      {
+        "admission_seconds": 0.12658874597400427,
+        "bytes": 379961,
+        "document_id": "01M4HX4PR0X0YGRECDDGAWR5Q0",
+        "keyword_seconds": 1.208111674990505,
+        "pages": 80,
+        "vector_coverage_seconds": 3.0509533770382404
+      },
+      {
+        "admission_seconds": 0.11113268800545484,
+        "bytes": 379961,
+        "document_id": "01M4HX4Q1BBCH5REZGPXQ89SZJ",
+        "keyword_seconds": 1.3740401400718838,
+        "pages": 80,
+        "vector_coverage_seconds": 6.2395750370342284
+      }
+    ],
+    "elapsed_seconds": 12.346274378011003,
+    "files": 20,
+    "files_per_minute": 97.19531279308254,
+    "keyword_p95_seconds": 1.208111674990505,
+    "observed_rate_meets_target": true,
+    "publication_observer": {
+      "errors": [],
+      "overlap_required": true,
+      "query_samples": 54,
+      "samples": [
+        {
+          "elapsed_seconds": 0.07164094503968954,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.05940726003609598,
+          "running_extract_jobs_after": 3,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 2,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.0367346340790391,
+          "running_extract_jobs_after": 4,
+          "running_extract_jobs_before": 4,
+          "same_running_jobs_across_queries": 4,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.07020894705783576,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 3,
+          "same_running_jobs_across_queries": 2,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06020631000865251,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.0829227149952203,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.04102455801330507,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.0588741289684549,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.050773454015143216,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.04031792294699699,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.05801985994912684,
+          "running_extract_jobs_after": 3,
+          "running_extract_jobs_before": 3,
+          "same_running_jobs_across_queries": 3,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.040463428013026714,
+          "running_extract_jobs_after": 3,
+          "running_extract_jobs_before": 3,
+          "same_running_jobs_across_queries": 3,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.07134636503178626,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.053409167914651334,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.06477330497000366,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.056197086931206286,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.08461117302067578,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06553486606571823,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.075802993029356,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 2,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.09645274304784834,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.052549888961948454,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.07320358790457249,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.054564535967074335,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.0635059509659186,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.08679091394878924,
+          "running_extract_jobs_after": 3,
+          "running_extract_jobs_before": 3,
+          "same_running_jobs_across_queries": 2,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.05583048902917653,
+          "running_extract_jobs_after": 3,
+          "running_extract_jobs_before": 3,
+          "same_running_jobs_across_queries": 3,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 0
+        },
+        {
+          "elapsed_seconds": 0.07721299200784415,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.08826982893515378,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.09635712602175772,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.06780502502806485,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 2,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.054541966994293034,
+          "running_extract_jobs_after": 2,
+          "running_extract_jobs_before": 2,
+          "same_running_jobs_across_queries": 2,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 1
+        },
+        {
+          "elapsed_seconds": 0.13155750604346395,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.07418754196260124,
+          "running_extract_jobs_after": 1,
+          "running_extract_jobs_before": 1,
+          "same_running_jobs_across_queries": 1,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 2
+        },
+        {
+          "elapsed_seconds": 0.07047165697440505,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.08384191093500704,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.08079625200480223,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06562533392570913,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06709693989250809,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.1658365490147844,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.08542365301400423,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06477830407675356,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06305194704327732,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.07070131902582943,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.07391147199086845,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06249682803172618,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.0660965460119769,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.07570111704990268,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.07165504398290068,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06205471290741116,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06705823203083128,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.07039797003380954,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.08118117798585445,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.06554676592350006,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        },
+        {
+          "elapsed_seconds": 0.16358045092783868,
+          "running_extract_jobs_after": 0,
+          "running_extract_jobs_before": 0,
+          "same_running_jobs_across_queries": 0,
+          "verified_chunk_locators": 3,
+          "verified_query_records": 3
+        }
+      ],
+      "scope": "supplemental deployed query/publication overlap; immutable fixture documents",
+      "unique_verified_chunk_locators": 9,
+      "validated_overlap_samples": 16
+    },
+    "target_files_per_minute": 20,
+    "workers": 4
+  },
+  "pdf_fixture_pages_median": 12,
+  "pdf_fixture_pages_p95": 80,
+  "pipeline_note": "wait=0 uploads; keyword timing includes background embedding deadline/scheduling cost even in providerless mode",
+  "profile": "isolated deployed daemon; synthetic text-only upload workload",
+  "provider_mode": "healthy",
+  "provider_time_note": "Instrumented separately by private bridge; end-to-end throughput includes provider time.",
+  "provider_time_seconds": null
+}

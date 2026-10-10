@@ -1,0 +1,378 @@
+ Image secondbrain-extractor:local Building
+ Image secondbrain-mock-provider:local Building
+ Image secondbrain-egress:local Building
+ Image secondbrain:local Building
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.30kB done
+#1 DONE 0.0s
+
+#2 [egress internal] load build definition from Egress.Dockerfile
+#2 transferring dockerfile: 371B done
+#2 DONE 0.1s
+
+#3 [extractor internal] load build definition from Dockerfile
+#3 transferring dockerfile: 3.90kB done
+#3 DONE 0.1s
+
+#4 [extractor internal] load metadata for mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+#4 DONE 0.2s
+
+#5 [egress internal] load metadata for docker.io/library/alpine:3.22.2@sha256:4b7ce07002c69e8f3d704a9c5d6fd3053be500b7f1c69fc0d80990c2ad8dd412
+#5 DONE 0.2s
+
+#6 [extractor internal] load metadata for mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4
+#6 DONE 0.3s
+
+#7 [mock-provider internal] load .dockerignore
+#7 transferring context: 234B done
+#7 DONE 0.1s
+
+#8 [egress internal] load build context
+#8 transferring context: 292B 0.0s done
+#8 DONE 0.1s
+
+#9 [mock-provider internal] load build context
+#9 transferring context: 4.17MB 0.1s done
+#9 DONE 0.2s
+
+#10 [egress 1/3] FROM docker.io/library/alpine:3.22.2@sha256:4b7ce07002c69e8f3d704a9c5d6fd3053be500b7f1c69fc0d80990c2ad8dd412
+#10 resolve docker.io/library/alpine:3.22.2@sha256:4b7ce07002c69e8f3d704a9c5d6fd3053be500b7f1c69fc0d80990c2ad8dd412 0.3s done
+#10 DONE 0.3s
+
+#11 [mock-provider build 1/6] FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+#11 resolve mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+#11 resolve mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317 0.3s done
+#11 DONE 0.3s
+
+#12 [mock-provider runtime-base 1/4] FROM mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4
+#12 resolve mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 0.3s done
+#12 DONE 0.3s
+
+#13 [egress 2/3] RUN apk add --no-cache iptables
+#13 CACHED
+
+#14 [egress 3/3] COPY --chmod=0555 deploy/docker/egress-entrypoint.sh /usr/local/bin/egress-entrypoint
+#14 CACHED
+
+#15 [extractor build 2/6] RUN curl --fail --show-error --location         https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.105/dotnet-sdk-10.0.105-linux-x64.tar.gz         --output /tmp/dotnet-sdk.tar.gz     && printf '%s  %s\n'         '2b0ed13106e4c859ccb9e3a5f1a450e84605ebd89bd84ac3453b30810ecfa62b6957baaa2ed041cc2e932f512113e16e3ae200fe5c4b48be66767747a06f4e41'         '/tmp/dotnet-sdk.tar.gz' | sha512sum --check --strict     && tar --gzip --extract --no-same-owner --file /tmp/dotnet-sdk.tar.gz --directory /usr/share/dotnet     && rm /tmp/dotnet-sdk.tar.gz
+#15 CACHED
+
+#16 [extractor build 3/6] WORKDIR /source
+#16 CACHED
+
+#17 [egress] exporting to image
+#17 exporting layers done
+#17 exporting manifest sha256:b150085fbde54b5578321df779363a7c737d7da5050af853e6b9a22cd32577c5 0.0s done
+#17 exporting config sha256:84f7878482df54088c809bdfb747fa3f93cfdbe60f5a7bc8564b893e2121a4d0 0.0s done
+#17 exporting attestation manifest sha256:2181d0352f2732558cbf4d16e36d981f5c542dd22602e37ce3c7f0c8f80181fd
+#17 exporting attestation manifest sha256:2181d0352f2732558cbf4d16e36d981f5c542dd22602e37ce3c7f0c8f80181fd 0.1s done
+#17 exporting manifest list sha256:1a079c8ce373030447ef4db6314ff872cb50a891df00a670b8895960e5547d94 0.0s done
+#17 naming to docker.io/library/secondbrain-egress:local
+#17 naming to docker.io/library/secondbrain-egress:local done
+#17 unpacking to docker.io/library/secondbrain-egress:local 0.0s done
+#17 DONE 0.3s
+
+#18 [extractor build 4/6] COPY . .
+#18 DONE 0.6s
+
+#19 [mock-provider build 5/6] RUN test "$(dotnet --version)" = 10.0.105     && dotnet restore SecondBrain.slnx --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=false     && dotnet publish src/SecondBrain.Server/SecondBrain.Server.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/server     && dotnet publish src/SecondBrain.Cli/SecondBrain.Cli.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/cli     && dotnet publish src/SecondBrain.Extractor/SecondBrain.Extractor.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/extractor
+#19 ...
+
+#20 [egress] resolving provenance for metadata file
+#20 DONE 0.0s
+
+#19 [mock-provider build 5/6] RUN test "$(dotnet --version)" = 10.0.105     && dotnet restore SecondBrain.slnx --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=false     && dotnet publish src/SecondBrain.Server/SecondBrain.Server.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/server     && dotnet publish src/SecondBrain.Cli/SecondBrain.Cli.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/cli     && dotnet publish src/SecondBrain.Extractor/SecondBrain.Extractor.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/extractor
+#19 1.438   Determining projects to restore...
+#19 4.606   Restored /source/src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj (in 2.61 sec).
+#19 4.607   Restored /source/src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj (in 2.61 sec).
+#19 4.607   Restored /source/tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj (in 2.61 sec).
+#19 4.634   Restored /source/src/SecondBrain.Core/SecondBrain.Core.csproj (in 2.64 sec).
+#19 4.635   Restored /source/src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj (in 2.64 sec).
+#19 4.641   Restored /source/src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj (in 2.65 sec).
+#19 4.651   Restored /source/src/SecondBrain.Storage/SecondBrain.Storage.csproj (in 2.66 sec).
+#19 4.654   Restored /source/tests/SecondBrain.Infrastructure.Tests/SecondBrain.Infrastructure.Tests.csproj (in 2.67 sec).
+#19 4.654   Restored /source/src/SecondBrain.Server/SecondBrain.Server.csproj (in 2.66 sec).
+#19 4.655   Restored /source/tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj (in 2.67 sec).
+#19 4.656   Restored /source/src/SecondBrain.Extractor/SecondBrain.Extractor.csproj (in 2.67 sec).
+#19 4.667   Restored /source/tests/SecondBrain.Extractor.Tests/SecondBrain.Extractor.Tests.csproj (in 2.67 sec).
+#19 4.668   Restored /source/src/SecondBrain.Cli/SecondBrain.Cli.csproj (in 2.67 sec).
+#19 4.670   Restored /source/tests/SecondBrain.Storage.Tests/SecondBrain.Storage.Tests.csproj (in 2.68 sec).
+#19 4.670   Restored /source/tests/SecondBrain.Providers.OpenAICompatible.Tests/SecondBrain.Providers.OpenAICompatible.Tests.csproj (in 2.68 sec).
+#19 4.670   Restored /source/tests/SecondBrain.Architecture.Tests/SecondBrain.Architecture.Tests.csproj (in 2.67 sec).
+#19 4.678   Restored /source/tests/SecondBrain.Server.Tests/SecondBrain.Server.Tests.csproj (in 2.68 sec).
+#19 4.678   Restored /source/tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj (in 2.68 sec).
+#19 7.277   SecondBrain.Extractor.Wire -> /source/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+#19 7.277   SecondBrain.Extraction.Contracts -> /source/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+#19 7.823   SecondBrain.Core -> /source/src/SecondBrain.Core/bin/Release/net10.0/linux-x64/SecondBrain.Core.dll
+#19 8.403   SecondBrain.Providers.OpenAICompatible -> /source/src/SecondBrain.Providers.OpenAICompatible/bin/Release/net10.0/linux-x64/SecondBrain.Providers.OpenAICompatible.dll
+#19 8.486   SecondBrain.Infrastructure -> /source/src/SecondBrain.Infrastructure/bin/Release/net10.0/linux-x64/SecondBrain.Infrastructure.dll
+#19 8.754   SecondBrain.Storage -> /source/src/SecondBrain.Storage/bin/Release/net10.0/linux-x64/SecondBrain.Storage.dll
+#19 10.94   SecondBrain.Server -> /source/src/SecondBrain.Server/bin/Release/net10.0/linux-x64/SecondBrain.Server.dll
+#19 11.23   SecondBrain.Server -> /publish/server/
+#19 11.88   SecondBrain.Extractor.Wire -> /source/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+#19 11.98   SecondBrain.Extraction.Contracts -> /source/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+#19 12.04   SecondBrain.Core -> /source/src/SecondBrain.Core/bin/Release/net10.0/linux-x64/SecondBrain.Core.dll
+#19 12.09   SecondBrain.Infrastructure -> /source/src/SecondBrain.Infrastructure/bin/Release/net10.0/linux-x64/SecondBrain.Infrastructure.dll
+#19 12.09   SecondBrain.Storage -> /source/src/SecondBrain.Storage/bin/Release/net10.0/linux-x64/SecondBrain.Storage.dll
+#19 12.13   SecondBrain.Providers.OpenAICompatible -> /source/src/SecondBrain.Providers.OpenAICompatible/bin/Release/net10.0/linux-x64/SecondBrain.Providers.OpenAICompatible.dll
+#19 12.37   SecondBrain.Server -> /source/src/SecondBrain.Server/bin/Release/net10.0/linux-x64/SecondBrain.Server.dll
+#19 12.85   SecondBrain.Cli -> /source/src/SecondBrain.Cli/bin/Release/net10.0/linux-x64/brain.dll
+#19 12.90   SecondBrain.Cli -> /publish/cli/
+#19 13.55   SecondBrain.Extraction.Contracts -> /source/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+#19 13.62   SecondBrain.Extractor.Wire -> /source/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+#19 13.85   SecondBrain.Extractor -> /source/src/SecondBrain.Extractor/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.dll
+#19 13.89   SecondBrain.Extractor -> /publish/extractor/
+#19 DONE 14.9s
+
+#21 [extractor build 6/6] RUN dotnet publish tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj     --configuration Release --runtime linux-x64 --self-contained false --no-restore     -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/mock-provider
+#21 3.754   SecondBrain.MockProvider -> /source/tests/SecondBrain.MockProvider/bin/Release/net10.0/linux-x64/SecondBrain.MockProvider.dll
+#21 3.777   SecondBrain.MockProvider -> /publish/mock-provider/
+#21 DONE 4.0s
+
+#22 [extractor runtime-base 3/4] RUN sed -i 's/^app:/secondbrain:/' /etc/passwd /etc/group     && printf 'secondbrain-extract:x:1655:1654:SecondBrain extractor:/nonexistent:/usr/sbin/nologin\nsecondbrain-sync:x:1656:1654:SecondBrain sync:/nonexistent:/usr/sbin/nologin\n' >> /etc/passwd
+#22 CACHED
+
+#23 [extractor runtime-base 2/4] WORKDIR /app
+#23 CACHED
+
+#24 [extractor runtime-base 4/4] COPY --chmod=0555 deploy/docker/entrypoint.sh /app/entrypoint.sh
+#24 CACHED
+
+#25 [extractor extractor 1/1] COPY --from=build --chown=1655:1654 /publish/extractor/ /app/extractor/
+#25 CACHED
+
+#26 [extractor] exporting to image
+#26 exporting layers done
+#26 exporting manifest sha256:30b0054d47cc0cac83e0ef2c5e20f4ec3e282ebe902f95927aa075b42ed6f286 0.0s done
+#26 exporting config sha256:e1437b715e86e6b4d3808f0b23983e11982ee0c6719a6c83f360b4c18460dbd3 0.0s done
+#26 exporting attestation manifest sha256:cbaa0188623e0ba680b8682510b6574c754ba7a6b27995ff8e198d4bb8fd4491
+#26 ...
+
+#23 [daemon runtime-base 2/4] WORKDIR /app
+#23 CACHED
+
+#22 [daemon runtime-base 3/4] RUN sed -i 's/^app:/secondbrain:/' /etc/passwd /etc/group     && printf 'secondbrain-extract:x:1655:1654:SecondBrain extractor:/nonexistent:/usr/sbin/nologin\nsecondbrain-sync:x:1656:1654:SecondBrain sync:/nonexistent:/usr/sbin/nologin\n' >> /etc/passwd
+#22 CACHED
+
+#24 [daemon runtime-base 4/4] COPY --chmod=0555 deploy/docker/entrypoint.sh /app/entrypoint.sh
+#24 CACHED
+
+#27 [mock-provider mock-provider 1/1] COPY --from=build --chown=1654:1654 /publish/mock-provider/ /app/mock-provider/
+#27 CACHED
+
+#26 [extractor] exporting to image
+#26 exporting attestation manifest sha256:cbaa0188623e0ba680b8682510b6574c754ba7a6b27995ff8e198d4bb8fd4491 0.1s done
+#26 exporting manifest list sha256:0142f1dea72f71a2104e81f70c8e5a29248767e6a5e3af503cdbcfa6028affa6
+#26 exporting manifest list sha256:0142f1dea72f71a2104e81f70c8e5a29248767e6a5e3af503cdbcfa6028affa6 0.1s done
+#26 naming to docker.io/library/secondbrain-extractor:local 0.0s done
+#26 unpacking to docker.io/library/secondbrain-extractor:local
+#26 unpacking to docker.io/library/secondbrain-extractor:local 0.1s done
+#26 DONE 0.5s
+
+#28 [daemon server 1/3] COPY --from=build --chown=1654:1654 /publish/server/ /app/server/
+#28 DONE 0.3s
+
+#29 [mock-provider] exporting to image
+#29 exporting layers done
+#29 exporting manifest sha256:8d8a7c04ff7260a9619ee05b844357cfac85dcda514334bf0cf3c511784ca8b1 0.0s done
+#29 exporting config sha256:05010a49d434106669d57427bb2786f8e60b3f37feaa3bd97d4dd4b0812d7105 0.1s done
+#29 exporting attestation manifest sha256:9223ed88e3707cfeb890c2c579d695f3aa57e58b9cfeb6d46da6fe78d49c7849 0.1s done
+#29 exporting manifest list sha256:5ce4deb703b140c360b16a5c39ab6bb5b100cfbbc92932cd75e87fb9688d0265
+#29 exporting manifest list sha256:5ce4deb703b140c360b16a5c39ab6bb5b100cfbbc92932cd75e87fb9688d0265 0.1s done
+#29 naming to docker.io/library/secondbrain-mock-provider:local
+#29 naming to docker.io/library/secondbrain-mock-provider:local 0.0s done
+#29 unpacking to docker.io/library/secondbrain-mock-provider:local 0.1s done
+#29 DONE 0.6s
+
+#30 [daemon server 2/3] COPY --from=build --chown=1654:1654 /publish/cli/ /app/cli/
+#30 DONE 0.6s
+
+#31 [daemon server 3/3] COPY --chown=1654:1654 deploy/ /app/deploy/
+#31 DONE 0.5s
+
+#32 [extractor] resolving provenance for metadata file
+#32 DONE 0.2s
+
+#33 [daemon] exporting to image
+#33 ...
+
+#34 [mock-provider] resolving provenance for metadata file
+#34 DONE 0.0s
+
+#33 [daemon] exporting to image
+#33 exporting layers 0.9s done
+#33 exporting manifest sha256:bbc0745ac1344dbb992b766fc10e89cac8b8c5ce578fc7612f8a68975bc822c3 0.1s done
+#33 exporting config sha256:419ed6e9e63a05ecdfa9bd9fbca574fbbd46b324c912a5c08bdca4185b8572ac 0.0s done
+#33 exporting attestation manifest sha256:d47f1b5d1f201a6cdfa58c7fe0c14d193acec9b3bc248b6eb54abd95d446c515
+#33 exporting attestation manifest sha256:d47f1b5d1f201a6cdfa58c7fe0c14d193acec9b3bc248b6eb54abd95d446c515 0.1s done
+#33 exporting manifest list sha256:3dfb566aa378a6bbb1d0f00b2d82adc77cb4089193cad970f96e0f2971062e41 0.0s done
+#33 naming to docker.io/library/secondbrain:local 0.0s done
+#33 unpacking to docker.io/library/secondbrain:local
+#33 unpacking to docker.io/library/secondbrain:local 0.3s done
+#33 DONE 1.5s
+
+#35 [daemon] resolving provenance for metadata file
+#35 DONE 0.0s
+ Image secondbrain:local Built
+ Image secondbrain-extractor:local Built
+ Image secondbrain-egress:local Built
+ Image secondbrain-mock-provider:local Built
+ Volume secondbrain-m1-closure_runtime Creating
+ Volume secondbrain-m1-closure_runtime Creating
+ Volume secondbrain-m1-closure_runtime Created
+ Volume secondbrain-m1-closure_runtime Created
+ Container secondbrain-m1-closure-provision-run-4ae6b8e8d71b Creating
+ Container secondbrain-m1-closure-provision-run-4ae6b8e8d71b Created
+Host provisioned.
+{
+  "dryRun": false,
+  "actions": [
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain/keyring",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain-incoming",
+      "detail": "mode=750 uid=1656 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain-incoming/inbox",
+      "detail": "mode=1770 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain-incoming/inbox/.claimed",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/etc/secondbrain",
+      "detail": "mode=750 uid=0 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/etc/secondbrain/secrets",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/run/secondbrain",
+      "detail": "mode=2770 uid=1654 gid=1654"
+    },
+    {
+      "kind": "file",
+      "target": "/etc/secondbrain/config.yaml",
+      "detail": "create if absent; mode=600; daemon-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/compose.yaml",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/.env.example",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/cloudflared.yaml",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/Egress.Dockerfile",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/egress-entrypoint.sh",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/entrypoint.sh",
+      "detail": "create if absent; mode=644; root-owned"
+    }
+  ]
+}
+ Container secondbrain-m1-closure-provision-run-a654564a97e8 Creating
+ Container secondbrain-m1-closure-provision-run-a654564a97e8 Created
+ Network secondbrain-m1-closure_restricted Creating
+ Network secondbrain-m1-closure_restricted Creating
+ Network secondbrain-m1-closure_restricted Created
+ Network secondbrain-m1-closure_restricted Created
+ Container secondbrain-m1-closure-egress-1 Creating
+ Container secondbrain-m1-closure-egress-1 Created
+ Container secondbrain-m1-closure-egress-1 Starting
+ Container secondbrain-m1-closure-egress-1 Started
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-daemon-run-2568b781dfca Creating
+ Container secondbrain-m1-closure-daemon-run-2568b781dfca Created
+ Container secondbrain-m1-closure-egress-1 Running
+ Container secondbrain-m1-closure-extractor-1 Creating
+ Container secondbrain-m1-closure-mock-provider-1 Creating
+ Container secondbrain-m1-closure-extractor-1 Created
+ Container secondbrain-m1-closure-mock-provider-1 Created
+ Container secondbrain-m1-closure-daemon-1 Creating
+ Container secondbrain-m1-closure-daemon-1 Created
+ Container secondbrain-m1-closure-extractor-1 Starting
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-extractor-1 Started
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-mock-provider-1 Starting
+ Container secondbrain-m1-closure-mock-provider-1 Started
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-mock-provider-1 Waiting
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-mock-provider-1 Healthy
+ Container secondbrain-m1-closure-daemon-1 Starting
+ Container secondbrain-m1-closure-daemon-1 Started
+ Container secondbrain-m1-closure-extractor-1 Waiting
+ Container secondbrain-m1-closure-mock-provider-1 Waiting
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-daemon-1 Waiting
+ Container secondbrain-m1-closure-extractor-1 Healthy
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-mock-provider-1 Healthy
+ Container secondbrain-m1-closure-daemon-1 Healthy
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+{"ready":true,"components":{"stores":{"ready":true,"detail":null,"checkedAt":null},"migrations":{"ready":true,"detail":"Migrations and durability recovery completed.","checkedAt":null},"lock":{"ready":true,"detail":"Exclusive data-root lock.","checkedAt":null},"canary":{"ready":true,"detail":"Egress canary: Blocked. Egress canary state is current.","checkedAt":"2026-10-10T00:25:26.7553671+00:00"},"extractor":{"ready":true,"detail":"Extractor answered ping.","checkedAt":null},"provider:chat":{"ready":true,"detail":null,"checkedAt":"2026-10-10T00:25:28.17381+00:00"},"provider:enrich":{"ready":true,"detail":null,"checkedAt":"2026-10-10T00:25:28.1769725+00:00"},"provider:embed":{"ready":true,"detail":null,"checkedAt":"2026-10-10T00:25:28.1777413+00:00"},"provider:rerank":{"ready":true,"detail":"Optional rerank role is not configured.","checkedAt":"2026-10-10T00:25:28.1794207+00:00"}}}{"exitCode":0,"code":"ok","message":"Login credential stored.","data":{"origin":"http://127.0.0.1:7171","name":"compose-smoke","scopes":["admin"],"credentialId":"01M4HK6P246HSW0YT57G6JHKC5"}}
+{"exitCode":0,"code":"ok","message":"API keys listed.","data":[{"id":"01M4HHW5N0WTW86ZM0NQ4DPQ0X","name":"admin","kind":"api_key","scopes":"read,write,infer,admin","generation":1,"device":null,"createdAt":"2026-10-10T00:02:17.1029156\u002B00:00","lastUsedAt":null,"expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null},{"id":"01M4HJK00N80TCM7EJPVECR1WN","name":"compose-smoke","kind":"api_key","scopes":"admin","generation":1,"device":null,"createdAt":"2026-10-10T00:14:44.7573342\u002B00:00","lastUsedAt":"2026-10-10T00:14:45.9575529\u002B00:00","expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null},{"id":"01M4HJK099XWRCREC04M6RK9ZN","name":"compose-smoke","kind":"api_key","scopes":"read","generation":2,"device":null,"createdAt":"2026-10-10T00:14:45.0334936\u002B00:00","lastUsedAt":null,"expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":"2026-10-10T00:14:45.4951800\u002B00:00"},{"id":"01M4HJK4XMY8N5Q9NDTBT8212W","name":"compose-smoke","kind":"api_key","scopes":"admin","generation":1,"device":null,"createdAt":"2026-10-10T00:14:49.7804682\u002B00:00","lastUsedAt":"2026-10-10T00:14:50.1268727\u002B00:00","expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null},{"id":"01M4HK6P246HSW0YT57G6JHKC5","name":"compose-smoke","kind":"api_key","scopes":"admin","generation":1,"device":null,"createdAt":"2026-10-10T00:25:29.9245267\u002B00:00","lastUsedAt":"2026-10-10T00:25:30.4247486\u002B00:00","expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null},{"id":"01M4HK6PAK7RMPARCVMZPC87M8","name":"compose-smoke","kind":"api_key","scopes":"read","generation":1,"device":null,"createdAt":"2026-10-10T00:25:30.1955723\u002B00:00","lastUsedAt":null,"expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null}]}
+{"exitCode":0,"code":"ok","message":"API key revoked.","data":null}
+{"exitCode":0,"code":"ok","message":"Providers and models listed.","data":[{"name":"mock","endpoint":"http://127.0.0.1:8181/v1","isLocal":true,"models":["mock-chat","mock-embed"],"roles":[{"role":"chat","model":"mock-chat","capabilities":{"streaming":true,"tools":true,"nativeCitations":false,"reasoningControl":false,"reasoningMapping":null,"promptCaching":false,"structuredOutput":false,"batch":false},"limits":{"contextTokens":8192,"maxOutputTokens":1024,"embedDimensions":null,"embedMaxInputTokens":null,"embedBatchMax":null}},{"role":"enrich","model":"mock-chat","capabilities":{"streaming":true,"tools":true,"nativeCitations":false,"reasoningControl":false,"reasoningMapping":null,"promptCaching":false,"structuredOutput":false,"batch":false},"limits":{"contextTokens":8192,"maxOutputTokens":1024,"embedDimensions":null,"embedMaxInputTokens":null,"embedBatchMax":null}},{"role":"embed","model":"mock-embed","capabilities":{"streaming":false,"tools":false,"nativeCitations":false,"reasoningControl":false,"reasoningMapping":null,"promptCaching":false,"structuredOutput":false,"batch":false},"limits":{"contextTokens":null,"maxOutputTokens":null,"embedDimensions":4,"embedMaxInputTokens":8192,"embedBatchMax":32}}]}]}
+{"exitCode":0,"code":"ok","message":"Provider checks passed.","data":[{"role":"chat","provider":"mock","isHealthy":true,"checkedAt":"2026-10-10T00:25:31.1307948\u002B00:00","detail":null},{"role":"enrich","provider":"mock","isHealthy":true,"checkedAt":"2026-10-10T00:25:31.1314643\u002B00:00","detail":null},{"role":"embed","provider":"mock","isHealthy":true,"checkedAt":"2026-10-10T00:25:31.1320552\u002B00:00","detail":null}]}
+{"exitCode":0,"code":"ok","message":"Browser session revoked.","data":{"id":"01M4HK6QKHRJ5B07DC42Y4CE2Z"}}
+{"exitCode":0,"code":"ok","message":"All sessions and API keys invalidated by the account epoch change.","data":null}
+{"exitCode":0,"code":"ok","message":"Login credential stored.","data":{"origin":"http://127.0.0.1:7171","name":"compose-smoke","scopes":["admin"],"credentialId":"01M4HK6TTPJP3V61DWE55E789F"}}
+{"exitCode":0,"code":"ok","message":"All diagnostics passed.","data":[{"name":"/srv/secondbrain","passed":true,"message":"Root mode is correct."},{"name":"/srv/secondbrain","passed":true,"message":"Root ownership is correct."},{"name":"/srv/secondbrain-incoming","passed":true,"message":"Root mode is correct."},{"name":"/srv/secondbrain-incoming","passed":true,"message":"Root ownership is correct."},{"name":"listener.127.0.0.1:7171","passed":true,"message":"Listener binds an assigned private or loopback interface."},{"name":"listener.7171.actual-exposure","passed":true,"message":"Inspect all currently active binds for this configured port; public or wildcard listeners are refused."},{"name":"listener.172.31.0.2:8080","passed":true,"message":"Listener binds an assigned private or loopback interface."},{"name":"listener.8080.actual-exposure","passed":true,"message":"Inspect all currently active binds for this configured port; public or wildcard listeners are refused."},{"name":"keyring.directory","passed":true,"message":"Key ring must be daemon-owned, 0700, and not a symbolic link."},{"name":"keyring.keys","passed":true,"message":"Data Protection and HMAC key material must both exist."},{"name":"keyring.hmac-integrity","passed":true,"message":"HMAC active kid and retained keys are valid."},{"name":"keyring.file..lock","passed":true,"message":"Key material must be daemon-owned, 0600, and not a symbolic link."},{"name":"keyring.file.hmac.json","passed":true,"message":"Key material must be daemon-owned, 0600, and not a symbolic link."},{"name":"keyring.file.key-65999032-8887-4e8d-862e-4b833c577d1f.xml","passed":true,"message":"Key material must be daemon-owned, 0600, and not a symbolic link."},{"name":"extractor.socket","passed":true,"message":"Extractor answered ping."},{"name":"models.bindings","passed":true,"message":"Chat, enrich and embed require explicit provider/model bindings before readiness."},{"name":"stores","passed":true,"message":"Dependency is ready."},{"name":"migrations","passed":true,"message":"Migrations and durability recovery completed."},{"name":"lock","passed":true,"message":"Exclusive data-root lock."},{"name":"canary","passed":true,"message":"Egress canary: Blocked. Egress canary state is current."},{"name":"extractor","passed":true,"message":"Extractor answered ping."},{"name":"provider:chat","passed":true,"message":"Dependency is ready."},{"name":"provider:enrich","passed":true,"message":"Dependency is ready."},{"name":"provider:embed","passed":true,"message":"Dependency is ready."},{"name":"provider:rerank","passed":true,"message":"Optional rerank role is not configured."},{"name":"capabilities:chat","passed":true,"message":"mock/mock-chat; streaming=True, tools=True, context_tokens=8192, max_output_tokens=1024, embed_dimensions=, embed_max_input_tokens=, embed_batch_max=."},{"name":"capabilities:enrich","passed":true,"message":"mock/mock-chat; streaming=True, tools=True, context_tokens=8192, max_output_tokens=1024, embed_dimensions=, embed_max_input_tokens=, embed_batch_max=."},{"name":"capabilities:embed","passed":true,"message":"mock/mock-embed; streaming=False, tools=False, context_tokens=, max_output_tokens=, embed_dimensions=4, embed_max_input_tokens=8192, embed_batch_max=32."},{"name":"trusted-services","passed":true,"message":"Exact trusted origins are validated and DNS addresses pinned by the privacy policy."},{"name":"cloudflare-access.refresh","passed":true,"message":"Cloudflare Access is not configured on this private daemon."},{"name":"keyring","passed":true,"message":"Active HMAC key and Data Protection provider are loaded."}]}
+ Container secondbrain-m1-closure-provision-run-6cc1fa48b4d8 Creating
+ Container secondbrain-m1-closure-provision-run-6cc1fa48b4d8 Created
+ Container secondbrain-m1-closure-provision-run-04655052f528 Creating
+ Container secondbrain-m1-closure-provision-run-04655052f528 Created
+ Container secondbrain-m1-closure-provision-run-40e64f0a12cd Creating
+ Container secondbrain-m1-closure-provision-run-40e64f0a12cd Created
+ Container secondbrain-m1-closure-provision-run-d1b5b1ae0fd1 Creating
+ Container secondbrain-m1-closure-provision-run-d1b5b1ae0fd1 Created
+ Container secondbrain-m1-closure-provision-run-bc20841b74d8 Creating
+ Container secondbrain-m1-closure-provision-run-bc20841b74d8 Created
+ Container secondbrain-m1-closure-extractor-1 Paused
+ Container secondbrain-m1-closure-daemon-1 Restarting
+ Container secondbrain-m1-closure-daemon-1 Started
+ Container secondbrain-m1-closure-extractor-1 Unpaused
+{"metrics": {"capture_keyword_seconds": 0.32258710206951946, "capture_vectors_seconds": 0.3302021350245923, "inbox_pdf_drop_to_keyword_seconds": 10.455787333892658, "watched_edit_seconds": 2.2929881640011445}, "profile": "isolated deployed daemon", "rebuild_text_chunks_equal": true, "source_identity_preserved": true, "sync_tool": "rsync --delay-updates --times", "workflow": "text/PDF/crafted-PDF/query/watch/edit/move/suppress/restore/restart/rebuild/jobs"}
+
+G1 passed: provision, init, UID1654 serve, health/ready 200, CLI login/keys/providers/sessions/doctor, Razor login and signed-in shell, offline extractor, read-only rootfs, zero capabilities, blocked canary.
+
+Disposable smoke environment retained: project=secondbrain-m1-closure host_root=/home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/smoke client_root=/tmp/secondbrain-compose-client.QFm4lH origin=http://127.0.0.1:17172

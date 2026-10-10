@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The sandbox socket contract shared by SecondBrain.Extractor and the daemon's Infrastructure adapter.
+       BCL only and no project references, so the sandbox still loads no daemon code (SEC-20). -->
+</Project>

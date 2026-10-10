@@ -1,0 +1,10 @@
+# Isolated qualification overlay; use only project secondbrain-m1-live.
+services:
+  egress:
+    environment:
+      SECONDBRAIN_PROVIDER_ALLOWLIST: "172.28.0.1:11882"
+      SECONDBRAIN_ACCESS_ALLOWLIST: ""
+      SECONDBRAIN_HOSTED_ALLOWLIST: ""
+  daemon:
+    environment:
+      ASPNETCORE_URLS: http://127.0.0.1:7171;http://172.28.0.2:8080

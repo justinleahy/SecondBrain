@@ -1,0 +1,43 @@
+{
+  "stage": "final production image after genuine rebuild and bounded FTS consolidation",
+  "image_id": "sha256:a779863aacae340af5f64aafe9b84773d258fb213263ec75a1c96f082fa31552",
+  "genuine_rebuild_report": "fullscale-daemon-results.json",
+  "post_consolidation_profile": "fullscale-final-post-consolidation-profile.json",
+  "pre_maintenance_report": "fullscale-final-pre-maintenance-checkpoint.json",
+  "warm_repository_p95_ms": {
+    "True": 45.2793,
+    "False": 313.792
+  },
+  "gates": {
+    "filtered_repository_p95_below_150ms": true,
+    "unfiltered_repository_p95_below_400ms": true,
+    "structured_http_p95_below_50ms": true,
+    "startup_below_3s_plus_actual_preload": true,
+    "gc_heap_below_1gb_plus_actual_vector_array": true,
+    "first_hybrid_after_all_document_invalidation_completed_and_equal": true
+  },
+  "lexical_cache": {
+    "all_warm_samples_used_contributions": true,
+    "maximum_derived_bytes": 223093210,
+    "maximum_peak_bytes": 223617498,
+    "maximum_primitive_loads": 123,
+    "accounted_peak_below_384_mib": true
+  },
+  "rebuild_seconds": 1556.6938533540815,
+  "embedding_provider_requests_during_rebuild": 0,
+  "first_post_rebuild_repository_ms": 9381.9541,
+  "rebuild_full_equality": true,
+  "limitations": [
+    "one-second cgroup/heap sampling",
+    "direct descriptor workload does not measure daemon publication",
+    "recorded provider replay is not real inference or separate-LAN topology",
+    "32-topic replicated corpus does not establish independent 100k-document relevance",
+    "Prior pre-maintenance latency misses remain separate evidence"
+  ],
+  "artifacts_sha256": {
+    "fullscale-daemon-results.json": "9073cfd038a7edfd8da2d10e734a0c4c1e76196575fba15116f9796147a85d25",
+    "fullscale-final-post-consolidation-profile.json": "2ead2aa11c713ac604c0d36a6af3d5853b266548c3314195a09b54e6dfc5b310",
+    "fullscale-final-post-consolidation-startup-memory.json": "3b71629e8b7e7a980655cd911ddc1a2f5f067ed81ebf54abc44ffd5b5581cb7c",
+    "fullscale-final-pre-maintenance-checkpoint.json": "c69a03b6c6697c15e539629e8ed73023844ad4fff43354e95625736fd4c30dd0"
+  }
+}

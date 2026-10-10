@@ -9,7 +9,7 @@ using SecondBrain.Core.Configuration;
 namespace SecondBrain.Cli.Commands;
 
 /// <summary>Daemon administration uses stored API keys; session operations use password-authenticated browser sessions.</summary>
-public sealed class HttpDaemonCommands(
+public sealed partial class HttpDaemonCommands(
     Func<ICredentialStore> credentialStore,
     Func<string, CancellationToken, Task<string>> readPassword,
     Func<HttpClient>? createClient = null) : ICredentialCommands, IProviderCommands, ISessionCommands, ILoginCommands, IDoctorExtension
@@ -203,7 +203,7 @@ public sealed class HttpDaemonCommands(
             {
                 var key = Environment.GetEnvironmentVariable("SECONDBRAIN_API_KEY")
                     ?? await credentialStore().ReadAsync(origin, credentialName, cancellationToken);
-                if (string.IsNullOrWhiteSpace(key)) throw new CliPreconditionException("No API key is stored for this daemon and credential name; run brain login with --scopes admin for administration.");
+                if (string.IsNullOrWhiteSpace(key)) throw new CliPreconditionException("No API key is stored for this daemon and credential name; run brain login with the scopes required by this command.");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", key);
             }
             return client;
@@ -278,7 +278,7 @@ public sealed class HttpDaemonCommands(
     private static async Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string path, object? body, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(method, path);
-        if (body is not null) request.Content = JsonContent.Create(body);
+        if (body is not null) request.Content = body as HttpContent ?? JsonContent.Create(body);
         HttpResponseMessage response;
         try { response = await client.SendAsync(request, cancellationToken); }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { throw new DaemonUnreachableException("The daemon request timed out."); }

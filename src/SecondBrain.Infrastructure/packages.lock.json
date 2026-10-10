@@ -88,9 +88,16 @@
           "JsonSchema.Net": "[9.4.0, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.10.1, )",
           "Microsoft.Extensions.Options": "[10.0.12, )",
+          "SecondBrain.Extraction.Contracts": "[1.0.0, )",
           "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
         }
+      },
+      "secondbrain.extraction.contracts": {
+        "type": "Project"
+      },
+      "secondbrain.extractor.wire": {
+        "type": "Project"
       },
       "JsonSchema.Net": {
         "type": "CentralTransitive",

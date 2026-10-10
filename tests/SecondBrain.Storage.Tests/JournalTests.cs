@@ -193,6 +193,8 @@ public sealed class JournalTests
         Assert.NotNull(result.ConflictPath);
         Assert.Equal("external edit", await File.ReadAllTextAsync(root.Destination));
         Assert.Equal("proposal content", await File.ReadAllTextAsync(result.ConflictPath));
+        // Spec §8: exactly `<name>.conflict-<timestamp>.md`, with no extra suffix.
+        Assert.Matches(@"^note\.conflict-\d{8}T\d{13}Z\.md$", Path.GetFileName(result.ConflictPath));
         if (!OperatingSystem.IsWindows())
             Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite, File.GetUnixFileMode(result.ConflictPath));
         Assert.Equal("target_changed", await ScalarAsync<string>(session.State, "SELECT status FROM pending_operations"));
@@ -711,6 +713,89 @@ public sealed class JournalTests
                 INSERT INTO revisions(document_id,revision,cause,content_hash,created_at)
                 SELECT id,2,'patch',content_hash,'2026-10-08T01:00:00Z' FROM documents WHERE id='doc';
                 """, transaction: transaction, cancellationToken: ct)));
+
+    [Fact]
+    public async Task MutationMetadataAndProjectionPointerFinalizeAtomicallyAndRecoverOnce()
+    {
+        await using var root = new JournalRoot(); var original = Encoding.UTF8.GetBytes("original");
+        var replacement = Encoding.UTF8.GetBytes("replacement");
+        await using (var session = await root.OpenAsync())
+        {
+            await File.WriteAllBytesAsync(root.Destination, original); await SeedFinalizationAsync(session.State, Hash(original));
+            await session.State.QueueWriteAsync(async (connection, transaction, token) =>
+                await connection.ExecuteAsync(new CommandDefinition("""
+                    INSERT INTO payloads(id,sha256,bytes,document_refs_json,created_at) VALUES('projection-next','hash',X'7B7D','["doc"]','2026-10-09T00:00:00Z');
+                    """, transaction: transaction, cancellationToken: token)));
+            var request = Request(root, replacement, Hash(original)) with
+            {
+                Finalization = new MutationFinalization
+                {
+                    DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, GenerationJson = "{}",
+                    DocumentMetadata = new("New title", "note", "override", "{\"author\":\"Ada\"}", "{}", "indexed_partial", "projection-next", "text/markdown")
+                }, DocumentReferences = ["doc"]
+            };
+            using var crashing = new MutationJournal(session.State, root.Path, new ThrowAt(CrashPointNames.BeforeFinalize));
+            await Assert.ThrowsAsync<InjectedJournalCrash>(() => crashing.ExecuteAsync(request).AsTask());
+            Assert.Equal("note", await ScalarAsync<string>(session.State, "SELECT title FROM documents"));
+            Assert.Equal(1L, await ScalarAsync<long>(session.State, "SELECT revision FROM documents"));
+            Assert.Equal(0L, await ScalarAsync<long>(session.State, "SELECT COUNT(*) FROM document_projections"));
+        }
+        await using (var restarted = await root.OpenAsync())
+        {
+            Assert.Equal(1, (await restarted.Journal.RecoverAsync()).Finalized);
+            Assert.Equal("New title", await ScalarAsync<string>(restarted.State, "SELECT title FROM documents"));
+            Assert.Equal(2L, await ScalarAsync<long>(restarted.State, "SELECT revision FROM documents"));
+            Assert.Equal("projection-next", await ScalarAsync<string>(restarted.State, "SELECT payload_id FROM document_projections"));
+            Assert.Equal(2L, await ScalarAsync<long>(restarted.State, "SELECT revision FROM document_projections"));
+            Assert.Equal(0, (await restarted.Journal.RecoverAsync()).Finalized);
+        }
+    }
+
+    [Theory]
+    [InlineData(MutationCrashPointNames.AfterSourceQuarantine)]
+    [InlineData(MutationCrashPointNames.AfterSourceRemoval)]
+    public async Task TrashRemovalRecoversQuarantinedInodeAndFinalizesSuppressionOnce(string point)
+    {
+        await using var root = new JournalRoot(); var original = Encoding.UTF8.GetBytes("owned original");
+        var trash = System.IO.Path.Combine(root.Vault, "trashed.md");
+        await using (var session = await root.OpenAsync())
+        {
+            await File.WriteAllBytesAsync(root.Destination, original); await SeedFinalizationAsync(session.State, Hash(original));
+            using var crashing = new MutationJournal(session.State, root.Path, new ThrowAt(point));
+            var request = Request(root, original, null) with
+            {
+                Kind = "trash", Destination = trash, RemovalTargets = [new(root.Destination, Hash(original))],
+                Finalization = new() { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, RevisionCause = "delete", SuppressDocument = true }, DocumentReferences = ["doc"]
+            };
+            await Assert.ThrowsAsync<InjectedJournalCrash>(() => crashing.ExecuteAsync(request).AsTask());
+            Assert.Equal(original, await File.ReadAllBytesAsync(trash)); Assert.Equal(1L, await ScalarAsync<long>(session.State, "SELECT revision FROM documents"));
+        }
+        await using var restarted = await root.OpenAsync();
+        Assert.Equal(1, (await restarted.Journal.RecoverAsync()).Finalized);
+        Assert.False(File.Exists(root.Destination)); Assert.Equal(original, await File.ReadAllBytesAsync(trash));
+        Assert.Equal(1L, await ScalarAsync<long>(restarted.State, "SELECT COUNT(*) FROM suppressions WHERE scope='document' AND key='doc'"));
+        Assert.Equal(2L, await ScalarAsync<long>(restarted.State, "SELECT revision FROM documents"));
+        Assert.Equal(0, (await restarted.Journal.RecoverAsync()).Finalized);
+    }
+
+    [Fact]
+    public async Task RemovalHashRaceRestoresActualExternalBytesAndRecordsConflict()
+    {
+        await using var root = new JournalRoot(); await using var session = await root.OpenAsync();
+        var original = Encoding.UTF8.GetBytes("owned original"); var external = Encoding.UTF8.GetBytes("external competing edit");
+        await File.WriteAllBytesAsync(root.Destination, original); await SeedFinalizationAsync(session.State, Hash(original));
+        using var racing = new MutationJournal(session.State, root.Path, new CallbackCrash(async point =>
+        { if (point == MutationCrashPointNames.BeforeSourceQuarantine) await File.WriteAllBytesAsync(root.Destination, external); }));
+        var request = Request(root, original, null) with
+        {
+            Kind = "trash", Destination = System.IO.Path.Combine(root.Vault, "trashed.md"), RemovalTargets = [new(root.Destination, Hash(original))],
+            Finalization = new() { DocumentId = "doc", RevisionBefore = 1, RevisionAfter = 2, SuppressDocument = true }, DocumentReferences = ["doc"]
+        };
+        Assert.Equal("conflict", (await racing.ExecuteAsync(request)).Status);
+        Assert.Equal(external, await File.ReadAllBytesAsync(root.Destination));
+        Assert.Equal(Hash(external), await ScalarAsync<string>(session.State, "SELECT content_hash FROM documents"));
+        Assert.Equal(0L, await ScalarAsync<long>(session.State, "SELECT COUNT(*) FROM suppressions"));
+    }
 
     private static MutationWriteRequest Request(JournalRoot root, string content, string? expectedHash) => Request(root, Encoding.UTF8.GetBytes(content), expectedHash);
     private static MutationWriteRequest Request(JournalRoot root, byte[] content, string? expectedHash) => new()

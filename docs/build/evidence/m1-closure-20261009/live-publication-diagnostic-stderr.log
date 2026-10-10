@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-throughput.py", line 368, in <module>
+    main()
+    ~~~~^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-throughput.py", line 332, in main
+    metrics["markdown"] = run_batch(client, "markdown", markdown, args)
+                          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-throughput.py", line 272, in run_batch
+    observations = observer.finish() if observer else None
+                   ~~~~~~~~~~~~~~~^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-throughput.py", line 217, in finish
+    assert overlaps, 'No validated queries overlapped a demonstrably running extraction job'
+           ^^^^^^^^
+AssertionError: No validated queries overlapped a demonstrably running extraction job

@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="../SecondBrain.Core/SecondBrain.Core.csproj" />
+    <ProjectReference Include="../SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj" />
+    <ProjectReference Include="../SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="YamlDotNet" />

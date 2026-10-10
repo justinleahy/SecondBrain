@@ -1,5 +1,7 @@
 using System.Text.Json;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Ingestion;
+using SecondBrain.Core.Retrieval;
 
 namespace SecondBrain.Cli.Commands;
 
@@ -95,6 +97,14 @@ public sealed class DaemonUnreachableException(string message) : Exception(messa
 public sealed class DaemonCommandException(CliResult result) : Exception(result.Message)
 {
     public CliResult Result { get; } = result;
+}
+
+/// <summary>M1 capture and retrieval through the daemon's HTTP API with a stored key.</summary>
+public interface IKnowledgeCommands
+{
+    Task<CliResult> AddAsync(string path, CaptureRequest metadata, int wait, string? idempotencyKey, TextReader input, CancellationToken cancellationToken);
+    Task<CliResult> SearchAsync(SearchRequest request, CancellationToken cancellationToken);
+    Task<CliResult> QueryAsync(QueryRequest request, CancellationToken cancellationToken);
 }
 
 /// <summary>Only initialization and new-key issuance may expose freshly created secrets.</summary>

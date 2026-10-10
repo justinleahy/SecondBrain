@@ -1,0 +1,64 @@
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Release/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Release/net10.0/SecondBrain.Extractor.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Release/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Release/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Release/net10.0/SecondBrain.Infrastructure.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Release/net10.0/SecondBrain.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Release/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Release/net10.0/SecondBrain.Architecture.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+VSTest version 18.0.2 (x64)
+
+
+VSTest version 18.0.2 (x64)
+VSTest version 18.0.2 (x64)
+
+
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_32.trx
+
+Passed!  - Failed:     0, Passed:    63, Skipped:     0, Total:    63, Duration: 108 ms - SecondBrain.Architecture.Tests.dll (net10.0)
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_32[1].trx
+
+Passed!  - Failed:     0, Passed:   152, Skipped:     0, Total:   152, Duration: 349 ms - SecondBrain.Core.Tests.dll (net10.0)
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_32[2].trx
+
+Passed!  - Failed:     0, Passed:    81, Skipped:     0, Total:    81, Duration: 901 ms - SecondBrain.Infrastructure.Tests.dll (net10.0)
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_33.trx
+
+Passed!  - Failed:     0, Passed:   780, Skipped:     0, Total:   780, Duration: 1 s - SecondBrain.Extractor.Tests.dll (net10.0)
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_33[1].trx
+
+Passed!  - Failed:     0, Passed:    72, Skipped:     0, Total:    72, Duration: 3 s - SecondBrain.Providers.OpenAICompatible.Tests.dll (net10.0)
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_33[2].trx
+
+Passed!  - Failed:     0, Passed:   219, Skipped:     0, Total:   219, Duration: 4 s - SecondBrain.Storage.Tests.dll (net10.0)
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_32[3].trx
+
+Passed!  - Failed:     0, Passed:   142, Skipped:     0, Total:   142, Duration: 5 s - SecondBrain.Deploy.Tests.dll (net10.0)
+Results File: /tmp/m1-closure/post-latency-results/_DESKTOP-8NJSRF2_2026-10-09_22_05_32[4].trx
+
+Passed!  - Failed:     0, Passed:   230, Skipped:     0, Total:   230, Duration: 34 s - SecondBrain.Server.Tests.dll (net10.0)

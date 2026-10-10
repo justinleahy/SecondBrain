@@ -1,0 +1,16 @@
+{"id":"q01","query":"Why can a long SQLite reader stop the log from shrinking?","expected":["db-wal"]}
+{"id":"q02","query":"How should an interrupted database schema upgrade resume?","expected":["db-migration"]}
+{"id":"q03","query":"What should I change when the compost smells sour?","expected":["garden-compost"]}
+{"id":"q04","query":"How can I encourage my basil to grow more branches?","expected":["garden-basil"]}
+{"id":"q05","query":"What should I inspect before replacing a punctured bicycle tube?","expected":["bike-puncture"]}
+{"id":"q06","query":"Why are my hips rocking while I pedal?","expected":["bike-fit"]}
+{"id":"q07","query":"How do I tell whether dough has finished proofing in a cold room?","expected":["bread-proof"]}
+{"id":"q08","query":"What is the best way to keep extra homemade bread for toast later?","expected":["bread-storage"]}
+{"id":"q09","query":"How can I stop a running dog from looking blurred in a photograph?","expected":["photo-motion"]}
+{"id":"q10","query":"Why do stars turn into lines during a night exposure?","expected":["photo-night"]}
+{"id":"q11","query":"What should I check before boarding a train whose platform may change?","expected":["train-platform"]}
+{"id":"q12","query":"What should I pack within reach for a sleeper train?","expected":["train-sleeper"]}
+{"id":"q13","query":"How should I practice a piano passage that falls apart at full speed?","expected":["music-slow"]}
+{"id":"q14","query":"How can clapping help me learn syncopation?","expected":["music-rhythm"]}
+{"id":"q15","query":"How can I navigate a trail when my phone has no signal?","expected":["camp-map"]}
+{"id":"q16","query":"What clothing strategy helps avoid getting sweaty on a cold uphill hike?","expected":["camp-layer"]}

@@ -1,0 +1,76 @@
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Release/net10.0/SecondBrain.Architecture.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_37_11.trx
+
+Passed!  - Failed:     0, Passed:    63, Skipped:     0, Total:    63, Duration: 73 ms - SecondBrain.Architecture.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Release/net10.0/SecondBrain.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_37_12.trx
+
+Passed!  - Failed:     0, Passed:   152, Skipped:     0, Total:   152, Duration: 191 ms - SecondBrain.Core.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Release/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_37_13.trx
+
+Passed!  - Failed:     0, Passed:   142, Skipped:     0, Total:   142, Duration: 4 s - SecondBrain.Deploy.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Release/net10.0/SecondBrain.Extractor.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_37_18.trx
+
+Passed!  - Failed:     0, Passed:   780, Skipped:     0, Total:   780, Duration: 1 s - SecondBrain.Extractor.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Release/net10.0/SecondBrain.Infrastructure.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_37_21.trx
+
+Passed!  - Failed:     0, Passed:    81, Skipped:     0, Total:    81, Duration: 665 ms - SecondBrain.Infrastructure.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Release/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_37_22.trx
+
+Passed!  - Failed:     0, Passed:    72, Skipped:     0, Total:    72, Duration: 2 s - SecondBrain.Providers.OpenAICompatible.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Release/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_37_25.trx
+
+Passed!  - Failed:     0, Passed:   230, Skipped:     0, Total:   230, Duration: 33 s - SecondBrain.Server.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Release/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.50]     SecondBrain.Storage.Tests.FullScaleMigrationRegressionTests.CacheRestorationUsesInputHashIndexAcrossSpaces [FAIL]
+  Failed SecondBrain.Storage.Tests.FullScaleMigrationRegressionTests.CacheRestorationUsesInputHashIndexAcrossSpaces [231 ms]
+  Error Message:
+   Assert.Contains() Failure: Filter not matched in collection
+Collection: ["SEARCH c USING INDEX sqlite_autoindex_chunks_2 (do"···, "SEARCH e EXISTS USING COVERING INDEX embedding_cac"···]
+  Stack Trace:
+     at SecondBrain.Storage.Tests.FullScaleMigrationRegressionTests.CacheRestorationUsesInputHashIndexAcrossSpaces() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/FullScaleMigrationRegressionTests.cs:line 26
+   at SecondBrain.Storage.Tests.FullScaleMigrationRegressionTests.CacheRestorationUsesInputHashIndexAcrossSpaces() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/FullScaleMigrationRegressionTests.cs:line 27
+   at SecondBrain.Storage.Tests.FullScaleMigrationRegressionTests.CacheRestorationUsesInputHashIndexAcrossSpaces() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/FullScaleMigrationRegressionTests.cs:line 27
+   at SecondBrain.Storage.Tests.FullScaleMigrationRegressionTests.CacheRestorationUsesInputHashIndexAcrossSpaces() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/FullScaleMigrationRegressionTests.cs:line 16
+   at SecondBrain.Storage.Tests.FullScaleMigrationRegressionTests.CacheRestorationUsesInputHashIndexAcrossSpaces() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/FullScaleMigrationRegressionTests.cs:line 16
+--- End of stack trace from previous location ---
+Results File: /tmp/m1-closure/final-results/_DESKTOP-8NJSRF2_2026-10-09_20_38_00.trx
+
+Failed!  - Failed:     1, Passed:   215, Skipped:     0, Total:   216, Duration: 3 s - SecondBrain.Storage.Tests.dll (net10.0)

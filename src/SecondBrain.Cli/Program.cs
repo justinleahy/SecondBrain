@@ -62,6 +62,8 @@ public static class Program
             return await CliOutput.WriteAsync(result, parse.GetValue(json), output, error);
         });
 
+        KnowledgeCommandRegistration.Add(root, services, Bind);
+
         var init = new Command("init", "Provision a host or initialize the stores and account.");
         var initialRoot = new Argument<string?>("data-root") { Arity = ArgumentArity.ZeroOrOne };
         init.Arguments.Add(initialRoot);

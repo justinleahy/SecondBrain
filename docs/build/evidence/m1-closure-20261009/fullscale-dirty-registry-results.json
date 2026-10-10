@@ -1,0 +1,17 @@
+{
+  "workload": "loaded registry then Committed(documentId) for every persisted document under registry gate; read-only exact post-publication invalidation refresh, not another rebuild",
+  "documents": 100000,
+  "vectors": 1000000,
+  "initial_load_seconds": 13.6716068,
+  "dirty_refresh_seconds": 9.2313073,
+  "dirty_refresh_vector_rows": 1000000,
+  "dirty_refresh_read_statements": 62,
+  "default_read_lease_seconds": 15,
+  "exact_all_vectors_chunk_ids_and_coverage_equal": true,
+  "database_writes": 0,
+  "image_id": "sha256:50d42336001721d6b23e925973022902561289fca9e1a04e7a93ef13df9c6e83",
+  "production_storage_sha256": "3671f895f99b8c73e6302c1184f673a03ac7311d54d9e27f31853e8dc6459049",
+  "production_core_sha256": "c318311732274366537e11152f8f5bb0795d7af0aea02548a9910e58603c075a",
+  "sqlite_mode": "ReadOnly; writable bind permits SQLite WAL/shm metadata initialization only, no SQL writes",
+  "dependencies": "Exact /app/server production dependencies extracted from reported image; helper Release"
+}

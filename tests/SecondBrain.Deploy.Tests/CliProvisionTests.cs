@@ -25,6 +25,10 @@ public sealed class CliProvisionTests
         Assert.Contains((options.IncomingRoot, options.SyncUid, options.DaemonGid), platform.Owners);
         Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute, File.GetUnixFileMode(options.DataRoot));
         Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute, File.GetUnixFileMode(options.IncomingRoot));
+        var inbox = Path.Combine(options.IncomingRoot, "inbox");
+        Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute | UnixFileMode.StickyBit, File.GetUnixFileMode(inbox));
+        Assert.Contains((inbox, options.DaemonUid, options.DaemonGid), platform.Owners);
+        Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute, File.GetUnixFileMode(Path.Combine(inbox, ".claimed")));
         Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite, File.GetUnixFileMode(config));
         Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute | UnixFileMode.SetGroup,
             File.GetUnixFileMode(options.RuntimeDirectory));

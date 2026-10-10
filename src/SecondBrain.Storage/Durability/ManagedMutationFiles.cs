@@ -198,6 +198,35 @@ internal sealed class ManagedMutationFiles
             return false;
         }
 
+        internal async ValueTask<bool> RemoveExpectedAsync(string expectedHash, Func<string, CancellationToken, ValueTask> crashPoint, CancellationToken cancellationToken)
+        {
+            var removedName = tempName + ".removed";
+            var quarantined = await ObserveAsync(removedName, cancellationToken).ConfigureAwait(false);
+            if (quarantined.Kind == EntryKind.Missing)
+            {
+                var source = await ObserveDestinationAsync(cancellationToken).ConfigureAwait(false);
+                if (source.Kind == EntryKind.Missing) return true;
+                if (source.Kind != EntryKind.Regular || source.Hash != expectedHash) return false;
+                await crashPoint(SecondBrain.Core.Durability.MutationCrashPointNames.BeforeSourceQuarantine, cancellationToken).ConfigureAwait(false);
+                if (!Rename(name, removedName, exclusive: true)) return false;
+                SyncDirectory();
+                await crashPoint(SecondBrain.Core.Durability.MutationCrashPointNames.AfterSourceQuarantine, cancellationToken).ConfigureAwait(false);
+                quarantined = await ObserveAsync(removedName, cancellationToken).ConfigureAwait(false);
+            }
+            if (quarantined.Kind != EntryKind.Regular || quarantined.Hash != expectedHash)
+            {
+                // Restore the actual displaced inode; an intervening new entry is retained alongside it.
+                if (!Rename(removedName, name, exclusive: true))
+                {
+                    var rescue = name + ".external-" + Path.GetFileNameWithoutExtension(tempName);
+                    if (!Rename(removedName, rescue, exclusive: true)) throw new IOException("Cannot preserve raced removal bytes.");
+                }
+                SyncDirectory(); return false;
+            }
+            Delete(removedName);
+            return (await ObserveDestinationAsync(cancellationToken).ConfigureAwait(false)).Kind == EntryKind.Missing;
+        }
+
         internal async ValueTask<string> PreserveConflictAsync(string conflictName, byte[] bytes, CancellationToken cancellationToken)
         {
             var observed = await ObserveAsync(conflictName, cancellationToken).ConfigureAwait(false);
@@ -223,8 +252,10 @@ internal sealed class ManagedMutationFiles
             return Path.Combine(Path.GetDirectoryName(fullPath)!, conflictName);
         }
 
-        internal string ConflictName(string timestamp, string mutationId) =>
-            $"{Path.GetFileNameWithoutExtension(name)}.conflict-{timestamp}-{Convert.ToHexStringLower(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(mutationId)))[..12]}.md";
+        // Spec §8: `<name>.conflict-<timestamp>.md`. The prepare-time timestamp has 100 ns precision and mutations
+        // on one destination are serialized by its reservation, so no disambiguating suffix is needed.
+        internal string ConflictName(string timestamp) =>
+            $"{Path.GetFileNameWithoutExtension(name)}.conflict-{timestamp}.md";
 
         internal void DeleteTemp()
         {

@@ -1,0 +1,44 @@
+{
+  "configuration": "Release",
+  "filter": "Category!=Qualification",
+  "passed": 1736,
+  "failed": 0,
+  "skipped": 0,
+  "projects": {
+    "Architecture": 63,
+    "Core": 152,
+    "Deploy": 142,
+    "Extractor": 780,
+    "Infrastructure": 81,
+    "Providers.OpenAICompatible": 72,
+    "Server": 230,
+    "Storage": 216
+  },
+  "restore": "locked-mode",
+  "build": "warnings as errors; full rebuild then test-only query-plan assertion correction incremental build",
+  "evidence": {
+    "locked_restore": "final-restore.log",
+    "full_rebuild": "final-build.log",
+    "intermediate_failed_run": "final-tests.log: one SQLite EXISTS query-plan wording assertion failed; production index present",
+    "clean_final_build": "final-build2.log",
+    "clean_final_suite": "final-tests2.log"
+  },
+  "post_suite": [
+    {
+      "change": "metadata-only vector preload elapsed/count/dimension log",
+      "checks": "fresh locked self-contained server/CLI publish and actual Docker image build; five targeted Ready tests",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "startup-ready-tests.log"
+    },
+    {
+      "change": "artifact-only systemd ReadWritePaths restricted to provisioned inbox child",
+      "checks": "locked restore, warnings-as-errors targeted build and 20 DeploymentArtifacts tests",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "deployment-narrow-tests.log"
+    }
+  ]
+}

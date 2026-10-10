@@ -1,0 +1,4975 @@
+{
+  "embed_dimensions": 1024,
+  "phases": {
+    "healthy_small_capture_and_semantic": {
+      "provider_prompt_tokens": 50,
+      "provider_request_elapsed_sum_seconds": 0.03318000305444002,
+      "provider_request_metadata": [
+        {
+          "elapsed_seconds": 0.023584222071804106,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 195,
+          "input_items": 1,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013624.316870561,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 40,
+            "prompt_tokens_details": null,
+            "total_tokens": 40
+          },
+          "vectors": 1
+        },
+        {
+          "elapsed_seconds": 0.009595780982635915,
+          "fixture_inferred_intent": "query",
+          "input_bytes": 159,
+          "input_items": 1,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013624.441855386,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 10,
+            "prompt_tokens_details": null,
+            "total_tokens": 10
+          },
+          "vectors": 1
+        }
+      ],
+      "provider_requests": 2,
+      "provider_timing_note": "Request durations may overlap; do not subtract their sum from wall time.",
+      "result": {
+        "authenticated_jobs": true,
+        "capture_keyword_seconds": 0.39831255399622023,
+        "capture_vectors_seconds": 0.39831341395620257,
+        "keyword_under_one_second": true,
+        "semantic_result_contains_capture": true,
+        "vectors_under_three_seconds": true
+      },
+      "wall_seconds": 0.4675125280627981
+    },
+    "provider_absent_structured_query": {
+      "provider_prompt_tokens": 0,
+      "provider_request_elapsed_sum_seconds": 0,
+      "provider_request_metadata": [],
+      "provider_requests": 0,
+      "provider_timing_note": "Request durations may overlap; do not subtract their sum from wall time.",
+      "result": {
+        "bridge_stopped": true,
+        "query_succeeded": true
+      },
+      "wall_seconds": 0.007808896014466882
+    },
+    "throughput_100_markdown_20_pdf_four_workers": {
+      "provider_prompt_tokens": 1205341,
+      "provider_request_elapsed_sum_seconds": 14.681026956415735,
+      "provider_request_metadata": [
+        {
+          "elapsed_seconds": 0.05032687995117158,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013625.794376599,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04825156508013606,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013625.880475738,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0491584719857201,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013625.941684972,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05127009598072618,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013626.030765412,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0489141020225361,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013626.239206402,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0523096970282495,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013626.386579763,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.051603722968138754,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013626.486896295,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0494769710348919,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013626.677918068,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0481346599990502,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013626.752527454,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04707074793986976,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11242,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013626.942090161,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3434,
+            "prompt_tokens_details": null,
+            "total_tokens": 3434
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0484914859989658,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.020269498,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04673218005336821,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.194791371,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05143722903449088,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.262877775,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05129357404075563,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.444090945,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04973726102616638,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.604113385,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05392558895982802,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.700532339,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050636859028600156,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.804286915,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05250019102822989,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013627.956260629,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05097869609016925,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013628.041227729,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05014067701995373,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013628.2204657,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0584141060244292,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013628.366522179,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05141389009077102,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013628.477366478,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05095403699669987,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013628.60955929,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05144526902586222,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013628.786324792,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050537912058644,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013628.880118931,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0484007999766618,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.035449442,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05024630296975374,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.1441165,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.053579092025756836,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.284466086,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05055525107309222,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.371364996,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.051804795977659523,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.532695519,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050296460976824164,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.639275683,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04892931005451828,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.810267405,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04896737891249359,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013629.915208918,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05250609002541751,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.049772605,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04729938902892172,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.180112435,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0502397830132395,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.32845215,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050820291973650455,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.425068476,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.049671573913656175,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.550839532,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.047442574985325336,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.699774196,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05049314291682094,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.779639782,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04854832403361797,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013630.951398206,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04838941094931215,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.057353822,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04986566700972617,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.231581586,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05210679501760751,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.306413545,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04769417503848672,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.501205341,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04713199601974338,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.571298292,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.048582353978417814,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.752903567,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05298434302676469,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.868668088,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.0501052780309692,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013631.998616172,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.048309633042663336,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013632.120631145,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04845087695866823,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013632.211644115,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04794455703813583,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013632.386897531,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04930227703880519,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013632.539849199,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.051344753010198474,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013632.669680857,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05178488709498197,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013632.779987386,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050375138060189784,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013632.883768942,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05186429398600012,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.056306037,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05246319202706218,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.18711092,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04816005891188979,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.303292155,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050646458053961396,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.408037526,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.049859485938213766,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.56713768,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05045826605055481,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.667978502,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04842818796169013,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.853564854,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05102219502441585,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013633.964250988,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.051300014019943774,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013634.064892928,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05013730702921748,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013634.218219572,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04969907202757895,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013634.299157409,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05148116801865399,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013634.492507037,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04952693893574178,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013634.593117038,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.051461468916386366,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013634.731877092,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05451148794963956,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013634.859267439,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.052521319943480194,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.025475675,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05192695092409849,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.137186293,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05028822098392993,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.297609088,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05259667697828263,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.482274323,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.049231500015594065,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.572750202,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05414636095520109,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.681254856,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.052428533090278506,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.83405965,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05239379499107599,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013635.942737107,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04872427799273282,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.123750794,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05004758993163705,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.198142949,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.051398920943029225,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.395458783,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05041043600067496,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.471374023,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05093084799591452,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.6204887,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.054554555914364755,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.746096382,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05184514506254345,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.899908248,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.053006281959824264,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013636.980740349,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05285458697471768,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013637.155345779,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050686846021562815,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013637.24771342,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04918380198068917,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013637.414898439,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04976369999349117,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013637.495360804,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04757195001002401,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013637.683961525,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05150145699735731,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013637.774346478,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.049202449969016016,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013637.929541434,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05094455706421286,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013638.024648845,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050022041075862944,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013638.214940795,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.05277860094793141,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013638.39133535,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.050628088996745646,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013638.499856923,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.049948613974265754,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013638.594917336,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.04907882492989302,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 11361,
+          "input_items": 19,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013638.709809898,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 3557,
+            "prompt_tokens_details": null,
+            "total_tokens": 3557
+          },
+          "vectors": 19
+        },
+        {
+          "elapsed_seconds": 0.07324507599696517,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.416310105,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07488457695581019,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.492864381,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07403212692588568,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.56907046,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.040956460987217724,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.644344282,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07759361807256937,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.718963809,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07126257801428437,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.797946246,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07603987399488688,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.870499538,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.03576728899497539,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013639.947879334,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07326638593804091,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.02826513,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07183311705011874,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.102964364,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07240500603802502,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.176248589,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.041380145004950464,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.250166971,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07162938499823213,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.307780635,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07082079502288252,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.380479221,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07151320902630687,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.452882858,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.04047242796514183,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.526277769,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07073536701500416,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.633118694,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06826014805119485,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.705390545,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07290750800166279,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.774916767,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.040410051005892456,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013640.848984613,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07236321794334799,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.139132882,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07439758500549942,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.212669907,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0751641970127821,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.288152212,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.03622367302887142,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.36437716,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.0763565229717642,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.493279943,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07215645501855761,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.570684548,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07319180795457214,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.644068229,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.04146623192355037,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.718387966,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07240539707709104,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.799101671,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07355562492739409,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.872685655,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0716600629966706,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013641.947759815,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.041761731961742043,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.020692912,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07197499193716794,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.085578043,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06984661996830255,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.15879117,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07179509894922376,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.229901344,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.03883697802666575,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.302648608,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07247797399759293,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17600,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.410812495,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6205,
+            "prompt_tokens_details": null,
+            "total_tokens": 6205
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07033799204509705,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17648,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.484413818,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6126,
+            "prompt_tokens_details": null,
+            "total_tokens": 6126
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07622180692851543,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17667,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.556015035,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6375,
+            "prompt_tokens_details": null,
+            "total_tokens": 6375
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.044932966004125774,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 6878,
+          "input_items": 13,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.633244196,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2458,
+            "prompt_tokens_details": null,
+            "total_tokens": 2458
+          },
+          "vectors": 13
+        },
+        {
+          "elapsed_seconds": 0.07416600303258747,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.701553802,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07525006297510117,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.776977119,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07368045102339238,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.853410519,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.047484752954915166,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013642.928100993,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.07841727801132947,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.063551677,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07369744998868555,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.143349375,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07367728091776371,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.218212862,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.046392831951379776,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.295307209,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.07537328905891627,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.360587265,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07255321205593646,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.437018645,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07364918198436499,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.511093311,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.04364382300991565,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.585865882,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.07291895803064108,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.654437558,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07400919904466718,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.728713147,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07106614497024566,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.804072257,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.04697872209362686,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013643.876515572,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.07767791498918086,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.179911309,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07298670499585569,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.258884147,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07625401695258915,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.333068419,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.04713513609021902,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.410410106,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.07439898396842182,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.529572153,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07256214099470526,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.605177473,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07012720999773592,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.678909102,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.044248951016925275,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.750348954,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.07473554310854524,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.817341507,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07269482698757201,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.893352653,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07400341902393848,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013644.967195598,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.04504051199182868,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.042679073,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.0761365209473297,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.144395224,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07052245503291488,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.221681113,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07705925800837576,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.293443503,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.04769682593178004,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 7576,
+          "input_items": 14,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.371643909,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 2837,
+            "prompt_tokens_details": null,
+            "total_tokens": 2837
+          },
+          "vectors": 14
+        },
+        {
+          "elapsed_seconds": 0.07366414100397378,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.791728932,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07738646597135812,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.866686486,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.075999945984222,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013645.945697133,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07255107199307531,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.022875286,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07156836800277233,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.09672347,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07060441293288022,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.169496324,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06715689704287797,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.241136899,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06924939202144742,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.309647587,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06900428095832467,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.380148513,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06699743296485394,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.45037202,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6586,
+            "prompt_tokens_details": null,
+            "total_tokens": 6586
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06822619796730578,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.51856352,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06907096796203405,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.588156419,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06902971002273262,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.658348706,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07064057094976306,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.72865008,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06843046192079782,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.800481767,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06620637292508036,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.870134804,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06905418902169913,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013646.937458646,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6586,
+            "prompt_tokens_details": null,
+            "total_tokens": 6586
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07335638196673244,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.007641554,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06512777192983776,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.082310548,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06686671893112361,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.148684934,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06990879797376692,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.216667332,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.067847472964786,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.287689029,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06481108290608972,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.356622962,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.027545568998903036,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 4740,
+          "input_items": 9,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.422483667,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 1784,
+            "prompt_tokens_details": null,
+            "total_tokens": 1784
+          },
+          "vectors": 9
+        },
+        {
+          "elapsed_seconds": 0.0726020090514794,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.577666604,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06774083606433123,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.655076789,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0703414719318971,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.723993542,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07004876201972365,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.795670756,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07080505497287959,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.866862287,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06817739002872258,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013647.938853499,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07164539501536638,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.008265344,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0647041869815439,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.080992699,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06692677596583962,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.146813076,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06773157708812505,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.215053474,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6586,
+            "prompt_tokens_details": null,
+            "total_tokens": 6586
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06557490502018481,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.284158411,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06813154206611216,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.350843826,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06842073099687696,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.420204404,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06485417205840349,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.489697126,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06385983701329678,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.555738655,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0686720130033791,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.620892475,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06969680497422814,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.690662378,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6586,
+            "prompt_tokens_details": null,
+            "total_tokens": 6586
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06782057299278677,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.761360217,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06863993406295776,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.830238272,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07182999700307846,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.900229627,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06992749602068216,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013648.973266081,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06654237897600979,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.044675724,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06825340795330703,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.112285795,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.030114365043118596,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 4740,
+          "input_items": 9,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.181830916,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 1784,
+            "prompt_tokens_details": null,
+            "total_tokens": 1784
+          },
+          "vectors": 9
+        },
+        {
+          "elapsed_seconds": 0.07315428904257715,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17709,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.259618607,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6630,
+            "prompt_tokens_details": null,
+            "total_tokens": 6630
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07792152697220445,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17744,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.334429116,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6527,
+            "prompt_tokens_details": null,
+            "total_tokens": 6527
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07291034795343876,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17501,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.413934685,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6506,
+            "prompt_tokens_details": null,
+            "total_tokens": 6506
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07185295701492578,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.488519222,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06763478100765496,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.5647401,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06973028497304767,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.634508313,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06556313496548682,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.705332338,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06774882704485208,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.772153507,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07064886996522546,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.84111919,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07442916405852884,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.9128651,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6586,
+            "prompt_tokens_details": null,
+            "total_tokens": 6586
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0733148439321667,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013649.988598076,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07403605710715055,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.063236852,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0717886290512979,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.138415228,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06806485494598746,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.211527779,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0683507249923423,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.28077648,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06946336396504194,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.350219295,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.0714152529835701,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.420862116,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6586,
+            "prompt_tokens_details": null,
+            "total_tokens": 6586
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07315180904697627,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.493553533,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6624,
+            "prompt_tokens_details": null,
+            "total_tokens": 6624
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07450812088791281,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.567809342,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6554,
+            "prompt_tokens_details": null,
+            "total_tokens": 6554
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07259703997988254,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.643620625,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6595,
+            "prompt_tokens_details": null,
+            "total_tokens": 6595
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.07147086190525442,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17290,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.718345217,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6512,
+            "prompt_tokens_details": null,
+            "total_tokens": 6512
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.06777957500889897,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17504,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.790963307,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6622,
+            "prompt_tokens_details": null,
+            "total_tokens": 6622
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.067919020075351,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 17517,
+          "input_items": 32,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.85989407,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 6579,
+            "prompt_tokens_details": null,
+            "total_tokens": 6579
+          },
+          "vectors": 32
+        },
+        {
+          "elapsed_seconds": 0.028460084926337004,
+          "fixture_inferred_intent": "document",
+          "input_bytes": 4740,
+          "input_items": 9,
+          "intent": "unspecified by protocol",
+          "intent_inference_note": "Fixture phase activity; provider JSON omitted intent extension.",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "request_kind": "embedding",
+          "started_monotonic": 1013650.929059545,
+          "status": 200,
+          "usage": {
+            "completion_tokens": 0,
+            "completion_tokens_details": null,
+            "prompt_tokens": 1784,
+            "prompt_tokens_details": null,
+            "total_tokens": 1784
+          },
+          "vectors": 9
+        }
+      ],
+      "provider_requests": 244,
+      "provider_timing_note": "Request durations may overlap; do not subtract their sum from wall time.",
+      "result": {
+        "markdown": 449.5716738461173,
+        "markdown_target_met_including_provider": true,
+        "pdf": 97.19531279308254,
+        "pdf_target_met_including_provider": true
+      },
+      "wall_seconds": 29.30655470804777
+    }
+  },
+  "provider": "Qwen/Qwen3-Embedding-0.6B",
+  "provider_timing_log": "/home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/live-publication-corrected/provider-0f3d42a3.jsonl",
+  "topology": "same-host loopback upstream via private Docker gateway; separate LAN reference not established",
+  "unauthenticated_jobs_status": 401,
+  "upstream_host": "127.0.0.1",
+  "upstream_port": 8001
+}

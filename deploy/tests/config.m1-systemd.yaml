@@ -1,0 +1,32 @@
+# Disposable systemd qualification against pre-existing loopback vLLM services.
+# No certificate paths, API keys or live data roots are referenced.
+data_root: /srv/secondbrain
+server:
+  listeners:
+    - { scheme: http, bind: 127.0.0.1, port: 7171 }
+  hosts: [localhost, 127.0.0.1]
+  origins: [http://localhost:7171, http://127.0.0.1:7171]
+  trusted_proxies: [127.0.0.1]
+providers:
+  vllm: { adapter: openai_compatible, base_url: http://127.0.0.1:8000/v1, trusted: true }
+  vllm-embed: { adapter: openai_compatible, base_url: http://127.0.0.1:8001/v1, trusted: true }
+models:
+  chat: { provider: vllm, model: Qwen/Qwen3-8B, capabilities: { tools: true, streaming: true }, limits: { context_tokens: 32768, max_output_tokens: 4096 } }
+  enrich: { provider: vllm, model: Qwen/Qwen3-8B, capabilities: { tools: true, streaming: true }, limits: { context_tokens: 32768, max_output_tokens: 4096 } }
+  embed: { provider: vllm-embed, model: Qwen/Qwen3-Embedding-0.6B, limits: { embed_dimensions: 1024, embed_max_input_tokens: 8192, embed_batch_max: 32 } }
+privacy:
+  local_only: true
+  trusted_services: [http://127.0.0.1:8000, http://127.0.0.1:8001]
+  egress_canary: true
+  canary_target: 1.1.1.1:443
+  control_plane_egress: [dns]
+sources:
+  incoming_root: /srv/secondbrain-incoming
+  allowed_roots: [/srv/secondbrain-incoming]
+logging:
+  level: info
+  debug_bodies: false
+# Only this disposable qualification account needs fast readiness/search polling.
+limits:
+  per_credential:
+    requests_per_min: 10000

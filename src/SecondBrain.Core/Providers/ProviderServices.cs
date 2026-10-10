@@ -29,6 +29,13 @@ public interface IProviderRegistry
     bool IsCurrentConfiguration(SecondBrainOptions options);
     ProviderRoleBinding GetRole(ModelRole role);
     IProviderBinding GetProvider(string name);
+    IProviderBinding GetEmbeddingProvider(string name, string model, int dimensions, string? fingerprint = null)
+    {
+        var role = GetRole(ModelRole.Embed);
+        if (role.Provider.ProviderName != name || role.Model.Model != model || role.Model.Limits.EmbedDimensions != dimensions)
+            throw new InvalidOperationException("Active embedding binding is unavailable.");
+        return role.Provider;
+    }
     IReadOnlyList<string> ProviderNames { get; }
     ValueTask<IReadOnlyDictionary<string, IReadOnlyList<string>>> ListModelsAsync(CancellationToken cancellationToken = default);
     ValueTask<IReadOnlyDictionary<ModelRole, ProviderHealthResult>> TestAsync(CancellationToken cancellationToken = default);

@@ -4,6 +4,20 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Durability;
+using SecondBrain.Core.Extraction;
+using SecondBrain.Core.Ingestion;
+using SecondBrain.Core.Retrieval;
+using SecondBrain.Core.Sources;
+using SecondBrain.Infrastructure.Extraction;
+using SecondBrain.Infrastructure.Ingestion;
+using SecondBrain.Infrastructure.Security;
+using SecondBrain.Server.Auth;
+using SecondBrain.Server.Components;
+using SecondBrain.Server.Ingestion;
+using SecondBrain.Server.Limits;
+using SecondBrain.Server.Sources;
 
 namespace SecondBrain.Server.Http;
 
@@ -11,9 +25,25 @@ public static class HttpServices
 {
     public static IServiceCollection AddLaneDHttp(this IServiceCollection services)
     {
-        services.AddOptions<Core.Configuration.SecondBrainOptions>();
+        services.AddOptions<SecondBrainOptions>();
         services.TryAddSingleton(TimeProvider.System);
         services.AddOpenApi();
+        services.TryAddSingleton<IPayloadProtection, KeyRingPayloadProtector>();
+        services.TryAddSingleton<IExtractorClient>(provider => new DescriptorExtractorClient(provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.Extractor.SocketPath));
+        services.TryAddSingleton<IManagedDocumentFiles>(provider => new ManagedDocumentFiles(provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.DataRoot, provider.GetRequiredService<IMutationJournal>()));
+        services.TryAddSingleton<InputStager>(provider => new InputStager(Path.Combine(provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.DataRoot, "staging")));
+        services.TryAddSingleton<IInputStager>(provider => provider.GetRequiredService<InputStager>());
+        services.TryAddSingleton<IStagingRecovery>(provider => provider.GetRequiredService<InputStager>());
+        services.TryAddSingleton<IInboxClaims, InboxClaims>();
+        services.TryAddSingleton<IFolderSourceFiles, FolderSourceFiles>();
+        services.TryAddSingleton<FolderProcessingOrchestrator>();
+        services.AddHostedService(provider => provider.GetRequiredService<FolderProcessingOrchestrator>());
+        services.TryAddSingleton<EmbeddingProcessor>();
+        services.TryAddSingleton<SearchReranker>();
+        services.TryAddSingleton<EmbeddingOrchestrator>();
+        services.AddHostedService(provider => provider.GetRequiredService<EmbeddingOrchestrator>());
+        services.TryAddSingleton<FileProcessingOrchestrator>();
+        services.AddHostedService(provider => provider.GetRequiredService<FileProcessingOrchestrator>());
         services.AddRazorComponents().AddInteractiveServerComponents();
         services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
         services.AddSingleton<IDataProtectionProvider, KeyRingDataProtectionProvider>();
@@ -46,21 +76,22 @@ public sealed class LaneDStartupFilter : IStartupFilter
         // Endpoint metadata adds anonymous-browser Origin requirements after routing.
         app.UseMiddleware<RequestPolicyMiddleware>();
         // Password bodies are admitted and bounded after Origin/Access and before authentication's antiforgery read.
-        app.UseMiddleware<Auth.PasswordRequestMiddleware>();
+        app.UseMiddleware<PasswordRequestMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseMiddleware<Auth.RequestAuthorizationMiddleware>();
-        app.UseMiddleware<Limits.AdmissionMiddleware>();
+        app.UseMiddleware<RequestAuthorizationMiddleware>();
+        app.UseMiddleware<AdmissionMiddleware>();
         app.UseAntiforgery();
         app.UseEndpoints(endpoints =>
         {
-            Auth.AuthEndpoints.Map(endpoints);
-            Sources.SourceEndpoints.Map(endpoints);
+            AuthEndpoints.Map(endpoints);
+            SourceEndpoints.Map(endpoints);
+            KnowledgeEndpoints.Map(endpoints);
             AdministrationEndpoints.Map(endpoints);
             endpoints.MapGet("/ready", ReadinessService.RespondAsync).WithName("readiness");
             endpoints.MapOpenApi("/v1/openapi.json");
             endpoints.MapStaticAssets();
-            endpoints.MapRazorComponents<Components.App>().AddInteractiveServerRenderMode();
+            endpoints.MapRazorComponents<App>().AddInteractiveServerRenderMode();
         });
         next(app);
     };

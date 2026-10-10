@@ -39,6 +39,8 @@ jobs:
         run: dotnet build SecondBrain.slnx --configuration Release --no-restore -warnaserror -p:ContinuousIntegrationBuild=true
       - name: Run deterministic tests
         run: dotnet test SecondBrain.slnx --configuration Release --no-build --no-restore --filter 'Category!=Qualification' --logger trx --results-directory TestResults
+      - name: Qualify staging with distinct daemon and sync identities
+        run: sudo bash deploy/tests/distinct-identity-staging.sh
       - name: Check lock files remain unchanged
         run: git diff --exit-code -- '**/packages.lock.json'
       - name: Upload test results
@@ -100,6 +102,10 @@ jobs:
           persist-credentials: false
       - name: Build non-root server image
         run: docker build --platform linux/amd64 --file deploy/docker/Dockerfile --tag secondbrain:ci .
+      - name: Build offline extractor image
+        run: docker build --platform linux/amd64 --target extractor --file deploy/docker/Dockerfile --tag secondbrain-extractor:ci .
+      - name: Qualify real extractor isolation and descriptor transport
+        run: sudo python3 deploy/tests/extractor-isolation.py --engine docker --image secondbrain-extractor:ci
 
   compose-smoke:
     name: G1 hardened Compose smoke

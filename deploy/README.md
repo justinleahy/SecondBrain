@@ -130,6 +130,15 @@ files using `docker compose --project-name <printed-project> -f deploy/compose.y
 
 ## systemd
 
+M1 provisioning creates `incoming/inbox` as daemon-owned mode1770 with the
+daemon's shared group, and `.claimed` as daemon-owned mode0700. The sync
+identity uses that shared group to deliver files; the sticky bit prevents it
+from replacing the daemon's claim directory. Compose mounts the incoming tree
+read-only and mounts only this inbox child writable. Re-run provisioning when
+upgrading an M0 installation before starting the M1 daemon. The staging adapter
+pins the validated inbox descriptor and rejects a replacement inbox owned by
+the sync identity after restart.
+
 Install the published self-contained binaries into `/usr/local/lib/secondbrain`
 and run `brain init --provision --deployment systemd --templates /path/to/deploy`
 with explicit `--daemon-uid`, `--daemon-gid`, `--extractor-uid` and `--sync-uid`
@@ -205,3 +214,5 @@ and peer HTTPS on 2026-10-09. The Access JWKS portion of the egress spike and
 live Tunnel remain [#3](https://github.com/justinleahy/SecondBrain/issues/3).
 M0 closed for the Fedora/Tailscale deployment with these qualifications
 explicitly deferred; see [the closure record](../docs/build/M0-convergence-report.md#m0-closure-2026-10-09).
+
+The daemon defaults to an 8 GiB memory ceiling: one million 1024-dimensional float32 vectors alone occupy about 3.8 GiB, with additional space needed for old readers, SQLite and managed state. Set `SECONDBRAIN_DAEMON_MEMORY_LIMIT` for Compose or override `MemoryMax` in a systemd drop-in to match the corpus and embedding dimensions. The extractor supervisor has no cumulative CPU-time ceiling; each disposable parser sets a kernel-enforced 120-second CPU limit before receiving input, alongside the existing request deadline and memory/process limits.

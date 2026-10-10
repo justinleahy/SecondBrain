@@ -13,7 +13,10 @@ namespace SecondBrain.Infrastructure.Configuration;
 public sealed class YamlConfigurationLoader
 {
     private static readonly HashSet<string> DeferredSections = new(StringComparer.Ordinal)
-    { "ingest", "chunking", "classification", "types", "calendar", "retrieval", "assistant", "enrichment", "sandbox", "retention", "backup" };
+    { "chunking", "classification", "types", "calendar", "retrieval", "assistant", "enrichment", "sandbox", "retention", "backup" };
+    // Appendix B sections of which only some keys are modeled; the remaining keys stay deferred.
+    private static readonly Dictionary<string, HashSet<string>> PartialSections = new(StringComparer.Ordinal)
+    { ["ingest"] = new(StringComparer.Ordinal) { "sync_embed_deadline_ms", "deep_rescan_at" } };
     private static readonly HashSet<string> SecretFields = new(StringComparer.Ordinal)
     { "api_key", "password", "bootstrap_password", "client_secret", "access_client_secret", "secret", "token", "backup_key" };
     private readonly SecretResolver resolver;
@@ -66,6 +69,12 @@ public sealed class YamlConfigurationLoader
                 sandboxMetadata = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(metadataWriter.ToString())));
             }
             foreach (var section in DeferredSections) root.Children.Remove(new YamlScalarNode(section));
+            foreach (var (section, modeled) in PartialSections)
+            {
+                if (Get(root, section) is not YamlMappingNode partial) { root.Children.Remove(new YamlScalarNode(section)); continue; }
+                foreach (var key in partial.Children.Keys.Where(key => key is not YamlScalarNode { Value: { } name } || !modeled.Contains(name)).ToArray())
+                    partial.Children.Remove(key);
+            }
             if (Get(root, "sources") is YamlMappingNode sources) sources.Children.Remove(new YamlScalarNode("folders"));
             using var writer = new StringWriter();
             stream.Save(writer, false);

@@ -184,15 +184,24 @@
         "dependencies": {
           "JsonSchema.Net": "[9.4.0, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.10.1, )",
+          "SecondBrain.Extraction.Contracts": "[1.0.0, )",
           "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
         }
+      },
+      "secondbrain.extraction.contracts": {
+        "type": "Project"
+      },
+      "secondbrain.extractor.wire": {
+        "type": "Project"
       },
       "secondbrain.infrastructure": {
         "type": "Project",
         "dependencies": {
           "Isopoh.Cryptography.Argon2": "[2.0.0, )",
           "SecondBrain.Core": "[1.0.0, )",
+          "SecondBrain.Extraction.Contracts": "[1.0.0, )",
+          "SecondBrain.Extractor.Wire": "[1.0.0, )",
           "Ulid": "[1.4.1, )",
           "YamlDotNet": "[18.1.0, )"
         }

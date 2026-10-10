@@ -1,0 +1,8 @@
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Release/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m1-closure/deployment-narrow-results/_DESKTOP-8NJSRF2_2026-10-09_20_45_37.trx
+
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 902 ms - SecondBrain.Deploy.Tests.dll (net10.0)

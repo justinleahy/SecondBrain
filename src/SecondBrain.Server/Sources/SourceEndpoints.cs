@@ -1,4 +1,6 @@
 using SecondBrain.Core.Problems;
+using SecondBrain.Core.Auth;
+using SecondBrain.Core.Ingestion;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Sources;
 
@@ -15,6 +17,9 @@ public static class SourceEndpoints
                 .Produces<SourceRecord>(StatusCodes.Status201Created)
                 .ProducesProblem(StatusCodes.Status400BadRequest)
                 .ProducesProblem(StatusCodes.Status403Forbidden);
+            endpoints.MapPost(prefix + "/sources/{id}/scan", ScanAsync).WithMetadata(new EndpointPolicy("sources.scan")).Produces<object>().ProducesProblem(404);
+            endpoints.MapPatch(prefix + "/sources/{id}", UpdateAsync).WithMetadata(new EndpointPolicy("sources.mutate", SessionOnly: true, StepUp: true)).Produces(StatusCodes.Status204NoContent).ProducesProblem(400).ProducesProblem(404);
+            endpoints.MapDelete(prefix + "/sources/{id}", RemoveAsync).WithMetadata(new EndpointPolicy("sources.mutate", SessionOnly: true, StepUp: true)).Produces(StatusCodes.Status204NoContent).ProducesProblem(404);
             endpoints.MapGet(prefix + "/sources", ListAsync)
                 .WithMetadata(new EndpointPolicy("sources.list"))
                 .Produces<IReadOnlyList<SourceRecord>>();
@@ -45,6 +50,30 @@ public static class SourceEndpoints
 
     private static async Task<IResult> ListAsync(ISourceRepository repository, CancellationToken cancellationToken) => Results.Ok(await repository.ListAsync(cancellationToken));
 
+    private static async Task<IResult> ScanAsync(string id, string? deep, ISourceRepository sources, FolderProcessingOrchestrator scans, CancellationToken token)
+    {
+        if (deep is not (null or "0" or "1" or "false" or "true")) return Results.BadRequest();
+        var source = (await sources.ListAsync(token)).FirstOrDefault(item => item.Id == id);
+        return source is null ? Results.NotFound() : Results.Ok(new { admitted = await scans.ScanAsync(source, deep is "1" or "true", token) });
+    }
+
+    private static Task<IResult> UpdateAsync(string id, SourceStatusRequest request, HttpContext context, IFolderDocumentRepository repository, IAuthRepository auth, CancellationToken token) =>
+        request.Status is "active" or "disabled" ? ChangeStatusAsync(id, request.Status, context, repository, auth, token) : Task.FromResult<IResult>(Results.BadRequest());
+    private static Task<IResult> RemoveAsync(string id, HttpContext context, IFolderDocumentRepository repository, IAuthRepository auth, CancellationToken token) => ChangeStatusAsync(id, "removed", context, repository, auth, token);
+    private static async Task<IResult> ChangeStatusAsync(string id, string status, HttpContext context, IFolderDocumentRepository repository, IAuthRepository auth, CancellationToken token)
+    {
+        var identity = (AuthenticatedCredential)context.Items[typeof(AuthenticatedCredential)]!;
+        if (!await auth.IsCurrentAsync(identity.Id, identity.Generation, identity.AccountEpoch, token)) throw new AuthorityChangedException();
+        var credential = await auth.FindAsync(identity.Id, token) ?? throw new AuthorityChangedException();
+        try
+        {
+            await repository.SetStatusAsync(id, status, new(identity.Id, identity.Generation, identity.AccountEpoch, credential.Name, identity.Kind), token);
+            return Results.NoContent();
+        }
+        catch (IngestionConflictException ex) { return Results.Problem(statusCode: ex.Code == "not-found" ? 404 : 409, title: ex.Code); }
+        catch (ArgumentException) { return Results.BadRequest(); }
+    }
+
     private static bool ValidRequest(CreateSourceRequest request) =>
         (request.Name is null || (!string.IsNullOrWhiteSpace(request.Name) && request.Name.Length <= 200)) &&
         request.Mode is "index" or "import" &&
@@ -56,3 +85,5 @@ public static class SourceEndpoints
         request.Include.Concat(request.Exclude).All(glob => !string.IsNullOrWhiteSpace(glob) && glob.Length <= 1024) &&
         request.TypeMap.All(entry => !string.IsNullOrWhiteSpace(entry.Key) && entry.Key.Length <= 1024 && !string.IsNullOrWhiteSpace(entry.Value) && entry.Value.Length <= 64);
 }
+
+public sealed record SourceStatusRequest(string Status);

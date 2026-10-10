@@ -57,7 +57,7 @@ services:
     depends_on:
       egress: { condition: service_healthy }
       extractor: { condition: service_started }
-    mem_limit: 2g
+    mem_limit: ${SECONDBRAIN_DAEMON_MEMORY_LIMIT:-8g}
     pids_limit: 256
     environment:
       SECONDBRAIN_CONFIG: /etc/secondbrain/config.yaml
@@ -74,6 +74,10 @@ services:
         source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/incoming
         target: /srv/secondbrain-incoming
         read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/incoming/inbox
+        target: /srv/secondbrain-incoming/inbox
         bind: { create_host_path: false }
       - type: bind
         source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config/config.yaml
@@ -108,7 +112,6 @@ services:
     pids_limit: 64
     ulimits:
       core: { soft: 0, hard: 0 }
-      cpu: { soft: 120, hard: 120 }
       fsize: { soft: 536870912, hard: 536870912 }
     tmpfs: ["/tmp:rw,noexec,nosuid,size=512m,mode=1777"]
     environment: { DOTNET_EnableDiagnostics: "0", TMPDIR: /tmp }

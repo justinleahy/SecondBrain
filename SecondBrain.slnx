@@ -2,7 +2,9 @@
   <Folder Name="/src/">
     <Project Path="src/SecondBrain.Cli/SecondBrain.Cli.csproj" />
     <Project Path="src/SecondBrain.Core/SecondBrain.Core.csproj" />
+    <Project Path="src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj" />
     <Project Path="src/SecondBrain.Extractor/SecondBrain.Extractor.csproj" />
+    <Project Path="src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj" />
     <Project Path="src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj" />
     <Project Path="src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj" />
     <Project Path="src/SecondBrain.Server/SecondBrain.Server.csproj" />
@@ -12,6 +14,7 @@
     <Project Path="tests/SecondBrain.Architecture.Tests/SecondBrain.Architecture.Tests.csproj" />
     <Project Path="tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj" />
     <Project Path="tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj" />
+    <Project Path="tests/SecondBrain.Extractor.Tests/SecondBrain.Extractor.Tests.csproj" />
     <Project Path="tests/SecondBrain.Infrastructure.Tests/SecondBrain.Infrastructure.Tests.csproj" />
     <Project Path="tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj" />
     <Project Path="tests/SecondBrain.Providers.OpenAICompatible.Tests/SecondBrain.Providers.OpenAICompatible.Tests.csproj" />

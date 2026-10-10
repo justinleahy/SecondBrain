@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace SecondBrain.Extractor;
+namespace SecondBrain.Extractor.Wire;
 
 /// <summary>Small 64-bit Linux/Darwin sendmsg/recvmsg prototype; no native shim or parser dependency.</summary>
 public static class UnixDescriptorTransport
@@ -19,7 +19,7 @@ public static class UnixDescriptorTransport
     private static int NoSignalFlag => Darwin ? 0x80000 : 0x4000;
     private static int ControlTruncatedFlag => Darwin ? 0x20 : 0x08;
 
-    internal static void PreventInheritance(SafeHandle handle)
+    public static void PreventInheritance(SafeHandle handle)
     {
         var retained = false;
         try

@@ -1,0 +1,17 @@
+An issue was encountered verifying workloads. For more information, run "dotnet workload update".
+VSTest version 18.7.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v4.0.0+05679a7ab5 (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.06]   Discovering: SecondBrain.Extractor.Tests
+[xUnit.net 00:00:00.19]   Discovered:  SecondBrain.Extractor.Tests
+[xUnit.net 00:00:00.21]   Starting:    SecondBrain.Extractor.Tests
+[xUnit.net 00:00:00.47]   Finished:    SecondBrain.Extractor.Tests
+  Passed SecondBrain.Extractor.Tests.DistinctIdentityStagingTests.ConcurrentSyncIdentityCannotRedirectStagingOrReadPrivateStage [228 ms]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 0.7878 Seconds
+Distinct daemon UID1654 / sync UID1656 staging, hard links, symlink races and private-stage denial passed.

@@ -54,6 +54,10 @@ internal static class Repository
 
     public static IReadOnlyList<string> ReadAllLines(string relativePath) => File.ReadAllLines(Combine(relativePath));
 
+    /// <summary>The repo-relative path of the project that <paramref name="reference"/> in <paramref name="projectPath"/> points to.</summary>
+    public static string ReferencedProjectPath(string projectPath, ProjectReferenceItem reference) =>
+        RelativePath(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Combine(projectPath))!, reference.Include.Replace('\\', Path.DirectorySeparatorChar))));
+
     public static ProjectFile Project(string relativePath)
     {
         var document = XDocument.Load(Combine(relativePath));

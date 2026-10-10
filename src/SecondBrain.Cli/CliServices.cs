@@ -28,6 +28,7 @@ public sealed class CliServices
             Sessions = http;
             Login = http;
             DoctorExtension = http;
+            Knowledge = http;
         }
         else
         {
@@ -39,6 +40,8 @@ public sealed class CliServices
             Login = unbound;
         }
     }
+    public IKnowledgeCommands? Knowledge { get; init; }
+    public TextReader Input { get; init; } = Console.In;
     public IInitializationCommands Initialization { get; init; }
     public ICredentialCommands Credentials { get; init; }
     public IProviderCommands Providers { get; init; }

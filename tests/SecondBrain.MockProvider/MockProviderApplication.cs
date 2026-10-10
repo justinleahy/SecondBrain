@@ -92,6 +92,17 @@ public static class MockProviderApplication
         });
         app.MapPost("/v1/chat/completions", ChatAsync);
         app.MapPost("/v1/embeddings", EmbeddingsAsync);
+        app.MapPost("/v1/rerank", async (HttpContext context) =>
+        {
+            using var request = await ReadRequestAsync(context);
+            if (request is null) return;
+            var root = request.RootElement;
+            if (!root.TryGetProperty("documents", out var documents) || documents.ValueKind != JsonValueKind.Array)
+            {
+                await WriteErrorAsync(context, 400, "Missing documents.", "invalid_request_error"); return;
+            }
+            await context.Response.WriteAsJsonAsync(new { results = documents.EnumerateArray().Select((_, i) => new { index = i, relevance_score = (double)i }).ToArray() }, context.RequestAborted);
+        });
 
         app.MapGet("/admin/state", (MockProviderState state) => Results.Json(new
         {

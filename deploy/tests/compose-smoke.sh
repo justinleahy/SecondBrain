@@ -30,14 +30,30 @@ printf 'nameserver %s\noptions timeout:1 attempts:1\n' "$SECONDBRAIN_DNS_IP" > "
 "${compose[@]}" --profile provision run --rm provision
 # Replace the intentionally unconfigured bootstrap template with the CI fixture.
 # Write through the root-only provisioning container, preserving private ownership.
+python3 - "$smoke_client_root/config.yaml" <<'PY'
+import os, pathlib, sys
+config=pathlib.Path('deploy/tests/config.compose-smoke.yaml').read_text()
+config=config.replace('172.30.0.2',os.environ.get('SECONDBRAIN_DOCKER_ADDRESS','172.30.0.2'))
+port=os.environ.get('SECONDBRAIN_PORT','7171')
+assert port.isdigit()
+config=config.replace('http://127.0.0.1:7171]', 'http://127.0.0.1:7171, http://127.0.0.1:'+port+']')
+pathlib.Path(sys.argv[1]).write_text(config)
+PY
 "${compose[@]}" --profile provision run --rm --no-deps -T --entrypoint sh provision -c \
     'cat > /etc/secondbrain/config.yaml && chown 1654:1654 /etc/secondbrain/config.yaml && chmod 0600 /etc/secondbrain/config.yaml' \
-    < deploy/tests/config.compose-smoke.yaml
+    < "$smoke_client_root/config.yaml"
 # The bootstrap password and initial admin key are confined to this disposable run.
 # init validates and creates both real stores; discard its one-time secret output.
 "${compose[@]}" up --detach --wait --wait-timeout 30 egress
-"${compose[@]}" run --rm --no-deps -T -e SECONDBRAIN_BOOTSTRAP_PASSWORD=compose-smoke-password \
-    daemon dotnet /app/cli/brain.dll init --json > /dev/null
+if ! "${compose[@]}" run --rm --no-deps -T -e SECONDBRAIN_BOOTSTRAP_PASSWORD=compose-smoke-password \
+    daemon dotnet /app/cli/brain.dll init --json > "$smoke_client_root/init.json"; then
+    python3 - "$smoke_client_root/init.json" <<'PY'
+import json,sys
+result=json.load(open(sys.argv[1]))
+print('Disposable initialization failed:',result.get('code'),result.get('message'))
+PY
+    exit 1
+fi
 "${compose[@]}" up --detach --wait --wait-timeout 90 daemon extractor mock-provider
 uid=$("${compose[@]}" exec -T daemon id -u)
 [ "$uid" = 1654 ] || { printf 'Expected daemon UID1654, got %s\n' "$uid" >&2; exit 1; }
@@ -113,6 +129,9 @@ fi
 # Acquire authority in the new epoch so doctor can inspect authenticated diagnostics.
 smoke_brain login http://127.0.0.1:7171 --name compose-smoke --scopes admin
 smoke_brain doctor --extractor-socket /run/secondbrain/extractor.sock
+
+SECONDBRAIN_QUALIFICATION_PASSWORD=compose-smoke-password python3 deploy/tests/m1-workflow.py \
+    --origin "$smoke_origin" --compose-project "$smoke_project"
 
 "${compose[@]}" exec -T daemon sh -c 'test "$(awk '\''/CapEff/ {print $2}'\'' /proc/self/status)" = 0000000000000000'
 "${compose[@]}" exec -T daemon sh -c 'if touch /app/secondbrain-readonly-test 2>/dev/null; then exit 1; fi'

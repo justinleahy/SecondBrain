@@ -71,12 +71,32 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
             }
 
             await MigrateStoreAsync(index, "index", recoveries, cancellationToken).ConfigureAwait(false);
+            await ApplyM1Async(cancellationToken).ConfigureAwait(false);
             return new MigrationReport(M0Schema.Version, M0Schema.Version, recoveries.AsReadOnly());
         }
         finally
         {
             gate.Release();
         }
+    }
+
+    private async ValueTask ApplyM1Async(CancellationToken cancellationToken)
+    {
+        await state.QueueWriteAsync(async (connection, transaction, token) =>
+        {
+            await MigrationSql.ExecuteAsync(connection, transaction, M1Schema.StateDdl, token);
+            return await MigrationSql.ExecuteAsync(connection, transaction,
+                "INSERT OR IGNORE INTO m1_migration_state(version,phase) VALUES(2,'pending')", token);
+        }, cancellationToken);
+        await index.QueueWriteAsync(async (connection, transaction, token) =>
+        {
+            return await MigrationSql.ExecuteAsync(connection, transaction, M1Schema.IndexDdl, token);
+        }, cancellationToken);
+        await state.QueueWriteAsync(async (connection, transaction, token) =>
+        {
+            return await MigrationSql.ExecuteAsync(connection, transaction,
+                "UPDATE m1_migration_state SET phase='applied' WHERE version=2", token);
+        }, cancellationToken);
     }
 
     private static async ValueTask<bool> NeedsMigrationAsync(IStoreHandle store, CancellationToken cancellationToken)

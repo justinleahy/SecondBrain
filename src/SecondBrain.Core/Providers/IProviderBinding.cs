@@ -47,6 +47,9 @@ public interface IProviderBinding
     /// callers must not dispose it or bypass its policy transport (§13.2, SEC-15).
     /// </summary>
     IEmbeddingGenerator<string, Embedding<float>>? GetEmbeddingGenerator(string model);
+
+    /// <summary>Optional binding-owned reranker; requests use the binding's policy transport.</summary>
+    IRerankProvider? GetRerankProvider(string model) => null;
 }
 
 /// <summary>A concrete provider and model's resolved declaration; see spec §13.3.</summary>

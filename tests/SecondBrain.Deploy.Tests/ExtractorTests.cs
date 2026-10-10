@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using SecondBrain.Extractor;
 using Xunit;
+using SecondBrain.Extractor.Wire;
 
 namespace SecondBrain.Deploy.Tests;
 
@@ -134,7 +135,7 @@ public sealed class ExtractorTests
     }
 
     [Fact]
-    public async Task RealExtractionRemainsExplicitM1Stub()
+    public async Task LegacyUnversionedExtractionOperationRemainsUnsupported()
     {
         var response = await ExchangeAsync(new ExtractorRequest("stub", "extract"));
         Assert.False(response.Ok);

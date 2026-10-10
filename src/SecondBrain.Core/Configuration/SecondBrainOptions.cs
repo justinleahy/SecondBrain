@@ -55,6 +55,28 @@ public sealed class SecondBrainOptions
     /// <summary>The isolated extractor's Unix socket, used for readiness and diagnostics.</summary>
     [YamlMember(Alias = "extractor")]
     public ExtractorOptions Extractor { get; set; } = new();
+
+    [YamlMember(Alias = "ingest")]
+    public IngestOptions Ingest { get; set; } = new();
+
+    [YamlMember(Alias = "retrieval")]
+    public RetrievalOptions Retrieval { get; set; } = new();
+}
+
+public sealed class RetrievalOptions
+{
+    [YamlMember(Alias = "max_exact_candidates")]
+    public int MaxExactCandidates { get; set; } = 1_000_000;
+}
+
+public sealed class IngestOptions
+{
+    [YamlMember(Alias = "sync_embed_deadline_ms")]
+    public int SyncEmbedDeadlineMs { get; set; } = 3000;
+
+    /// <summary>The local wall-clock time (<c>HH:mm</c>, in <c>time.zone</c>) of the nightly deep rescan (FLD-2).</summary>
+    [YamlMember(Alias = "deep_rescan_at")]
+    public string DeepRescanAt { get; set; } = "03:00";
 }
 
 public sealed class ExtractorOptions

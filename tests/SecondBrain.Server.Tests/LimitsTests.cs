@@ -49,6 +49,48 @@ public sealed class LimitsTests
     }
 
     [Fact]
+    public async Task RejectedRequestsNeverReachPersistentAccounting()
+    {
+        var counting = new CountingAccounting();
+        await using var factory = new LaneDWebFactory(
+            options => options.Limits.PerCredential.RequestsPerMinute = 1,
+            services =>
+            {
+                services.AddHttpContextAccessor();
+                services.Replace(ServiceDescriptor.Singleton<IPersistentAdmissionAccounting>(provider => counting.Wrap(
+                    ActivatorUtilities.CreateInstance<SecondBrain.Storage.Ingestion.PersistentAdmissionAccounting>(provider), provider.GetRequiredService<IHttpContextAccessor>())));
+            });
+        using var client = factory.CreatePrivateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", await CreateKeyAsync(factory, "flooding"));
+        var before = counting.Calls;
+        // A concurrent burst as the credential's first traffic: one request holds the only token.
+        var flood = await Task.WhenAll(Enumerable.Range(0, 64).Select(_ => client.GetAsync("/sources")));
+        Assert.Equal(1, flood.Count(response => response.StatusCode == HttpStatusCode.OK));
+        Assert.Equal(63, flood.Count(response => response.StatusCode == HttpStatusCode.TooManyRequests));
+        foreach (var response in flood) response.Dispose();
+        Assert.Equal(before + 1, counting.Calls);
+    }
+
+    [Fact]
+    public void RefreshedPersistentWorkIsRecheckedAgainstHeldReservations()
+    {
+        var config = new SecondBrainOptions();
+        config.Limits.Global.QueuedJobs = 2;
+        config.Limits.PerCredential.RequestsPerMinute = 100;
+        var admission = new AdmissionController(new MutableOptionsMonitor<SecondBrainOptions>(config), new FakeTimeProvider(), new FixedDisk(long.MaxValue));
+        var policy = new AdmissionPolicy(AdmissionResource.Upload, QueuedJobs: 1);
+        var first = admission.TryReserve("refresh", policy);
+        Assert.True(first.Accepted);
+        Assert.Null(admission.ConfirmCapacity());
+        // Work committed elsewhere since the last refresh now fills the instance.
+        admission.RestorePersistent(1, 2, 0);
+        var exceeded = admission.ConfirmCapacity();
+        Assert.Equal(503, exceeded!.StatusCode);
+        first.Reservation!.Dispose();
+        Assert.Equal(new AdmissionSnapshot(2, 0, 0), admission.Snapshot);
+    }
+
+    [Fact]
     public async Task GlobalCapacity503()
     {
         await using var factory = new LaneDWebFactory(
@@ -226,11 +268,27 @@ public sealed class LimitsTests
     private static async Task AssertNothingQueuedAsync(LaneDWebFactory factory)
     {
         await using var lease = await factory.Store.OpenReadConnectionAsync();
-        Assert.Equal(0, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM sources"));
+        Assert.Equal(0, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM sources WHERE id<>'inbox'"));
         Assert.Equal(0, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM usage"));
         var exists = await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='jobs'");
         var jobs = exists == 0 ? 0 : await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM jobs");
         Assert.Equal(0, jobs);
+    }
+
+    private sealed class CountingAccounting
+    {
+        private int calls;
+        public int Calls => Volatile.Read(ref calls);
+        public IPersistentAdmissionAccounting Wrap(IPersistentAdmissionAccounting inner, IHttpContextAccessor requests) => new Counter(this, inner, requests);
+        // Counts refreshes made on behalf of HTTP requests; background orchestrators refresh on their own schedule.
+        private sealed class Counter(CountingAccounting owner, IPersistentAdmissionAccounting inner, IHttpContextAccessor requests) : IPersistentAdmissionAccounting
+        {
+            public ValueTask<AdmissionSnapshot> RefreshAsync(CancellationToken cancellationToken = default)
+            {
+                if (requests.HttpContext is not null) Interlocked.Increment(ref owner.calls);
+                return inner.RefreshAsync(cancellationToken);
+            }
+        }
     }
 
     private sealed class FixedDisk(long? bytes) : IDiskCapacity

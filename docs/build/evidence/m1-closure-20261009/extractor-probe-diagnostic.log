@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/extractor-isolation.py", line 70, in <module>
+    try: cpu_peer,_=cpu_listener.accept()
+                    ~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/socket.py", line 298, in accept
+    fd, addr = self._accept()
+               ~~~~~~~~~~~~^^
+TimeoutError: timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/extractor-isolation.py", line 73, in <module>
+    raise RuntimeError('CPU probe worker did not connect: '+diagnostics.stderr)
+RuntimeError: CPU probe worker did not connect: Unhandled exception. System.Net.Sockets.SocketException (13): Permission denied /run/secondbrain/cpu-worker.sock
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at SecondBrain.Extractor.ExtractionSupervisor.Worker(String path) in /source/src/SecondBrain.Extractor/ExtractionSupervisor.cs:line 83
+   at SecondBrain.Extractor.Program.Main(String[] args) in /source/src/SecondBrain.Extractor/Program.cs:line 14
+   at SecondBrain.Extractor.Program.<Main>(String[] args)
+cat: /proc/17/limits: No such file or directory
+/bin/sh: 1: kill: No such process

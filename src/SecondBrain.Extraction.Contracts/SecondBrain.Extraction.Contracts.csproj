@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The sandbox's extraction result contract, shared by Core's IExtractorClient port, SecondBrain.Extractor and the
+       daemon's Infrastructure adapter. BCL only and no project references, so Core and the sandbox can both depend on it
+       without loading each other's code (AR-01, SEC-20). -->
+</Project>

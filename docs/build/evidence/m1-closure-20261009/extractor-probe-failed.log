@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/extractor-isolation.py", line 67, in <module>
+    cpu_peer,_=cpu_listener.accept()
+               ~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib64/python3.14/socket.py", line 298, in accept
+    fd, addr = self._accept()
+               ~~~~~~~~~~~~^^
+TimeoutError: timed out

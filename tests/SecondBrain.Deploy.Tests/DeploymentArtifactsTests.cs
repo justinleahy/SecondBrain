@@ -41,6 +41,10 @@ public sealed class DeploymentArtifactsTests
         Assert.Equal("1654:1654", daemon.GetProperty("user").GetString());
         Assert.Equal("1655:1654", extractor.GetProperty("user").GetString());
         Assert.Equal("none", extractor.GetProperty("network_mode").GetString());
+        Assert.False(extractor.GetProperty("ulimits").TryGetProperty("cpu", out _));
+        Assert.Contains("${SECONDBRAIN_DAEMON_MEMORY_LIMIT:-8g}", Read("deploy/compose.yaml"), StringComparison.Ordinal);
+        Assert.Contains("MemoryMax=8G", Read("deploy/systemd/secondbrain.service"), StringComparison.Ordinal);
+        Assert.DoesNotContain("LimitCPU=", Read("deploy/systemd/secondbrain-extractor.service"), StringComparison.Ordinal);
         Assert.Equal("service:egress", daemon.GetProperty("network_mode").GetString());
         Assert.Equal("127.0.0.1", egress.GetProperty("ports")[0].GetProperty("host_ip").GetString());
         foreach (var name in new[] { "daemon", "extractor", "egress" })
@@ -137,7 +141,7 @@ public sealed class DeploymentArtifactsTests
         if (user == "secondbrain")
         {
             AssertDirective(unit, "Service", "UMask", "0077");
-            AssertDirective(unit, "Service", "ReadWritePaths", "/srv/secondbrain /srv/secondbrain-incoming /run/secondbrain");
+            AssertDirective(unit, "Service", "ReadWritePaths", "/srv/secondbrain /srv/secondbrain-incoming/inbox /run/secondbrain");
             AssertDirective(unit, "Service", "RestrictAddressFamilies", "AF_UNIX AF_INET AF_INET6");
             foreach (var allowance in new[] { "localhost", "10.8.0.5", "10.8.0.1", "192.0.2.1" })
             {

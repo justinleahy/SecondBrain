@@ -77,7 +77,7 @@ public sealed class DependencyRulesTests
 
     /// <summary>AR-07: the assemblies that may declare P/Invoke methods.</summary>
     private static readonly string[] PinvokeAllowedAssemblies =
-        [Layers.InfrastructureName, Layers.StorageName, Layers.ExtractorName, Layers.CliName];
+        [Layers.InfrastructureName, Layers.StorageName, Layers.ExtractorName, Layers.ExtractorWireName, Layers.CliName];
 
     /// <summary>AR-05: the only YamlDotNet type Core may reference.</summary>
     private static readonly string[] CoreAllowedYamlTypes = ["YamlDotNet.Serialization.YamlMemberAttribute"];
@@ -102,38 +102,54 @@ public sealed class DependencyRulesTests
     /// <summary>AR-03b: the exact <c>ProjectReference</c> set of every <c>src</c> project (§1.2), by referenced project name.</summary>
     public static TheoryData<string, string[]> SourceProjectReferences => new()
     {
-        { "src/SecondBrain.Core/SecondBrain.Core.csproj", [] },
-        { "src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj", [Layers.CoreName] },
+        { "src/SecondBrain.Core/SecondBrain.Core.csproj", [Layers.ExtractionContractsName] },
+        { "src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj", [Layers.CoreName, Layers.ExtractionContractsName, Layers.ExtractorWireName] },
         { "src/SecondBrain.Storage/SecondBrain.Storage.csproj", [Layers.CoreName] },
         { "src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj", [Layers.CoreName] },
         { "src/SecondBrain.Server/SecondBrain.Server.csproj", [Layers.CoreName, Layers.InfrastructureName, Layers.StorageName, Layers.ProvidersOpenAICompatibleName] },
         { "src/SecondBrain.Cli/SecondBrain.Cli.csproj", [Layers.CoreName, Layers.InfrastructureName, Layers.StorageName, Layers.ServerName] },
-        { "src/SecondBrain.Extractor/SecondBrain.Extractor.csproj", [] },
+        { "src/SecondBrain.Extractor/SecondBrain.Extractor.csproj", [Layers.ExtractionContractsName, Layers.ExtractorWireName] },
+        { "src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj", [] },
+        { "src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj", [] },
     };
 
     [Fact]
     [Trait("Rule", "AR-01")]
-    public void CoreProjectHasNoProjectReferences()
+    public void CoreProjectReferencesOnlyBclOnlyLeafProjects()
     {
-        var project = Repository.Project("src/SecondBrain.Core/SecondBrain.Core.csproj");
-        Assert.Empty(project.ProjectReferences);
+        const string corePath = "src/SecondBrain.Core/SecondBrain.Core.csproj";
+        var violations = Repository.Project(corePath).ProjectReferences
+            .Select(reference => Repository.Project(Repository.ReferencedProjectPath(corePath, reference)))
+            .Where(project => project.ProjectReferences.Count != 0 || project.PackageReferences.Count != 0)
+            .Select(project => $"{project.RelativePath} ({project.ProjectReferences.Count} project, {project.PackageReferences.Count} package references)")
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.True(violations.Length == 0,
+            $"SecondBrain.Core may reference only BCL-only leaf projects; these are not leaves: {string.Join("; ", violations)}");
     }
 
     [Fact]
     [Trait("Rule", "AR-01")]
-    public void CoreAssemblyReferencesNoSecondBrainAssembly()
+    public void CoreAssemblyReferencesOnlyBclOnlyLeafAssemblies()
     {
         var facts = AssemblyFacts.For(Layers.Core);
         Assert.Equal(Layers.CoreName, facts.Name);
-        Assert.Empty(facts.SecondBrainReferences);
+        var leafProjects = Repository.Project("src/SecondBrain.Core/SecondBrain.Core.csproj").ProjectReferences
+            .Select(reference => reference.ProjectName)
+            .ToHashSet(StringComparer.Ordinal);
+        foreach (var reference in facts.SecondBrainReferences)
+        {
+            Assert.True(leafProjects.Contains(reference), $"SecondBrain.Core references {reference}, which is not one of its leaf ProjectReferences.");
+            Assert.Empty(AssemblyFacts.For(Layers.ByName(reference)).SecondBrainReferences);
+        }
     }
 
     [Theory]
     [Trait("Rule", "AR-03")]
-    [InlineData(Layers.InfrastructureName, new[] { Layers.CoreName })]
-    [InlineData(Layers.StorageName, new[] { Layers.CoreName })]
+    [InlineData(Layers.InfrastructureName, new[] { Layers.CoreName, Layers.ExtractionContractsName, Layers.ExtractorWireName })]
+    [InlineData(Layers.StorageName, new[] { Layers.CoreName, Layers.ExtractionContractsName })]
     [InlineData(Layers.ProvidersOpenAICompatibleName, new[] { Layers.CoreName })]
-    [InlineData(Layers.ServerName, new[] { Layers.CoreName, Layers.InfrastructureName, Layers.StorageName, Layers.ProvidersOpenAICompatibleName })]
+    [InlineData(Layers.ServerName, new[] { Layers.CoreName, Layers.ExtractionContractsName, Layers.InfrastructureName, Layers.StorageName, Layers.ProvidersOpenAICompatibleName })]
     public void SecondBrainAssemblyReferencesStayInsideTheAllowSet(string assemblyName, string[] allowed)
     {
         var facts = AssemblyFacts.For(Layers.ByName(assemblyName));
@@ -184,7 +200,6 @@ public sealed class DependencyRulesTests
     public void CoreProjectReferencesExactlyTheAllowedPackages()
     {
         var project = Repository.Project("src/SecondBrain.Core/SecondBrain.Core.csproj");
-        Assert.Empty(project.ProjectReferences);
         var actual = project.PackageReferences.Order(StringComparer.Ordinal).ToArray();
         var wanted = CorePackageReferences.Order(StringComparer.Ordinal).ToArray();
         Assert.True(actual.SequenceEqual(wanted, StringComparer.Ordinal),
@@ -386,9 +401,10 @@ public sealed class DependencyRulesTests
 
     [Theory]
     [Trait("Rule", "AR-08")]
-    [InlineData("src/SecondBrain.Extractor/SecondBrain.Extractor.csproj")]
+    [InlineData("src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj")]
+    [InlineData("src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj")]
     [InlineData("tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj")]
-    public void SandboxAndMockProjectsHaveNoProjectReferences(string projectPath)
+    public void SandboxContractAndMockProjectsHaveNoProjectReferences(string projectPath)
     {
         var project = Repository.Project(projectPath);
         Assert.Empty(project.ProjectReferences);
@@ -396,13 +412,25 @@ public sealed class DependencyRulesTests
 
     [Theory]
     [Trait("Rule", "AR-08")]
-    [InlineData(Layers.ExtractorName)]
+    [InlineData(Layers.ExtractorWireName)]
+    [InlineData(Layers.ExtractionContractsName)]
     [InlineData(Layers.MockProviderName)]
-    public void SandboxAndMockAssembliesReferenceNoSecondBrainAssembly(string assemblyName)
+    public void SandboxContractAndMockAssembliesReferenceNoSecondBrainAssembly(string assemblyName)
     {
         var facts = AssemblyFacts.For(Layers.ByName(assemblyName));
         Assert.Equal(assemblyName, facts.Name);
         Assert.Empty(facts.SecondBrainReferences);
+    }
+
+    [Fact]
+    [Trait("Rule", "AR-08")]
+    public void SandboxReferencesOnlyItsBclOnlyContracts()
+    {
+        // The sandbox loads no daemon code (SEC-20): its only SecondBrain dependencies are the BCL-only socket and result contracts.
+        string[] contracts = [Layers.ExtractionContractsName, Layers.ExtractorWireName];
+        Assert.Equal(contracts, Repository.Project("src/SecondBrain.Extractor/SecondBrain.Extractor.csproj").ProjectReferences.Select(reference => reference.ProjectName).Order(StringComparer.Ordinal));
+        var facts = AssemblyFacts.For(Layers.Extractor);
+        Assert.Equal(contracts, facts.SecondBrainReferences.Order(StringComparer.Ordinal));
     }
 
     [Fact]

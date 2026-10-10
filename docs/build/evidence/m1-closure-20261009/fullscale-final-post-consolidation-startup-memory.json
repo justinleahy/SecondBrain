@@ -1,0 +1,172 @@
+{
+  "assembly_provenance": {
+    "image_id": "sha256:a779863aacae340af5f64aafe9b84773d258fb213263ec75a1c96f082fa31552",
+    "production_assemblies": [
+      {
+        "path": "/app/server/SecondBrain.Storage.dll",
+        "sha256": "67672097babdedfb28533cde1927e148f68f2e84186e9b8526ac2668f74a0b73"
+      },
+      {
+        "path": "/app/server/SecondBrain.Core.dll",
+        "sha256": "743d795e79f0a33235061abb4a3f25a35dd7a597efb4186a7de58bda0960b6a6"
+      }
+    ],
+    "qualification_assemblies": [
+      {
+        "path": "/home/justinleahy/Developer/SecondBrain/deploy/tests/fullscale-heap-hook/bin/Release/net10.0/FullScaleHeapHook.dll",
+        "sha256": "1d5ac57d6f476702e1a95beab42a2decec9ec3efb0705c6febfac6293d623c75",
+        "configuration": "Release"
+      },
+      {
+        "path": "/home/justinleahy/Developer/SecondBrain/deploy/tests/fullscale-sandbox-helper/bin/Release/net10.0/FullScaleSandboxHelper.dll",
+        "sha256": "bafcf5f90dff8bbc51d993c85837c7eb4af51ed8df1155d3a3139fb537aedf5a",
+        "configuration": "Release"
+      }
+    ]
+  },
+  "forced_gc": {
+    "at": "2026-10-10T03:08:29.5368565+00:00",
+    "process_id": 12,
+    "process_started_at": "2026-10-10T03:07:25.3797497Z",
+    "first_health_at": "2026-10-10T03:07:39.0166638+00:00",
+    "process_to_health_seconds_upper_bound": 13.6369141,
+    "vector_statistics": {
+      "LiveSlots": 1000000,
+      "RetainedSlots": 0,
+      "AllocatedSlots": 1048576,
+      "VectorBytes": 4294967296
+    },
+    "sample": 65,
+    "forced_full_gc": true,
+    "managed_live_bytes": 4721187872,
+    "gc_heap_size_bytes": 4817107488,
+    "gc_fragmented_bytes": 95968960,
+    "gc_committed_bytes": 5407358976,
+    "gc_memory_load_bytes": 5411658792,
+    "working_set_bytes": 5531623424
+  },
+  "startup_vector_load_ms": 10864.8653,
+  "process_to_health_seconds_upper_bound": 13.6369141,
+  "startup_below_3s_plus_actual_preload": true,
+  "logical_vector_payload_bytes": 4096000000,
+  "actual_vector_array_bytes": 4294967296,
+  "vector_padding_bytes": 198967296,
+  "gc_heap_minus_actual_vector_array_bytes": 522140192,
+  "gc_heap_minus_logical_vector_payload_bytes": 721107488,
+  "gc_heap_below_1gb_plus_actual_vector_array": true,
+  "active_sandbox": {
+    "admission_path": "four concurrent80-page PDFs via direct descriptor helper, not daemon publication",
+    "corpus_unchanged": true,
+    "helper": {
+      "workload": "four concurrent immutable 80-page PDF descriptor RPCs; no daemon admission/publication",
+      "results": [
+        {
+          "fixture": "sandbox-0.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791601707.328,
+          "completed_at_epoch": 1791601708.302,
+          "elapsed_ms": 974.2306
+        },
+        {
+          "fixture": "sandbox-1.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791601707.33,
+          "completed_at_epoch": 1791601708.22,
+          "elapsed_ms": 890.1221
+        },
+        {
+          "fixture": "sandbox-2.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791601707.33,
+          "completed_at_epoch": 1791601708.22,
+          "elapsed_ms": 890.0864
+        },
+        {
+          "fixture": "sandbox-3.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791601707.33,
+          "completed_at_epoch": 1791601708.223,
+          "elapsed_ms": 892.7404
+        }
+      ],
+      "elapsed_seconds": 1.0174992,
+      "helper_cgroup_current_bytes": 25235456,
+      "helper_cgroup_peak_bytes": 25497600,
+      "helper_managed_bytes": 3725560,
+      "helper_process_id": 8
+    },
+    "queries": [
+      {
+        "question_id": "q01",
+        "http_ms": 316.7563210008666,
+        "started_at_epoch": 1791601707.3272717,
+        "completed_at_epoch": 1791601707.6440582
+      },
+      {
+        "question_id": "q02",
+        "http_ms": 306.9167579524219,
+        "started_at_epoch": 1791601707.6941464,
+        "completed_at_epoch": 1791601708.001066
+      },
+      {
+        "question_id": "q03",
+        "http_ms": 322.9998940369114,
+        "started_at_epoch": 1791601708.0511467,
+        "completed_at_epoch": 1791601708.3741488
+      },
+      {
+        "question_id": "q04",
+        "http_ms": 316.54606794472784,
+        "started_at_epoch": 1791601708.424238,
+        "completed_at_epoch": 1791601708.7407868
+      }
+    ],
+    "overlapping_queries": 3,
+    "cgroups_before": {
+      "daemon": {
+        "current_bytes": 5624520704,
+        "peak_bytes": 6099722240,
+        "limit": "8589934592"
+      },
+      "extractor": {
+        "current_bytes": 37310464,
+        "peak_bytes": 205643776,
+        "limit": "1073741824"
+      }
+    },
+    "cgroups_after": {
+      "daemon": {
+        "current_bytes": 5639114752,
+        "peak_bytes": 6099722240,
+        "limit": "8589934592"
+      },
+      "extractor": {
+        "current_bytes": 42840064,
+        "peak_bytes": 207507456,
+        "limit": "1073741824"
+      }
+    },
+    "combined_sampled_peak_bytes": 5678321664
+  },
+  "structured_http_p95_ms": 40.617853053845465,
+  "combined_daemon_sandbox_sampled_peak_bytes": 6006628352,
+  "combined_separate_cgroup_peak_upper_bound_bytes": 6307229696,
+  "cgroup_sample_errors": [],
+  "limitations": [
+    "one-second cgroup/heap sampling",
+    "direct descriptor workload does not measure daemon publication",
+    "recorded provider replay is not real inference or separate-LAN topology"
+  ]
+}

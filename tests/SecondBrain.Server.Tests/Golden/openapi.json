@@ -1,14 +1,22 @@
 {
   "operations": [
     "DELETE /auth/sessions/{id}",
+    "DELETE /documents/{id}",
     "DELETE /keys/{id}",
+    "DELETE /sources/{id}",
     "DELETE /v1/auth/sessions/{id}",
+    "DELETE /v1/documents/{id}",
     "DELETE /v1/keys/{id}",
+    "DELETE /v1/sources/{id}",
     "GET /auth/antiforgery",
     "GET /auth/me",
     "GET /auth/sessions",
     "GET /diagnostics",
+    "GET /documents/{id}",
+    "GET /files/{id}",
     "GET /health",
+    "GET /jobs",
+    "GET /jobs/{id}",
     "GET /keys",
     "GET /providers",
     "GET /ready",
@@ -17,23 +25,47 @@
     "GET /v1/auth/me",
     "GET /v1/auth/sessions",
     "GET /v1/diagnostics",
+    "GET /v1/documents/{id}",
+    "GET /v1/files/{id}",
+    "GET /v1/jobs",
+    "GET /v1/jobs/{id}",
     "GET /v1/keys",
     "GET /v1/providers",
     "GET /v1/sources",
+    "PATCH /documents/{id}",
+    "PATCH /sources/{id}",
+    "PATCH /v1/documents/{id}",
+    "PATCH /v1/sources/{id}",
     "POST /auth/login",
     "POST /auth/logout",
     "POST /auth/logout-all",
     "POST /auth/step-up",
+    "POST /documents",
+    "POST /documents/{id}/purge",
+    "POST /documents/{id}/restore",
+    "POST /jobs/{id}/retry",
     "POST /keys",
+    "POST /maintenance/rebuild",
     "POST /providers/test",
+    "POST /query",
+    "POST /search",
     "POST /sources",
+    "POST /sources/{id}/scan",
     "POST /v1/auth/login",
     "POST /v1/auth/logout",
     "POST /v1/auth/logout-all",
     "POST /v1/auth/step-up",
+    "POST /v1/documents",
+    "POST /v1/documents/{id}/purge",
+    "POST /v1/documents/{id}/restore",
+    "POST /v1/jobs/{id}/retry",
     "POST /v1/keys",
+    "POST /v1/maintenance/rebuild",
     "POST /v1/providers/test",
-    "POST /v1/sources"
+    "POST /v1/query",
+    "POST /v1/search",
+    "POST /v1/sources",
+    "POST /v1/sources/{id}/scan"
   ],
   "schemas": {
     "AntiforgeryResponse": {
@@ -95,6 +127,75 @@
         "accountEpoch",
         "scopes",
         "steppedUpAt"
+      ],
+      "type": "object"
+    },
+    "CaptureRequest": {
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "props": {},
+        "source_url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "type": "object"
+    },
+    "CaptureResult": {
+      "properties": {
+        "document": {
+          "$ref": "#/components/schemas/DocumentRecord"
+        },
+        "job": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ProcessingJob"
+            }
+          ]
+        },
+        "keyword": {
+          "default": "live",
+          "type": "string"
+        },
+        "vector": {
+          "default": "pending",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document",
+        "job"
       ],
       "type": "object"
     },
@@ -259,6 +360,84 @@
       ],
       "type": "object"
     },
+    "DocumentRecord": {
+      "properties": {
+        "chunks": {
+          "items": {
+            "$ref": "#/components/schemas/TextChunk"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "content_hash": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "props_json": {
+          "type": "string"
+        },
+        "provenance": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "text": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "revision",
+        "type",
+        "title",
+        "status",
+        "content_hash",
+        "props_json",
+        "provenance",
+        "updated_at"
+      ],
+      "type": "object"
+    },
     "FolderSourceConfiguration": {
       "properties": {
         "default_type": {
@@ -323,6 +502,32 @@
       ],
       "type": "object"
     },
+    "HighlightRange": {
+      "properties": {
+        "end": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "start": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    },
+    "JsonElement": {},
     "KeyCreatedResponse": {
       "properties": {
         "expiresAt": {
@@ -357,6 +562,34 @@
       },
       "required": [
         "password"
+      ],
+      "type": "object"
+    },
+    "PendingOperationResponse": {
+      "properties": {
+        "pending_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pending_id"
+      ],
+      "type": "object"
+    },
+    "PersonFilter": {
+      "properties": {
+        "role": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
       ],
       "type": "object"
     },
@@ -398,6 +631,74 @@
       },
       "type": "object"
     },
+    "ProcessingJob": {
+      "properties": {
+        "attempts": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "document_id": {
+          "type": "string"
+        },
+        "error": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "stage": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "document_id",
+        "revision",
+        "status",
+        "attempts"
+      ],
+      "type": "object"
+    },
+    "PropertyPredicate": {
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "op": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/components/schemas/JsonElement"
+        }
+      },
+      "required": [
+        "field",
+        "op",
+        "value"
+      ],
+      "type": "object"
+    },
     "ProviderTestRequest": {
       "properties": {
         "name": {
@@ -409,8 +710,362 @@
       },
       "type": "object"
     },
+    "QueryPage": {
+      "properties": {
+        "coverage": {},
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "records": {
+          "items": {
+            "$ref": "#/components/schemas/DocumentRecord"
+          },
+          "type": "array"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "records",
+        "next_cursor",
+        "truncated"
+      ],
+      "type": "object"
+    },
+    "QueryRequest": {
+      "properties": {
+        "cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "direction": {
+          "default": "desc",
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "mime": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "occurred": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/TimeWindow"
+            }
+          ]
+        },
+        "path_prefix": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "people": {
+          "items": {
+            "$ref": "#/components/schemas/PersonFilter"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "predicates": {
+          "items": {
+            "$ref": "#/components/schemas/PropertyPredicate"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "sort": {
+          "default": "updated_at",
+          "type": "string"
+        },
+        "source": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "updated": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/TimeWindow"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "RetrievalFilters": {
+      "properties": {
+        "mime": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "occurred": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/TimeWindow"
+            }
+          ]
+        },
+        "path_prefix": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "people": {
+          "items": {
+            "$ref": "#/components/schemas/PersonFilter"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "predicates": {
+          "items": {
+            "$ref": "#/components/schemas/PropertyPredicate"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "source": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "updated": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/TimeWindow"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
     "Scope": {
       "type": "integer"
+    },
+    "SearchHit": {
+      "properties": {
+        "chunk_id": {
+          "type": "string"
+        },
+        "context": {
+          "type": "string"
+        },
+        "document_id": {
+          "type": "string"
+        },
+        "highlight_ranges": {
+          "items": {
+            "$ref": "#/components/schemas/HighlightRange"
+          },
+          "type": "array"
+        },
+        "occurred_at": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "page": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "path": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "score": {
+          "format": "double",
+          "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+          "type": [
+            "number",
+            "string"
+          ]
+        },
+        "snippet": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "chunk_id",
+        "document_id",
+        "revision",
+        "type",
+        "title",
+        "path",
+        "context",
+        "snippet",
+        "highlight_ranges",
+        "score",
+        "occurred_at",
+        "updated_at",
+        "tags"
+      ],
+      "type": "object"
+    },
+    "SearchRequest": {
+      "properties": {
+        "filters": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/RetrievalFilters"
+            }
+          ]
+        },
+        "limit": {
+          "default": 8,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "mode": {
+          "default": "hybrid",
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "recency_boost": {
+          "default": false,
+          "type": "boolean"
+        },
+        "rerank": {
+          "default": "none",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "SearchResponse": {
+      "properties": {
+        "degraded": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/components/schemas/SearchHit"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "results",
+        "degraded"
+      ],
+      "type": "object"
     },
     "SourceRecord": {
       "properties": {
@@ -458,6 +1113,102 @@
         "last_full_scan_at",
         "created_at"
       ],
+      "type": "object"
+    },
+    "SourceStatusRequest": {
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "TextChunk": {
+      "properties": {
+        "context": {
+          "type": "string"
+        },
+        "end_offset": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "input_hash": {
+          "type": "string"
+        },
+        "ordinal": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "page": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "start_offset": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "token_count": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "ordinal",
+        "context",
+        "text",
+        "start_offset",
+        "end_offset",
+        "token_count",
+        "input_hash"
+      ],
+      "type": "object"
+    },
+    "TimeWindow": {
+      "properties": {
+        "from": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "to": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
       "type": "object"
     }
   }

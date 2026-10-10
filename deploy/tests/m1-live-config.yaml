@@ -1,0 +1,34 @@
+data_root: /srv/secondbrain
+server:
+  listeners:
+    - { scheme: http, bind: 127.0.0.1, port: 7171 }
+    - { scheme: http, bind: 172.28.0.2, port: 8080 }
+  hosts: [localhost, 127.0.0.1]
+  origins: [http://localhost:7171, http://127.0.0.1:7171, http://127.0.0.1:17174]
+  trusted_proxies: [127.0.0.1]
+providers:
+  live:
+    kind: openai_compatible
+    endpoint: http://172.28.0.1:11882/v1
+    trusted: true
+models:
+  chat: { provider: live, model: Qwen3-8B, capabilities: { tools: true, streaming: true }, limits: { context_tokens: 8192, max_output_tokens: 1024 } }
+  enrich: { provider: live, model: Qwen3-8B, capabilities: { tools: true, streaming: true }, limits: { context_tokens: 8192, max_output_tokens: 1024 } }
+  embed: { provider: live, model: Qwen/Qwen3-Embedding-0.6B, limits: { embed_dimensions: 1024, embed_max_input_tokens: 8192, embed_batch_max: 32 } }
+privacy:
+  local_only: true
+  trusted_services: [http://172.28.0.1:11882]
+  egress_canary: true
+  canary_target: 1.1.1.1:443
+  control_plane_egress: [dns]
+sources:
+  incoming_root: /srv/secondbrain-incoming
+  allowed_roots: [/srv/secondbrain-incoming]
+extractor:
+  socket_path: /run/secondbrain/extractor.sock
+logging:
+  level: info
+  debug_bodies: false
+limits:
+  per_credential:
+    requests_per_min: 10000

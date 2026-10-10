@@ -5,13 +5,15 @@ using System.Text.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
+using SecondBrain.Extraction.Contracts;
+using SecondBrain.Extractor.Wire;
 
 namespace SecondBrain.Extractor;
 
 public sealed record ExtractorServerOptions
 {
     public string SocketPath { get; init; } = "/run/secondbrain/extractor.sock";
-    public TimeSpan RequestTimeout { get; init; } = TimeSpan.FromSeconds(10);
+    public TimeSpan RequestTimeout { get; init; } = TimeSpan.FromSeconds(120);
     public int MaximumClients { get; init; } = 8;
 
     public static ExtractorServerOptions Parse(string[] args)
@@ -52,9 +54,11 @@ public sealed record ExtractorServerOptions
     }
 }
 
-/// <summary>Bounded M0 ping and descriptor-probe service; real extraction lands in M1.</summary>
+/// <summary>Bounded descriptor-only service with disposable extraction workers and M0 health/probe compatibility.</summary>
 public sealed class ExtractorSocketServer(ExtractorServerOptions options, ILogger<ExtractorSocketServer> logger)
 {
+    private static readonly SemaphoreSlim ParserCapacity = new(4, 4);
+
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         options.Validate();
@@ -88,7 +92,7 @@ public sealed class ExtractorSocketServer(ExtractorServerOptions options, ILogge
                         deadline.CancelAfter(options.RequestTimeout);
                         try
                         {
-                            HandleConnection(client, deadline.Token);
+                            HandleConnection(client, deadline.Token, cancellationToken);
                         }
                         catch (Exception exception) when (exception is IOException or InvalidDataException or SocketException
                             or OperationCanceledException or ObjectDisposedException)
@@ -119,7 +123,7 @@ public sealed class ExtractorSocketServer(ExtractorServerOptions options, ILogge
         }
     }
 
-    public static void HandleConnection(Socket client, CancellationToken cancellationToken)
+    public static void HandleConnection(Socket client, CancellationToken cancellationToken, CancellationToken shutdownToken = default)
     {
         using var frame = UnixDescriptorTransport.Receive(client, cancellationToken);
         ExtractorResponse response;
@@ -130,6 +134,23 @@ public sealed class ExtractorSocketServer(ExtractorServerOptions options, ILogge
             if (request?.Id is { Length: <= 128 } id)
             {
                 responseId = id;
+            }
+            if (request is { Operation: "extract_v2", Version: 1, Id.Length: > 0 and <= 128 } && request.FormatHint?.Length <= 64 && frame.Descriptor is not null)
+            {
+                var entered = false;
+                try
+                {
+                    ParserCapacity.Wait(cancellationToken); entered = true;
+                    ExtractionSupervisor.Run(client, request, frame.Descriptor, cancellationToken);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested && !shutdownToken.IsCancellationRequested)
+                {
+                    using var reply = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+                    SendExtraction(client, request.Id, new ExtractionResult("skipped", "unknown", "application/octet-stream", "",
+                        Error: "bound_exceeded", Bound: "extraction_deadline"), reply.Token);
+                }
+                finally { if (entered) ParserCapacity.Release(); }
+                return;
             }
             response = request is null ? new ExtractorResponse("", false, Error: "invalid_request")
                 : Process(request, frame.Descriptor);
@@ -147,6 +168,20 @@ public sealed class ExtractorSocketServer(ExtractorServerOptions options, ILogge
             response = new ExtractorResponse(responseId, false, Error: "descriptor_read_failed");
         }
         UnixDescriptorTransport.Send(client, ExtractorProtocol.Serialize(response), cancellationToken: cancellationToken);
+    }
+
+    public static void SendExtraction(Socket client, string id, ExtractionResult result, CancellationToken token)
+    {
+        var json = JsonSerializer.SerializeToUtf8Bytes(result, ExtractorProtocol.ResultJsonOptions);
+        if (json.Length > 20 * 1024 * 1024)
+            json = JsonSerializer.SerializeToUtf8Bytes(new ExtractionResult("skipped", "unknown", "application/octet-stream", "", Error: "bound_exceeded", Bound: "serialized_output_bytes"), ExtractorProtocol.ResultJsonOptions);
+        var sequence = 0;
+        for (var offset = 0; offset < json.Length; offset += 32 * 1024)
+        {
+            var size = Math.Min(32 * 1024, json.Length - offset);
+            var chunk = new ExtractionChunk(id, sequence++, offset + size == json.Length, Convert.ToBase64String(json, offset, size));
+            UnixDescriptorTransport.Send(client, ExtractorProtocol.Serialize(chunk), cancellationToken: token);
+        }
     }
 
     private static ExtractorResponse Process(ExtractorRequest request, SafeFileHandle? descriptor)

@@ -41,6 +41,10 @@ public sealed class ProvisioningService(IProvisionPlatform? platform = null)
         DirectoryAction(options.DataRoot, PrivateDirectory, options.DaemonUid, options.DaemonGid);
         DirectoryAction(Path.Combine(options.DataRoot, "keyring"), PrivateDirectory, options.DaemonUid, options.DaemonGid);
         DirectoryAction(options.IncomingRoot, GroupReadableDirectory, options.SyncUid, options.DaemonGid);
+        // Sync can deliver its files; the sticky bit protects daemon-owned claims.
+        var inbox = Path.Combine(options.IncomingRoot, "inbox");
+        DirectoryAction(inbox, GroupReadableDirectory | UnixFileMode.GroupWrite | UnixFileMode.StickyBit, options.DaemonUid, options.DaemonGid);
+        DirectoryAction(Path.Combine(inbox, ".claimed"), PrivateDirectory, options.DaemonUid, options.DaemonGid);
         DirectoryAction(options.ConfigDirectory, GroupReadableDirectory, 0, options.DaemonGid);
         // Directories require execute for traversal; the 0600 secrets requirement applies to files.
         DirectoryAction(Path.Combine(options.ConfigDirectory, "secrets"), PrivateDirectory, options.DaemonUid, options.DaemonGid);

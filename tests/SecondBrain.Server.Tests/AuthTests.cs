@@ -28,6 +28,7 @@ public sealed class AuthTests(ITestOutputHelper output)
         var endpoints = factory.Services.GetRequiredService<EndpointDataSource>().Endpoints.OfType<RouteEndpoint>()
             .Where(endpoint => endpoint.Metadata.GetMetadata<EndpointPolicy>() is not null).ToArray();
         Assert.NotEmpty(endpoints);
+        var policy = factory.Services.GetRequiredService<IScopePolicy>();
         foreach (var endpoint in endpoints)
         {
             var path = endpoint.RoutePattern.RawText!.Replace("{id}", Ulid.NewUlid().ToString(), StringComparison.Ordinal);
@@ -35,10 +36,15 @@ public sealed class AuthTests(ITestOutputHelper output)
             {
                 using var request = new HttpRequestMessage(new HttpMethod(method), path) { Content = JsonContent.Create(new { password = "ignored", name = "ignored", scopes = new[] { "read" }, path = "/proc" }) };
                 using var response = await client.SendAsync(request);
-                Assert.True(response.StatusCode == HttpStatusCode.Forbidden, $"{method} {path}: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
+                var endpointPolicy = endpoint.Metadata.GetMetadata<EndpointPolicy>()!;
+                var granted = policy.IsAllowed(endpointPolicy.Operation, new HashSet<Scope> { Scope.Read }) && !endpointPolicy.SessionOnly;
+                var expected = granted
+                    ? method == "GET" && endpoint.RoutePattern.RawText!.Contains("{id}", StringComparison.Ordinal) ? HttpStatusCode.NotFound
+                    : endpointPolicy.Operation is "search" or "query" ? HttpStatusCode.BadRequest : HttpStatusCode.OK
+                    : HttpStatusCode.Forbidden;
+                Assert.True(response.StatusCode == expected, $"{method} {path}: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
             }
         }
-        var policy = factory.Services.GetRequiredService<IScopePolicy>();
         Assert.False(policy.IsAllowed("unregistered.operation", Enum.GetValues<Scope>().ToHashSet()));
         Assert.False(policy.IsAllowed("keys.create", new HashSet<Scope> { Scope.Read, Scope.Write, Scope.Infer }));
     }

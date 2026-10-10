@@ -5,6 +5,8 @@
     <SecondBrainRuntimeVersion>10.0.12</SecondBrainRuntimeVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="AngleSharp" Version="1.5.0" />
+    <PackageVersion Include="PdfPig" Version="0.1.13" />
     <PackageVersion Include="Dapper" Version="2.1.89" />
     <PackageVersion Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
     <PackageVersion Include="JsonSchema.Net" Version="9.4.0" />

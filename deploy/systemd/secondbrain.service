@@ -24,7 +24,7 @@ PrivateTmp=yes
 PrivateDevices=yes
 CapabilityBoundingSet=
 AmbientCapabilities=
-ReadWritePaths=/srv/secondbrain /srv/secondbrain-incoming /run/secondbrain
+ReadWritePaths=/srv/secondbrain /srv/secondbrain-incoming/inbox /run/secondbrain
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 RestrictSUIDSGID=yes
 LockPersonality=yes
@@ -34,7 +34,9 @@ ProtectKernelLogs=yes
 ProtectControlGroups=yes
 RestrictRealtime=yes
 LimitCORE=0
-MemoryMax=2G
+# 1M vectors x 1024 float32 dimensions require about 3.8 GiB before other live state.
+# Override MemoryMax in a service drop-in when sizing a different corpus.
+MemoryMax=8G
 TasksMax=256
 IPAccounting=yes
 IPAddressDeny=any

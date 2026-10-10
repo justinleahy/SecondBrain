@@ -80,6 +80,22 @@ public sealed class ConfigurationTests : IDisposable
     }
 
     [Theory]
+    [InlineData(null, "03:00")]
+    [InlineData("\"01:30\"", "01:30")]
+    public void DeepRescanTimeDefaultsToNightlyAndIsConfigurable(string? configured, string expected)
+    {
+        var options = Loader().LoadText(configured is null ? Valid : Valid + $"\ningest: {{ deep_rescan_at: {configured} }}\n");
+        Assert.Equal(expected, options.Ingest.DeepRescanAt);
+    }
+
+    [Theory]
+    [InlineData("\"25:00\"")]
+    [InlineData("\"3am\"")]
+    [InlineData("\"\"")]
+    public void DeepRescanTimeMustBeATwentyFourHourTime(string configured) =>
+        Assert.Contains("deep_rescan_at", Assert.Throws<ConfigurationException>(() => Loader().LoadText(Valid + $"\ningest: {{ deep_rescan_at: {configured} }}\n")).Message);
+
+    [Theory]
     [InlineData("provider: local", "provider: missing", "declared provider")]
     [InlineData("dimensions: 1024", "dimensions: -1", "positive")]
     [InlineData("dimensions: 1024", "dimensions: 1024, limits: { embed_dimensions: 768 }", "conflict")]

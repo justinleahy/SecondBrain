@@ -8,6 +8,12 @@ public interface IMutationJournal
     ValueTask<MutationRecord> FinalizeAsync(string mutationId, CancellationToken cancellationToken = default);
     ValueTask<MutationRecord> ExecuteAsync(MutationWriteRequest request, CancellationToken cancellationToken = default);
     ValueTask<MutationRecoveryReport> RecoverAsync(CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Undoes a finalized import whose document was never published (admission rejected after the write):
+    /// removes the destination only while it still holds the imported bytes, then forgets the journal entry.
+    /// Returns false when no such unpublished import exists.
+    /// </summary>
+    ValueTask<bool> DiscardUnpublishedImportAsync(string destination, CancellationToken cancellationToken = default);
 }
 
 /// <summary>The caller authorizes a write before prepare; the journal does not grant write authority.</summary>
@@ -21,6 +27,7 @@ public sealed record MutationWriteRequest
     public required byte[] Content { get; init; }
     /// <summary>Lower/upper-case SHA-256 hex, or null to require a previously absent destination.</summary>
     public string? ExpectedHash { get; init; }
+    public IReadOnlyList<MutationRemovalTarget> RemovalTargets { get; init; } = [];
     public MutationFinalization Finalization { get; init; } = new();
     public IReadOnlyList<string> DocumentReferences { get; init; } = [];
     /// <summary>Optional immutable replay result; stored once and referenced by execution/idempotency.</summary>
@@ -30,6 +37,10 @@ public sealed record MutationWriteRequest
 /// <summary>Durable metadata applied atomically with the mutation's finalized transition.</summary>
 public sealed record MutationFinalization
 {
+    public bool PurgeDocumentLineage { get; init; }
+    public bool SuppressDocument { get; init; }
+    public bool ClearSuppression { get; init; }
+    public MutationDocumentMetadata? DocumentMetadata { get; init; }
     public string? DocumentId { get; init; }
     public long? RevisionBefore { get; init; }
     public long? RevisionAfter { get; init; }
@@ -40,6 +51,13 @@ public sealed record MutationFinalization
     public string? ToolExecutionId { get; init; }
     public MutationIdempotency? Idempotency { get; init; }
 }
+
+public sealed record MutationRemovalTarget(string Path, string ExpectedHash);
+
+public sealed record MutationDocumentMetadata(
+    string Title, string Type, string TypeOrigin, string PropsJson, string PropsOriginalJson,
+    string Status, string ProjectionPayloadId, string? Mime = null, string? SourceUrl = null, IReadOnlyDictionary<string, string>? Overrides = null, bool UpdateOccurred = false,
+    string? OccurredAt = null, string? OccurredOffset = null, string? OccurredBasis = null, string? OccurredPrecision = null);
 
 public sealed record MutationIdempotency(string Key, string CredentialId, string PayloadHash, string ResponseJson);
 
@@ -56,6 +74,10 @@ public static class MutationCrashPointNames
     public const string AfterTempFlush = "after_temp_flush";
     public const string BeforeAtomicRename = "before_atomic_rename";
     public const string AfterAtomicExchange = "after_atomic_exchange";
+    public const string BeforeSourceQuarantine = "before_source_quarantine";
+    public const string AfterSourceQuarantine = "after_source_quarantine";
+    public const string BeforeSourceRemoval = "before_source_removal";
+    public const string AfterSourceRemoval = "after_source_removal";
     public const string AfterRename = "after_rename";
 }
 

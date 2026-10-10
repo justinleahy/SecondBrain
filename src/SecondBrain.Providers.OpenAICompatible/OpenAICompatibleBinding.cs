@@ -11,7 +11,7 @@ using SecondBrain.Core.Providers;
 namespace SecondBrain.Providers.OpenAICompatible;
 
 /// <summary>A configured compatible endpoint. No vendor endpoint or model is selected implicitly.</summary>
-public sealed class OpenAICompatibleBinding : IProviderBinding, IDisposable
+public sealed partial class OpenAICompatibleBinding : IProviderBinding, IRerankProvider, IDisposable
 {
     /// <summary>The largest /models response body read; larger bodies are malformed provider output.</summary>
     public const int MaxDiscoveryResponseBytes = 8 * 1024 * 1024;
@@ -65,7 +65,10 @@ public sealed class OpenAICompatibleBinding : IProviderBinding, IDisposable
             NetworkTimeout = TimeSpan.FromSeconds(30),
         });
         if (apiKey is not null)
+        {
             discoveryClient.DefaultRequestHeaders.Authorization = new("Bearer", apiKey);
+            inferenceClient.DefaultRequestHeaders.Authorization = new("Bearer", apiKey);
+        }
     }
 
     public string ProviderName { get; }

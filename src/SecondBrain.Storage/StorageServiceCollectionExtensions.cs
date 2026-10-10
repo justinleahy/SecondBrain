@@ -5,11 +5,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Durability;
+using SecondBrain.Core.Ingestion;
 using SecondBrain.Core.Limits;
+using SecondBrain.Core.Retrieval;
+using SecondBrain.Core.Sources;
 using SecondBrain.Core.Storage;
 using SecondBrain.Storage.Durability;
+using SecondBrain.Storage.Ingestion;
 using SecondBrain.Storage.Initialization;
 using SecondBrain.Storage.Migrations;
+using SecondBrain.Storage.Retrieval;
+using SecondBrain.Storage.Sources;
 
 namespace SecondBrain.Storage;
 
@@ -44,6 +50,14 @@ public static class StorageServiceCollectionExtensions
             provider.GetRequiredService<IOptions<SecondBrainOptions>>().Value.DataRoot,
             provider.GetRequiredService<ICrashPoints>()));
         services.TryAddSingleton<IPublicationCoordinator, PublicationCoordinator>();
+        services.TryAddSingleton<IPersistentAdmissionAccounting, PersistentAdmissionAccounting>();
+        services.TryAddSingleton<IFolderDocumentRepository, SqliteFolderDocumentRepository>();
+        services.TryAddSingleton<IEmbeddingWorkRepository, SqliteEmbeddingWorkRepository>();
+        services.TryAddSingleton<IDocumentRepository, SqliteDocumentRepository>();
+        // A factory, because IPayloadProtection comes from the host's key-ring composition, not from Storage.
+        services.TryAddSingleton<IRetrievalRepository>(provider => new SqliteRetrievalRepository(
+            provider.GetRequiredService<IIndexStore>(), provider.GetRequiredService<IPayloadProtection>(),
+            provider.GetService<IOptionsMonitor<SecondBrainOptions>>(), provider.GetRequiredService<IStateStore>()));
         services.TryAddSingleton<StorageStartupService>();
         services.TryAddSingleton<IStorageStatus>(provider => provider.GetRequiredService<StorageStartupService>());
         services.AddHostedService(provider => provider.GetRequiredService<StorageStartupService>());
@@ -64,9 +78,35 @@ public sealed class StorageStartupService(IServiceProvider services, ILogger<Sto
         LastMigration = await services.GetRequiredService<IMigrationRunner>().MigrateAsync(cancellationToken).ConfigureAwait(false);
         foreach (var recovery in LastMigration.Recoveries)
             logger.LogWarning("Migration recovered for {Store} version {Version}: {Detail}", recovery.Store, recovery.Version, recovery.Detail);
+        await services.GetRequiredService<IStateStore>().QueueWriteAsync(async (connection, transaction, token) =>
+        {
+            await using var recovery = SqliteDocumentRepository.Command(connection, transaction,
+                "UPDATE jobs SET status='queued',lease_until=NULL WHERE status='running'");
+            return await recovery.ExecuteNonQueryAsync(token);
+        }, cancellationToken).ConfigureAwait(false);
         var journal = await services.GetRequiredService<IMutationJournal>().RecoverAsync(cancellationToken).ConfigureAwait(false);
         var publications = await services.GetRequiredService<IPublicationCoordinator>().RecoverAsync(cancellationToken).ConfigureAwait(false);
-        logger.LogInformation("Storage recovered: {Finalized} finalized mutations, {Discarded} discarded preparations, {Publications} completed publications", journal.Finalized, journal.Discarded, publications);
+        var purges = await PurgeCleanup.RecoverAsync(services.GetRequiredService<IStateStore>(), services.GetRequiredService<IIndexStore>(), cancellationToken).ConfigureAwait(false);
+        logger.LogInformation("Storage recovered: {Finalized} finalized mutations, {Discarded} discarded preparations, {Publications} completed publications, {Purges} completed purge cleanups", journal.Finalized, journal.Discarded, publications, purges);
+        if (services.GetService<IStagingRecovery>() is { } staging)
+        {
+            try { logger.LogInformation("Removed {Count} stale staging files", await staging.CleanStaleAsync(cancellationToken).ConfigureAwait(false)); }
+            catch (IOException) { logger.LogWarning("Stale staging files could not be inspected; they will be retried at the next start."); }
+        }
+        await services.GetRequiredService<IPersistentAdmissionAccounting>().RefreshAsync(cancellationToken).ConfigureAwait(false);
+        var activeSpace = await services.GetRequiredService<IEmbeddingWorkRepository>().ActiveAsync(cancellationToken).ConfigureAwait(false);
+        if (activeSpace is not null)
+        {
+            var index = services.GetRequiredService<IIndexStore>();
+            var vectors = VectorSnapshotRegistry.For(index);
+            using var gate = await vectors.EnterAsync(cancellationToken).ConfigureAwait(false);
+            await using var lease = await index.OpenReadConnectionAsync(cancellationToken).ConfigureAwait(false);
+            await using var transaction = await lease.Connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+            var vectorLoadStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+            using var loaded = await vectors.AcquireAsync(lease.Connection, transaction, activeSpace.Id, activeSpace.Dimensions, cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("Loaded {VectorCount} committed vectors before readiness: dimensions={Dimensions} elapsed_ms={ElapsedMilliseconds}",
+                loaded.Count, activeSpace.Dimensions, System.Diagnostics.Stopwatch.GetElapsedTime(vectorLoadStarted).TotalMilliseconds);
+        }
         Volatile.Write(ref ready, 1);
     }
 

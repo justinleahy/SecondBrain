@@ -1,0 +1,28 @@
+{
+  "documents": 100000,
+  "chunks": 1000000,
+  "database_full_corpus_equivalence": true,
+  "chunk_text_locator_mismatches": 0,
+  "lossless_search_text_offset_map_path_mismatches": 0,
+  "vector_cache_byte_mismatches": 0,
+  "missing_cache_owners": 0,
+  "all_documents_current_indexed_published": true,
+  "managed_original_hash_mismatches": 0,
+  "managed_original_modes": {
+    "0o644": 100000
+  },
+  "vault_mode": "0o755",
+  "originals_directory_mode": "0o755",
+  "data_root_mode": "0o700",
+  "original_hash_check_seconds": 2.0908641760470346,
+  "immediate_hybrid_equality_established": false,
+  "seed_assembly_provenance": {
+    "actual_configuration": "Debug",
+    "actual_seed_log_declared_assembly": "tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll",
+    "retained_assembly_sha256": "638eca24328ad662eaa021e4ca123fd91bd3be83e62bbd8dc84c55036a7db7c6",
+    "retained_assembly_mtime_epoch": 1791590765.0898156,
+    "seed_mode_validation_source_newer_than_actual_seed_assembly": true,
+    "mode_change_during_rebuild_established": false,
+    "future_harness_configuration": "Release explicit"
+  }
+}

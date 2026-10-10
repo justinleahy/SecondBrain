@@ -2,9 +2,9 @@
 
 # SecondBrain
 
-A personal knowledge daemon built on .NET 10 and Blazor Interactive Server. M0 now connects validated YAML configuration, two crash-safe SQLite stores, provider-neutral model roles, privacy transport, credentials, browser sessions, admission limits, source registration, deployment, and the `brain` CLI. Ingestion, extraction beyond ping/descriptor probes, search, and chat land in later milestones.
+A personal knowledge daemon built on .NET 10 and Blazor Interactive Server. M1 adds file/text capture, sandboxed extraction, lexical and semantic retrieval, structured queries, durable processing jobs, watched-folder reconciliation, and `brain add`, `search` and `query` to the M0 configuration, storage, privacy and authentication foundations. M1 remains **open**: 1,749 deterministic tests pass at the reviewed source freeze, with hardened Docker workflow, distinct-UID staging and local live-vLLM evidence. The final real 100k-document/1M-chunk deployment passes local latency, rebuild, equality, startup and memory targets after correcting the initial measured failures. Privileged systemd execution and the unavailable reference separate-LAN topology remain open in the [convergence report](docs/build/M1-convergence-report.md). Chat and MCP remain M2.
 
-**M0 is closed for the reference Fedora x86_64 / Tailscale deployment as of 2026-10-09.** The local mock and hardened Docker gates pass in CI, and the live vLLM qualification passed against the two-server [deploy/vllm](deploy/vllm/README.md) Compose project on the RTX 5090 host. Target-host evidence covers systemd socket activation, blocked canary with reachable vLLM roles, tailnet HTTPS from a real peer, `brain doctor`, and Linux Secret Service. The [closure record](docs/build/M0-convergence-report.md#m0-closure-2026-10-09) states the accepted scope and links the remaining Cloudflare, macOS Keychain, Linux arm64, certificate lifecycle and remote-runner follow-ups. [M1 — Ingest and search](docs/build/M1-ingest-and-search.md) is the next milestone.
+**M0 is closed for the reference Fedora x86_64 / Tailscale deployment as of 2026-10-09.** The local mock and hardened Docker gates pass in CI, and the live vLLM qualification passed against the two-server [deploy/vllm](deploy/vllm/README.md) Compose project on the RTX 5090 host. Target-host evidence covers systemd socket activation, blocked canary with reachable vLLM roles, tailnet HTTPS from a real peer, `brain doctor`, and Linux Secret Service. The [closure record](docs/build/M0-convergence-report.md#m0-closure-2026-10-09) states the accepted scope and links the remaining Cloudflare, macOS Keychain, Linux arm64, certificate lifecycle and remote-runner follow-ups. [M1 — Ingest and search](docs/build/M1-ingest-and-search.md) is the current milestone.
 
 ## Build and test
 
@@ -13,14 +13,14 @@ Install .NET SDK **10.0.105** (`global.json` permits the latest patch in its fea
 ```sh
 dotnet restore --locked-mode
 dotnet build -warnaserror --no-restore
-dotnet test --no-build --no-restore
+dotnet test --no-build --no-restore --filter 'Category!=Qualification'
 ```
 
-The solution is `SecondBrain.slnx`. Package versions are central in `Directory.Packages.props`; every project checks in `packages.lock.json`. After changing project references, regenerate locks with `dotnet restore --force-evaluate`, then verify locked restore. NuGet access is required until the package cache is populated. No package versions changed during convergence.
+The solution is `SecondBrain.slnx`. Package versions are central in `Directory.Packages.props`; every project checks in `packages.lock.json`. After changing project references, regenerate locks with `dotnet restore --force-evaluate`, then verify locked restore. NuGet access is required until the package cache is populated. M1 adds locked parser dependencies; the convergence report records the parser audit and AngleSharp update.
 
 Self-contained publishes use runtime **10.0.12**. `Directory.Build.targets` pins the implicit Blazor assets package to the same version. Ordinary development builds use the installed shared runtime. Tests use xUnit 2.
 
-CI restores locked dependencies, builds with warnings as errors, runs every deterministic test project, publishes self-contained `linux-x64` Server/CLI/Extractor binaries, builds the image, and executes the Compose gate. Tests with `Category=Qualification` run only in the manually dispatched live-provider workflow; an unset vLLM URL makes the local qualification test a no-op, which does not count as live qualification.
+CI restores locked dependencies, builds with warnings as errors, runs every deterministic test project, publishes self-contained `linux-x64` Server/CLI/Extractor binaries, builds the image, and executes the Compose gate. Tests with `Category=Qualification` are excluded from deterministic CI and run explicitly for live-provider or resource-intensive scale qualification; an unset vLLM URL makes the local qualification test a no-op, which does not count as live qualification.
 
 ```sh
 dotnet test tests/SecondBrain.Server.Tests --no-restore
@@ -37,7 +37,7 @@ dotnet test --no-build --no-restore --filter 'Category!=Qualification'
 | `SecondBrain.Providers.OpenAICompatible` | Reviewed model capabilities, role registry and policy-owned HTTP transport |
 | `SecondBrain.Server` | Composition, HTTP/HTTPS, Access assertions, account/API keys/sessions, limits, sources, diagnostics and mounted Razor shell |
 | `SecondBrain.Cli` | `brain` commands; local storage/account bootstrap and daemon HTTP adapters |
-| `SecondBrain.Extractor` | Isolated Unix-socket ping and descriptor-probe stub |
+| `SecondBrain.Extractor` | Isolated descriptor-based Markdown/text/PDF/HTML/DOCX extraction, bounded streaming results and worker supervision |
 | `tests/SecondBrain.MockProvider` | Explicit `mock-chat` and four-dimensional `mock-embed` test models |
 | `tests/SecondBrain.Architecture.Tests` | Dependency and layering rules for the projects above (see [docs/build/clean-architecture-plan.md](docs/build/clean-architecture-plan.md)) |
 
@@ -178,7 +178,18 @@ dotnet test tests/SecondBrain.Server.Tests --no-restore --filter 'Category=Quali
 
 The qualification test writes the supplied models, limits and `models.<role>.capabilities` declarations to YAML, loads them through the production configuration path, and probes all configured roles through production transport and `/ready`. A distinct embed URL becomes a second trusted provider, `vllm-embed`, in that configuration. A passing mock test or unset-URL no-op is not a substitute for this live run.
 
-[The M0 plan](docs/build/M0-foundations.md) defines the guarantees. [The M1 ingest and search draft](docs/build/M1-ingest-and-search.md) maps upcoming work and planned acceptance tests to the hooks delivered by M0.
+[The M0 plan](docs/build/M0-foundations.md) defines the foundation guarantees. [The M1 plan](docs/build/M1-ingest-and-search.md) defines ingest/search acceptance; [actual M1 evidence](docs/build/M1-convergence-report.md) distinguishes passing tests from remaining gates. The [retrieval seed evaluation](eval/README.md) uses recorded real-model embeddings with fixed labels. The [M1-to-M2 handoff](docs/build/M1-convergence-report.md#m1-to-m2-planning-handoff) records the next planning prerequisites.
+
+For an initialized daemon and a stored credential with `write` and `read`, use the same global `--url` and `--credential-name` options as the administrative commands:
+
+```sh
+brain add ./note.md --json
+printf 'A useful observation.\n' | brain add - --title 'Observation' --json
+brain search 'useful observation' --mode hybrid --json
+brain query --type note --json
+```
+
+File captures return durable document/job identifiers; inspect processing state before assuming extraction or vectors are ready. Keyword retrieval remains available when embedding is unavailable, and search responses report degraded modes explicitly. See the [CLI README](src/SecondBrain.Cli/README.md) for command options and the [extractor README](src/SecondBrain.Extractor/README.md) for format limits. OCR, transcript and calendar parsing are not implemented by M1.
 
 ## Contributing
 

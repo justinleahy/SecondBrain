@@ -1,0 +1,59 @@
+ Container secondbrain-m1-live-provision-run-64ac65888bd1 Creating
+ Container secondbrain-m1-live-provision-run-64ac65888bd1 Created
+ Container secondbrain-m1-live-provision-run-863ca1dd2fe6 Creating
+ Container secondbrain-m1-live-provision-run-863ca1dd2fe6 Created
+ Network secondbrain-m1-live_restricted Creating
+ Network secondbrain-m1-live_restricted Creating
+ Network secondbrain-m1-live_restricted Created
+ Network secondbrain-m1-live_restricted Created
+ Container secondbrain-m1-live-egress-1 Creating
+ Container secondbrain-m1-live-egress-1 Created
+ Container secondbrain-m1-live-egress-1 Starting
+ Container secondbrain-m1-live-egress-1 Started
+ Container secondbrain-m1-live-egress-1 Waiting
+ Container secondbrain-m1-live-egress-1 Healthy
+ Container secondbrain-m1-live-daemon-run-fffc5b22dd41 Creating
+ Container secondbrain-m1-live-daemon-run-fffc5b22dd41 Created
+ Container secondbrain-m1-live-egress-1 Running
+ Container secondbrain-m1-live-extractor-1 Creating
+ Container secondbrain-m1-live-extractor-1 Created
+ Container secondbrain-m1-live-daemon-1 Creating
+ Container secondbrain-m1-live-daemon-1 Created
+ Container secondbrain-m1-live-extractor-1 Starting
+ Container secondbrain-m1-live-extractor-1 Started
+ Container secondbrain-m1-live-egress-1 Waiting
+ Container secondbrain-m1-live-egress-1 Healthy
+ Container secondbrain-m1-live-daemon-1 Starting
+ Container secondbrain-m1-live-daemon-1 Started
+ Container secondbrain-m1-live-egress-1 Waiting
+ Container secondbrain-m1-live-daemon-1 Waiting
+ Container secondbrain-m1-live-extractor-1 Waiting
+ Container secondbrain-m1-live-extractor-1 Healthy
+ Container secondbrain-m1-live-egress-1 Healthy
+ Container secondbrain-m1-live-daemon-1 Healthy
+ Container secondbrain-m1-live-daemon-1 Stopping
+ Container secondbrain-m1-live-daemon-1 Stopped
+ Container secondbrain-m1-live-daemon-1 Removing
+ Container secondbrain-m1-live-daemon-1 Removed
+ Container secondbrain-m1-live-egress-1 Stopping
+ Container secondbrain-m1-live-extractor-1 Stopping
+ Container secondbrain-m1-live-extractor-1 Stopped
+ Container secondbrain-m1-live-extractor-1 Removing
+ Container secondbrain-m1-live-extractor-1 Removed
+ Container secondbrain-m1-live-egress-1 Stopped
+ Container secondbrain-m1-live-egress-1 Removing
+ Container secondbrain-m1-live-egress-1 Removed
+ Network secondbrain-m1-live_restricted Removing
+ Network secondbrain-m1-live_restricted Removed
+Traceback (most recent call last):
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-live-qualification.py", line 210, in <module>
+    main()
+    ~~~~^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-live-qualification.py", line 199, in main
+    phase('throughput_100_markdown_20_pdf_four_workers', bulk)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-live-qualification.py", line 86, in phase
+    result = action()
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-live-qualification.py", line 192, in bulk
+    raise RuntimeError('Throughput child failed; sanitized diagnostics: ' + str(artifact / 'throughput-child-stderr.log'))
+RuntimeError: Throughput child failed; sanitized diagnostics: /home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/live-publication-final-pass/throughput-child-stderr.log

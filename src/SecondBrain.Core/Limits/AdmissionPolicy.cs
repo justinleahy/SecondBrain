@@ -32,9 +32,18 @@ public interface IAdmissionController
 {
     AdmissionDecision TryReserve(string credentialId, AdmissionPolicy policy);
     AdmissionSnapshot Snapshot { get; }
+    void RestorePersistent(long version, int queuedJobs, long admittedBytes) { }
+
+    /// <summary>Rechecks global capacity, held reservations included, after persistent accounting was refreshed.</summary>
+    AdmissionDecision? ConfirmCapacity() => null;
 }
 
 public interface IDiskCapacity
 {
     long? AvailableBytes(string path);
+}
+
+public interface IPersistentAdmissionAccounting
+{
+    ValueTask<AdmissionSnapshot> RefreshAsync(CancellationToken cancellationToken = default);
 }

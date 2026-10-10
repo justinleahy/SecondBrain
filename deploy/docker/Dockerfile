@@ -40,8 +40,7 @@ ENV DOTNET_EnableDiagnostics=0 \
 # The base image already reserves UID/GID 1654. Name the deployment identities
 # without any runtime ability to add users or switch UIDs.
 RUN sed -i 's/^app:/secondbrain:/' /etc/passwd /etc/group \
-    && printf 'secondbrain-extract:x:1655:1654:SecondBrain extractor:/nonexistent:/usr/sbin/nologin\nsecondbrain-sync:x:1656:1656:SecondBrain sync:/nonexistent:/usr/sbin/nologin\n' >> /etc/passwd \
-    && printf 'secondbrain-sync:x:1656:\n' >> /etc/group
+    && printf 'secondbrain-extract:x:1655:1654:SecondBrain extractor:/nonexistent:/usr/sbin/nologin\nsecondbrain-sync:x:1656:1654:SecondBrain sync:/nonexistent:/usr/sbin/nologin\n' >> /etc/passwd
 COPY --chmod=0555 deploy/docker/entrypoint.sh /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 

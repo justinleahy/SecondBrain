@@ -1,0 +1,1940 @@
+ Image secondbrain-egress:local Building
+ Image secondbrain-mock-provider:local Building
+ Image secondbrain:local Building
+ Image secondbrain-extractor:local Building
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.30kB done
+#1 DONE 0.0s
+
+#2 [daemon internal] load build definition from Dockerfile
+#2 transferring dockerfile: 3.90kB done
+#2 DONE 0.1s
+
+#3 [egress internal] load build definition from Egress.Dockerfile
+#3 transferring dockerfile: 371B done
+#3 DONE 0.1s
+
+#4 [daemon internal] load metadata for mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+#4 DONE 0.1s
+
+#5 [extractor internal] load metadata for mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4
+#5 DONE 0.2s
+
+#6 [mock-provider internal] load .dockerignore
+#6 transferring context: 234B done
+#6 DONE 0.0s
+
+#7 [mock-provider internal] load build context
+#7 transferring context: 322.49kB 0.0s done
+#7 DONE 0.1s
+
+#8 [daemon build 1/6] FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+#8 resolve mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317
+#8 resolve mcr.microsoft.com/dotnet/sdk:10.0@sha256:e70cdb7f80b0348f5cb85f19a8f670fca061f033d57eed12fa003d58b0e06317 0.3s done
+#8 DONE 0.3s
+
+#6 [egress internal] load .dockerignore
+#6 transferring context: 234B done
+#6 DONE 0.0s
+
+#9 [mock-provider runtime-base 1/4] FROM mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4
+#9 resolve mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 0.2s done
+#9 DONE 0.2s
+
+#10 [extractor runtime-base 2/4] WORKDIR /app
+#10 CACHED
+
+#11 [egress internal] load metadata for docker.io/library/alpine:3.22.2@sha256:4b7ce07002c69e8f3d704a9c5d6fd3053be500b7f1c69fc0d80990c2ad8dd412
+#11 DONE 0.5s
+
+#12 [daemon build 2/6] RUN curl --fail --show-error --location         https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.105/dotnet-sdk-10.0.105-linux-x64.tar.gz         --output /tmp/dotnet-sdk.tar.gz     && printf '%s  %s\n'         '2b0ed13106e4c859ccb9e3a5f1a450e84605ebd89bd84ac3453b30810ecfa62b6957baaa2ed041cc2e932f512113e16e3ae200fe5c4b48be66767747a06f4e41'         '/tmp/dotnet-sdk.tar.gz' | sha512sum --check --strict     && tar --gzip --extract --no-same-owner --file /tmp/dotnet-sdk.tar.gz --directory /usr/share/dotnet     && rm /tmp/dotnet-sdk.tar.gz
+#12 CACHED
+
+#13 [mock-provider build 3/6] WORKDIR /source
+#13 CACHED
+
+#14 [egress internal] load build context
+#14 transferring context: 292B done
+#14 DONE 0.1s
+
+#15 [mock-provider build 4/6] COPY . .
+#15 ...
+
+#16 [egress 1/3] FROM docker.io/library/alpine:3.22.2@sha256:4b7ce07002c69e8f3d704a9c5d6fd3053be500b7f1c69fc0d80990c2ad8dd412
+#16 resolve docker.io/library/alpine:3.22.2@sha256:4b7ce07002c69e8f3d704a9c5d6fd3053be500b7f1c69fc0d80990c2ad8dd412 0.2s done
+#16 DONE 0.2s
+
+#17 [egress 2/3] RUN apk add --no-cache iptables
+#17 CACHED
+
+#18 [egress 3/3] COPY --chmod=0555 deploy/docker/egress-entrypoint.sh /usr/local/bin/egress-entrypoint
+#18 CACHED
+
+#19 [egress] exporting to image
+#19 exporting layers done
+#19 exporting manifest sha256:b150085fbde54b5578321df779363a7c737d7da5050af853e6b9a22cd32577c5 0.0s done
+#19 exporting config sha256:84f7878482df54088c809bdfb747fa3f93cfdbe60f5a7bc8564b893e2121a4d0 0.0s done
+#19 exporting attestation manifest sha256:a602a7128eec08b2e102f566b5b17c0d345808a529d2b8ef3c67ee0f9f141827 0.1s done
+#19 exporting manifest list sha256:7c1b95e744200221c9da5271c0683f52f853b2513d75ce5aad3518dbaa4efe81
+#19 exporting manifest list sha256:7c1b95e744200221c9da5271c0683f52f853b2513d75ce5aad3518dbaa4efe81 0.2s done
+#19 naming to docker.io/library/secondbrain-egress:local
+#19 naming to docker.io/library/secondbrain-egress:local 0.0s done
+#19 unpacking to docker.io/library/secondbrain-egress:local 0.1s done
+#19 DONE 0.4s
+
+#20 [extractor runtime-base 3/4] RUN sed -i 's/^app:/secondbrain:/' /etc/passwd /etc/group     && printf 'secondbrain-extract:x:1655:1654:SecondBrain extractor:/nonexistent:/usr/sbin/nologin\nsecondbrain-sync:x:1656:1654:SecondBrain sync:/nonexistent:/usr/sbin/nologin\n' >> /etc/passwd
+#20 DONE 0.7s
+
+#15 [mock-provider build 4/6] COPY . .
+#15 DONE 0.7s
+
+#21 [extractor build 5/6] RUN test "$(dotnet --version)" = 10.0.105     && dotnet restore SecondBrain.slnx --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=false     && dotnet publish src/SecondBrain.Server/SecondBrain.Server.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/server     && dotnet publish src/SecondBrain.Cli/SecondBrain.Cli.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/cli     && dotnet publish src/SecondBrain.Extractor/SecondBrain.Extractor.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/extractor
+#21 ...
+
+#22 [daemon runtime-base 4/4] COPY --chmod=0555 deploy/docker/entrypoint.sh /app/entrypoint.sh
+#22 DONE 0.9s
+
+#23 [egress] resolving provenance for metadata file
+#23 DONE 0.0s
+
+#21 [extractor build 5/6] RUN test "$(dotnet --version)" = 10.0.105     && dotnet restore SecondBrain.slnx --locked-mode --runtime linux-x64 -p:RuntimeIdentifier=linux-x64 -p:SelfContained=false     && dotnet publish src/SecondBrain.Server/SecondBrain.Server.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/server     && dotnet publish src/SecondBrain.Cli/SecondBrain.Cli.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/cli     && dotnet publish src/SecondBrain.Extractor/SecondBrain.Extractor.csproj         --configuration Release --runtime linux-x64 --self-contained false --no-restore         -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/extractor
+#21 1.720   Determining projects to restore...
+#21 5.168   Restored /source/src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj (in 2.89 sec).
+#21 5.169   Restored /source/src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj (in 2.89 sec).
+#21 5.169   Restored /source/tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj (in 2.89 sec).
+#21 5.188   Restored /source/src/SecondBrain.Core/SecondBrain.Core.csproj (in 2.92 sec).
+#21 5.200   Restored /source/src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj (in 2.92 sec).
+#21 5.203   Restored /source/src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj (in 2.92 sec).
+#21 5.218   Restored /source/src/SecondBrain.Extractor/SecondBrain.Extractor.csproj (in 2.95 sec).
+#21 5.218   Restored /source/src/SecondBrain.Storage/SecondBrain.Storage.csproj (in 2.95 sec).
+#21 5.221   Restored /source/tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj (in 2.95 sec).
+#21 5.221   Restored /source/src/SecondBrain.Server/SecondBrain.Server.csproj (in 2.95 sec).
+#21 5.222   Restored /source/tests/SecondBrain.Infrastructure.Tests/SecondBrain.Infrastructure.Tests.csproj (in 2.95 sec).
+#21 5.235   Restored /source/tests/SecondBrain.Architecture.Tests/SecondBrain.Architecture.Tests.csproj (in 2.95 sec).
+#21 5.235   Restored /source/src/SecondBrain.Cli/SecondBrain.Cli.csproj (in 2.96 sec).
+#21 5.236   Restored /source/tests/SecondBrain.Extractor.Tests/SecondBrain.Extractor.Tests.csproj (in 2.96 sec).
+#21 5.241   Restored /source/tests/SecondBrain.Storage.Tests/SecondBrain.Storage.Tests.csproj (in 2.96 sec).
+#21 5.245   Restored /source/tests/SecondBrain.Providers.OpenAICompatible.Tests/SecondBrain.Providers.OpenAICompatible.Tests.csproj (in 2.96 sec).
+#21 5.245   Restored /source/tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj (in 2.96 sec).
+#21 5.246   Restored /source/tests/SecondBrain.Server.Tests/SecondBrain.Server.Tests.csproj (in 2.97 sec).
+#21 7.894   SecondBrain.Extraction.Contracts -> /source/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+#21 7.894   SecondBrain.Extractor.Wire -> /source/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+#21 8.440   SecondBrain.Core -> /source/src/SecondBrain.Core/bin/Release/net10.0/linux-x64/SecondBrain.Core.dll
+#21 9.027   SecondBrain.Providers.OpenAICompatible -> /source/src/SecondBrain.Providers.OpenAICompatible/bin/Release/net10.0/linux-x64/SecondBrain.Providers.OpenAICompatible.dll
+#21 9.121   SecondBrain.Infrastructure -> /source/src/SecondBrain.Infrastructure/bin/Release/net10.0/linux-x64/SecondBrain.Infrastructure.dll
+#21 9.418   SecondBrain.Storage -> /source/src/SecondBrain.Storage/bin/Release/net10.0/linux-x64/SecondBrain.Storage.dll
+#21 11.61   SecondBrain.Server -> /source/src/SecondBrain.Server/bin/Release/net10.0/linux-x64/SecondBrain.Server.dll
+#21 11.90   SecondBrain.Server -> /publish/server/
+#21 12.57   SecondBrain.Extractor.Wire -> /source/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+#21 12.66   SecondBrain.Extraction.Contracts -> /source/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+#21 12.71   SecondBrain.Core -> /source/src/SecondBrain.Core/bin/Release/net10.0/linux-x64/SecondBrain.Core.dll
+#21 12.76   SecondBrain.Infrastructure -> /source/src/SecondBrain.Infrastructure/bin/Release/net10.0/linux-x64/SecondBrain.Infrastructure.dll
+#21 12.77   SecondBrain.Storage -> /source/src/SecondBrain.Storage/bin/Release/net10.0/linux-x64/SecondBrain.Storage.dll
+#21 12.81   SecondBrain.Providers.OpenAICompatible -> /source/src/SecondBrain.Providers.OpenAICompatible/bin/Release/net10.0/linux-x64/SecondBrain.Providers.OpenAICompatible.dll
+#21 13.03   SecondBrain.Server -> /source/src/SecondBrain.Server/bin/Release/net10.0/linux-x64/SecondBrain.Server.dll
+#21 13.49   SecondBrain.Cli -> /source/src/SecondBrain.Cli/bin/Release/net10.0/linux-x64/brain.dll
+#21 13.54   SecondBrain.Cli -> /publish/cli/
+#21 14.17   SecondBrain.Extraction.Contracts -> /source/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+#21 14.24   SecondBrain.Extractor.Wire -> /source/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+#21 14.48   SecondBrain.Extractor -> /source/src/SecondBrain.Extractor/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.dll
+#21 14.52   SecondBrain.Extractor -> /publish/extractor/
+#21 DONE 15.3s
+
+#24 [extractor build 6/6] RUN dotnet publish tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj     --configuration Release --runtime linux-x64 --self-contained false --no-restore     -warnaserror -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --output /publish/mock-provider
+#24 3.875   SecondBrain.MockProvider -> /source/tests/SecondBrain.MockProvider/bin/Release/net10.0/linux-x64/SecondBrain.MockProvider.dll
+#24 3.900   SecondBrain.MockProvider -> /publish/mock-provider/
+#24 DONE 4.1s
+
+#25 [extractor extractor 1/1] COPY --from=build --chown=1655:1654 /publish/extractor/ /app/extractor/
+#25 ...
+
+#26 [daemon server 1/3] COPY --from=build --chown=1654:1654 /publish/server/ /app/server/
+#26 DONE 0.4s
+
+#25 [extractor extractor 1/1] COPY --from=build --chown=1655:1654 /publish/extractor/ /app/extractor/
+#25 DONE 0.3s
+
+#27 [mock-provider mock-provider 1/1] COPY --from=build --chown=1654:1654 /publish/mock-provider/ /app/mock-provider/
+#27 DONE 0.3s
+
+#28 [mock-provider] exporting to image
+#28 exporting layers
+#28 ...
+
+#29 [daemon server 2/3] COPY --from=build --chown=1654:1654 /publish/cli/ /app/cli/
+#29 DONE 0.8s
+
+#30 [daemon server 3/3] COPY --chown=1654:1654 deploy/ /app/deploy/
+#30 DONE 0.6s
+
+#31 [daemon] exporting to image
+#31 ...
+
+#28 [mock-provider] exporting to image
+#28 exporting layers 1.1s done
+#28 exporting manifest sha256:8d8a7c04ff7260a9619ee05b844357cfac85dcda514334bf0cf3c511784ca8b1 0.1s done
+#28 exporting config sha256:05010a49d434106669d57427bb2786f8e60b3f37feaa3bd97d4dd4b0812d7105 0.1s done
+#28 exporting attestation manifest sha256:e892d0b5e706953af6841e86dd0bd9dae4bf850d690a15bef5f57407743ac4e8 0.1s done
+#28 exporting manifest list sha256:0f4551f3c9d1eaf21d3f2d87645c1ae360b9b13760b01da885cab0ec08560c04 0.1s done
+#28 naming to docker.io/library/secondbrain-mock-provider:local 0.1s done
+#28 unpacking to docker.io/library/secondbrain-mock-provider:local 0.7s done
+#28 DONE 2.6s
+
+#32 [extractor] exporting to image
+#32 exporting layers 1.4s done
+#32 exporting manifest sha256:30b0054d47cc0cac83e0ef2c5e20f4ec3e282ebe902f95927aa075b42ed6f286 0.1s done
+#32 exporting config sha256:e1437b715e86e6b4d3808f0b23983e11982ee0c6719a6c83f360b4c18460dbd3 0.1s done
+#32 exporting attestation manifest sha256:2ace589a7094dca3f36a8651c41d5333db588a42c4cdb9af13ecb12395755f79 0.2s done
+#32 exporting manifest list sha256:5b57b8bae71ae74555c51686ef6141cee48c7f37f522efb0d5bd9e02005de265 0.1s done
+#32 naming to docker.io/library/secondbrain-extractor:local 0.0s done
+#32 unpacking to docker.io/library/secondbrain-extractor:local 0.4s done
+#32 DONE 2.6s
+
+#31 [daemon] exporting to image
+#31 exporting layers 1.5s done
+#31 exporting manifest sha256:f37374a156200b2bd89e3aafd2f0e7eb405cb1f65a92bea74fd3c439ca81e423 0.1s done
+#31 exporting config sha256:7ff285e651e9cc171166f16f2473162a83270cfddeae2a6fb2d9469b969128ec 0.1s done
+#31 exporting attestation manifest sha256:7c82d5faaa35df6f41cce8ba252b292280685687554e84e3a70b93d520d2887f 0.1s done
+#31 exporting manifest list sha256:4802b48e5accb1753e15523f5bbb98549dfdf7edbcb5d8a0afb98a4ff628ce8a
+#31 exporting manifest list sha256:4802b48e5accb1753e15523f5bbb98549dfdf7edbcb5d8a0afb98a4ff628ce8a 0.1s done
+#31 naming to docker.io/library/secondbrain:local
+#31 naming to docker.io/library/secondbrain:local 0.0s done
+#31 unpacking to docker.io/library/secondbrain:local
+#31 ...
+
+#33 [mock-provider] resolving provenance for metadata file
+#33 DONE 0.2s
+
+#34 [extractor] resolving provenance for metadata file
+#34 DONE 0.0s
+
+#31 [daemon] exporting to image
+#31 unpacking to docker.io/library/secondbrain:local 0.4s done
+#31 DONE 2.4s
+
+#35 [daemon] resolving provenance for metadata file
+#35 DONE 0.0s
+ Image secondbrain:local Built
+ Image secondbrain-extractor:local Built
+ Image secondbrain-egress:local Built
+ Image secondbrain-mock-provider:local Built
+ Volume secondbrain-m1-closure_runtime Creating
+ Volume secondbrain-m1-closure_runtime Creating
+ Volume secondbrain-m1-closure_runtime Created
+ Volume secondbrain-m1-closure_runtime Created
+ Container secondbrain-m1-closure-provision-run-9f91a9a0c260 Creating
+ Container secondbrain-m1-closure-provision-run-9f91a9a0c260 Created
+Host provisioned.
+{
+  "dryRun": false,
+  "actions": [
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain/keyring",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain-incoming",
+      "detail": "mode=750 uid=1656 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain-incoming/inbox",
+      "detail": "mode=1770 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/srv/secondbrain-incoming/inbox/.claimed",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/etc/secondbrain",
+      "detail": "mode=750 uid=0 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/etc/secondbrain/secrets",
+      "detail": "mode=700 uid=1654 gid=1654"
+    },
+    {
+      "kind": "directory",
+      "target": "/run/secondbrain",
+      "detail": "mode=2770 uid=1654 gid=1654"
+    },
+    {
+      "kind": "file",
+      "target": "/etc/secondbrain/config.yaml",
+      "detail": "create if absent; mode=600; daemon-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/compose.yaml",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/.env.example",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/cloudflared.yaml",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/Egress.Dockerfile",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/egress-entrypoint.sh",
+      "detail": "create if absent; mode=644; root-owned"
+    },
+    {
+      "kind": "template",
+      "target": "/provision/project/entrypoint.sh",
+      "detail": "create if absent; mode=644; root-owned"
+    }
+  ]
+}
+ Container secondbrain-m1-closure-provision-run-67da87177af0 Creating
+ Container secondbrain-m1-closure-provision-run-67da87177af0 Created
+ Network secondbrain-m1-closure_restricted Creating
+ Network secondbrain-m1-closure_restricted Creating
+ Network secondbrain-m1-closure_restricted Created
+ Network secondbrain-m1-closure_restricted Created
+ Container secondbrain-m1-closure-egress-1 Creating
+ Container secondbrain-m1-closure-egress-1 Created
+ Container secondbrain-m1-closure-egress-1 Starting
+ Container secondbrain-m1-closure-egress-1 Started
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-daemon-run-ee57ed62f349 Creating
+ Container secondbrain-m1-closure-daemon-run-ee57ed62f349 Created
+ Container secondbrain-m1-closure-egress-1 Running
+ Container secondbrain-m1-closure-extractor-1 Creating
+ Container secondbrain-m1-closure-mock-provider-1 Creating
+ Container secondbrain-m1-closure-mock-provider-1 Created
+ Container secondbrain-m1-closure-extractor-1 Created
+ Container secondbrain-m1-closure-daemon-1 Creating
+ Container secondbrain-m1-closure-daemon-1 Created
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-extractor-1 Starting
+ Container secondbrain-m1-closure-extractor-1 Started
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-mock-provider-1 Starting
+ Container secondbrain-m1-closure-mock-provider-1 Started
+ Container secondbrain-m1-closure-mock-provider-1 Waiting
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-mock-provider-1 Healthy
+ Container secondbrain-m1-closure-daemon-1 Starting
+ Container secondbrain-m1-closure-daemon-1 Started
+ Container secondbrain-m1-closure-mock-provider-1 Waiting
+ Container secondbrain-m1-closure-egress-1 Waiting
+ Container secondbrain-m1-closure-daemon-1 Waiting
+ Container secondbrain-m1-closure-extractor-1 Waiting
+ Container secondbrain-m1-closure-extractor-1 Healthy
+ Container secondbrain-m1-closure-egress-1 Healthy
+ Container secondbrain-m1-closure-mock-provider-1 Healthy
+ Container secondbrain-m1-closure-daemon-1 Healthy
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+{"ready":true,"components":{"stores":{"ready":true,"detail":null,"checkedAt":null},"migrations":{"ready":true,"detail":"Migrations and durability recovery completed.","checkedAt":null},"lock":{"ready":true,"detail":"Exclusive data-root lock.","checkedAt":null},"canary":{"ready":true,"detail":"Egress canary: Blocked. Egress canary state is current.","checkedAt":"2026-10-10T00:14:41.538246+00:00"},"extractor":{"ready":true,"detail":"Extractor answered ping.","checkedAt":null},"provider:chat":{"ready":true,"detail":null,"checkedAt":"2026-10-10T00:14:42.9730562+00:00"},"provider:enrich":{"ready":true,"detail":null,"checkedAt":"2026-10-10T00:14:42.9763365+00:00"},"provider:embed":{"ready":true,"detail":null,"checkedAt":"2026-10-10T00:14:42.9771689+00:00"},"provider:rerank":{"ready":true,"detail":"Optional rerank role is not configured.","checkedAt":"2026-10-10T00:14:42.9793265+00:00"}}}{"exitCode":0,"code":"ok","message":"Login credential stored.","data":{"origin":"http://127.0.0.1:7171","name":"compose-smoke","scopes":["admin"],"credentialId":"01M4HJK00N80TCM7EJPVECR1WN"}}
+{"exitCode":0,"code":"ok","message":"API keys listed.","data":[{"id":"01M4HHW5N0WTW86ZM0NQ4DPQ0X","name":"admin","kind":"api_key","scopes":"read,write,infer,admin","generation":1,"device":null,"createdAt":"2026-10-10T00:02:17.1029156\u002B00:00","lastUsedAt":null,"expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null},{"id":"01M4HJK00N80TCM7EJPVECR1WN","name":"compose-smoke","kind":"api_key","scopes":"admin","generation":1,"device":null,"createdAt":"2026-10-10T00:14:44.7573342\u002B00:00","lastUsedAt":"2026-10-10T00:14:45.2498191\u002B00:00","expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null},{"id":"01M4HJK099XWRCREC04M6RK9ZN","name":"compose-smoke","kind":"api_key","scopes":"read","generation":1,"device":null,"createdAt":"2026-10-10T00:14:45.0334936\u002B00:00","lastUsedAt":null,"expiresAt":null,"idleExpiresAt":null,"absoluteExpiresAt":null,"revokedAt":null}]}
+{"exitCode":0,"code":"ok","message":"API key revoked.","data":null}
+{"exitCode":0,"code":"ok","message":"Providers and models listed.","data":[{"name":"mock","endpoint":"http://127.0.0.1:8181/v1","isLocal":true,"models":["mock-chat","mock-embed"],"roles":[{"role":"chat","model":"mock-chat","capabilities":{"streaming":true,"tools":true,"nativeCitations":false,"reasoningControl":false,"reasoningMapping":null,"promptCaching":false,"structuredOutput":false,"batch":false},"limits":{"contextTokens":8192,"maxOutputTokens":1024,"embedDimensions":null,"embedMaxInputTokens":null,"embedBatchMax":null}},{"role":"enrich","model":"mock-chat","capabilities":{"streaming":true,"tools":true,"nativeCitations":false,"reasoningControl":false,"reasoningMapping":null,"promptCaching":false,"structuredOutput":false,"batch":false},"limits":{"contextTokens":8192,"maxOutputTokens":1024,"embedDimensions":null,"embedMaxInputTokens":null,"embedBatchMax":null}},{"role":"embed","model":"mock-embed","capabilities":{"streaming":false,"tools":false,"nativeCitations":false,"reasoningControl":false,"reasoningMapping":null,"promptCaching":false,"structuredOutput":false,"batch":false},"limits":{"contextTokens":null,"maxOutputTokens":null,"embedDimensions":4,"embedMaxInputTokens":8192,"embedBatchMax":32}}]}]}
+{"exitCode":0,"code":"ok","message":"Provider checks passed.","data":[{"role":"chat","provider":"mock","isHealthy":true,"checkedAt":"2026-10-10T00:14:45.9661734\u002B00:00","detail":null},{"role":"enrich","provider":"mock","isHealthy":true,"checkedAt":"2026-10-10T00:14:45.9668494\u002B00:00","detail":null},{"role":"embed","provider":"mock","isHealthy":true,"checkedAt":"2026-10-10T00:14:45.9674609\u002B00:00","detail":null}]}
+{"exitCode":0,"code":"ok","message":"Browser session revoked.","data":{"id":"01M4HJK1J6PRB914FT17J3HCK3"}}
+{"exitCode":0,"code":"ok","message":"All sessions and API keys invalidated by the account epoch change.","data":null}
+{"exitCode":0,"code":"ok","message":"Login credential stored.","data":{"origin":"http://127.0.0.1:7171","name":"compose-smoke","scopes":["admin"],"credentialId":"01M4HJK4XMY8N5Q9NDTBT8212W"}}
+{"exitCode":0,"code":"ok","message":"All diagnostics passed.","data":[{"name":"/srv/secondbrain","passed":true,"message":"Root mode is correct."},{"name":"/srv/secondbrain","passed":true,"message":"Root ownership is correct."},{"name":"/srv/secondbrain-incoming","passed":true,"message":"Root mode is correct."},{"name":"/srv/secondbrain-incoming","passed":true,"message":"Root ownership is correct."},{"name":"listener.127.0.0.1:7171","passed":true,"message":"Listener binds an assigned private or loopback interface."},{"name":"listener.7171.actual-exposure","passed":true,"message":"Inspect all currently active binds for this configured port; public or wildcard listeners are refused."},{"name":"listener.172.31.0.2:8080","passed":true,"message":"Listener binds an assigned private or loopback interface."},{"name":"listener.8080.actual-exposure","passed":true,"message":"Inspect all currently active binds for this configured port; public or wildcard listeners are refused."},{"name":"keyring.directory","passed":true,"message":"Key ring must be daemon-owned, 0700, and not a symbolic link."},{"name":"keyring.keys","passed":true,"message":"Data Protection and HMAC key material must both exist."},{"name":"keyring.hmac-integrity","passed":true,"message":"HMAC active kid and retained keys are valid."},{"name":"keyring.file..lock","passed":true,"message":"Key material must be daemon-owned, 0600, and not a symbolic link."},{"name":"keyring.file.hmac.json","passed":true,"message":"Key material must be daemon-owned, 0600, and not a symbolic link."},{"name":"keyring.file.key-65999032-8887-4e8d-862e-4b833c577d1f.xml","passed":true,"message":"Key material must be daemon-owned, 0600, and not a symbolic link."},{"name":"extractor.socket","passed":true,"message":"Extractor answered ping."},{"name":"models.bindings","passed":true,"message":"Chat, enrich and embed require explicit provider/model bindings before readiness."},{"name":"stores","passed":true,"message":"Dependency is ready."},{"name":"migrations","passed":true,"message":"Migrations and durability recovery completed."},{"name":"lock","passed":true,"message":"Exclusive data-root lock."},{"name":"canary","passed":true,"message":"Egress canary: Blocked. Egress canary state is current."},{"name":"extractor","passed":true,"message":"Extractor answered ping."},{"name":"provider:chat","passed":true,"message":"Dependency is ready."},{"name":"provider:enrich","passed":true,"message":"Dependency is ready."},{"name":"provider:embed","passed":true,"message":"Dependency is ready."},{"name":"provider:rerank","passed":true,"message":"Optional rerank role is not configured."},{"name":"capabilities:chat","passed":true,"message":"mock/mock-chat; streaming=True, tools=True, context_tokens=8192, max_output_tokens=1024, embed_dimensions=, embed_max_input_tokens=, embed_batch_max=."},{"name":"capabilities:enrich","passed":true,"message":"mock/mock-chat; streaming=True, tools=True, context_tokens=8192, max_output_tokens=1024, embed_dimensions=, embed_max_input_tokens=, embed_batch_max=."},{"name":"capabilities:embed","passed":true,"message":"mock/mock-embed; streaming=False, tools=False, context_tokens=, max_output_tokens=, embed_dimensions=4, embed_max_input_tokens=8192, embed_batch_max=32."},{"name":"trusted-services","passed":true,"message":"Exact trusted origins are validated and DNS addresses pinned by the privacy policy."},{"name":"cloudflare-access.refresh","passed":true,"message":"Cloudflare Access is not configured on this private daemon."},{"name":"keyring","passed":true,"message":"Active HMAC key and Data Protection provider are loaded."}]}
+Traceback (most recent call last):
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-workflow.py", line 115, in <module>
+    wait(lambda: any(hit['document_id']==pdf_id and hit['page']==1 for hit in search('spectroscopy')))
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-workflow.py", line 51, in wait
+    result = predicate()
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-workflow.py", line 115, in <lambda>
+    wait(lambda: any(hit['document_id']==pdf_id and hit['page']==1 for hit in search('spectroscopy')))
+                                                                              ~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-workflow.py", line 57, in search
+    return request('POST', '/v1/search', {'query':term, 'mode':mode, 'filters':{'source':source} if source else None})['results']
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-workflow.py", line 36, in request
+    with client.open(urllib.request.Request(args.origin + path, raw, supplied, method=method), timeout=130) as response:
+         ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/urllib/request.py", line 493, in open
+    response = meth(req, response)
+  File "/usr/lib64/python3.14/urllib/request.py", line 602, in http_response
+    response = self.parent.error(
+        'http', request, response, code, msg, hdrs)
+  File "/usr/lib64/python3.14/urllib/request.py", line 531, in error
+    return self._call_chain(*args)
+           ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/usr/lib64/python3.14/urllib/request.py", line 464, in _call_chain
+    result = func(*args)
+  File "/usr/lib64/python3.14/urllib/request.py", line 611, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 429: Too Many Requests
+daemon-1  | warn: Microsoft.AspNetCore.DataProtection.Repositories.EphemeralXmlRepository[50]
+extractor-1  | info: Microsoft.Hosting.Lifetime[0]
+daemon-1     |       Using an in-memory repository. Keys will not be persisted to storage.
+daemon-1     | warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[59]
+daemon-1     |       Neither user profile nor HKLM registry available. Using an ephemeral key repository. Protected data will be unavailable when application exits.
+daemon-1     | info: SecondBrain.Storage.StorageStartupService[0]
+daemon-1     |       Storage recovered: 0 finalized mutations, 0 discarded preparations, 0 completed publications, 0 completed purge cleanups
+daemon-1     | info: SecondBrain.Storage.StorageStartupService[0]
+daemon-1     |       Removed 0 stale staging files
+daemon-1     | info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[58]
+daemon-1     |       Creating key {9ec670c1-fdc2-4b8d-9b70-abc6cad4fcd1} with creation date 2026-10-10 00:14:41Z, activation date 2026-10-10 00:14:41Z, and expiration date 2027-01-08 00:14:41Z.
+daemon-1     | warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+daemon-1     |       No XML encryptor configured. Key {9ec670c1-fdc2-4b8d-9b70-abc6cad4fcd1} may be persisted to storage in unencrypted form.
+daemon-1     | warn: Microsoft.AspNetCore.Hosting.Diagnostics[15]
+daemon-1     |       Overriding HTTP_PORTS '8080' and HTTPS_PORTS ''. Binding to values defined by URLS instead 'http://127.0.0.1:7171;http://172.31.0.2:8080'.
+daemon-1     | warn: Microsoft.AspNetCore.Server.Kestrel[0]
+daemon-1     |       Overriding address(es) 'http://127.0.0.1:7171, http://172.31.0.2:8080'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+daemon-1     | info: Microsoft.Hosting.Lifetime[14]
+daemon-1     |       Now listening on: http://127.0.0.1:7171
+daemon-1     | info: Microsoft.Hosting.Lifetime[14]
+daemon-1     |       Now listening on: http://172.31.0.2:8080
+daemon-1         | info: Microsoft.Hosting.Lifetime[0]
+mock-provider-1  | warn: Microsoft.AspNetCore.Hosting.Diagnostics[15]
+mock-provider-1  |       Overriding HTTP_PORTS '8080' and HTTPS_PORTS ''. Binding to values defined by URLS instead 'http://127.0.0.1:8181'.
+mock-provider-1  | info: Microsoft.Hosting.Lifetime[14]
+mock-provider-1  |       Now listening on: http://127.0.0.1:8181
+daemon-1         |       Application started. Press Ctrl+C to shut down.
+mock-provider-1  | info: Microsoft.Hosting.Lifetime[0]
+mock-provider-1  |       Application started. Press Ctrl+C to shut down.
+mock-provider-1  | info: Microsoft.Hosting.Lifetime[0]
+mock-provider-1  |       Hosting environment: Production
+mock-provider-1  | info: Microsoft.Hosting.Lifetime[0]
+mock-provider-1  |       Content root path: /app
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  |       Request starting HTTP/1.1 GET http://127.0.0.1:8181/v1/models - - -
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+daemon-1         | info: Microsoft.Hosting.Lifetime[0]
+daemon-1         |       Hosting environment: Production
+daemon-1         | info: Microsoft.Hosting.Lifetime[0]
+daemon-1         |       Content root path: /app
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/health - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /health'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /health'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/health - 200 0 - 101.2933ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/ready - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Writing value of type '<>f__AnonymousType1`2' as Json.
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: GET /v1/models'
+daemon-1         |       Executing endpoint 'HTTP: GET /ready => RespondAsync'
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /ready => RespondAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/ready - 200 - application/json;+charset=utf-8 169.7628ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/login - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/login - 200 - application/json;+charset=utf-8 1145.3905ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 GET http://127.0.0.1:8181/v1/models - 200 - application/json;+charset=utf-8 64.6054ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+extractor-1  |       Application started. Press Ctrl+C to shut down.
+mock-provider-1  |       Request starting HTTP/1.1 GET http://127.0.0.1:8181/v1/models - - -
+extractor-1      | info: Microsoft.Hosting.Lifetime[0]
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+mock-provider-1  |       Writing value of type '<>f__AnonymousType1`2' as Json.
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: GET /v1/models'
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+extractor-1      |       Hosting environment: Production
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+extractor-1      | info: SecondBrain.Extractor.ExtractorSocketServer[0]
+extractor-1      |       Extractor socket ready at /run/secondbrain/extractor.sock; activated: False
+extractor-1      | info: Microsoft.Hosting.Lifetime[0]
+extractor-1      |       Content root path: /app
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 21.0211ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Request finished HTTP/1.1 GET http://127.0.0.1:8181/v1/models - 200 - application/json;+charset=utf-8 1.5900ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  |       Request starting HTTP/1.1 GET http://127.0.0.1:8181/v1/models - - -
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+mock-provider-1  |       Writing value of type '<>f__AnonymousType1`2' as Json.
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 GET http://127.0.0.1:8181/v1/models - 200 - application/json;+charset=utf-8 0.1097ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  |       Request starting HTTP/1.1 GET http://127.0.0.1:8181/v1/models - - -
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+mock-provider-1  |       Writing value of type '<>f__AnonymousType1`2' as Json.
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 GET http://127.0.0.1:8181/v1/models - 200 - application/json;+charset=utf-8 0.2899ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  |       Request starting HTTP/1.1 GET http://127.0.0.1:8181/v1/models - - -
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+mock-provider-1  |       Writing value of type '<>f__AnonymousType1`2' as Json.
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 GET http://127.0.0.1:8181/v1/models - 200 - application/json;+charset=utf-8 0.3158ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  |       Request starting HTTP/1.1 GET http://127.0.0.1:8181/v1/models - - -
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: GET /v1/models'
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - 200 - application/json;+charset=utf-8 372.5782ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+mock-provider-1  |       Writing value of type '<>f__AnonymousType1`2' as Json.
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 GET http://127.0.0.1:8181/v1/models - 200 - application/json;+charset=utf-8 0.1321ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  |       Request starting HTTP/1.1 GET http://127.0.0.1:8181/v1/models - - -
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+mock-provider-1  |       Writing value of type '<>f__AnonymousType1`2' as Json.
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: GET /v1/models'
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 GET http://127.0.0.1:8181/v1/models - 200 - application/json;+charset=utf-8 0.1019ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+mock-provider-1  |       Request starting HTTP/1.1 POST http://127.0.0.1:8181/v1/embeddings - application/json 132
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: POST /v1/embeddings'
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: POST /v1/embeddings'
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 POST http://127.0.0.1:8181/v1/embeddings - 200 - application/json;+charset=utf-8 13.3268ms
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 5.8015ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/keys - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /keys'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.CreatedResult[1]
+daemon-1         |       Setting HTTP status code 201.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.CreatedResult[3]
+daemon-1         |       Writing value of type 'KeyCreatedResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /keys'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/keys - 201 - application/json;+charset=utf-8 21.5595ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+mock-provider-1  |       Request starting HTTP/1.1 POST http://127.0.0.1:8181/v1/embeddings - application/json 169
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+mock-provider-1  |       Executing endpoint 'HTTP: POST /v1/embeddings'
+mock-provider-1  | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+mock-provider-1  |       Executed endpoint 'HTTP: POST /v1/embeddings'
+mock-provider-1  | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+mock-provider-1  |       Request finished HTTP/1.1 POST http://127.0.0.1:8181/v1/embeddings - 200 - application/json;+charset=utf-8 0.4917ms
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 6.3145ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.NoContentResult[1]
+daemon-1         |       Setting HTTP status code 204.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - 204 - - 13.8742ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/keys - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /keys'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.CreatedResult[1]
+daemon-1         |       Setting HTTP status code 201.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.CreatedResult[3]
+daemon-1         |       Writing value of type 'KeyCreatedResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /keys'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/keys - 201 - application/json;+charset=utf-8 13.9406ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/keys - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /keys'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary[]' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /keys'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/keys - 200 - application/json;+charset=utf-8 12.8641ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 DELETE http://127.0.0.1:7171/keys/01M4HJK099XWRCREC04M6RK9ZN - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: DELETE /keys/{id}'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.NoContentResult[1]
+daemon-1         |       Setting HTTP status code 204.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: DELETE /keys/{id}'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 DELETE http://127.0.0.1:7171/keys/01M4HJK099XWRCREC04M6RK9ZN - 204 - - 14.0618ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/providers - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /providers'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'ArraySelectIterator`2' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /providers'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/providers - 200 - application/json;+charset=utf-8 18.9522ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/providers/test - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /providers/test'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type '<>f__AnonymousType2`5[]' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /providers/test'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/providers/test - 200 - application/json;+charset=utf-8 14.2573ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/login - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint '/login (/login)'
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint '/login (/login)'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/login - 200 - text/html;+charset=utf-8 53.5673ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/_framework/blazor.web.js - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'Microsoft.AspNetCore.Routing.RouteEndpoint'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/_framework/blazor.web.js - 200 0 - 2.2498ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/auth/login - application/x-www-form-urlencoded 214
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/auth/login - 303 0 - 253.3130ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/ - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint '/ (/)'
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint '/ (/)'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/ - 200 - text/html;+charset=utf-8 15.1794ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/auth/me - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/me'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AuthenticatedCredential' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/me'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/auth/me - 200 - application/json;+charset=utf-8 10.5229ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/login - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/login - 200 - application/json;+charset=utf-8 273.4309ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/sessions - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/sessions'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary[]' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/sessions'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/sessions - 200 - application/json;+charset=utf-8 6.4060ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 6.2983ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.NoContentResult[1]
+daemon-1         |       Setting HTTP status code 204.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - 204 - - 10.9623ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/login - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/login - 200 - application/json;+charset=utf-8 263.8036ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 5.5820ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - 200 - application/json;+charset=utf-8 273.2364ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 5.3602ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 DELETE http://127.0.0.1:7171/auth/sessions/01M4HJK1J6PRB914FT17J3HCK3 - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: DELETE /auth/sessions/{id}'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.NoContentResult[1]
+daemon-1         |       Setting HTTP status code 204.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: DELETE /auth/sessions/{id}'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 DELETE http://127.0.0.1:7171/auth/sessions/01M4HJK1J6PRB914FT17J3HCK3 - 204 - - 11.6308ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 6.0336ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.NoContentResult[1]
+daemon-1         |       Setting HTTP status code 204.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - 204 - - 10.8765ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/auth/me - - -
+daemon-1         | info: SecondBrain.Server.Auth.CredentialAuthenticationHandler[7]
+daemon-1         |       SecondBrainCredentials was not authenticated. Failure message: Invalid or expired credential.
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/auth/me - 401 - application/problem+json 5.8638ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/auth/login - application/json 37
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/auth/login - 200 - application/json;+charset=utf-8 276.6797ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/login - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/login - 200 - application/json;+charset=utf-8 264.2925ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 5.5786ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - 200 - application/json;+charset=utf-8 268.9615ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 6.2890ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/logout-all - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/logout-all'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.NoContentResult[1]
+daemon-1         |       Setting HTTP status code 204.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/logout-all'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/logout-all - 204 - - 16.5205ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 0.2271ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - 401 - application/problem+json 0.0792ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/auth/me - - -
+daemon-1         | info: SecondBrain.Server.Auth.CredentialAuthenticationHandler[7]
+daemon-1         |       SecondBrainCredentials was not authenticated. Failure message: Invalid or expired credential.
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/auth/me - 401 - application/problem+json 0.6232ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/keys - - -
+daemon-1         | info: SecondBrain.Server.Auth.CredentialAuthenticationHandler[7]
+daemon-1         |       SecondBrainCredentials was not authenticated. Failure message: Invalid or expired credential.
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/keys - 401 - application/problem+json 0.5772ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/login - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/login - 200 - application/json;+charset=utf-8 241.4260ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 6.4443ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/step-up - 200 - application/json;+charset=utf-8 275.4784ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 5.3567ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/keys - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /keys'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.CreatedResult[1]
+daemon-1         |       Setting HTTP status code 201.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.CreatedResult[3]
+daemon-1         |       Writing value of type 'KeyCreatedResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /keys'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/keys - 201 - application/json;+charset=utf-8 10.9810ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/auth/antiforgery - 200 - application/json;+charset=utf-8 6.0792ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - application/json;+charset=utf-8 -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.NoContentResult[1]
+daemon-1         |       Setting HTTP status code 204.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/logout'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:7171/auth/logout - 204 - - 10.5669ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:7171/diagnostics - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /diagnostics => DiagnosticsAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type '<>f__AnonymousType3`1' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /diagnostics => DiagnosticsAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:7171/diagnostics - 200 - application/json;+charset=utf-8 10.8981ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/auth/login - application/json 38
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/login => LoginAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/auth/login - 200 - application/json;+charset=utf-8 245.8317ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/auth/antiforgery - 200 - application/json;+charset=utf-8 5.3633ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/auth/step-up - application/json 38
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'CredentialSummary' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /auth/step-up'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/auth/step-up - 200 - application/json;+charset=utf-8 299.2642ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/auth/antiforgery - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | warn: Microsoft.AspNetCore.Antiforgery.DefaultAntiforgery[8]
+daemon-1         |       The 'Cache-Control' and 'Pragma' headers have been overridden and set to 'no-cache, no-store' and 'no-cache' respectively to prevent caching of this response. Any response that uses antiforgery should not be cached.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'AntiforgeryResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /auth/antiforgery'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/auth/antiforgery - 200 - application/json;+charset=utf-8 5.5120ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/health - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /health'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /health'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/health - 200 0 - 6.0761ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/documents - application/json 108
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/documents => CaptureAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.JsonResult[1]
+daemon-1         |       Setting HTTP status code 201.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+daemon-1         |       Writing value of type 'CaptureResult' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/documents => CaptureAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/documents - 201 - application/json;+charset=utf-8 295.7982ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 64
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 30.1503ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 GET http://127.0.0.1:17172/v1/documents/01M4HJK606674DJ6QFK58DN8JF - - -
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: GET /v1/documents/{id} => ReadAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'DocumentRecord' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: GET /v1/documents/{id} => ReadAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 GET http://127.0.0.1:17172/v1/documents/01M4HJK606674DJ6QFK58DN8JF - 200 - application/json;+charset=utf-8 6.9343ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/query - application/json 27
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/query => QueryAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'QueryPage' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/query => QueryAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/query - 200 - application/json;+charset=utf-8 12.4933ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/documents?wait=5 - multipart/form-data;+boundary=fixture3f64796bda12492ca71ab5e6941f3cdc 824
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/documents => CaptureAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.JsonResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.JsonResult[3]
+daemon-1         |       Writing value of type 'CaptureResult' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/documents => CaptureAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/documents?wait=5 - 200 - application/json;+charset=utf-8 477.4157ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.3791ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8972ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.9555ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.2667ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.1597ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 8.1373ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.0398ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.6724ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.0569ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 8.1384ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.5741ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.5913ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.7955ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.2547ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.3651ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.6396ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.3058ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.2749ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.3724ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8828ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 8.0267ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.7222ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.9857ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8602ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.9802ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8569ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.8838ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.2150ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.7289ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.9645ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.7839ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.0084ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.9568ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8863ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.8635ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.9492ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.8500ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.6785ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.7206ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8264ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.5358ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8125ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.7132ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.6942ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.5267ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.9601ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.7146ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.0860ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.6470ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.8132ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.6265ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.6723ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.8359ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 8.5701ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.9905ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.4091ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.1292ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.2554ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 6.6939ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+daemon-1         |       Executing endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]
+daemon-1         |       Setting HTTP status code 200.
+daemon-1         | info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]
+daemon-1         |       Writing value of type 'SearchResponse' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+daemon-1         |       Executed endpoint 'HTTP: POST /v1/search => SearchAsync'
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 200 - application/json;+charset=utf-8 7.8053ms
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+daemon-1         |       Request starting HTTP/1.1 POST http://127.0.0.1:17172/v1/search - application/json 61
+daemon-1         | info: Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult[1]
+daemon-1         |       Setting HTTP status code 429.
+daemon-1         | info: Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult[3]
+daemon-1         |       Writing value of type 'ProblemDetails' as Json.
+daemon-1         | info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+daemon-1         |       Request finished HTTP/1.1 POST http://127.0.0.1:17172/v1/search - 429 - application/problem+json 6.9816ms
+ Container secondbrain-m1-closure-daemon-1 Stopping
+ Container secondbrain-m1-closure-daemon-1 Stopped
+ Container secondbrain-m1-closure-daemon-1 Removing
+ Container secondbrain-m1-closure-daemon-1 Removed
+ Container secondbrain-m1-closure-mock-provider-1 Stopping
+ Container secondbrain-m1-closure-extractor-1 Stopping
+ Container secondbrain-m1-closure-mock-provider-1 Stopped
+ Container secondbrain-m1-closure-mock-provider-1 Removing
+ Container secondbrain-m1-closure-extractor-1 Stopped
+ Container secondbrain-m1-closure-extractor-1 Removing
+ Container secondbrain-m1-closure-mock-provider-1 Removed
+ Container secondbrain-m1-closure-egress-1 Stopping
+ Container secondbrain-m1-closure-extractor-1 Removed
+ Container secondbrain-m1-closure-egress-1 Stopped
+ Container secondbrain-m1-closure-egress-1 Removing
+ Container secondbrain-m1-closure-egress-1 Removed
+ Volume secondbrain-m1-closure_runtime Removing
+ Network secondbrain-m1-closure_restricted Removing
+ Volume secondbrain-m1-closure_runtime Removed
+ Network secondbrain-m1-closure_restricted Removed

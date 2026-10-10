@@ -9,6 +9,12 @@ public interface IPublicationCoordinator
     /// </summary>
     ValueTask<PublicationOutcome> PublishAsync(DocumentPublication publication, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Applies the capacity and queued-job admission that PublishAsync repeats atomically, so callers can reject
+    /// a request before writing any managed file. Throws IngestionConflictException("capacity").
+    /// </summary>
+    ValueTask CheckAdmissionAsync(string documentId, string sourceId, SecondBrain.Core.Ingestion.PublicationAdmission admission, CancellationToken cancellationToken = default);
+
     /// <summary>Publishes an existing revision only while both job fences remain current.</summary>
     ValueTask<PublicationOutcome> PublishCurrentAsync(PublicationFence fence, CancellationToken cancellationToken = default);
 
@@ -49,6 +55,8 @@ public sealed record DocumentPublication(
     string ContentHash,
     string Provenance)
 {
+    public SecondBrain.Core.Ingestion.TextProjection? Projection { get; init; }
+    public SecondBrain.Core.Ingestion.PublicationAdmission? Admission { get; init; }
     /// <summary>The registered content type.</summary>
     public string Type { get; init; } = "file";
     /// <summary>The authoritative type provenance.</summary>

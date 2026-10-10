@@ -10,6 +10,9 @@ public sealed class AdmissionController(IOptionsMonitor<SecondBrainOptions> opti
     private readonly object _sync = new();
     private readonly Dictionary<string, CredentialBucket> _credentials = new(StringComparer.Ordinal);
     private int _jobs;
+    private int _persistentJobs;
+    private long _persistentBytes;
+    private long _persistentVersion = -1;
     private long _bytes;
     private int _active;
     private int _calls;
@@ -20,8 +23,19 @@ public sealed class AdmissionController(IOptionsMonitor<SecondBrainOptions> opti
         {
             lock (_sync)
             {
-                return new(_jobs, _bytes, _active);
+                return new(_jobs + _persistentJobs, _bytes + _persistentBytes, _active);
             }
+        }
+    }
+
+    public void RestorePersistent(long version, int queuedJobs, long admittedBytes)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(queuedJobs);
+        ArgumentOutOfRangeException.ThrowIfNegative(admittedBytes);
+        lock (_sync)
+        {
+            if (version <= _persistentVersion) return;
+            _persistentVersion = version; _persistentJobs = queuedJobs; _persistentBytes = admittedBytes;
         }
     }
 
@@ -71,7 +85,7 @@ public sealed class AdmissionController(IOptionsMonitor<SecondBrainOptions> opti
 
             var maxJobs = Math.Max(0, config.Limits.Global.QueuedJobs);
             var maxBytes = ToBytes(config.Limits.Global.AdmittedGb);
-            if (policy.QueuedJobs > maxJobs - _jobs || policy.AdmittedBytes > maxBytes - _bytes)
+            if (policy.QueuedJobs > maxJobs - _jobs - _persistentJobs || policy.AdmittedBytes > maxBytes - _bytes - _persistentBytes)
             {
                 return Reject(503, 5, "The instance capacity cannot admit this work.");
             }
@@ -91,6 +105,17 @@ public sealed class AdmissionController(IOptionsMonitor<SecondBrainOptions> opti
             }
 
             return new(new Reservation(this, bucket, policy), 0, 0, null);
+        }
+    }
+
+    public AdmissionDecision? ConfirmCapacity()
+    {
+        var config = options.CurrentValue;
+        lock (_sync)
+        {
+            return _jobs + _persistentJobs > Math.Max(0, config.Limits.Global.QueuedJobs) || _bytes + _persistentBytes > ToBytes(config.Limits.Global.AdmittedGb)
+                ? Reject(503, 5, "The instance capacity cannot admit this work.")
+                : null;
         }
     }
 

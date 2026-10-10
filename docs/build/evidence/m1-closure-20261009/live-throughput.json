@@ -1,0 +1,1076 @@
+{
+  "markdown": {
+    "completion_mode": "keyword plus complete vectors",
+    "documents": [
+      {
+        "admission_seconds": 0.082477000891231,
+        "bytes": 8347,
+        "document_id": "01M4HKBJ91T9Q520P4R5NXV9CW",
+        "keyword_seconds": 0.354132434935309,
+        "pages": null,
+        "vector_coverage_seconds": 0.4614361039130017
+      },
+      {
+        "admission_seconds": 0.20811575395055115,
+        "bytes": 8347,
+        "document_id": "01M4HKBJCGCNC51FCXHRB4K11B",
+        "keyword_seconds": 0.35747791395988315,
+        "pages": null,
+        "vector_coverage_seconds": 0.5781087429495528
+      },
+      {
+        "admission_seconds": 0.13757756794802845,
+        "bytes": 8347,
+        "document_id": "01M4HKBJAQ580P0ZSBZVRGZHK3",
+        "keyword_seconds": 0.3745976909995079,
+        "pages": null,
+        "vector_coverage_seconds": 0.48207892396021634
+      },
+      {
+        "admission_seconds": 0.30167785193771124,
+        "bytes": 8347,
+        "document_id": "01M4HKBJETV67PHCB8SJ0C2A0D",
+        "keyword_seconds": 0.4371752259321511,
+        "pages": null,
+        "vector_coverage_seconds": 0.6613194959936664
+      },
+      {
+        "admission_seconds": 0.08979295508470386,
+        "bytes": 8347,
+        "document_id": "01M4HKBJQ8EQF8FZK0NKKK7FY9",
+        "keyword_seconds": 0.24418121203780174,
+        "pages": null,
+        "vector_coverage_seconds": 0.3549060660880059
+      },
+      {
+        "admission_seconds": 0.14864231599494815,
+        "bytes": 8347,
+        "document_id": "01M4HKBJSD36W47P2CEGPAREJF",
+        "keyword_seconds": 0.2938654370373115,
+        "pages": null,
+        "vector_coverage_seconds": 0.4123407690785825
+      },
+      {
+        "admission_seconds": 0.15396099304780364,
+        "bytes": 8347,
+        "document_id": "01M4HKBJVXD2E3RAY0HKCQVWY1",
+        "keyword_seconds": 0.3085979609750211,
+        "pages": null,
+        "vector_coverage_seconds": 0.42246663104742765
+      },
+      {
+        "admission_seconds": 0.17135616100858897,
+        "bytes": 8347,
+        "document_id": "01M4HKBJZ2X6X0WBJ0K68GSPM2",
+        "keyword_seconds": 0.35464889591094106,
+        "pages": null,
+        "vector_coverage_seconds": 0.4699805739801377
+      },
+      {
+        "admission_seconds": 0.12691226601600647,
+        "bytes": 8347,
+        "document_id": "01M4HKBK2ZFHD4W2SXT1VK8TYQ",
+        "keyword_seconds": 0.30219431302975863,
+        "pages": null,
+        "vector_coverage_seconds": 0.4108323740074411
+      },
+      {
+        "admission_seconds": 0.16338467004243284,
+        "bytes": 8347,
+        "document_id": "01M4HKBK5WCCCVFGQ1R592WTAE",
+        "keyword_seconds": 0.4552028700709343,
+        "pages": null,
+        "vector_coverage_seconds": 0.5643543320475146
+      },
+      {
+        "admission_seconds": 0.16476996999699622,
+        "bytes": 8428,
+        "document_id": "01M4HKBK9F05APQ9HSQGJP0158",
+        "keyword_seconds": 0.33856161101721227,
+        "pages": null,
+        "vector_coverage_seconds": 0.44635954196564853
+      },
+      {
+        "admission_seconds": 0.14650800300296396,
+        "bytes": 8428,
+        "document_id": "01M4HKBKCKXSZTMVRVCCKADJ5Q",
+        "keyword_seconds": 0.4177129039308056,
+        "pages": null,
+        "vector_coverage_seconds": 0.4177137539954856
+      },
+      {
+        "admission_seconds": 0.1576609390322119,
+        "bytes": 8428,
+        "document_id": "01M4HKBKGGH6KVGHG6XKXE19VZ",
+        "keyword_seconds": 0.3063214039430022,
+        "pages": null,
+        "vector_coverage_seconds": 0.42039237602148205
+      },
+      {
+        "admission_seconds": 0.11738635203801095,
+        "bytes": 8428,
+        "document_id": "01M4HKBKP39DRJ37CRY75NDJZ2",
+        "keyword_seconds": 0.2692217919975519,
+        "pages": null,
+        "vector_coverage_seconds": 0.3800643819849938
+      },
+      {
+        "admission_seconds": 0.17845253203995526,
+        "bytes": 8428,
+        "document_id": "01M4HKBKS2NJCCP9526ABKDJG0",
+        "keyword_seconds": 0.3343683040002361,
+        "pages": null,
+        "vector_coverage_seconds": 0.45062365697231144
+      },
+      {
+        "admission_seconds": 0.1817510420223698,
+        "bytes": 8428,
+        "document_id": "01M4HKBKVN4T7EG6ZSG24JY89F",
+        "keyword_seconds": 0.3466650659684092,
+        "pages": null,
+        "vector_coverage_seconds": 0.45563089405186474
+      },
+      {
+        "admission_seconds": 0.17500657797791064,
+        "bytes": 8428,
+        "document_id": "01M4HKBKYAEHRS281E1P5NJK29",
+        "keyword_seconds": 0.3135238620452583,
+        "pages": null,
+        "vector_coverage_seconds": 0.43804150505457073
+      },
+      {
+        "admission_seconds": 0.1259625799721107,
+        "bytes": 8428,
+        "document_id": "01M4HKBM2E0BKK3VDPT8CJHXNR",
+        "keyword_seconds": 0.29343705193605274,
+        "pages": null,
+        "vector_coverage_seconds": 0.40141545596998185
+      },
+      {
+        "admission_seconds": 0.13853857305366546,
+        "bytes": 8428,
+        "document_id": "01M4HKBM5HPJ7DXPKWRFJ7R9XD",
+        "keyword_seconds": 0.30430573609191924,
+        "pages": null,
+        "vector_coverage_seconds": 0.4181524970335886
+      },
+      {
+        "admission_seconds": 0.15596086997538805,
+        "bytes": 8428,
+        "document_id": "01M4HKBM86FS0G293GNNG8Z81N",
+        "keyword_seconds": 0.30272801395040005,
+        "pages": null,
+        "vector_coverage_seconds": 0.4253720749402419
+      },
+      {
+        "admission_seconds": 0.1756953930016607,
+        "bytes": 8428,
+        "document_id": "01M4HKBMBRJGWPVVY5HX6FEW17",
+        "keyword_seconds": 0.34207245404832065,
+        "pages": null,
+        "vector_coverage_seconds": 0.4632808869937435
+      },
+      {
+        "admission_seconds": 0.13861013995483518,
+        "bytes": 8428,
+        "document_id": "01M4HKBMEVTJ6YEN07C185SMKG",
+        "keyword_seconds": 0.31744372902903706,
+        "pages": null,
+        "vector_coverage_seconds": 0.4243071930250153
+      },
+      {
+        "admission_seconds": 0.14506038604304194,
+        "bytes": 8428,
+        "document_id": "01M4HKBMJ5E6N3G7VWRW0HPBDY",
+        "keyword_seconds": 0.31203893502242863,
+        "pages": null,
+        "vector_coverage_seconds": 0.4273828020086512
+      },
+      {
+        "admission_seconds": 0.15655502793379128,
+        "bytes": 8428,
+        "document_id": "01M4HKBMNFAJZXWPMFFRZ0P7R0",
+        "keyword_seconds": 0.30718566197901964,
+        "pages": null,
+        "vector_coverage_seconds": 0.4298753309994936
+      },
+      {
+        "admission_seconds": 0.14580336899962276,
+        "bytes": 8428,
+        "document_id": "01M4HKBMS643BG7H6VSZT3EPC6",
+        "keyword_seconds": 0.2945980289950967,
+        "pages": null,
+        "vector_coverage_seconds": 0.41762639593798667
+      },
+      {
+        "admission_seconds": 0.14578493998851627,
+        "bytes": 8428,
+        "document_id": "01M4HKBMWJ4AEE8F9EZHGSD5A9",
+        "keyword_seconds": 0.29563122300896794,
+        "pages": null,
+        "vector_coverage_seconds": 0.4157487750053406
+      },
+      {
+        "admission_seconds": 0.14818635198753327,
+        "bytes": 8428,
+        "document_id": "01M4HKBMZVV4PKKG1MNY75XDAP",
+        "keyword_seconds": 0.30257827893365175,
+        "pages": null,
+        "vector_coverage_seconds": 0.426583971013315
+      },
+      {
+        "admission_seconds": 0.16485352697782218,
+        "bytes": 8428,
+        "document_id": "01M4HKBN34PR19NY3WMJ340JSJ",
+        "keyword_seconds": 0.3285204160492867,
+        "pages": null,
+        "vector_coverage_seconds": 0.4427993119461462
+      },
+      {
+        "admission_seconds": 0.15510647103656083,
+        "bytes": 8428,
+        "document_id": "01M4HKBN6YJX393Z1CPRBKEEWB",
+        "keyword_seconds": 0.3282527159899473,
+        "pages": null,
+        "vector_coverage_seconds": 0.4363922739867121
+      },
+      {
+        "admission_seconds": 0.16320884693413973,
+        "bytes": 8428,
+        "document_id": "01M4HKBN9QZWSDK5Z527KA2AQ7",
+        "keyword_seconds": 0.3209184929728508,
+        "pages": null,
+        "vector_coverage_seconds": 0.43522787699475884
+      },
+      {
+        "admission_seconds": 0.1475830840645358,
+        "bytes": 8428,
+        "document_id": "01M4HKBND6Z034BHRKP90X9P6V",
+        "keyword_seconds": 0.30775104102212936,
+        "pages": null,
+        "vector_coverage_seconds": 0.42057082906831056
+      },
+      {
+        "admission_seconds": 0.13090705103240907,
+        "bytes": 8428,
+        "document_id": "01M4HKBNGFYYF8A7N8ZZ97XD01",
+        "keyword_seconds": 0.29566918103955686,
+        "pages": null,
+        "vector_coverage_seconds": 0.40876259899232537
+      },
+      {
+        "admission_seconds": 0.13338500098325312,
+        "bytes": 8428,
+        "document_id": "01M4HKBNKQVNK5K3X83KP8J7K0",
+        "keyword_seconds": 0.3000393520342186,
+        "pages": null,
+        "vector_coverage_seconds": 0.41636034299153835
+      },
+      {
+        "admission_seconds": 0.16162383393384516,
+        "bytes": 8428,
+        "document_id": "01M4HKBNPPJDA9VW8YABBVV6D2",
+        "keyword_seconds": 0.3213319369824603,
+        "pages": null,
+        "vector_coverage_seconds": 0.44241108500864357
+      },
+      {
+        "admission_seconds": 0.19526512105949223,
+        "bytes": 8428,
+        "document_id": "01M4HKBNTWFZG91R7VHFT7CDR9",
+        "keyword_seconds": 0.339191428036429,
+        "pages": null,
+        "vector_coverage_seconds": 0.45664747804403305
+      },
+      {
+        "admission_seconds": 0.1752821470145136,
+        "bytes": 8428,
+        "document_id": "01M4HKBNZ6G6Z7WV06Z7HBGD2Z",
+        "keyword_seconds": 0.33822333300486207,
+        "pages": null,
+        "vector_coverage_seconds": 0.4505912179592997
+      },
+      {
+        "admission_seconds": 0.16942278994247317,
+        "bytes": 8428,
+        "document_id": "01M4HKBP1W8K93SW91W2YT16HT",
+        "keyword_seconds": 0.3399164319271222,
+        "pages": null,
+        "vector_coverage_seconds": 0.4507324129808694
+      },
+      {
+        "admission_seconds": 0.14968195802066475,
+        "bytes": 8428,
+        "document_id": "01M4HKBP4T4KJSZQJB5948HMBJ",
+        "keyword_seconds": 0.31770852906629443,
+        "pages": null,
+        "vector_coverage_seconds": 0.42671116604469717
+      },
+      {
+        "admission_seconds": 0.13584762101527303,
+        "bytes": 8428,
+        "document_id": "01M4HKBP862HZPWWK6NMXNHGFS",
+        "keyword_seconds": 0.2992264609783888,
+        "pages": null,
+        "vector_coverage_seconds": 0.41165028407704085
+      },
+      {
+        "admission_seconds": 0.1382144649978727,
+        "bytes": 8428,
+        "document_id": "01M4HKBPB92N2Z5KWATG8RM2DX",
+        "keyword_seconds": 0.41879210399929434,
+        "pages": null,
+        "vector_coverage_seconds": 0.4187926239101216
+      },
+      {
+        "admission_seconds": 0.13518122595269233,
+        "bytes": 8428,
+        "document_id": "01M4HKBPESDTKAC8CZZZ59EGN2",
+        "keyword_seconds": 0.30631621391512454,
+        "pages": null,
+        "vector_coverage_seconds": 0.419891694909893
+      },
+      {
+        "admission_seconds": 0.13627711590379477,
+        "bytes": 8428,
+        "document_id": "01M4HKBPHVHMQBJ0D5XTB10CNP",
+        "keyword_seconds": 0.307108984910883,
+        "pages": null,
+        "vector_coverage_seconds": 0.42076443193946034
+      },
+      {
+        "admission_seconds": 0.1462821209570393,
+        "bytes": 8428,
+        "document_id": "01M4HKBPN33ACH105JHW0P0CT3",
+        "keyword_seconds": 0.3034556469647214,
+        "pages": null,
+        "vector_coverage_seconds": 0.413180748000741
+      },
+      {
+        "admission_seconds": 0.13442709296941757,
+        "bytes": 8428,
+        "document_id": "01M4HKBPRFTPFPZHHX49RM13Y3",
+        "keyword_seconds": 0.2923602609662339,
+        "pages": null,
+        "vector_coverage_seconds": 0.42475877795368433
+      },
+      {
+        "admission_seconds": 0.14616674499120563,
+        "bytes": 8428,
+        "document_id": "01M4HKBPVS5GR3Y7YDBZ3KABDC",
+        "keyword_seconds": 0.3246496659703553,
+        "pages": null,
+        "vector_coverage_seconds": 0.4337721390184015
+      },
+      {
+        "admission_seconds": 0.1382552640279755,
+        "bytes": 8428,
+        "document_id": "01M4HKBPZFN0H96G0TB1VF9T7N",
+        "keyword_seconds": 0.29544709902256727,
+        "pages": null,
+        "vector_coverage_seconds": 0.41418489208444953
+      },
+      {
+        "admission_seconds": 0.17246043006889522,
+        "bytes": 8428,
+        "document_id": "01M4HKBQ2A6WHYQZ8DP5E56W5G",
+        "keyword_seconds": 0.3397656070301309,
+        "pages": null,
+        "vector_coverage_seconds": 0.45242894103284925
+      },
+      {
+        "admission_seconds": 0.14845979202073067,
+        "bytes": 8428,
+        "document_id": "01M4HKBQ6HEB40NVRCRK1HAEVW",
+        "keyword_seconds": 0.3265544270398095,
+        "pages": null,
+        "vector_coverage_seconds": 0.43538116093259305
+      },
+      {
+        "admission_seconds": 0.14504538697656244,
+        "bytes": 8428,
+        "document_id": "01M4HKBQ990VSFXZQMHK8TNF7G",
+        "keyword_seconds": 0.30832651001401246,
+        "pages": null,
+        "vector_coverage_seconds": 0.42374769400339574
+      },
+      {
+        "admission_seconds": 0.16717551194597036,
+        "bytes": 8428,
+        "document_id": "01M4HKBQCT8BAQHDT6X9S1BCGT",
+        "keyword_seconds": 0.32476017298176885,
+        "pages": null,
+        "vector_coverage_seconds": 0.43929087894503027
+      },
+      {
+        "admission_seconds": 0.13251019199378788,
+        "bytes": 8428,
+        "document_id": "01M4HKBQG5KG73S6BVCCF3B28S",
+        "keyword_seconds": 0.29702839092351496,
+        "pages": null,
+        "vector_coverage_seconds": 0.41525546193588525
+      },
+      {
+        "admission_seconds": 0.13188967504538596,
+        "bytes": 8428,
+        "document_id": "01M4HKBQK3Q6E5KRSYJGHY8FDG",
+        "keyword_seconds": 0.4157026970060542,
+        "pages": null,
+        "vector_coverage_seconds": 0.5225334230344743
+      },
+      {
+        "admission_seconds": 0.13326074497308582,
+        "bytes": 8428,
+        "document_id": "01M4HKBQPKN70E6TF789AZMAX5",
+        "keyword_seconds": 0.3049912810092792,
+        "pages": null,
+        "vector_coverage_seconds": 0.41235785791650414
+      },
+      {
+        "admission_seconds": 0.14826776995323598,
+        "bytes": 8428,
+        "document_id": "01M4HKBQSP8GCSK2DMNKBXZVQJ",
+        "keyword_seconds": 0.30574054492171854,
+        "pages": null,
+        "vector_coverage_seconds": 0.41764738596975803
+      },
+      {
+        "admission_seconds": 0.13848893495742232,
+        "bytes": 8428,
+        "document_id": "01M4HKBQXEY6PXPFNJS8P76P0W",
+        "keyword_seconds": 0.2846242029918358,
+        "pages": null,
+        "vector_coverage_seconds": 0.39103136397898197
+      },
+      {
+        "admission_seconds": 0.0996249980526045,
+        "bytes": 8428,
+        "document_id": "01M4HKBR33BSYFE894J54WC6JW",
+        "keyword_seconds": 0.2613946460187435,
+        "pages": null,
+        "vector_coverage_seconds": 0.37311491498257965
+      },
+      {
+        "admission_seconds": 0.1844324249541387,
+        "bytes": 8428,
+        "document_id": "01M4HKBR5QFYR3GKPXEXF909JT",
+        "keyword_seconds": 0.3543163980357349,
+        "pages": null,
+        "vector_coverage_seconds": 0.4626751090399921
+      },
+      {
+        "admission_seconds": 0.193762916023843,
+        "bytes": 8428,
+        "document_id": "01M4HKBR8GP22DXXVK9QH25QAH",
+        "keyword_seconds": 0.4788664700463414,
+        "pages": null,
+        "vector_coverage_seconds": 0.5894258311018348
+      },
+      {
+        "admission_seconds": 0.22165759105701,
+        "bytes": 8428,
+        "document_id": "01M4HKBRC09HHTXMVCHMECHD2S",
+        "keyword_seconds": 0.3997902050614357,
+        "pages": null,
+        "vector_coverage_seconds": 0.5066068411106244
+      },
+      {
+        "admission_seconds": 0.13148730900138617,
+        "bytes": 8428,
+        "document_id": "01M4HKBRF3V398E9PHXDH81VJ5",
+        "keyword_seconds": 0.26690929592587054,
+        "pages": null,
+        "vector_coverage_seconds": 0.387304779025726
+      },
+      {
+        "admission_seconds": 0.13802524202037603,
+        "bytes": 8428,
+        "document_id": "01M4HKBRJDG3HH32YDK72J2HHE",
+        "keyword_seconds": 0.27484016795642674,
+        "pages": null,
+        "vector_coverage_seconds": 0.3874871330335736
+      },
+      {
+        "admission_seconds": 0.11366989801172167,
+        "bytes": 8428,
+        "document_id": "01M4HKBRS2NPMD5GWV9HDQQ2ZF",
+        "keyword_seconds": 0.2669734039809555,
+        "pages": null,
+        "vector_coverage_seconds": 0.37354230892378837
+      },
+      {
+        "admission_seconds": 0.19282983895391226,
+        "bytes": 8428,
+        "document_id": "01M4HKBRVHX72Z3ZKQVX0N56CV",
+        "keyword_seconds": 0.3492349829757586,
+        "pages": null,
+        "vector_coverage_seconds": 0.45591472391970456
+      },
+      {
+        "admission_seconds": 0.21232574002351612,
+        "bytes": 8428,
+        "document_id": "01M4HKBRY5P0J0W90WZY44F6HQ",
+        "keyword_seconds": 0.3701432920061052,
+        "pages": null,
+        "vector_coverage_seconds": 0.48514134204015136
+      },
+      {
+        "admission_seconds": 0.23804209602531046,
+        "bytes": 8428,
+        "document_id": "01M4HKBS0T9P4NN2B6A2C8YFZH",
+        "keyword_seconds": 0.513623786973767,
+        "pages": null,
+        "vector_coverage_seconds": 0.6199681099969894
+      },
+      {
+        "admission_seconds": 0.13090793997980654,
+        "bytes": 8428,
+        "document_id": "01M4HKBS4R4K8CB0YDXR2V1X90",
+        "keyword_seconds": 0.29940807400271297,
+        "pages": null,
+        "vector_coverage_seconds": 0.40673875203356147
+      },
+      {
+        "admission_seconds": 0.14413528004661202,
+        "bytes": 8428,
+        "document_id": "01M4HKBS7RK7YC3J2WG171F9YD",
+        "keyword_seconds": 0.2859418640146032,
+        "pages": null,
+        "vector_coverage_seconds": 0.40325699909590185
+      },
+      {
+        "admission_seconds": 0.151296759955585,
+        "bytes": 8428,
+        "document_id": "01M4HKBSAWN27CBBYE1C6QZFPT",
+        "keyword_seconds": 0.32521811593323946,
+        "pages": null,
+        "vector_coverage_seconds": 0.43154611997306347
+      },
+      {
+        "admission_seconds": 0.13763338595163077,
+        "bytes": 8428,
+        "document_id": "01M4HKBSH1B1SFEH6T2KQ3V0HD",
+        "keyword_seconds": 0.2878425050294027,
+        "pages": null,
+        "vector_coverage_seconds": 0.395055647008121
+      },
+      {
+        "admission_seconds": 0.20768773008603603,
+        "bytes": 8428,
+        "document_id": "01M4HKBSMP554WFMJ27ZV33JMQ",
+        "keyword_seconds": 0.3624261140357703,
+        "pages": null,
+        "vector_coverage_seconds": 0.4751226759981364
+      },
+      {
+        "admission_seconds": 0.22044206596910954,
+        "bytes": 8428,
+        "document_id": "01M4HKBSQ5NFRVK5RQZWW538S2",
+        "keyword_seconds": 0.381184100988321,
+        "pages": null,
+        "vector_coverage_seconds": 0.49252977303694934
+      },
+      {
+        "admission_seconds": 0.19299025309737772,
+        "bytes": 8428,
+        "document_id": "01M4HKBSSWZ4YHKS54VBRCMX1A",
+        "keyword_seconds": 0.3511817520484328,
+        "pages": null,
+        "vector_coverage_seconds": 0.4794632480479777
+      },
+      {
+        "admission_seconds": 0.1179278630297631,
+        "bytes": 8428,
+        "document_id": "01M4HKBSXQZAN12B4RVP52RE5J",
+        "keyword_seconds": 0.4083347349660471,
+        "pages": null,
+        "vector_coverage_seconds": 0.5154809289379045
+      },
+      {
+        "admission_seconds": 0.13889360998291522,
+        "bytes": 8428,
+        "document_id": "01M4HKBT0KV5PHJ451RYENXS2M",
+        "keyword_seconds": 0.31846236204728484,
+        "pages": null,
+        "vector_coverage_seconds": 0.4258562170434743
+      },
+      {
+        "admission_seconds": 0.1542863310314715,
+        "bytes": 8428,
+        "document_id": "01M4HKBT3Q9P01WSMHFNN9ES06",
+        "keyword_seconds": 0.2944490050431341,
+        "pages": null,
+        "vector_coverage_seconds": 0.4116214649984613
+      },
+      {
+        "admission_seconds": 0.13917355006560683,
+        "bytes": 8428,
+        "document_id": "01M4HKBT777J87PM4VRZ2AM3GJ",
+        "keyword_seconds": 0.2923530210973695,
+        "pages": null,
+        "vector_coverage_seconds": 0.40314287308137864
+      },
+      {
+        "admission_seconds": 0.11391094804275781,
+        "bytes": 8428,
+        "document_id": "01M4HKBTDMNYQH7N1GX13X2CCF",
+        "keyword_seconds": 0.2586221770616248,
+        "pages": null,
+        "vector_coverage_seconds": 0.3785336980363354
+      },
+      {
+        "admission_seconds": 0.17417759797535837,
+        "bytes": 8428,
+        "document_id": "01M4HKBTG8Z3YZHGYA1NZA61BJ",
+        "keyword_seconds": 0.33349174598697573,
+        "pages": null,
+        "vector_coverage_seconds": 0.44290345802437514
+      },
+      {
+        "admission_seconds": 0.19099580601323396,
+        "bytes": 8428,
+        "document_id": "01M4HKBTJDJNY8WDRX6FEPV2XS",
+        "keyword_seconds": 0.35169755399692804,
+        "pages": null,
+        "vector_coverage_seconds": 0.4756039490457624
+      },
+      {
+        "admission_seconds": 0.20658478001132607,
+        "bytes": 8428,
+        "document_id": "01M4HKBTN73Y4SSX6GB4WGMBNX",
+        "keyword_seconds": 0.3658789679175243,
+        "pages": null,
+        "vector_coverage_seconds": 0.4821947989985347
+      },
+      {
+        "admission_seconds": 0.11686704098246992,
+        "bytes": 8428,
+        "document_id": "01M4HKBTSVH032KVJC4DVM8XE3",
+        "keyword_seconds": 0.2841734190005809,
+        "pages": null,
+        "vector_coverage_seconds": 0.3969380690250546
+      },
+      {
+        "admission_seconds": 0.15246298699639738,
+        "bytes": 8428,
+        "document_id": "01M4HKBTWHPH931Q2V15RHD9JJ",
+        "keyword_seconds": 0.32346084993332624,
+        "pages": null,
+        "vector_coverage_seconds": 0.43556627398356795
+      },
+      {
+        "admission_seconds": 0.15122085204347968,
+        "bytes": 8428,
+        "document_id": "01M4HKBTZENZ767E0T5MTYFF4S",
+        "keyword_seconds": 0.3132290820358321,
+        "pages": null,
+        "vector_coverage_seconds": 0.43018990906421095
+      },
+      {
+        "admission_seconds": 0.14180997398216277,
+        "bytes": 8428,
+        "document_id": "01M4HKBV2VF6KQ8AQ1Y7G9AXQ5",
+        "keyword_seconds": 0.30840068799443543,
+        "pages": null,
+        "vector_coverage_seconds": 0.42106905102264136
+      },
+      {
+        "admission_seconds": 0.1395482870284468,
+        "bytes": 8428,
+        "document_id": "01M4HKBV63T524F397D107NR8Y",
+        "keyword_seconds": 0.42135171103291214,
+        "pages": null,
+        "vector_coverage_seconds": 0.42135250102728605
+      },
+      {
+        "admission_seconds": 0.13626243500038981,
+        "bytes": 8428,
+        "document_id": "01M4HKBV9GJC9QWCB8BYSZG4KP",
+        "keyword_seconds": 0.299026518012397,
+        "pages": null,
+        "vector_coverage_seconds": 0.40673880209214985
+      },
+      {
+        "admission_seconds": 0.1312490589916706,
+        "bytes": 8428,
+        "document_id": "01M4HKBVCHPDFB0P3VMNQ0ZN9Y",
+        "keyword_seconds": 0.2847081390209496,
+        "pages": null,
+        "vector_coverage_seconds": 0.4109993380261585
+      },
+      {
+        "admission_seconds": 0.14038639597129077,
+        "bytes": 8428,
+        "document_id": "01M4HKBVFVKZZ4FG6Y5QQKRF51",
+        "keyword_seconds": 0.4196709629613906,
+        "pages": null,
+        "vector_coverage_seconds": 0.5257244870299473
+      },
+      {
+        "admission_seconds": 0.13552808202803135,
+        "bytes": 8428,
+        "document_id": "01M4HKBVK8CE1ZN5ZWQJHZ5ZSK",
+        "keyword_seconds": 0.3042797170346603,
+        "pages": null,
+        "vector_coverage_seconds": 0.4110116270603612
+      },
+      {
+        "admission_seconds": 0.14701160602271557,
+        "bytes": 8428,
+        "document_id": "01M4HKBVPAHB34PD5ZFCVS4D9N",
+        "keyword_seconds": 0.3041942809941247,
+        "pages": null,
+        "vector_coverage_seconds": 0.41441532399039716
+      },
+      {
+        "admission_seconds": 0.13989286392461509,
+        "bytes": 8428,
+        "document_id": "01M4HKBVSTC575XRZKBK0H0E75",
+        "keyword_seconds": 0.28502446797210723,
+        "pages": null,
+        "vector_coverage_seconds": 0.40673875296488404
+      },
+      {
+        "admission_seconds": 0.102019460988231,
+        "bytes": 8428,
+        "document_id": "01M4HKBVZJP9HPZHG1D6PTJD9S",
+        "keyword_seconds": 0.25573573203291744,
+        "pages": null,
+        "vector_coverage_seconds": 0.3634626760613173
+      },
+      {
+        "admission_seconds": 0.17174800601787865,
+        "bytes": 8428,
+        "document_id": "01M4HKBW29AK5A8V2Y9NZ2B9GF",
+        "keyword_seconds": 0.3489834120264277,
+        "pages": null,
+        "vector_coverage_seconds": 0.45685619104187936
+      },
+      {
+        "admission_seconds": 0.18121834099292755,
+        "bytes": 8428,
+        "document_id": "01M4HKBW4E0TZDHYQATK5C6N8M",
+        "keyword_seconds": 0.3515887869289145,
+        "pages": null,
+        "vector_coverage_seconds": 0.459529532934539
+      },
+      {
+        "admission_seconds": 0.1919983100378886,
+        "bytes": 8428,
+        "document_id": "01M4HKBW7TX5YETN23XJSSJRDN",
+        "keyword_seconds": 0.35021539707668126,
+        "pages": null,
+        "vector_coverage_seconds": 0.4708388320868835
+      },
+      {
+        "admission_seconds": 0.12966830492950976,
+        "bytes": 8428,
+        "document_id": "01M4HKBWBAC20QH9PTSTDK6GQB",
+        "keyword_seconds": 0.2904135009739548,
+        "pages": null,
+        "vector_coverage_seconds": 0.404362048022449
+      },
+      {
+        "admission_seconds": 0.13747968198731542,
+        "bytes": 8428,
+        "document_id": "01M4HKBWEJJB0DDHBQJWWK1TA0",
+        "keyword_seconds": 0.3025480409851298,
+        "pages": null,
+        "vector_coverage_seconds": 0.4140820449683815
+      },
+      {
+        "admission_seconds": 0.14465734001714736,
+        "bytes": 8428,
+        "document_id": "01M4HKBWHW76R6YS5SHRXM5VZR",
+        "keyword_seconds": 0.31309890700504184,
+        "pages": null,
+        "vector_coverage_seconds": 0.4200574380811304
+      },
+      {
+        "admission_seconds": 0.16522974206600338,
+        "bytes": 8428,
+        "document_id": "01M4HKBWMVAM3G6HF3S8BAEJ28",
+        "keyword_seconds": 0.3006737279938534,
+        "pages": null,
+        "vector_coverage_seconds": 0.4079511980526149
+      },
+      {
+        "admission_seconds": 0.1557627870934084,
+        "bytes": 8428,
+        "document_id": "01M4HKBWS4CMCF0R690X8S5D3X",
+        "keyword_seconds": 0.28516631200909615,
+        "pages": null,
+        "vector_coverage_seconds": 0.3926805240334943
+      }
+    ],
+    "elapsed_seconds": 11.10749682993628,
+    "files": 100,
+    "files_per_minute": 540.1757112213751,
+    "keyword_p95_seconds": 0.4196709629613906,
+    "observed_rate_meets_target": true,
+    "target_files_per_minute": 100,
+    "workers": 4
+  },
+  "memory": {
+    "full_scale_memory_qualification": "not established by 120-file throughput workload",
+    "managed_heap_qualification": "not established",
+    "measurement": "container/cgroup memory; managed heap not measured",
+    "sample_errors": [],
+    "samples": [
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "5.42%",
+            "docker_memory_usage": "444.2MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "3.21%",
+            "docker_memory_usage": "32.85MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 3.113557951990515
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "5.72%",
+            "docker_memory_usage": "468.3MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "3.93%",
+            "docker_memory_usage": "40.21MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 8.21659812296275
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "6.06%",
+            "docker_memory_usage": "496.5MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "11.13%",
+            "docker_memory_usage": "114MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 13.328417835058644
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "6.73%",
+            "docker_memory_usage": "551.5MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "3.90%",
+            "docker_memory_usage": "39.96MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 18.43791053199675
+      },
+      {
+        "containers": {
+          "daemon": {
+            "configured_limit_bytes": 8589934592,
+            "docker_memory_percent": "4.14%",
+            "docker_memory_usage": "339.4MiB / 8GiB"
+          },
+          "extractor": {
+            "configured_limit_bytes": 1073741824,
+            "docker_memory_percent": "3.90%",
+            "docker_memory_usage": "39.9MiB / 1GiB"
+          }
+        },
+        "elapsed_seconds": 23.545865523978136
+      }
+    ]
+  },
+  "pdf": {
+    "completion_mode": "keyword plus complete vectors",
+    "documents": [
+      {
+        "admission_seconds": 0.232407741015777,
+        "bytes": 56358,
+        "document_id": "01M4HKBX7VTGWKT51WAYH2CFFS",
+        "keyword_seconds": 0.7101431720657274,
+        "pages": 12,
+        "vector_coverage_seconds": 1.4613935890374705
+      },
+      {
+        "admission_seconds": 0.08127152500674129,
+        "bytes": 56358,
+        "document_id": "01M4HKBX44QX7BFX9B3N9N6MFS",
+        "keyword_seconds": 0.5831255889497697,
+        "pages": 12,
+        "vector_coverage_seconds": 0.910320244031027
+      },
+      {
+        "admission_seconds": 0.30243177502416074,
+        "bytes": 56358,
+        "document_id": "01M4HKBXAGMJRHBQ56BVRGVHQC",
+        "keyword_seconds": 0.8904010989936069,
+        "pages": 12,
+        "vector_coverage_seconds": 1.7715314530069008
+      },
+      {
+        "admission_seconds": 0.14513120404444635,
+        "bytes": 56358,
+        "document_id": "01M4HKBX5TTK305NPY53C8QHC7",
+        "keyword_seconds": 0.6339525920338929,
+        "pages": 12,
+        "vector_coverage_seconds": 1.1785196940181777
+      },
+      {
+        "admission_seconds": 0.07857914303895086,
+        "bytes": 56358,
+        "document_id": "01M4HKBY086199B1DGP7N9BVSZ",
+        "keyword_seconds": 0.5689304060069844,
+        "pages": 12,
+        "vector_coverage_seconds": 1.1022766650421545
+      },
+      {
+        "admission_seconds": 0.07809611002448946,
+        "bytes": 56358,
+        "document_id": "01M4HKBY8HEJHQHV76Y58H8YNA",
+        "keyword_seconds": 1.0682963100261986,
+        "pages": 12,
+        "vector_coverage_seconds": 1.3890106200706214
+      },
+      {
+        "admission_seconds": 0.10190571495331824,
+        "bytes": 56358,
+        "document_id": "01M4HKBYHK5K8GZ47EZ1FG5ME0",
+        "keyword_seconds": 1.116767497966066,
+        "pages": 12,
+        "vector_coverage_seconds": 1.3369163449387997
+      },
+      {
+        "admission_seconds": 0.0773071899311617,
+        "bytes": 56358,
+        "document_id": "01M4HKBYV5DHJGB85PBKK8Y77H",
+        "keyword_seconds": 0.7350389070343226,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2850252309581265
+      },
+      {
+        "admission_seconds": 0.07404165796469897,
+        "bytes": 56358,
+        "document_id": "01M4HKBZ2QSJY230ZS7KW4P81A",
+        "keyword_seconds": 0.5627573899691924,
+        "pages": 12,
+        "vector_coverage_seconds": 1.3367271709721535
+      },
+      {
+        "admission_seconds": 0.08036719798110425,
+        "bytes": 56358,
+        "document_id": "01M4HKBZM5BZAY4XP80RWV7S50",
+        "keyword_seconds": 0.6089030019938946,
+        "pages": 12,
+        "vector_coverage_seconds": 1.1487580550601706
+      },
+      {
+        "admission_seconds": 0.06824832805432379,
+        "bytes": 56898,
+        "document_id": "01M4HKBZV49JQMHRDAENR4WZJ1",
+        "keyword_seconds": 0.7280042719794437,
+        "pages": 12,
+        "vector_coverage_seconds": 1.1594978240318596
+      },
+      {
+        "admission_seconds": 0.13390024192631245,
+        "bytes": 56898,
+        "document_id": "01M4HKC036H216P5ES6MFXZAJQ",
+        "keyword_seconds": 0.811306064017117,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2435521389124915
+      },
+      {
+        "admission_seconds": 0.0775164719671011,
+        "bytes": 56898,
+        "document_id": "01M4HKC0CBJRPAAMEAGDPX8SGA",
+        "keyword_seconds": 0.7510804829653352,
+        "pages": 12,
+        "vector_coverage_seconds": 1.182624512934126
+      },
+      {
+        "admission_seconds": 0.08847687300294638,
+        "bytes": 56898,
+        "document_id": "01M4HKC0QVDYGY91ZXXR5G1ARM",
+        "keyword_seconds": 0.7494727909797803,
+        "pages": 12,
+        "vector_coverage_seconds": 1.1827012109570205
+      },
+      {
+        "admission_seconds": 0.0777821020456031,
+        "bytes": 56898,
+        "document_id": "01M4HKC0ZFNJMS623ZZX90H03F",
+        "keyword_seconds": 0.7488776639802381,
+        "pages": 12,
+        "vector_coverage_seconds": 1.1846562899881974
+      },
+      {
+        "admission_seconds": 0.09915514499880373,
+        "bytes": 56898,
+        "document_id": "01M4HKC1A7ZAQ17G75506M50DF",
+        "keyword_seconds": 0.7658859549555928,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2000276310136542
+      },
+      {
+        "admission_seconds": 0.08528987993486226,
+        "bytes": 56898,
+        "document_id": "01M4HKC1HH4WZQ3HB60MQJVVFD",
+        "keyword_seconds": 0.7702340669929981,
+        "pages": 12,
+        "vector_coverage_seconds": 1.2034050389192998
+      },
+      {
+        "admission_seconds": 0.08703060494735837,
+        "bytes": 56898,
+        "document_id": "01M4HKC1WSKHC9FPF1N08H9PGY",
+        "keyword_seconds": 0.7498641569400206,
+        "pages": 12,
+        "vector_coverage_seconds": 1.1792203069198877
+      },
+      {
+        "admission_seconds": 0.0841498610097915,
+        "bytes": 379961,
+        "document_id": "01M4HKC24DT9VSV3ZRSFNPKMD6",
+        "keyword_seconds": 1.3881690310081467,
+        "pages": 80,
+        "vector_coverage_seconds": 3.2018359729554504
+      },
+      {
+        "admission_seconds": 0.10863906005397439,
+        "bytes": 379961,
+        "document_id": "01M4HKC2FM6QHRKVMBS8QP0M24",
+        "keyword_seconds": 1.307127128005959,
+        "pages": 80,
+        "vector_coverage_seconds": 7.353510482003912
+      }
+    ],
+    "elapsed_seconds": 12.856373096001334,
+    "files": 20,
+    "files_per_minute": 93.33892156359643,
+    "keyword_p95_seconds": 1.307127128005959,
+    "observed_rate_meets_target": true,
+    "target_files_per_minute": 20,
+    "workers": 4
+  },
+  "pdf_fixture_pages_median": 12,
+  "pdf_fixture_pages_p95": 80,
+  "pipeline_note": "wait=0 uploads; keyword timing includes background embedding deadline/scheduling cost even in providerless mode",
+  "profile": "isolated deployed daemon; synthetic text-only upload workload",
+  "provider_mode": "healthy",
+  "provider_time_note": "Instrumented separately by private bridge; end-to-end throughput includes provider time.",
+  "provider_time_seconds": null
+}

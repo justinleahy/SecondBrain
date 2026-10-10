@@ -1,0 +1,19 @@
+  Determining projects to restore...
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj (in 223 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj (in 223 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj (in 223 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/SecondBrain.Core.csproj (in 278 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj (in 278 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj (in 293 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/SecondBrain.Server.csproj (in 298 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/SecondBrain.Infrastructure.Tests.csproj (in 299 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj (in 303 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/SecondBrain.Storage.csproj (in 303 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/SecondBrain.Extractor.csproj (in 314 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/SecondBrain.Storage.Tests.csproj (in 321 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/SecondBrain.Architecture.Tests.csproj (in 320 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/SecondBrain.Cli.csproj (in 323 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/SecondBrain.Providers.OpenAICompatible.Tests.csproj (in 323 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/SecondBrain.Extractor.Tests.csproj (in 325 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj (in 332 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/SecondBrain.Server.Tests.csproj (in 333 ms).

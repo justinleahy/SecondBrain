@@ -34,6 +34,28 @@ public sealed class CliConvergenceTests
     private static readonly PasswordParameters TestParameters = new(MemoryKiB: 1024, Iterations: 1);
 
     [Fact]
+    public async Task Cli_AddSearchQueryAgainstDaemon()
+    {
+        await using var daemon = await CliDaemon.CreateAsync();
+        Assert.Equal(0, (await daemon.Run(["login", daemon.Origin.ToString(), "--name", "capture-cli", "--scopes", "read,write", "--json"])).Exit);
+        var path = Path.Combine(Path.GetTempPath(), "sb-cli-m1-" + Guid.NewGuid().ToString("N") + ".txt");
+        try
+        {
+            await File.WriteAllTextAsync(path, "The curious pangolin remembers this sentence.");
+            var capture = await daemon.Run(["add", path, "--title", "Pangolin", "--credential-name", "capture-cli", "--wait", "5", "--json"]);
+            Assert.True(capture.Exit == 0, capture.Output);
+            var id = capture.Json.GetProperty("data").GetProperty("document").GetProperty("id").GetString();
+            var search = await daemon.Run(["search", "pangolin", "--mode", "keyword", "--credential-name", "capture-cli", "--json"]);
+            Assert.True(search.Exit == 0, search.Output);
+            Assert.Contains(search.Json.GetProperty("data").GetProperty("results").EnumerateArray(), hit => hit.GetProperty("document_id").GetString() == id);
+            var query = await daemon.Run(["query", "--type", "note", "--where", "title=Pangolin", "--credential-name", "capture-cli", "--json"]);
+            Assert.True(query.Exit == 0, query.Output);
+            Assert.Contains(query.Json.GetProperty("data").GetProperty("records").EnumerateArray(), document => document.GetProperty("id").GetString() == id);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
     public async Task Cli_InitPersistsCalibratedPolicyAndPrintsAdminKeyOnlyOnce()
     {
         using var root = new CliTempRoot();

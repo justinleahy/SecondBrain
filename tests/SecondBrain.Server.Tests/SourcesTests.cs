@@ -39,13 +39,14 @@ public sealed class SourcesTests
         Assert.Null(source.LastFullScanAt);
         Assert.Equal(factory.Clock.GetUtcNow(), source.CreatedAt);
         var listed = await client.GetFromJsonAsync<SourceRecord[]>("/v1/sources");
-        Assert.Single(listed!);
+        listed = listed!.Where(source => source.Id != "inbox").ToArray();
+        Assert.Single(listed);
         Assert.Equal(source.Id, listed![0].Id);
         Assert.Equal("note", listed[0].Config.TypeMap["**/*.txt"]);
 
         await using var lease = await factory.Store.OpenReadConnectionAsync();
-        Assert.Equal(1, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM sources WHERE kind='folder' AND status='active'"));
-        Assert.Contains("\"default_type\":\"note\"", await lease.Connection.QuerySingleAsync<string>("SELECT config_json FROM sources"), StringComparison.Ordinal);
+        Assert.Equal(1, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM sources WHERE kind='folder' AND id<>'inbox' AND status='active'"));
+        Assert.Contains("\"default_type\":\"note\"", await lease.Connection.QuerySingleAsync<string>("SELECT config_json FROM sources WHERE id<>'inbox'"), StringComparison.Ordinal);
         Assert.Equal(0, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM usage"));
         Assert.Equal(0, await lease.Connection.QuerySingleAsync<long>("SELECT COUNT(*) FROM jobs"));
     }
@@ -60,7 +61,7 @@ public sealed class SourcesTests
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         Assert.Contains("source-path-rejected", await response.Content.ReadAsStringAsync(), StringComparison.Ordinal);
-        Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
+        Assert.DoesNotContain(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync(), source => source.Id != "inbox");
     }
 
     [Fact]
@@ -72,7 +73,7 @@ public sealed class SourcesTests
         using var client = await AdminClientAsync(factory);
         using var response = await client.PostAsJsonAsync("/v1/sources", new { path = factory.Options.CurrentValue.DataRoot });
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
+        Assert.DoesNotContain(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync(), source => source.Id != "inbox");
     }
 
     [Fact]
@@ -94,7 +95,7 @@ public sealed class SourcesTests
         using var client = await AdminClientAsync(factory);
         using var response = await client.PostAsJsonAsync("/sources", new { path = link });
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
+        Assert.DoesNotContain(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync(), source => source.Id != "inbox");
     }
 
     [Fact]
@@ -124,7 +125,7 @@ public sealed class SourcesTests
         factory.Options.CurrentValue.Sources.AllowedRoots.Add(path);
         var validator = new SourcePathValidator(factory.Options, DefaultLocations);
         Assert.False(validator.Validate(path).Accepted);
-        Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
+        Assert.DoesNotContain(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync(), source => source.Id != "inbox");
     }
 
     [Fact]
@@ -209,7 +210,7 @@ public sealed class SourcesTests
             ["path"] = factory.Options.CurrentValue.Sources.AllowedRoots[0], [field] = value,
         });
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
+        Assert.DoesNotContain(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync(), source => source.Id != "inbox");
     }
 
     [Fact]
@@ -221,7 +222,7 @@ public sealed class SourcesTests
         using var list = await client.GetAsync("/sources");
         Assert.Equal(HttpStatusCode.Forbidden, create.StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, list.StatusCode);
-        Assert.Empty(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync());
+        Assert.DoesNotContain(await factory.Services.GetRequiredService<ISourceRepository>().ListAsync(), source => source.Id != "inbox");
     }
 
     [Fact]

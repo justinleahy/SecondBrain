@@ -1,5 +1,5 @@
 [Unit]
-Description=SecondBrain offline extractor stub
+Description=SecondBrain offline document extractor
 Requires=secondbrain-extractor.socket
 After=secondbrain-extractor.socket
 
@@ -9,6 +9,8 @@ User=secondbrain-extract
 Group=secondbrain
 UMask=0007
 ExecStart=/usr/local/lib/secondbrain/SecondBrain.Extractor --socket /run/secondbrain/extractor.sock
+Restart=on-failure
+RestartSec=2
 Environment=DOTNET_EnableDiagnostics=0
 Environment=TMPDIR=/tmp
 UnsetEnvironment=HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy
@@ -33,7 +35,7 @@ RestrictRealtime=yes
 KillMode=control-group
 TimeoutStopSec=5
 LimitCORE=0
-LimitCPU=120
+# Each disposable parser sets its own 120-second CPU limit.
 LimitFSIZE=536870912
 MemoryMax=1G
 TasksMax=64

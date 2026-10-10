@@ -8,6 +8,10 @@ public static class ConfigurationValidator
     public static void Validate(SecondBrainOptions options, IHostPathInspector paths)
     {
         if (!Path.IsPathFullyQualified(options.DataRoot)) Fail("data_root must be absolute.");
+        if (options.Retrieval is null || options.Retrieval.MaxExactCandidates is < 1 or > 10_000_000) Fail("retrieval.max_exact_candidates must be in 1..10000000.");
+        if (options.Ingest is null || options.Ingest.SyncEmbedDeadlineMs is < 0 or > 30000) Fail("ingest.sync_embed_deadline_ms must be in 0..30000.");
+        if (!TimeOnly.TryParseExact(options.Ingest.DeepRescanAt, "HH:mm", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))
+            Fail("ingest.deep_rescan_at must be a 24-hour HH:mm time.");
         if (options.Extractor is null || !Path.IsPathFullyQualified(options.Extractor.SocketPath)) Fail("extractor.socket_path must be absolute.");
         if (options.Server is null || options.Privacy is null || options.Models is null || options.Providers is null || options.Sources is null || options.Auth is null || options.Limits is null || options.Logging is null)
             Fail("M0 configuration sections must not be null.");

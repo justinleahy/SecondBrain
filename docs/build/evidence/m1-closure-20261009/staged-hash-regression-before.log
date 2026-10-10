@@ -1,0 +1,23 @@
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Release/net10.0/SecondBrain.Core.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Release/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Release/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Release/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Release/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.65]     SecondBrain.Storage.Tests.FileCompletionTests.ChangedStagedHashCannotBorrowAnotherHashesUniqueMoveCount [FAIL]
+  Failed SecondBrain.Storage.Tests.FileCompletionTests.ChangedStagedHashCannotBorrowAnotherHashesUniqueMoveCount [424 ms]
+  Error Message:
+   Assert.NotEqual() Failure: Strings are equal
+Expected: Not "01M4HR236VPDMPP8K11Y7QDKBW"
+Actual:       "01M4HR236VPDMPP8K11Y7QDKBW"
+  Stack Trace:
+     at SecondBrain.Storage.Tests.FileCompletionTests.ChangedStagedHashCannotBorrowAnotherHashesUniqueMoveCount() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/FileCompletionTests.cs:line 456
+   at SecondBrain.Storage.Tests.FileCompletionTests.ChangedStagedHashCannotBorrowAnotherHashesUniqueMoveCount() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/FileCompletionTests.cs:line 461
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 437 ms - SecondBrain.Storage.Tests.dll (net10.0)

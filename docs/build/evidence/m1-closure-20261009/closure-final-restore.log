@@ -1,0 +1,7 @@
+  Determining projects to restore...
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj (in 441 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj (in 441 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/SecondBrain.Core.csproj (in 464 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj (in 464 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/SecondBrain.Storage.csproj (in 478 ms).
+  13 of 18 projects are up-to-date for restore.

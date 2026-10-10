@@ -18,6 +18,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
     private readonly object sync = new();
     private readonly List<OpenAICompatibleBinding> ownedBindings = [];
     private RegistrySnapshot snapshot;
+    private readonly Dictionary<string, IProviderBinding> embeddingHistory = [];
 
     public ProviderRegistry(IOptionsMonitor<SecondBrainOptions> options, IPolicyHttpClientFactory factory,
         IProviderEgressPolicy privacy, ModelCatalog catalog, IProviderCredentialResolver credentials, TimeProvider? timeProvider = null)
@@ -49,6 +50,28 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
         lock (sync) return snapshot.Providers.TryGetValue(name, out var binding)
             ? binding : throw new InvalidOperationException("Configured provider could not be resolved.");
     }
+    public IProviderBinding GetEmbeddingProvider(string name, string model, int dimensions, string? fingerprint = null)
+    {
+        lock (sync)
+        {
+            if (fingerprint is not null && embeddingHistory.TryGetValue(fingerprint, out var retained)) return retained;
+            if (!snapshot.Configuration.Providers.TryGetValue(name, out var configured))
+                throw new InvalidOperationException("Active embedding provider is no longer configured.");
+            var bindingFingerprint = SecondBrain.Core.Ingestion.EmbeddingFingerprint.Create(name, configured.Endpoint, model, dimensions);
+            if (fingerprint is not null && fingerprint != bindingFingerprint)
+                throw new InvalidOperationException("Active embedding endpoint changed; keyword fallback is required.");
+            if (embeddingHistory.TryGetValue(bindingFingerprint, out var existing)) return existing;
+            var current = snapshot.Roles[ModelRole.Embed].Model.Limits;
+            var limits = current with { EmbedDimensions = dimensions };
+            var binding = new OpenAICompatibleBinding(name, new Uri(configured.Endpoint!), ModelRole.Embed,
+                factory, privacy, catalog, credentials.Resolve(configured.ApiKeyReference), dimensions, timeProvider,
+                limits, model);
+            ownedBindings.Add(binding);
+            embeddingHistory.Add(bindingFingerprint, binding);
+            return binding;
+        }
+    }
+
     public ProviderRoleBinding GetRole(ModelRole role)
     {
         lock (sync) return snapshot.Roles.TryGetValue(role, out var binding)
@@ -135,6 +158,8 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
                 var binding = NewBinding(name, provider, ModelRole.Enrich, null, null, null, null);
                 providers.Add(name, binding);
             }
+            foreach (var role in roles.Values.Where(role => role.Role == ModelRole.Embed))
+                RememberEmbedding(role);
             ownedBindings.AddRange(created);
             return new(roles, providers, options);
 
@@ -162,6 +187,13 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
             foreach (var binding in created) binding.Dispose();
             throw;
         }
+    }
+
+    private void RememberEmbedding(ProviderRoleBinding role)
+    {
+        if (role.Model.Limits.EmbedDimensions is { } dimensions)
+            embeddingHistory[SecondBrain.Core.Ingestion.EmbeddingFingerprint.Create(role.Provider.ProviderName, role.Provider.Endpoint?.AbsoluteUri, role.Model.Model, dimensions)] = role.Provider;
+        if (role.Fallback is not null) RememberEmbedding(role.Fallback);
     }
 
     private static ModelLimits EffectiveLimits(ModelBindingOptions binding, ModelRole role)

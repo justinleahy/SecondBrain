@@ -33,7 +33,8 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         ArgumentException.ThrowIfNullOrWhiteSpace(request.OperationId);
         ArgumentNullException.ThrowIfNull(request.Content);
         ArgumentNullException.ThrowIfNull(request.DocumentReferences);
-        if (request.MutationId.Length > 256 || request.OperationId.Length > 256 || request.DocumentReferences.Count > 1024)
+        ArgumentNullException.ThrowIfNull(request.RemovalTargets);
+        if (request.MutationId.Length > 256 || request.OperationId.Length > 256 || request.DocumentReferences.Count > 1024 || request.RemovalTargets.Count > 1000)
             throw new ArgumentException("Mutation identifiers or lineage exceed their bounds.", nameof(request));
         if (request.Kind is not ("proposal" or "import" or "trash" or "restore" or "purge" or "write_back"))
             throw new ArgumentException("Unknown mutation kind.", nameof(request));
@@ -50,10 +51,14 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         var result = request.ReplayResult?.ToArray();
         var hash = Hash(content);
         var now = Timestamp();
-        var plan = new DurablePlan(1, finalization, request.DocumentReferences.ToArray(), result is null ? null : Hash(result), DateTimeOffset.UtcNow.ToString("yyyyMMddTHHmmssfffffffZ", CultureInfo.InvariantCulture));
+        var removals = request.RemovalTargets.Select(target => new MutationRemovalTarget(_files.NormalizeDestination(target.Path), NormalizeHash(target.ExpectedHash) ?? throw new ArgumentException("Removal requires SHA-256.", nameof(request)))).ToArray();
+        if (removals.Any(target => target.Path == destination) || removals.Select(target => target.Path).Distinct(StringComparer.Ordinal).Count() != removals.Length) throw new ArgumentException("Removal targets must be distinct from each other and the destination.", nameof(request));
+        foreach (var removal in removals) using (var parent = _files.Open(removal.Path, request.MutationId)) { }
+        var plan = new DurablePlan(1, finalization, request.DocumentReferences.ToArray(), result is null ? null : Hash(result), DateTimeOffset.UtcNow.ToString("yyyyMMddTHHmmssfffffffZ", CultureInfo.InvariantCulture), RemovalTargets: removals);
 
         if (JsonSerializer.SerializeToUtf8Bytes(plan).Length > 64 * 1024) throw new ArgumentException("Mutation finalization metadata exceeds 64 KiB.", nameof(request));
 
+        using var publicationGate = await PublicationCoordinator.AcquirePublicationGateAsync(_state, cancellationToken).ConfigureAwait(false);
         return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
         {
             var existing = await LoadAsync(connection, transaction, request.MutationId, ct).ConfigureAwait(false);
@@ -61,9 +66,9 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             {
                 var saved = ParsePlan(existing);
                 if (existing.Kind != request.Kind || existing.OperationId != request.OperationId || existing.Destination != destination ||
-                    existing.ExpectedHash != expectedHash || existing.PayloadHash != hash || saved.Finalization != plan.Finalization ||
+                    existing.ExpectedHash != expectedHash || existing.PayloadHash != hash || !FinalizationEquivalent(saved.Finalization, plan.Finalization) ||
                     !saved.DocumentReferences.SequenceEqual(plan.DocumentReferences, StringComparer.Ordinal) ||
-                    saved.ReplayResultHash != plan.ReplayResultHash)
+                    saved.ReplayResultHash != plan.ReplayResultHash || !(saved.RemovalTargets ?? []).SequenceEqual(plan.RemovalTargets ?? []))
                     throw new MutationReuseException(request.MutationId);
                 return Record(existing);
             }
@@ -124,7 +129,7 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         // Lock order is _gate, then the document lock. It is held across every filesystem effect.
         using var documentLock = await AcquireDocumentLockAsync(plan, cancellationToken).ConfigureAwait(false);
         using var file = _files.Open(entry.Destination, entry.Id);
-        var conflictName = file.ConflictName(plan.ConflictTimestamp, entry.Id);
+        var conflictName = file.ConflictName(plan.ConflictTimestamp);
         // A row prepared before document reservations existed may observe a superseded revision; never write it.
         if (!await PlanIsCurrentAsync(plan, cancellationToken).ConfigureAwait(false))
             return await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
@@ -132,7 +137,8 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         {
             if (!await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, conflictName + ".external", cancellationToken).ConfigureAwait(false))
                 return await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
-            return await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
+            var sourceConflict = await ApplyRemovalsAsync(entry, plan, cancellationToken).ConfigureAwait(false);
+            return sourceConflict ?? await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
         }
         var currentHash = await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false);
         if ((await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false)).Kind == ManagedMutationFiles.DestinationLease.EntryKind.Nonregular || currentHash != entry.ExpectedHash)
@@ -146,9 +152,24 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         if (!await file.CommitAsync(entry.ExpectedHash, entry.PayloadHash, conflictName + ".external", _crashPoints.HitAsync, cancellationToken).ConfigureAwait(false))
             return await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         await _crashPoints.HitAsync(MutationCrashPointNames.AfterRename, cancellationToken).ConfigureAwait(false);
+        var removalConflict = await ApplyRemovalsAsync(entry, plan, cancellationToken).ConfigureAwait(false);
+        if (removalConflict is not null) return removalConflict;
         var applied = await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
         await _crashPoints.HitAsync(CrashPointNames.AfterApply, cancellationToken).ConfigureAwait(false);
         return applied;
+    }
+
+    private async ValueTask<MutationRecord?> ApplyRemovalsAsync(DbMutation entry, DurablePlan plan, CancellationToken token)
+    {
+        foreach (var removal in plan.RemovalTargets ?? [])
+        {
+            using var source = _files.Open(removal.Path, entry.Id + ":remove:" + removal.Path);
+            await _crashPoints.HitAsync(MutationCrashPointNames.BeforeSourceRemoval, token).ConfigureAwait(false);
+            if (!await source.RemoveExpectedAsync(removal.ExpectedHash, _crashPoints.HitAsync, token).ConfigureAwait(false))
+                return await MarkConflictAsync(entry, plan, source, await source.ObserveDestinationAsync(token).ConfigureAwait(false), token).ConfigureAwait(false);
+            await _crashPoints.HitAsync(MutationCrashPointNames.AfterSourceRemoval, token).ConfigureAwait(false);
+        }
+        return null;
     }
 
     private async ValueTask<MutationRecord> MarkAppliedAsync(DbMutation entry, CancellationToken cancellationToken) =>
@@ -177,6 +198,13 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         var currentHash = await file.HashDestinationAsync(cancellationToken).ConfigureAwait(false);
         if (currentHash != entry.ResultingHash)
             return await MarkConflictAsync(entry, durable, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+        foreach (var removal in durable.RemovalTargets ?? [])
+        {
+            using var source = _files.Open(removal.Path, entry.Id + ":remove:" + removal.Path);
+            var external = await source.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false);
+            if (external.Kind != ManagedMutationFiles.DestinationLease.EntryKind.Missing)
+                return await MarkConflictAsync(entry, durable, source, external, cancellationToken).ConfigureAwait(false);
+        }
         await _crashPoints.HitAsync(CrashPointNames.BeforeFinalize, cancellationToken).ConfigureAwait(false);
         var finalized = await _state.QueueWriteAsync<MutationRecord?>(async (connection, transaction, ct) =>
         {
@@ -200,6 +228,40 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         var entry = await PrepareAsync(request, cancellationToken).ConfigureAwait(false);
         if (entry.Status == "prepared") entry = await ApplyAsync(entry.Id, cancellationToken).ConfigureAwait(false);
         return entry.Status == "applied" ? await FinalizeAsync(entry.Id, cancellationToken).ConfigureAwait(false) : entry;
+    }
+
+    public async ValueTask<bool> DiscardUnpublishedImportAsync(string destination, CancellationToken cancellationToken = default)
+    {
+        destination = _files.NormalizeDestination(destination);
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            DbMutation? entry;
+            await using (var lease = await _state.OpenReadConnectionAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var id = await lease.Connection.ExecuteScalarAsync<string?>(Command(
+                    "SELECT id FROM mutations WHERE destination=@destination AND kind='import' AND status='finalized' ORDER BY created_at DESC,id DESC LIMIT 1;",
+                    new { destination }, null, cancellationToken)).ConfigureAwait(false);
+                entry = id is null ? null : await LoadAsync(lease.Connection, null, id, cancellationToken).ConfigureAwait(false);
+            }
+            if (entry is null) return false;
+            var plan = ParsePlan(entry);
+            using var file = _files.Open(entry.Destination, entry.Id + ":discard");
+            return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
+            {
+                // A published document owns its original; only an import that never became a document is undone.
+                foreach (var document in plan.DocumentReferences)
+                    if (await connection.ExecuteScalarAsync<long>(Command("SELECT count(*) FROM documents WHERE id=@document;", new { document }, transaction, ct)).ConfigureAwait(false) != 0)
+                        return false;
+                if (!await file.RemoveExpectedAsync(entry.PayloadHash, _crashPoints.HitAsync, ct).ConfigureAwait(false)) return false;
+                var payloads = new[] { PayloadId(entry.Id, "content"), PayloadId(entry.Id, "plan"), PayloadId(entry.Id, "result") };
+                await connection.ExecuteAsync(Command("DELETE FROM mutations WHERE id=@id;", new { id = entry.Id }, transaction, ct)).ConfigureAwait(false);
+                await connection.ExecuteAsync(Command("DELETE FROM payload_refs WHERE referrer_kind='mutation' AND referrer_id=@id;", new { id = entry.Id }, transaction, ct)).ConfigureAwait(false);
+                await connection.ExecuteAsync(Command("DELETE FROM payloads WHERE id IN @payloads AND NOT EXISTS (SELECT 1 FROM payload_refs r WHERE r.payload_id=payloads.id);", new { payloads }, transaction, ct)).ConfigureAwait(false);
+                return true;
+            }, cancellationToken).ConfigureAwait(false);
+        }
+        finally { _gate.Release(); }
     }
 
     public async ValueTask<MutationRecoveryReport> RecoverAsync(CancellationToken cancellationToken = default)
@@ -259,11 +321,12 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         }
         if (entry.ResultingHash is not null && currentHash == entry.ResultingHash)
         {
-            if (!await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, file.ConflictName(plan.ConflictTimestamp, entry.Id) + ".external", cancellationToken).ConfigureAwait(false))
+            if (!await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, file.ConflictName(plan.ConflictTimestamp) + ".external", cancellationToken).ConfigureAwait(false))
             {
                 await MarkConflictAsync(entry, plan, file, await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
                 return PreparedRecovery.Conflict;
             }
+            if (await ApplyRemovalsAsync(entry, plan, cancellationToken).ConfigureAwait(false) is not null) return PreparedRecovery.Conflict;
             await MarkAppliedAsync(entry, cancellationToken).ConfigureAwait(false);
             return PreparedRecovery.Reconciled;
         }
@@ -288,10 +351,10 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
     {
         if (entry.ResultingHash is not null)
         {
-            await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, file.ConflictName(plan.ConflictTimestamp, entry.Id) + ".external", cancellationToken).ConfigureAwait(false);
+            await file.ReconcileRenameAsync(entry.ExpectedHash, entry.PayloadHash, file.ConflictName(plan.ConflictTimestamp) + ".external", cancellationToken).ConfigureAwait(false);
             external = await file.ObserveDestinationAsync(cancellationToken).ConfigureAwait(false);
         }
-        var conflictPath = await file.PreserveConflictAsync(file.ConflictName(plan.ConflictTimestamp, entry.Id), entry.Content, cancellationToken).ConfigureAwait(false);
+        var conflictPath = await file.PreserveConflictAsync(file.ConflictName(plan.ConflictTimestamp), entry.Content, cancellationToken).ConfigureAwait(false);
         var externalHash = external.Hash;
         var resultBytes = JsonSerializer.SerializeToUtf8Bytes(new ConflictResult(conflictPath, externalHash, external.Kind.ToString()));
         return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
@@ -368,6 +431,9 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
 
     private static async ValueTask ApplyFinalizationAsync(DbConnection connection, DbTransaction transaction, DbMutation entry, MutationFinalization finalize, string now, CancellationToken ct)
     {
+        // The derived-cleanup marker commits with the purge itself, before the content hash is replaced.
+        if (finalize.PurgeDocumentLineage && finalize.DocumentId is not null)
+            await connection.ExecuteAsync(Command(SecondBrain.Storage.Ingestion.PurgeCleanup.MarkSql, new { id = finalize.DocumentId }, transaction, ct)).ConfigureAwait(false);
         if (finalize.DocumentId is not null)
         {
             var count = await connection.ExecuteAsync(Command("""
@@ -378,6 +444,47 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             await connection.ExecuteAsync(Command("INSERT INTO revisions(document_id,revision,cause,content_hash,created_at) VALUES(@id,@revision,@cause,@hash,@now);",
                 new { id = finalize.DocumentId, revision = finalize.RevisionAfter, cause = finalize.RevisionCause, hash = entry.ResultingHash, now }, transaction, ct)).ConfigureAwait(false);
             await EnsurePublicationFenceAsync(connection, transaction, finalize, ct).ConfigureAwait(false);
+        }
+        if (finalize.DocumentMetadata is { } metadata)
+        {
+            if (finalize.DocumentId is null) throw new InvalidOperationException("Metadata requires a reserved document.");
+            var payloadCount = await connection.ExecuteScalarAsync<long>(Command("SELECT COUNT(*) FROM payloads WHERE id=@id AND redacted_at IS NULL;", new { id = metadata.ProjectionPayloadId }, transaction, ct)).ConfigureAwait(false);
+            if (payloadCount != 1) throw new InvalidOperationException("Mutation projection payload is missing or redacted.");
+            await connection.ExecuteAsync(Command("""
+                UPDATE documents SET title=@Title,type=@Type,type_origin=@TypeOrigin,props_json=@PropsJson,
+                  props_original_json=@PropsOriginalJson,status=@Status,mime=@Mime,source_url=@SourceUrl
+                WHERE id=@id AND revision=@revision;
+                """, new { metadata.Title, metadata.Type, metadata.TypeOrigin, metadata.PropsJson, metadata.PropsOriginalJson, metadata.Status, metadata.Mime, metadata.SourceUrl, id = finalize.DocumentId, revision = finalize.RevisionAfter }, transaction, ct)).ConfigureAwait(false);
+            if (metadata.UpdateOccurred)
+                await connection.ExecuteAsync(Command("""
+                    UPDATE documents SET occurred_at=@OccurredAt,occurred_offset=@OccurredOffset,occurred_basis=@OccurredBasis,occurred_precision=@OccurredPrecision WHERE id=@id;
+                    """, new { id = finalize.DocumentId, metadata.OccurredAt, metadata.OccurredOffset, metadata.OccurredBasis, metadata.OccurredPrecision }, transaction, ct)).ConfigureAwait(false);
+            foreach (var value in metadata.Overrides ?? new Dictionary<string,string>())
+                await connection.ExecuteAsync(Command("""
+                    INSERT INTO overrides(document_id,kind,key,value_json,created_at) VALUES(@id,@kind,'',@value,@now)
+                    ON CONFLICT(document_id,kind,key) DO UPDATE SET value_json=excluded.value_json,created_at=excluded.created_at;
+                    """, new { id = finalize.DocumentId, kind = value.Key, value = value.Value, now }, transaction, ct)).ConfigureAwait(false);
+            var generation = await connection.ExecuteScalarAsync<string>(Command("SELECT generation_json FROM publication_fences WHERE document_id=@id;", new { id = finalize.DocumentId }, transaction, ct)).ConfigureAwait(false);
+            await connection.ExecuteAsync(Command("""
+                INSERT INTO document_projections(document_id,revision,generation_json,payload_id) VALUES(@id,@revision,@generation,@payload)
+                ON CONFLICT(document_id) DO UPDATE SET revision=excluded.revision,generation_json=excluded.generation_json,payload_id=excluded.payload_id;
+                """, new { id = finalize.DocumentId, revision = finalize.RevisionAfter, generation, payload = metadata.ProjectionPayloadId }, transaction, ct)).ConfigureAwait(false);
+        }
+        if (finalize.SuppressDocument && finalize.DocumentId is not null)
+            await connection.ExecuteAsync(Command("""
+                INSERT OR IGNORE INTO suppressions(id,scope,source_id,key,reason,created_at)
+                SELECT @suppression,'document',source_id,id,'app-delete',@now FROM documents WHERE id=@id;
+                """, new { suppression = "mutation:" + entry.Id, id = finalize.DocumentId, now }, transaction, ct)).ConfigureAwait(false);
+        if (finalize.ClearSuppression && finalize.DocumentId is not null)
+            await connection.ExecuteAsync(Command("DELETE FROM suppressions WHERE scope='document' AND key=@id;", new { id = finalize.DocumentId }, transaction, ct)).ConfigureAwait(false);
+        if (finalize.PurgeDocumentLineage && finalize.DocumentId is not null)
+        {
+            await connection.ExecuteAsync(Command("""
+                UPDATE payloads SET bytes=X'',sha256='',redacted_at=@now WHERE id NOT IN (@retainedPlan,@retainedContent) AND EXISTS(SELECT 1 FROM json_each(document_refs_json) WHERE value=@id);
+                UPDATE documents SET title='[purged]',props_json='{}',props_original_json='{}',content_hash='',source_url=NULL,claimed_client=NULL,error=NULL WHERE id=@id;
+                UPDATE jobs SET status='cancelled',payload_json='{}',error=NULL WHERE document_id=@id;
+                DELETE FROM overrides WHERE document_id=@id;
+                """, new { id = finalize.DocumentId, now, retainedPlan = PayloadId(entry.Id, "plan"), retainedContent = PayloadId(entry.Id, "content") }, transaction, ct)).ConfigureAwait(false);
         }
         if (finalize.PendingOperationId is not null)
         {
@@ -448,6 +555,15 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
     private static CommandDefinition Command(string sql, object? parameters, DbTransaction? transaction, CancellationToken ct) => new(sql, parameters, transaction, cancellationToken: ct);
     private static string Timestamp() => DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
     private static string Hash(byte[] bytes) => Convert.ToHexStringLower(SHA256.HashData(bytes));
+    private static bool FinalizationEquivalent(MutationFinalization first, MutationFinalization second)
+    {
+        var firstMetadata = first.DocumentMetadata; var secondMetadata = second.DocumentMetadata;
+        var firstPlain = first with { DocumentMetadata = firstMetadata is null ? null : firstMetadata with { Overrides = null } };
+        var secondPlain = second with { DocumentMetadata = secondMetadata is null ? null : secondMetadata with { Overrides = null } };
+        return firstPlain == secondPlain && (firstMetadata?.Overrides ?? new Dictionary<string,string>()).OrderBy(pair => pair.Key, StringComparer.Ordinal)
+            .SequenceEqual((secondMetadata?.Overrides ?? new Dictionary<string,string>()).OrderBy(pair => pair.Key, StringComparer.Ordinal));
+    }
+
     private static string PayloadId(string mutationId, string suffix) => $"sb_mutation_{Hash(Encoding.UTF8.GetBytes(mutationId))}_{suffix}";
     private static DurablePlan ParsePlan(DbMutation entry)
     {
@@ -481,6 +597,21 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             using var generation = JsonDocument.Parse(finalize.GenerationJson);
             if (generation.RootElement.ValueKind != JsonValueKind.Object) throw new ArgumentException("Generation must be a JSON object.", nameof(finalize));
         }
+        if (finalize.DocumentMetadata is { } metadata)
+        {
+            if (finalize.DocumentId is null) throw new ArgumentException("Metadata requires a document id.", nameof(finalize));
+            ArgumentException.ThrowIfNullOrWhiteSpace(metadata.ProjectionPayloadId);
+            if (metadata.Title.Length > 4096 || metadata.Type.Length > 128 || metadata.PropsJson.Length > 65536 || metadata.PropsOriginalJson.Length > 65536) throw new ArgumentException("Mutation metadata exceeds bounds.", nameof(finalize));
+            if (metadata.Overrides?.Count > 4) throw new ArgumentException("Too many override kinds.", nameof(finalize));
+            foreach (var value in metadata.Overrides ?? new Dictionary<string,string>())
+            {
+                if (value.Key is not ("type" or "props" or "tags" or "title") || value.Value.Length > 65536) throw new ArgumentException("Invalid override kind or bound.", nameof(finalize));
+                using var parsedOverride = JsonDocument.Parse(value.Value);
+            }
+            using var props = JsonDocument.Parse(metadata.PropsJson);
+            using var originalProps = JsonDocument.Parse(metadata.PropsOriginalJson);
+            if (props.RootElement.ValueKind != JsonValueKind.Object || originalProps.RootElement.ValueKind != JsonValueKind.Object) throw new ArgumentException("Mutation props must be objects.", nameof(finalize));
+        }
         if (finalize.Idempotency is { } replay)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(replay.Key);
@@ -492,7 +623,7 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
 
     public void Dispose() => _gate.Dispose();
 
-    private sealed record DurablePlan(int Version, MutationFinalization Finalization, string[] DocumentReferences, string? ReplayResultHash, string ConflictTimestamp, string? ExpectedGenerationJson = null, bool HasExpectedGeneration = false);
+    private sealed record DurablePlan(int Version, MutationFinalization Finalization, string[] DocumentReferences, string? ReplayResultHash, string ConflictTimestamp, string? ExpectedGenerationJson = null, bool HasExpectedGeneration = false, MutationRemovalTarget[]? RemovalTargets = null);
     private sealed record ConflictResult(string ConflictPath, string? ExternalHash, string? ExternalKind = null);
     private enum PreparedRecovery { Reconciled, Conflict, Discarded }
     private sealed class DbDocument

@@ -1,0 +1,49 @@
+COMMAND ["dotnet", "restore", "SecondBrain.slnx", "--locked-mode", "--runtime", "linux-x64", "-p:RuntimeIdentifier=linux-x64", "-p:SelfContained=true"]
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+COMMAND ["dotnet", "publish", "src/SecondBrain.Server/SecondBrain.Server.csproj", "--configuration", "Release", "--runtime", "linux-x64", "--self-contained", "true", "--no-restore", "-warnaserror", "-p:ContinuousIntegrationBuild=true", "--output", "/home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish/server"]
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Release/net10.0/linux-x64/SecondBrain.Core.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Release/net10.0/linux-x64/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Release/net10.0/linux-x64/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Release/net10.0/linux-x64/SecondBrain.Storage.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Release/net10.0/linux-x64/SecondBrain.Server.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish/server/
+COMMAND ["dotnet", "publish", "src/SecondBrain.Cli/SecondBrain.Cli.csproj", "--configuration", "Release", "--runtime", "linux-x64", "--self-contained", "true", "--no-restore", "-warnaserror", "-p:ContinuousIntegrationBuild=true", "--output", "/home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish/cli"]
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Release/net10.0/linux-x64/SecondBrain.Core.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Release/net10.0/linux-x64/SecondBrain.Infrastructure.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Release/net10.0/linux-x64/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Release/net10.0/linux-x64/SecondBrain.Storage.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Release/net10.0/linux-x64/SecondBrain.Server.dll
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/bin/Release/net10.0/linux-x64/brain.dll
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish/cli/
+COMMAND ["dotnet", "publish", "src/SecondBrain.Extractor/SecondBrain.Extractor.csproj", "--configuration", "Release", "--runtime", "linux-x64", "--self-contained", "true", "--no-restore", "-warnaserror", "-p:ContinuousIntegrationBuild=true", "--output", "/home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish/extractor"]
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish/extractor/
+VALIDATION merged_files=416 all_three_apphosts=true web_assets=true frozen_lock_files=19 unchanged=true
+COMMAND ["dotnet", "restore", "SecondBrain.slnx", "--locked-mode"]
+  Determining projects to restore...
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj (in 286 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj (in 285 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj (in 286 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/SecondBrain.Core.csproj (in 325 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj (in 325 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj (in 345 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/SecondBrain.Extractor.csproj (in 357 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/SecondBrain.Infrastructure.Tests.csproj (in 362 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj (in 362 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/SecondBrain.Storage.csproj (in 359 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/SecondBrain.Server.csproj (in 359 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/SecondBrain.Storage.Tests.csproj (in 369 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/SecondBrain.Cli.csproj (in 369 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/SecondBrain.Extractor.Tests.csproj (in 399 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/SecondBrain.Architecture.Tests.csproj (in 398 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/SecondBrain.Providers.OpenAICompatible.Tests.csproj (in 395 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj (in 406 ms).
+  Restored /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/SecondBrain.Server.Tests.csproj (in 408 ms).
+FINAL VALIDATION CLI --version=1.0.0+ba81f952877ccf5e3abd34a88ecff9e45100eeb5; 416merged file hashes verified;19package lock hashes unchanged;240runtime source hashes match frozen manifest

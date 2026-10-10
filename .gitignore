@@ -7,3 +7,6 @@
 **/TestResults/
 artifacts/
 .DS_Store
+
+# Generated Python qualification bytecode.
+__pycache__/

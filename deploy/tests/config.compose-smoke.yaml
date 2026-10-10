@@ -29,3 +29,6 @@ extractor:
 logging:
   level: info
   debug_bodies: false
+limits:
+  per_credential:
+    requests_per_min: 10000

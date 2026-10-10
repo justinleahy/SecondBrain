@@ -13,6 +13,8 @@ internal static class Layers
     public const string ServerName = "SecondBrain.Server";
     public const string CliName = "brain";
     public const string ExtractorName = "SecondBrain.Extractor";
+    public const string ExtractorWireName = "SecondBrain.Extractor.Wire";
+    public const string ExtractionContractsName = "SecondBrain.Extraction.Contracts";
     public const string MockProviderName = "SecondBrain.MockProvider";
     public const string InfrastructureName = "SecondBrain.Infrastructure";
 
@@ -30,11 +32,15 @@ internal static class Layers
 
     public static Assembly Extractor => typeof(global::SecondBrain.Extractor.Program).Assembly;
 
+    public static Assembly ExtractorWire => typeof(global::SecondBrain.Extractor.Wire.ExtractorProtocol).Assembly;
+
+    public static Assembly ExtractionContracts => typeof(global::SecondBrain.Extraction.Contracts.ExtractionResult).Assembly;
+
     public static Assembly MockProvider => typeof(global::SecondBrain.MockProvider.Program).Assembly;
 
     /// <summary>Every production assembly built from <c>src/</c>.</summary>
     public static IReadOnlyList<Assembly> SourceAssemblies =>
-        [Core, Infrastructure, Storage, ProvidersOpenAICompatible, Server, Cli, Extractor];
+        [Core, Infrastructure, Storage, ProvidersOpenAICompatible, Server, Cli, Extractor, ExtractorWire, ExtractionContracts];
 
     /// <summary>Every assembly that ships: the <c>src/</c> assemblies plus the mock provider fixture host.</summary>
     public static IReadOnlyList<Assembly> ShippedAssemblies => [.. SourceAssemblies, MockProvider];

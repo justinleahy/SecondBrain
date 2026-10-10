@@ -30,20 +30,26 @@ public sealed class AdmissionMiddleware(RequestDelegate next)
             policy = policy with { AdmittedBytes = Math.Max(policy.AdmittedBytes, length) };
         }
 
+        // The request's budget is reserved first, so a rejected request never reaches persistent corpus accounting.
         var decision = admission.TryReserve(id, policy);
         if (!decision.Accepted)
         {
-            context.Response.Headers.RetryAfter = decision.RetryAfterSeconds.ToString(CultureInfo.InvariantCulture);
-            await Results.Problem(
-                statusCode: decision.StatusCode,
-                type: decision.StatusCode == 429 ? ProblemTypes.LimitExceeded : ProblemTypes.Capacity,
-                title: decision.StatusCode == 429 ? "Credential limit exceeded" : "Capacity unavailable",
-                detail: decision.Detail).ExecuteAsync(context);
+            await RejectAsync(context, decision);
             return;
         }
 
         using (decision.Reservation)
         {
+            if (context.RequestServices?.GetService<IPersistentAdmissionAccounting>() is { } accounting)
+            {
+                await accounting.RefreshAsync(context.RequestAborted);
+                if (admission.ConfirmCapacity() is { } exceeded)
+                {
+                    await RejectAsync(context, exceeded);
+                    return;
+                }
+            }
+
             context.Items[ReservationItem] = decision.Reservation;
             try
             {
@@ -54,5 +60,15 @@ public sealed class AdmissionMiddleware(RequestDelegate next)
                 context.Items.Remove(ReservationItem);
             }
         }
+    }
+
+    private static Task RejectAsync(HttpContext context, AdmissionDecision decision)
+    {
+        context.Response.Headers.RetryAfter = decision.RetryAfterSeconds.ToString(CultureInfo.InvariantCulture);
+        return Results.Problem(
+            statusCode: decision.StatusCode,
+            type: decision.StatusCode == 429 ? ProblemTypes.LimitExceeded : ProblemTypes.Capacity,
+            title: decision.StatusCode == 429 ? "Credential limit exceeded" : "Capacity unavailable",
+            detail: decision.Detail).ExecuteAsync(context);
     }
 }

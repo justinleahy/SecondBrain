@@ -1,0 +1,32 @@
+services:
+  daemon:
+    environment:
+      DOTNET_STARTUP_HOOKS: /qualification/FullScaleHeapHook.dll
+      SECONDBRAIN_FULLSCALE_HEAP_DIRECTORY: /srv/secondbrain/qualification-heap
+    volumes:
+      - ${SECONDBRAIN_FULLSCALE_HOOK_DIRECTORY:?set compiled qualification heap hook}:/qualification:ro
+
+  sandbox-load-helper:
+    image: secondbrain:local
+    platform: linux/amd64
+    profiles: [qualification]
+    user: "1654:1654"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    network_mode: none
+    init: true
+    mem_limit: 256m
+    pids_limit: 64
+    environment:
+      DOTNET_EnableDiagnostics: "0"
+    entrypoint: [dotnet, /qualification/FullScaleSandboxHelper.dll]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m,mode=1777"]
+    volumes:
+      - ${SECONDBRAIN_FULLSCALE_SANDBOX_HELPER_DIRECTORY:?set compiled sandbox load helper}:/qualification:ro
+      - ${SECONDBRAIN_FULLSCALE_PDF_DIRECTORY:?set four immutable PDF fixtures}:/fixtures:ro
+      - ${SECONDBRAIN_HOST_ROOT:?set isolated qualification root}/data:/data:ro
+      - type: volume
+        source: runtime
+        target: /run/secondbrain
+        read_only: true

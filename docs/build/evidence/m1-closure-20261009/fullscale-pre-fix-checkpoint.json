@@ -1,0 +1,3310 @@
+{
+  "stage": "pre-rebuild",
+  "documents": 100000,
+  "chunks": 1000000,
+  "timings": [
+    {
+      "filtered": true,
+      "question_id": "q01",
+      "http_ms": 919.5231549674645,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 802.2931
+    },
+    {
+      "filtered": true,
+      "question_id": "q02",
+      "http_ms": 334.63728590868413,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 300.0636
+    },
+    {
+      "filtered": true,
+      "question_id": "q03",
+      "http_ms": 681.0026250313967,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 645.6167
+    },
+    {
+      "filtered": true,
+      "question_id": "q04",
+      "http_ms": 562.8955689026043,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 527.8932
+    },
+    {
+      "filtered": true,
+      "question_id": "q05",
+      "http_ms": 700.197468046099,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 666.1141
+    },
+    {
+      "filtered": true,
+      "question_id": "q06",
+      "http_ms": 182.42290895432234,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 147.7775
+    },
+    {
+      "filtered": true,
+      "question_id": "q07",
+      "http_ms": 719.1569380229339,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 684.6179
+    },
+    {
+      "filtered": true,
+      "question_id": "q08",
+      "http_ms": 787.8251019865274,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 753.8996
+    },
+    {
+      "filtered": true,
+      "question_id": "q09",
+      "http_ms": 813.6609530774876,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 778.5777
+    },
+    {
+      "filtered": true,
+      "question_id": "q10",
+      "http_ms": 682.1740240557119,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 643.573
+    },
+    {
+      "filtered": true,
+      "question_id": "q11",
+      "http_ms": 773.4507949789986,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 738.9484
+    },
+    {
+      "filtered": true,
+      "question_id": "q12",
+      "http_ms": 681.9968590280041,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 650.3689
+    },
+    {
+      "filtered": true,
+      "question_id": "q13",
+      "http_ms": 705.3097509779036,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 672.4089
+    },
+    {
+      "filtered": true,
+      "question_id": "q14",
+      "http_ms": 286.5757729159668,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 253.32
+    },
+    {
+      "filtered": true,
+      "question_id": "q15",
+      "http_ms": 713.3643890265375,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 679.6129
+    },
+    {
+      "filtered": true,
+      "question_id": "q16",
+      "http_ms": 704.851248068735,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 671.9454
+    },
+    {
+      "filtered": false,
+      "question_id": "q01",
+      "http_ms": 1657.3701750021428,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1620.3466
+    },
+    {
+      "filtered": false,
+      "question_id": "q02",
+      "http_ms": 714.5217569777742,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 680.0715
+    },
+    {
+      "filtered": false,
+      "question_id": "q03",
+      "http_ms": 1422.1845529973507,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1389.5724
+    },
+    {
+      "filtered": false,
+      "question_id": "q04",
+      "http_ms": 1170.9530260413885,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1138.1045
+    },
+    {
+      "filtered": false,
+      "question_id": "q05",
+      "http_ms": 1482.3736649705097,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1449.7549
+    },
+    {
+      "filtered": false,
+      "question_id": "q06",
+      "http_ms": 418.32536400761455,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 385.8273
+    },
+    {
+      "filtered": false,
+      "question_id": "q07",
+      "http_ms": 1490.472150966525,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1458.2362
+    },
+    {
+      "filtered": false,
+      "question_id": "q08",
+      "http_ms": 1678.6067120265216,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1644.6764
+    },
+    {
+      "filtered": false,
+      "question_id": "q09",
+      "http_ms": 1717.9680020781234,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1680.396
+    },
+    {
+      "filtered": false,
+      "question_id": "q10",
+      "http_ms": 1420.1490570558235,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1382.8195
+    },
+    {
+      "filtered": false,
+      "question_id": "q11",
+      "http_ms": 1586.5762470057234,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1551.641
+    },
+    {
+      "filtered": false,
+      "question_id": "q12",
+      "http_ms": 1421.5322270756587,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1386.4383
+    },
+    {
+      "filtered": false,
+      "question_id": "q13",
+      "http_ms": 1542.220479925163,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1506.6013
+    },
+    {
+      "filtered": false,
+      "question_id": "q14",
+      "http_ms": 624.3314550956711,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 586.9993
+    },
+    {
+      "filtered": false,
+      "question_id": "q15",
+      "http_ms": 1488.7924619251862,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1454.3537
+    },
+    {
+      "filtered": false,
+      "question_id": "q16",
+      "http_ms": 1490.0691360235214,
+      "scaled_topic_recall_at8": 1.0,
+      "repository_ms": 1455.6462
+    },
+    {
+      "filtered": true,
+      "question_id": "q01",
+      "http_ms": 835.5017990106717,
+      "warm": true,
+      "repository_ms": 801.5421
+    },
+    {
+      "filtered": true,
+      "question_id": "q02",
+      "http_ms": 345.14682297594845,
+      "warm": true,
+      "repository_ms": 300.9508
+    },
+    {
+      "filtered": true,
+      "question_id": "q03",
+      "http_ms": 677.676006918773,
+      "warm": true,
+      "repository_ms": 644.3039
+    },
+    {
+      "filtered": true,
+      "question_id": "q04",
+      "http_ms": 559.882928035222,
+      "warm": true,
+      "repository_ms": 525.6951
+    },
+    {
+      "filtered": true,
+      "question_id": "q05",
+      "http_ms": 707.1385650197044,
+      "warm": true,
+      "repository_ms": 673.0749
+    },
+    {
+      "filtered": true,
+      "question_id": "q06",
+      "http_ms": 168.06130099575967,
+      "warm": true,
+      "repository_ms": 135.4634
+    },
+    {
+      "filtered": true,
+      "question_id": "q07",
+      "http_ms": 719.8171450290829,
+      "warm": true,
+      "repository_ms": 688.1527
+    },
+    {
+      "filtered": true,
+      "question_id": "q08",
+      "http_ms": 790.076439967379,
+      "warm": true,
+      "repository_ms": 756.9808
+    },
+    {
+      "filtered": true,
+      "question_id": "q09",
+      "http_ms": 801.3245919719338,
+      "warm": true,
+      "repository_ms": 763.9459
+    },
+    {
+      "filtered": true,
+      "question_id": "q10",
+      "http_ms": 675.2921630395576,
+      "warm": true,
+      "repository_ms": 642.2164
+    },
+    {
+      "filtered": true,
+      "question_id": "q11",
+      "http_ms": 749.5835330337286,
+      "warm": true,
+      "repository_ms": 716.3477
+    },
+    {
+      "filtered": true,
+      "question_id": "q12",
+      "http_ms": 676.5722959535196,
+      "warm": true,
+      "repository_ms": 643.8133
+    },
+    {
+      "filtered": true,
+      "question_id": "q13",
+      "http_ms": 714.7207799134776,
+      "warm": true,
+      "repository_ms": 680.4504
+    },
+    {
+      "filtered": true,
+      "question_id": "q14",
+      "http_ms": 282.7795509947464,
+      "warm": true,
+      "repository_ms": 250.5449
+    },
+    {
+      "filtered": true,
+      "question_id": "q15",
+      "http_ms": 701.7660199198872,
+      "warm": true,
+      "repository_ms": 670.3297
+    },
+    {
+      "filtered": true,
+      "question_id": "q16",
+      "http_ms": 710.9684660099447,
+      "warm": true,
+      "repository_ms": 677.1736
+    },
+    {
+      "filtered": true,
+      "question_id": "q01",
+      "http_ms": 818.2285870425403,
+      "warm": true,
+      "repository_ms": 785.3086
+    },
+    {
+      "filtered": true,
+      "question_id": "q02",
+      "http_ms": 322.8091860655695,
+      "warm": true,
+      "repository_ms": 291.1888
+    },
+    {
+      "filtered": true,
+      "question_id": "q03",
+      "http_ms": 702.92325806804,
+      "warm": true,
+      "repository_ms": 669.0611
+    },
+    {
+      "filtered": true,
+      "question_id": "q04",
+      "http_ms": 577.4720190092921,
+      "warm": true,
+      "repository_ms": 543.6952
+    },
+    {
+      "filtered": true,
+      "question_id": "q05",
+      "http_ms": 706.7750879796222,
+      "warm": true,
+      "repository_ms": 673.4852
+    },
+    {
+      "filtered": true,
+      "question_id": "q06",
+      "http_ms": 168.38994901627302,
+      "warm": true,
+      "repository_ms": 136.6046
+    },
+    {
+      "filtered": true,
+      "question_id": "q07",
+      "http_ms": 727.8194340178743,
+      "warm": true,
+      "repository_ms": 695.4406
+    },
+    {
+      "filtered": true,
+      "question_id": "q08",
+      "http_ms": 810.9058929840103,
+      "warm": true,
+      "repository_ms": 768.3257
+    },
+    {
+      "filtered": true,
+      "question_id": "q09",
+      "http_ms": 836.5302419988438,
+      "warm": true,
+      "repository_ms": 803.1469
+    },
+    {
+      "filtered": true,
+      "question_id": "q10",
+      "http_ms": 675.7540570106357,
+      "warm": true,
+      "repository_ms": 643.8174
+    },
+    {
+      "filtered": true,
+      "question_id": "q11",
+      "http_ms": 747.2847759490833,
+      "warm": true,
+      "repository_ms": 714.5579
+    },
+    {
+      "filtered": true,
+      "question_id": "q12",
+      "http_ms": 675.5929810460657,
+      "warm": true,
+      "repository_ms": 642.5439
+    },
+    {
+      "filtered": true,
+      "question_id": "q13",
+      "http_ms": 698.0684149311855,
+      "warm": true,
+      "repository_ms": 666.45
+    },
+    {
+      "filtered": true,
+      "question_id": "q14",
+      "http_ms": 285.6856050202623,
+      "warm": true,
+      "repository_ms": 252.4487
+    },
+    {
+      "filtered": true,
+      "question_id": "q15",
+      "http_ms": 712.9560839384794,
+      "warm": true,
+      "repository_ms": 680.2843
+    },
+    {
+      "filtered": true,
+      "question_id": "q16",
+      "http_ms": 697.2514449153095,
+      "warm": true,
+      "repository_ms": 664.6376
+    },
+    {
+      "filtered": false,
+      "question_id": "q01",
+      "http_ms": 1628.2691019587219,
+      "warm": true,
+      "repository_ms": 1596.6757
+    },
+    {
+      "filtered": false,
+      "question_id": "q02",
+      "http_ms": 725.572596071288,
+      "warm": true,
+      "repository_ms": 693.3797
+    },
+    {
+      "filtered": false,
+      "question_id": "q03",
+      "http_ms": 1427.2277710260823,
+      "warm": true,
+      "repository_ms": 1392.3207
+    },
+    {
+      "filtered": false,
+      "question_id": "q04",
+      "http_ms": 1178.2156910048798,
+      "warm": true,
+      "repository_ms": 1145.5693
+    },
+    {
+      "filtered": false,
+      "question_id": "q05",
+      "http_ms": 1476.6220540041104,
+      "warm": true,
+      "repository_ms": 1444.648
+    },
+    {
+      "filtered": false,
+      "question_id": "q06",
+      "http_ms": 417.933237971738,
+      "warm": true,
+      "repository_ms": 385.15
+    },
+    {
+      "filtered": false,
+      "question_id": "q07",
+      "http_ms": 1496.0676280315965,
+      "warm": true,
+      "repository_ms": 1463.6792
+    },
+    {
+      "filtered": false,
+      "question_id": "q08",
+      "http_ms": 1708.545043016784,
+      "warm": true,
+      "repository_ms": 1675.3422
+    },
+    {
+      "filtered": false,
+      "question_id": "q09",
+      "http_ms": 1655.187873984687,
+      "warm": true,
+      "repository_ms": 1622.8102
+    },
+    {
+      "filtered": false,
+      "question_id": "q10",
+      "http_ms": 1431.828062981367,
+      "warm": true,
+      "repository_ms": 1398.1435
+    },
+    {
+      "filtered": false,
+      "question_id": "q11",
+      "http_ms": 1576.5601019375026,
+      "warm": true,
+      "repository_ms": 1543.709
+    },
+    {
+      "filtered": false,
+      "question_id": "q12",
+      "http_ms": 1441.151423030533,
+      "warm": true,
+      "repository_ms": 1408.716
+    },
+    {
+      "filtered": false,
+      "question_id": "q13",
+      "http_ms": 1477.8218710562214,
+      "warm": true,
+      "repository_ms": 1446.1001
+    },
+    {
+      "filtered": false,
+      "question_id": "q14",
+      "http_ms": 620.7729449961334,
+      "warm": true,
+      "repository_ms": 588.9655
+    },
+    {
+      "filtered": false,
+      "question_id": "q15",
+      "http_ms": 1489.9224110413343,
+      "warm": true,
+      "repository_ms": 1460.1584
+    },
+    {
+      "filtered": false,
+      "question_id": "q16",
+      "http_ms": 1445.9470299771056,
+      "warm": true,
+      "repository_ms": 1414.9556
+    },
+    {
+      "filtered": false,
+      "question_id": "q01",
+      "http_ms": 1674.5090699987486,
+      "warm": true,
+      "repository_ms": 1641.683
+    },
+    {
+      "filtered": false,
+      "question_id": "q02",
+      "http_ms": 692.8766439668834,
+      "warm": true,
+      "repository_ms": 660.0176
+    },
+    {
+      "filtered": false,
+      "question_id": "q03",
+      "http_ms": 1445.7440570695326,
+      "warm": true,
+      "repository_ms": 1413.365
+    },
+    {
+      "filtered": false,
+      "question_id": "q04",
+      "http_ms": 1170.736292959191,
+      "warm": true,
+      "repository_ms": 1138.1348
+    },
+    {
+      "filtered": false,
+      "question_id": "q05",
+      "http_ms": 1485.2504910668358,
+      "warm": true,
+      "repository_ms": 1453.9148
+    },
+    {
+      "filtered": false,
+      "question_id": "q06",
+      "http_ms": 416.04960593394935,
+      "warm": true,
+      "repository_ms": 382.743
+    },
+    {
+      "filtered": false,
+      "question_id": "q07",
+      "http_ms": 1481.2087980099022,
+      "warm": true,
+      "repository_ms": 1448.8501
+    },
+    {
+      "filtered": false,
+      "question_id": "q08",
+      "http_ms": 1649.218379985541,
+      "warm": true,
+      "repository_ms": 1616.3153
+    },
+    {
+      "filtered": false,
+      "question_id": "q09",
+      "http_ms": 1710.6413079891354,
+      "warm": true,
+      "repository_ms": 1678.0962
+    },
+    {
+      "filtered": false,
+      "question_id": "q10",
+      "http_ms": 1426.3132029445842,
+      "warm": true,
+      "repository_ms": 1392.2598
+    },
+    {
+      "filtered": false,
+      "question_id": "q11",
+      "http_ms": 1572.9940619785339,
+      "warm": true,
+      "repository_ms": 1540.9287
+    },
+    {
+      "filtered": false,
+      "question_id": "q12",
+      "http_ms": 1409.2499340185896,
+      "warm": true,
+      "repository_ms": 1377.5089
+    },
+    {
+      "filtered": false,
+      "question_id": "q13",
+      "http_ms": 1479.5232589822263,
+      "warm": true,
+      "repository_ms": 1445.1321
+    },
+    {
+      "filtered": false,
+      "question_id": "q14",
+      "http_ms": 664.8362529231235,
+      "warm": true,
+      "repository_ms": 631.6066
+    },
+    {
+      "filtered": false,
+      "question_id": "q15",
+      "http_ms": 1508.5731329163536,
+      "warm": true,
+      "repository_ms": 1476.2149
+    },
+    {
+      "filtered": false,
+      "question_id": "q16",
+      "http_ms": 1463.3885059738532,
+      "warm": true,
+      "repository_ms": 1429.1334
+    },
+    {
+      "filtered": false,
+      "question_id": "q01",
+      "http_ms": 1701.9533040001988,
+      "phase": "active_sandbox",
+      "started_at_epoch": 1791594708.7727325,
+      "completed_at_epoch": 1791594710.474685,
+      "repository_ms": 1668.7144
+    }
+  ],
+  "baseline": [
+    {
+      "filtered": true,
+      "question_id": "q01",
+      "results": [
+        [
+          "01K00000000000000000000000",
+          "01K00000000000000000000000:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000000.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000000",
+          "01K00000000000000000000000:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000000.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000000",
+          "01K00000000000000000000000:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000000.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000010",
+          "01K00000000000000000000010:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000010.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000010",
+          "01K00000000000000000000010:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000010.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000010",
+          "01K00000000000000000000010:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000010.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000020",
+          "01K00000000000000000000020:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000020.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000020",
+          "01K00000000000000000000020:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000020.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q02",
+      "results": [
+        [
+          "01K00000000000000000000003",
+          "01K00000000000000000000003:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000003.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000003",
+          "01K00000000000000000000003:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000003.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000003",
+          "01K00000000000000000000003:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000003.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000013",
+          "01K00000000000000000000013:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000013.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000013",
+          "01K00000000000000000000013:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000013.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000013",
+          "01K00000000000000000000013:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000013.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000023",
+          "01K00000000000000000000023:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000023.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000023",
+          "01K00000000000000000000023:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000023.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q03",
+      "results": [
+        [
+          "01K00000000000000000000006",
+          "01K00000000000000000000006:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000006.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000006",
+          "01K00000000000000000000006:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000006.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000006",
+          "01K00000000000000000000006:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000006.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000016",
+          "01K00000000000000000000016:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000016.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000016",
+          "01K00000000000000000000016:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000016.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000016",
+          "01K00000000000000000000016:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000016.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000026",
+          "01K00000000000000000000026:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000026.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000026",
+          "01K00000000000000000000026:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000026.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q04",
+      "results": [
+        [
+          "01K00000000000000000000005",
+          "01K00000000000000000000005:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000005.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000005",
+          "01K00000000000000000000005:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000005.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000005",
+          "01K00000000000000000000005:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000005.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000015",
+          "01K00000000000000000000015:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000015.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000015",
+          "01K00000000000000000000015:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000015.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000015",
+          "01K00000000000000000000015:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000015.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000025",
+          "01K00000000000000000000025:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000025.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000025",
+          "01K00000000000000000000025:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000025.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q05",
+      "results": [
+        [
+          "01K00000000000000000000008",
+          "01K00000000000000000000008:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000008.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000008",
+          "01K00000000000000000000008:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000008.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000008",
+          "01K00000000000000000000008:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000008.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000018",
+          "01K00000000000000000000018:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000018.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000018",
+          "01K00000000000000000000018:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000018.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000018",
+          "01K00000000000000000000018:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000018.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000028",
+          "01K00000000000000000000028:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000028.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000028",
+          "01K00000000000000000000028:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000028.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q06",
+      "results": [
+        [
+          "01K0000000000000000000000B",
+          "01K0000000000000000000000B:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000000B",
+          "01K0000000000000000000000B:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000000B",
+          "01K0000000000000000000000B:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000001B",
+          "01K0000000000000000000001B:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000001B",
+          "01K0000000000000000000001B:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000001B",
+          "01K0000000000000000000001B:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000002B",
+          "01K0000000000000000000002B:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000002B",
+          "01K0000000000000000000002B:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q07",
+      "results": [
+        [
+          "01K0000000000000000000000C",
+          "01K0000000000000000000000C:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000000C",
+          "01K0000000000000000000000C:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000000C",
+          "01K0000000000000000000000C:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000001C",
+          "01K0000000000000000000001C:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000001C",
+          "01K0000000000000000000001C:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000001C",
+          "01K0000000000000000000001C:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000002C",
+          "01K0000000000000000000002C:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000002C",
+          "01K0000000000000000000002C:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q08",
+      "results": [
+        [
+          "01K0000000000000000000000F",
+          "01K0000000000000000000000F:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000000F",
+          "01K0000000000000000000000F:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000000F",
+          "01K0000000000000000000000F:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000001F",
+          "01K0000000000000000000001F:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000001F",
+          "01K0000000000000000000001F:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000001F",
+          "01K0000000000000000000001F:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000002F",
+          "01K0000000000000000000002F:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000002F",
+          "01K0000000000000000000002F:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q09",
+      "results": [
+        [
+          "01K0000000000000000000000G",
+          "01K0000000000000000000000G:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000000G",
+          "01K0000000000000000000000G:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000000G",
+          "01K0000000000000000000000G:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000001G",
+          "01K0000000000000000000001G:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000001G",
+          "01K0000000000000000000001G:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000001G",
+          "01K0000000000000000000001G:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000002G",
+          "01K0000000000000000000002G:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000002G",
+          "01K0000000000000000000002G:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q10",
+      "results": [
+        [
+          "01K0000000000000000000000J",
+          "01K0000000000000000000000J:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000000J",
+          "01K0000000000000000000000J:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000000J",
+          "01K0000000000000000000000J:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000001J",
+          "01K0000000000000000000001J:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000001J",
+          "01K0000000000000000000001J:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000001J",
+          "01K0000000000000000000001J:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000002J",
+          "01K0000000000000000000002J:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000002J",
+          "01K0000000000000000000002J:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q11",
+      "results": [
+        [
+          "01K0000000000000000000000M",
+          "01K0000000000000000000000M:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000000M",
+          "01K0000000000000000000000M:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000000M",
+          "01K0000000000000000000000M:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000001M",
+          "01K0000000000000000000001M:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000001M",
+          "01K0000000000000000000001M:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000001M",
+          "01K0000000000000000000001M:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000002M",
+          "01K0000000000000000000002M:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000002M",
+          "01K0000000000000000000002M:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q12",
+      "results": [
+        [
+          "01K0000000000000000000000P",
+          "01K0000000000000000000000P:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000000P",
+          "01K0000000000000000000000P:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000000P",
+          "01K0000000000000000000000P:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000001P",
+          "01K0000000000000000000001P:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000001P",
+          "01K0000000000000000000001P:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000001P",
+          "01K0000000000000000000001P:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000002P",
+          "01K0000000000000000000002P:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000002P",
+          "01K0000000000000000000002P:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q13",
+      "results": [
+        [
+          "01K0000000000000000000000R",
+          "01K0000000000000000000000R:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000000R",
+          "01K0000000000000000000000R:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000000R",
+          "01K0000000000000000000000R:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000001R",
+          "01K0000000000000000000001R:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000001R",
+          "01K0000000000000000000001R:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000001R",
+          "01K0000000000000000000001R:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000002R",
+          "01K0000000000000000000002R:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000002R",
+          "01K0000000000000000000002R:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q14",
+      "results": [
+        [
+          "01K0000000000000000000000S",
+          "01K0000000000000000000000S:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000S",
+          "01K0000000000000000000000S:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000S",
+          "01K0000000000000000000000S:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001S",
+          "01K0000000000000000000001S:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q15",
+      "results": [
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000002Y",
+          "01K0000000000000000000002Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000002Y",
+          "01K0000000000000000000002Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ]
+      ]
+    },
+    {
+      "filtered": true,
+      "question_id": "q16",
+      "results": [
+        [
+          "01K0000000000000000000000X",
+          "01K0000000000000000000000X:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000000X",
+          "01K0000000000000000000000X:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000000X",
+          "01K0000000000000000000000X:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000001X",
+          "01K0000000000000000000001X:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000001X",
+          "01K0000000000000000000001X:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000001X",
+          "01K0000000000000000000001X:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000002X",
+          "01K0000000000000000000002X:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000002X",
+          "01K0000000000000000000002X:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q01",
+      "results": [
+        [
+          "01K00000000000000000000000",
+          "01K00000000000000000000000:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000000.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000000",
+          "01K00000000000000000000000:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000000.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000000",
+          "01K00000000000000000000000:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000000.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000010",
+          "01K00000000000000000000010:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000010.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000010",
+          "01K00000000000000000000010:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000010.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000010",
+          "01K00000000000000000000010:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000010.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000020",
+          "01K00000000000000000000020:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000020.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ],
+        [
+          "01K00000000000000000000020",
+          "01K00000000000000000000020:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000020.md",
+          null,
+          "The archive database uses write ahead logging so readers can keep a stable snapshot while one writer commits. A long reader can delay checkpoint truncation. Keep read transactions short and measure the WAL file.",
+          "SQLite snapshot reads"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q02",
+      "results": [
+        [
+          "01K00000000000000000000003",
+          "01K00000000000000000000003:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000003.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000003",
+          "01K00000000000000000000003:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000003.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000003",
+          "01K00000000000000000000003:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000003.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000013",
+          "01K00000000000000000000013:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000013.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000013",
+          "01K00000000000000000000013:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000013.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000013",
+          "01K00000000000000000000013:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000013.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000023",
+          "01K00000000000000000000023:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000023.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ],
+        [
+          "01K00000000000000000000023",
+          "01K00000000000000000000023:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000023.md",
+          null,
+          "Schema upgrades record their progress durably before migrating the next database. On restart, an interrupted upgrade resumes from its recorded phase. Preserve a pre-upgrade snapshot until both databases are verified.",
+          "Recovering schema upgrades"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q03",
+      "results": [
+        [
+          "01K00000000000000000000006",
+          "01K00000000000000000000006:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000006.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000006",
+          "01K00000000000000000000006:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000006.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000006",
+          "01K00000000000000000000006:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000006.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000016",
+          "01K00000000000000000000016:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000016.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000016",
+          "01K00000000000000000000016:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000016.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000016",
+          "01K00000000000000000000016:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000016.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000026",
+          "01K00000000000000000000026:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000026.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ],
+        [
+          "01K00000000000000000000026",
+          "01K00000000000000000000026:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000026.md",
+          null,
+          "Mix nitrogen-rich kitchen scraps with carbon-rich dry leaves. Turn the compost pile to add oxygen. A sour smell usually means the pile is too wet or compacted; mix in dry material and improve airflow.",
+          "Balancing a compost pile"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q04",
+      "results": [
+        [
+          "01K00000000000000000000005",
+          "01K00000000000000000000005:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000005.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000005",
+          "01K00000000000000000000005:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000005.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000005",
+          "01K00000000000000000000005:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000005.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000015",
+          "01K00000000000000000000015:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000015.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000015",
+          "01K00000000000000000000015:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000015.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000015",
+          "01K00000000000000000000015:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000015.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000025",
+          "01K00000000000000000000025:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000025.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ],
+        [
+          "01K00000000000000000000025",
+          "01K00000000000000000000025:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000025.md",
+          null,
+          "Pinch basil stems just above a pair of leaves to encourage branching. Remove flower buds to keep leaf production going. Harvest a few leaves from several stems instead of stripping one stem bare.",
+          "Keeping basil productive"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q05",
+      "results": [
+        [
+          "01K00000000000000000000008",
+          "01K00000000000000000000008:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000008.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000008",
+          "01K00000000000000000000008:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000008.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000008",
+          "01K00000000000000000000008:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000008.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000018",
+          "01K00000000000000000000018:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000018.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000018",
+          "01K00000000000000000000018:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000018.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000018",
+          "01K00000000000000000000018:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000018.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000028",
+          "01K00000000000000000000028:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000028.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ],
+        [
+          "01K00000000000000000000028",
+          "01K00000000000000000000028:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K00000000000000000000028.md",
+          null,
+          "Remove the wheel and inner tube, find the leak, and inspect the tire for a thorn before fitting the repaired tube. Slightly inflate the tube before reinstalling it to avoid trapping it under the tire bead.",
+          "Repairing a bicycle puncture"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q06",
+      "results": [
+        [
+          "01K0000000000000000000000B",
+          "01K0000000000000000000000B:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000000B",
+          "01K0000000000000000000000B:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000000B",
+          "01K0000000000000000000000B:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000001B",
+          "01K0000000000000000000001B:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000001B",
+          "01K0000000000000000000001B:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000001B",
+          "01K0000000000000000000001B:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000002B",
+          "01K0000000000000000000002B:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ],
+        [
+          "01K0000000000000000000002B",
+          "01K0000000000000000000002B:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002B.md",
+          null,
+          "A saddle that is too high makes the rider rock their hips to reach the pedals. Adjust in small increments and check that the knee remains slightly bent at the bottom of the pedal stroke.",
+          "Adjusting saddle height"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q07",
+      "results": [
+        [
+          "01K0000000000000000000000C",
+          "01K0000000000000000000000C:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000000C",
+          "01K0000000000000000000000C:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000000C",
+          "01K0000000000000000000000C:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000001C",
+          "01K0000000000000000000001C:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000001C",
+          "01K0000000000000000000001C:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000001C",
+          "01K0000000000000000000001C:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000002C",
+          "01K0000000000000000000002C:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ],
+        [
+          "01K0000000000000000000002C",
+          "01K0000000000000000000002C:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002C.md",
+          null,
+          "Dough is ready after proofing when it is visibly aerated and a gentle finger indentation returns slowly. Cold rooms slow fermentation. Rely on the dough's behavior rather than a fixed timer.",
+          "Judging bread fermentation"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q08",
+      "results": [
+        [
+          "01K0000000000000000000000F",
+          "01K0000000000000000000000F:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000000F",
+          "01K0000000000000000000000F:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000000F",
+          "01K0000000000000000000000F:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000001F",
+          "01K0000000000000000000001F:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000001F",
+          "01K0000000000000000000001F:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000001F",
+          "01K0000000000000000000001F:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000002F",
+          "01K0000000000000000000002F:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ],
+        [
+          "01K0000000000000000000002F",
+          "01K0000000000000000000002F:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002F.md",
+          null,
+          "Keep a cut loaf with its cut face down for short storage. Slice and freeze extra bread for later toasting. Refrigeration tends to make bread stale faster because its starch changes structure.",
+          "Storing homemade bread"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q09",
+      "results": [
+        [
+          "01K0000000000000000000000G",
+          "01K0000000000000000000000G:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000000G",
+          "01K0000000000000000000000G:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000000G",
+          "01K0000000000000000000000G:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000001G",
+          "01K0000000000000000000001G:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000001G",
+          "01K0000000000000000000001G:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000001G",
+          "01K0000000000000000000001G:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000002G",
+          "01K0000000000000000000002G:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ],
+        [
+          "01K0000000000000000000002G",
+          "01K0000000000000000000002G:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002G.md",
+          null,
+          "Use a faster shutter speed to freeze a running dog. Raise ISO or open the aperture if the image becomes too dark. Continuous autofocus helps track the subject as it approaches the camera.",
+          "Freezing a moving subject"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q10",
+      "results": [
+        [
+          "01K0000000000000000000000J",
+          "01K0000000000000000000000J:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000000J",
+          "01K0000000000000000000000J:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000000J",
+          "01K0000000000000000000000J:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000001J",
+          "01K0000000000000000000001J:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000001J",
+          "01K0000000000000000000001J:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000001J",
+          "01K0000000000000000000001J:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000002J",
+          "01K0000000000000000000002J:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ],
+        [
+          "01K0000000000000000000002J",
+          "01K0000000000000000000002J:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002J.md",
+          null,
+          "Put the camera on a tripod, focus manually on a bright star, and take a short test exposure. An exposure that is too long turns stars into trails because the Earth rotates. Check the corners for sharpness.",
+          "Photographing the night sky"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q11",
+      "results": [
+        [
+          "01K0000000000000000000000M",
+          "01K0000000000000000000000M:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000000M",
+          "01K0000000000000000000000M:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000000M",
+          "01K0000000000000000000000M:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000001M",
+          "01K0000000000000000000001M:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000001M",
+          "01K0000000000000000000001M:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000001M",
+          "01K0000000000000000000001M:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000002M",
+          "01K0000000000000000000002M:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ],
+        [
+          "01K0000000000000000000002M",
+          "01K0000000000000000000002M:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002M.md",
+          null,
+          "Confirm the train number and destination on the station departure board. A platform can change close to departure, so check the board again before boarding. The same destination may have several different services.",
+          "Reading a train departure board"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q12",
+      "results": [
+        [
+          "01K0000000000000000000000P",
+          "01K0000000000000000000000P:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000000P",
+          "01K0000000000000000000000P:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000000P",
+          "01K0000000000000000000000P:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000001P",
+          "01K0000000000000000000001P:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000001P",
+          "01K0000000000000000000001P:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000001P",
+          "01K0000000000000000000001P:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000002P",
+          "01K0000000000000000000002P:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ],
+        [
+          "01K0000000000000000000002P",
+          "01K0000000000000000000002P:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002P.md",
+          null,
+          "Keep a small overnight bag accessible in the sleeper compartment. Pack earplugs, a water bottle, and a charger. Store travel documents where they can be reached without unpacking the main suitcase.",
+          "Preparing for an overnight train"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q13",
+      "results": [
+        [
+          "01K0000000000000000000000R",
+          "01K0000000000000000000000R:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000000R",
+          "01K0000000000000000000000R:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000000R",
+          "01K0000000000000000000000R:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000001R",
+          "01K0000000000000000000001R:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000001R",
+          "01K0000000000000000000001R:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000001R",
+          "01K0000000000000000000001R:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000002R",
+          "01K0000000000000000000002R:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ],
+        [
+          "01K0000000000000000000002R",
+          "01K0000000000000000000002R:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002R.md",
+          null,
+          "Practice the difficult piano passage slowly enough to play it accurately. Work on a few notes at a time and gradually increase the metronome speed. Repeated mistakes at full speed reinforce the wrong movement.",
+          "Practicing a difficult piano passage"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q14",
+      "results": [
+        [
+          "01K0000000000000000000000S",
+          "01K0000000000000000000000S:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000S",
+          "01K0000000000000000000000S:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000S",
+          "01K0000000000000000000000S:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001S",
+          "01K0000000000000000000001S:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001S.md",
+          null,
+          "Clap the rhythm before playing pitches. Count the subdivisions aloud and keep the underlying beat steady. A metronome on the main pulse can reveal whether notes between the beats arrive too early.",
+          "Learning syncopated rhythm"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q15",
+      "results": [
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000000Y",
+          "01K0000000000000000000000Y:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000001Y",
+          "01K0000000000000000000001Y:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000002Y",
+          "01K0000000000000000000002Y:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ],
+        [
+          "01K0000000000000000000002Y",
+          "01K0000000000000000000002Y:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002Y.md",
+          null,
+          "Download an offline topographic map before leaving coverage. Carry a paper map and compass as a backup, and practice using them. Terrain features can help confirm position when a trail junction is unclear.",
+          "Navigating when a phone loses signal"
+        ]
+      ]
+    },
+    {
+      "filtered": false,
+      "question_id": "q16",
+      "results": [
+        [
+          "01K0000000000000000000000X",
+          "01K0000000000000000000000X:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000000X",
+          "01K0000000000000000000000X:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000000X",
+          "01K0000000000000000000000X:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000000X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000001X",
+          "01K0000000000000000000001X:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000001X",
+          "01K0000000000000000000001X:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000001X",
+          "01K0000000000000000000001X:2",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000001X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000002X",
+          "01K0000000000000000000002X:0",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ],
+        [
+          "01K0000000000000000000002X",
+          "01K0000000000000000000002X:1",
+          1,
+          "/srv/secondbrain/vault/originals/01K0000000000000000000002X.md",
+          null,
+          "Wear a moisture-managing base layer, add insulation for cold stops, and carry a shell for wind and rain. Remove a layer before getting sweaty on a climb. Keep a dry spare layer protected in the pack.",
+          "Layering for changing weather"
+        ]
+      ]
+    }
+  ],
+  "latency": {
+    "True": {
+      "warm_repository_p95_ms": 801.5421,
+      "warm_http_p95_ms": 835.5017990106717
+    },
+    "False": {
+      "warm_repository_p95_ms": 1675.3422,
+      "warm_http_p95_ms": 1708.545043016784
+    }
+  },
+  "structured_http_p95_ms": 37.89707203395665,
+  "startup_vector_load_ms": 10838.7621,
+  "process_to_health_seconds_upper_bound": 13.5792684,
+  "forced_gc": {
+    "at": "2026-10-10T01:11:51.6077899+00:00",
+    "process_id": 12,
+    "process_started_at": "2026-10-10T01:09:57.4892256Z",
+    "first_health_at": "2026-10-10T01:10:11.068494+00:00",
+    "process_to_health_seconds_upper_bound": 13.5792684,
+    "vector_statistics": {
+      "LiveSlots": 1000000,
+      "RetainedSlots": 0,
+      "AllocatedSlots": 1048576,
+      "VectorBytes": 4294967296
+    },
+    "sample": 115,
+    "forced_full_gc": true,
+    "managed_live_bytes": 4452921208,
+    "gc_heap_size_bytes": 4508102632,
+    "gc_fragmented_bytes": 55230768,
+    "gc_committed_bytes": 5025120256,
+    "gc_memory_load_bytes": 5153960755,
+    "working_set_bytes": 5294587904
+  },
+  "active_sandbox_phase": {
+    "workload": "four concurrent 80-page synthetic text PDFs through actual descriptor RPC plus known hybrid daemon queries",
+    "admission_path": "direct UID1654 descriptor helper, not daemon upload/publication",
+    "corpus_unchanged": true,
+    "helper": {
+      "workload": "four concurrent immutable 80-page PDF descriptor RPCs; no daemon admission/publication",
+      "results": [
+        {
+          "fixture": "sandbox-0.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791594708.774,
+          "completed_at_epoch": 1791594709.607,
+          "elapsed_ms": 832.9941
+        },
+        {
+          "fixture": "sandbox-1.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791594708.776,
+          "completed_at_epoch": 1791594709.654,
+          "elapsed_ms": 878.2007
+        },
+        {
+          "fixture": "sandbox-2.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791594708.776,
+          "completed_at_epoch": 1791594709.651,
+          "elapsed_ms": 874.8702
+        },
+        {
+          "fixture": "sandbox-3.pdf",
+          "Status": "extracted",
+          "pages": 80,
+          "text_bytes": 291986,
+          "input_bytes": 343961,
+          "started_at_epoch": 1791594708.776,
+          "completed_at_epoch": 1791594709.65,
+          "elapsed_ms": 874.1617
+        }
+      ],
+      "elapsed_seconds": 0.9245244,
+      "helper_cgroup_current_bytes": 21794816,
+      "helper_cgroup_peak_bytes": 21794816,
+      "helper_managed_bytes": 9093856,
+      "helper_process_id": 7
+    },
+    "overlapping_http_queries": 1,
+    "queries": 1,
+    "cgroups_before": {
+      "daemon": {
+        "current_bytes": 5410529280,
+        "peak_bytes": 5539299328,
+        "limit": "8589934592"
+      },
+      "extractor": {
+        "current_bytes": 20758528,
+        "peak_bytes": 22196224,
+        "limit": "1073741824"
+      }
+    },
+    "cgroups_after": {
+      "daemon": {
+        "current_bytes": 5420781568,
+        "peak_bytes": 5539299328,
+        "limit": "8589934592"
+      },
+      "extractor": {
+        "current_bytes": 32919552,
+        "peak_bytes": 194248704,
+        "limit": "1073741824"
+      }
+    },
+    "combined_sampled_peak_bytes": 5601882112,
+    "combined_separate_cgroup_peak_upper_bound_bytes": 5733548032
+  },
+  "gates": {
+    "filtered_repository_p95_below_150ms": false,
+    "unfiltered_repository_p95_below_400ms": false,
+    "structured_http_p95_below_50ms": true,
+    "startup_below_3s_plus_measured_vector_load": true,
+    "gc_heap_below_1gb_plus_actual_vector_array": true
+  }
+}
