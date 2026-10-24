@@ -1,0 +1,165 @@
+{
+  "status": "verified",
+  "verified_at_utc": "2026-10-24T19:58:06.918948+00:00",
+  "installed_files_verified": 433,
+  "manifest_sha256": "108a88f7f6dfc7262aa1411cd91fe602ca91466a4e2d3def5de8cc9bfa6d39af",
+  "http_checks": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/app.css",
+      "status": 200,
+      "bytes": 574,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200,
+      "bytes": 17815,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/favicon.svg",
+      "status": 200,
+      "bytes": 240,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/_framework/blazor.web.js",
+      "status": 200,
+      "bytes": 200645,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/conversations",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/conversations/00000000000000000000000000/transcript",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/turns/00000000000000000000000000/retry",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/mcp",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/app.css",
+      "status": 200,
+      "bytes": 574,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200,
+      "bytes": 17815,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/favicon.svg",
+      "status": 200,
+      "bytes": 240,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/_framework/blazor.web.js",
+      "status": 200,
+      "bytes": 200645,
+      "matches_installed_file": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/conversations",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/conversations/00000000000000000000000000/transcript",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/turns/00000000000000000000000000/retry",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/mcp",
+      "status": 401,
+      "authentication_enforced": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/auth/cli/start + /auth/cli/poll",
+      "status": 200,
+      "pairing_state": "pending",
+      "challenge_expires_at": "2026-10-24T20:03:06.8159660+00:00",
+      "credential_issued": false
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/chat.js",
+      "status": 200,
+      "bytes": 2475,
+      "matches_installed_file": true
+    }
+  ],
+  "installed_cli_commands_verified": [
+    "ask",
+    "chat",
+    "mcp",
+    "pending"
+  ],
+  "units": "Id=secondbrain.service\nActiveState=active\nSubState=running\nMainPID=2557889\nExecMainStartTimestamp=Sat 2026-10-24 15:57:30 EDT\n\nId=secondbrain-extractor.service\nActiveState=active\nSubState=running\nMainPID=2564513\nExecMainStartTimestamp=Sat 2026-10-24 15:57:33 EDT\n\nId=secondbrain-extractor.socket\nActiveState=active\nSubState=running\n",
+  "authenticated_assistant_call": "Not performed: no user credential was requested or changed."
+}

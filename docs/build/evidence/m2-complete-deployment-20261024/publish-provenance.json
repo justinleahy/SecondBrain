@@ -1,0 +1,136 @@
+{
+  "release": "M2 complete",
+  "published_at_utc": "2026-10-24T19:57:17.933697+00:00",
+  "source_tree_sha256": "0bbc7ec9635eac8d57a569a817997ea03a28087de5e533847bee137f91366701",
+  "source_commit": "39ed4859ef3ddb9ca70befb6b4131ff17bbd907c",
+  "working_tree_has_verified_changes": true,
+  "configuration": "Release",
+  "runtime_identifier": "linux-x64",
+  "self_contained": true,
+  "runtime_version": "10.0.12",
+  "sdk": "10.0.111",
+  "warnings_as_errors": true,
+  "locked_restore": true,
+  "tests_passed": 1895,
+  "merge_order": [
+    "extractor",
+    "cli",
+    "server"
+  ],
+  "overwritten_differing_files": [
+    {
+      "path": "Microsoft.Extensions.Configuration.Abstractions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.Binder.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.CommandLine.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.EnvironmentVariables.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.FileExtensions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.Json.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.UserSecrets.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Configuration.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.DependencyInjection.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Diagnostics.Abstractions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Diagnostics.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.FileProviders.Abstractions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.FileProviders.Physical.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.FileSystemGlobbing.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Hosting.Abstractions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Hosting.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.Abstractions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.Configuration.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.Console.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.Debug.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.EventLog.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.EventSource.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Logging.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Options.ConfigurationExtensions.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Options.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "Microsoft.Extensions.Primitives.dll",
+      "authoritative_publish": "cli"
+    },
+    {
+      "path": "System.Diagnostics.EventLog.dll",
+      "authoritative_publish": "cli"
+    }
+  ],
+  "file_count": 433,
+  "manifest_sha256": "108a88f7f6dfc7262aa1411cd91fe602ca91466a4e2d3def5de8cc9bfa6d39af"
+}

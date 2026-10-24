@@ -1,5 +1,7 @@
 # Browser chat deployment — 2026-10-24
 
+This historical browser-only release was superseded by the [complete M2 deployment](M2-complete-deployment.md) at 19:57 UTC.
+
 The original deployment's status-only asset checks missed empty JavaScript responses, leaving the rendered page inactive. This was [corrected and redeployed at 18:14 UTC](M2-static-assets-fix.md), with byte-for-byte asset verification and a confirmed browser WebSocket connection. The original deployment evidence below is historical.
 
 Status: **deployed and verified** at 2026-10-24 18:07 UTC. The [upgrade report](evidence/m2-deployment-20261024/deployment-result.json) confirms all 427 files, migrations, provider/extractor readiness, blocked egress canary, authenticated chat routes, and served page/assets. Existing account credentials, configuration, key material, and the M1 smoke-test document were preserved.

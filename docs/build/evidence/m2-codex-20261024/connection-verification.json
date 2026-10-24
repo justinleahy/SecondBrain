@@ -1,0 +1,71 @@
+{
+  "status": "verified",
+  "verified_at_utc": "2026-10-24T20:08:34.588948+00:00",
+  "configuration_file": "~/.codex/config.toml",
+  "server_name": "secondbrain",
+  "configuration": {
+    "command": "/usr/local/lib/secondbrain/brain",
+    "args": [
+      "--url",
+      "http://127.0.0.1:7171",
+      "--credential-name",
+      "codex",
+      "mcp"
+    ],
+    "env_vars": [
+      "DBUS_SESSION_BUS_ADDRESS",
+      "XDG_RUNTIME_DIR"
+    ],
+    "enabled_tools": [
+      "brain_search",
+      "brain_query",
+      "brain_get",
+      "brain_list_recent",
+      "brain_tags"
+    ],
+    "startup_timeout_sec": 30,
+    "tool_timeout_sec": 60
+  },
+  "http_checks": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200
+    }
+  ],
+  "bridge_checks": [
+    {
+      "protocol": "2026-07-28",
+      "discovery": true,
+      "tool_listing": true,
+      "advertised_tool_count": 8,
+      "authenticated_read_tool": "brain_list_recent",
+      "read_call_succeeded": true
+    },
+    {
+      "protocol": "2025-11-25",
+      "discovery": true,
+      "tool_listing": true,
+      "advertised_tool_count": 8,
+      "authenticated_read_tool": "brain_list_recent",
+      "read_call_succeeded": true
+    }
+  ],
+  "verification_scope": "Launched the configured stdio bridge with its stored credential; this does not prove an already-running Codex session reloaded its tool catalog.",
+  "privacy": "No credential values, document contents, or raw tool responses retained."
+}

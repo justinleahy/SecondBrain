@@ -1,0 +1,51 @@
+{
+  "status": "verified",
+  "verified_at_utc": "2026-10-24T20:18:06.601377+00:00",
+  "installed_files_verified": 433,
+  "http_checks": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/chat.js",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/chat.js",
+      "status": 200
+    }
+  ],
+  "server_tests_passed": 302,
+  "test_results_sha256": "f2370ac258a619b6f1e9ee3776cd83e910442d6265e2045eeeb6f9bf5a022b18",
+  "browser": "Authenticated disposable instance: desktop 1440x1000 and mobile 390x844. Opened a long conversation, sent real slash-command messages, and simulated streamed DOM growth. Verified latest-message following, earlier-reading position, viewport resize, and exclusion of approvals.",
+  "live_checks": "Installed binary/asset hashes, loopback/LAN readiness and CSS. No approval action was submitted against real notes."
+}

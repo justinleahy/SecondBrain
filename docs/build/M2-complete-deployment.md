@@ -1,0 +1,19 @@
+# Complete M2 deployment — 2026-10-24
+
+Status: **deployed and verified** at 19:57 UTC. Open **http://10.66.10.20:7171/** and refresh any browser tab that was open during the restart.
+
+The server, CLI and extractor were published from the verified M2 working tree as self-contained `linux-x64` Release builds with locked restore and warnings treated as errors. The source fingerprint matches the [1,895-test M2 acceptance snapshot](M2-acceptance.md). The [publish provenance](evidence/m2-complete-deployment-20261024/publish-provenance.json) records that fingerprint, the base commit plus uncommitted verified changes, SDK 10.0.111, runtime 10.0.12 and merge order. All 433 published files are covered by the [release manifest](evidence/m2-complete-deployment-20261024/sha256-manifest.json).
+
+The existing fixed-purpose `secondbrain-deploy.service` installed the staged bundle, took a private backup, ran migrations and checked readiness. Its [deployment result](evidence/m2-complete-deployment-20261024/deployment-result.json) confirms that the account, credentials, configuration, secrets, key-ring material and all four existing documents were preserved. Server and extractor are running; stores, migration recovery, provider roles and the blocked-egress canary are healthy. The previous installation and private rollback backup remain available under the paths in that result.
+
+[Independent verification](evidence/m2-complete-deployment-20261024/independent-verification.json) checked all 433 installed file hashes and 24 live HTTP checks across loopback and the LAN address. The new transcript, retry and MCP routes enforce authentication. CLI pairing starts and polls successfully in the pending state; no session credential was issued, and the unapproved smoke-test challenge expires automatically. The installed CLI exposes `ask`, `chat`, `pending` and `mcp`.
+
+The [browser check](evidence/m2-complete-deployment-20261024/browser-page.json) loaded the production LAN page and Blazor runtime. Its [console](evidence/m2-complete-deployment-20261024/browser-console.txt) shows a connected WebSocket and zero errors or warnings. JavaScript, CSS and icon response bodies match the installed files, including `chat.js` and `/_framework/blazor.web.js`.
+
+The browser check was signed out. No password or existing credential was requested, and no authenticated live assistant turn was submitted during deployment verification. Functional assistant/MCP/approval behavior is covered by the acceptance suite and recorded-provider evaluation. No live external-vendor or Cloudflare route qualification is claimed. Configuration was preserved, including the existing model and reasoning settings; the quality evaluation's explicit reasoning-enabled binding remains documented separately.
+
+The bundle is retained at `artifacts/m2-complete-release-20261024/merged`; operational evidence is also in `artifacts/m2-complete-deployment-20261024/`. The installed CLI is `/usr/local/lib/secondbrain/brain`. Post-deployment documentation updates do not alter the published runtime files.
+
+## Subsequent client verification
+
+On 2026-10-24, the reference user's [Codex MCP connection](M2-mcp.md#codex-on-the-reference-host) was configured with a dedicated read-only credential. A subsequent check launched that exact bridge command and completed discovery, tool listing and an authenticated `brain_list_recent` call with both supported protocol generations. Loopback and LAN health/readiness checks also returned 200. The [sanitized connection evidence](evidence/m2-codex-20261024/connection-verification.json) records this separately from the original deployment checks. This confirms authenticated retrieval; it does not claim a live assistant-generation test or that an already-running Codex session has reloaded its configuration. See [current project status](../project-status.md) for remaining work.

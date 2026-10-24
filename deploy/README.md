@@ -206,6 +206,8 @@ authenticated chat routes, home page, and static assets. See the
 [browser chat deployment record](../docs/build/M2-browser-chat-deployment.md)
 for the prepared command and release provenance.
 
+The complete M2 server, CLI and extractor were subsequently installed through that managed workflow; see the [M2 deployment record](../docs/build/M2-complete-deployment.md).
+
 For repeated deployments without password prompts, the reference host supports
 an optional [fixed-purpose deployment service](systemd/managed-deployment.md).
 Its one-time setup grants only permission to start that service.

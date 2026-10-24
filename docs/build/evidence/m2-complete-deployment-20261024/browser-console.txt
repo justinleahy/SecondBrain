@@ -1,0 +1,4 @@
+Total messages: 2 (Errors: 0, Warnings: 0)
+
+[INFO] [2026-10-24T19:58:00.531Z] Information: Normalizing '_blazor' to 'http://10.66.10.20:7171/_blazor'. @ http://10.66.10.20:7171/_framework/blazor.web.js:0
+[INFO] [2026-10-24T19:58:00.540Z] Information: WebSocket connected to ws://10.66.10.20:7171/_blazor?id=G7h1EfY8h4Ntbu8m7RH0wg. @ http://10.66.10.20:7171/_framework/blazor.web.js:0

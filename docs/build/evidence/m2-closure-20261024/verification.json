@@ -1,0 +1,192 @@
+{
+  "status": "passed",
+  "verified_at": "2026-10-24T19:29:20.609369+00:00",
+  "configuration": "Release",
+  "sdk": "10.0.111",
+  "warnings_as_errors": true,
+  "locked_restore": true,
+  "passed": 1895,
+  "failed": 0,
+  "unique_test_ids": 1895,
+  "unique_display_names": 1860,
+  "count_note": "Linked test sources are exercised in more than one test assembly; test IDs are distinct.",
+  "source_tree_sha256": "0bbc7ec9635eac8d57a569a817997ea03a28087de5e533847bee137f91366701",
+  "source_file_count": 457,
+  "projects": [
+    {
+      "assembly": "secondbrain.architecture.tests.dll",
+      "passed": 63,
+      "trx": "artifacts/m2-final-tests/release_net10.0_20261024152634.trx",
+      "trx_sha256": "4652a6e16a30a1e7efbf2d8f2ab339f661916c152d5e6f5b19482eb4d092ec43"
+    },
+    {
+      "assembly": "secondbrain.core.tests.dll",
+      "passed": 165,
+      "trx": "artifacts/m2-final-tests/release_net10.0_20261024152635.trx",
+      "trx_sha256": "c77f84503adc177f98aaea03202c308c7853b5a97ad330a4d2b667ab68a0a28f"
+    },
+    {
+      "assembly": "secondbrain.deploy.tests.dll",
+      "passed": 161,
+      "trx": "artifacts/m2-final-tests/release_net10.0_20261024152645.trx",
+      "trx_sha256": "1c19472199d0604e779aa362f8ab709cc31f067ef86c474dd0ea99be71131ba2"
+    },
+    {
+      "assembly": "secondbrain.extractor.tests.dll",
+      "passed": 780,
+      "trx": "artifacts/m2-final-tests/release_net10.0_20261024152647.trx",
+      "trx_sha256": "f3a28a3ed4937fa811da365d404fe4871e51d669f4f241b35c04c81a1ecddc2d"
+    },
+    {
+      "assembly": "secondbrain.infrastructure.tests.dll",
+      "passed": 81,
+      "trx": "artifacts/m2-final-tests/release_net10.0_20261024152649.trx",
+      "trx_sha256": "fc2ffbada0557dcd7b1b5f8b053de9ba50e140c19e5e1a1d232d76dc5d5b9359"
+    },
+    {
+      "assembly": "secondbrain.providers.openaicompatible.tests.dll",
+      "passed": 72,
+      "trx": "artifacts/m2-final-tests/release_net10.0_20261024152652.trx",
+      "trx_sha256": "aec87408747b2f1fe17255daeb15f9a434713d6e4032bc74692032d6d803b41c"
+    },
+    {
+      "assembly": "secondbrain.server.tests.dll",
+      "passed": 297,
+      "trx": "artifacts/m2-final-tests/release-server-verified_net10.0_20261024152837.trx",
+      "trx_sha256": "e80bd4faee624bc0323487dacce296bada8ff0c80adaf31f7d269858c9078740"
+    },
+    {
+      "assembly": "secondbrain.storage.tests.dll",
+      "passed": 276,
+      "trx": "artifacts/m2-final-tests/release_net10.0_20261024152658.trx",
+      "trx_sha256": "a7e7cd19c6b5c9d7548b664f06d75b23d9acffc7f395ac1d07615681f5732a80"
+    }
+  ],
+  "required_scenarios": {
+    "Cli_McpBridgeUsesCurrentProtocolAgainstRealDaemon": [
+      "SecondBrain.Deploy.Tests.CliConvergenceTests.Cli_McpBridgeUsesCurrentProtocolAgainstRealDaemon"
+    ],
+    "Cli_PairThroughBrowserThenAskAndApproveWithoutReplacingApiKey": [
+      "SecondBrain.Deploy.Tests.CliConvergenceTests.Cli_PairThroughBrowserThenAskAndApproveWithoutReplacingApiKey"
+    ],
+    "BothProtocolGenerationsEnforceMethodScopes": [
+      "SecondBrain.Server.Tests.McpTests.BothProtocolGenerationsEnforceMethodScopes(version: \"2025-11-25\")",
+      "SecondBrain.Server.Tests.McpTests.BothProtocolGenerationsEnforceMethodScopes(version: \"2026-07-28\")"
+    ],
+    "WriteOnlyCaptureAndUpdateUseCredentialProvenanceAndInteractiveApproval": [
+      "SecondBrain.Server.Tests.McpTests.WriteOnlyCaptureAndUpdateUseCredentialProvenanceAndInteractiveApproval"
+    ],
+    "ModelWriteRemainsPendingUntilBrowserApprovesAndThenCreatesOneNote": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.ModelWriteRemainsPendingUntilBrowserApprovesAndThenCreatesOneNote"
+    ],
+    "ProviderSwitchBetweenTurnsUsesPortableHistoryAndNewBinding": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.ProviderSwitchBetweenTurnsUsesPortableHistoryAndNewBinding"
+    ],
+    "RetryingAnApprovedAppendDoesNotAppendAgain": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.RetryingAnApprovedAppendDoesNotAppendAgain"
+    ],
+    "RetryReplaysACommittedCreateInsteadOfCreatingItAgain": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.RetryReplaysACommittedCreateInsteadOfCreatingItAgain"
+    ],
+    "RevokingOneKeyStopsItsTurnAndReplayWhileAnotherKeyStillCompletes": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.RevokingOneKeyStopsItsTurnAndReplayWhileAnotherKeyStillCompletes"
+    ],
+    "AskCannotExecuteAWriteEvenWhenTheProviderInventsOne": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.AskCannotExecuteAWriteEvenWhenTheProviderInventsOne"
+    ],
+    "InjectedDocumentCannotAutoApproveEvenWhenTheModelFollowsItsWriteInstruction": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.InjectedDocumentCannotAutoApproveEvenWhenTheModelFollowsItsWriteInstruction"
+    ],
+    "InventedDocumentIdIsRejectedBeforeItsContentReachesTheProvider": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.InventedDocumentIdIsRejectedBeforeItsContentReachesTheProvider"
+    ],
+    "FilteredAskCannotReadAnExplicitlyNamedDocumentOutsideItsFilters": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.FilteredAskCannotReadAnExplicitlyNamedDocumentOutsideItsFilters"
+    ],
+    "SourcesUseCurrentAuthoritativeBytesAndExposureLimitsAreCumulative": [
+      "SecondBrain.Storage.Tests.ChatRepositoryTests.SourcesUseCurrentAuthoritativeBytesAndExposureLimitsAreCumulative"
+    ],
+    "ToolAndMetadataLimitsCannotBeResetByRepeatedCalls": [
+      "SecondBrain.Storage.Tests.ChatRepositoryTests.ToolAndMetadataLimitsCannotBeResetByRepeatedCalls"
+    ],
+    "ConcurrentApprovalsCreateOneNoteAndOneExecution": [
+      "SecondBrain.Storage.Tests.ChatApprovalTests.ConcurrentApprovalsCreateOneNoteAndOneExecution"
+    ],
+    "CreateRecoversItsStableIdentityAcrossFileAndPublicationCrashes": [
+      "SecondBrain.Storage.Tests.ChatApprovalTests.CreateRecoversItsStableIdentityAcrossFileAndPublicationCrashes(point: \"after_state_publishing\")",
+      "SecondBrain.Storage.Tests.ChatApprovalTests.CreateRecoversItsStableIdentityAcrossFileAndPublicationCrashes(point: \"after_temp_flush\")",
+      "SecondBrain.Storage.Tests.ChatApprovalTests.CreateRecoversItsStableIdentityAcrossFileAndPublicationCrashes(point: \"before_finalize\")"
+    ],
+    "UpdateCrashFinalizesTheOriginalRevisionWithoutApplyingItTwice": [
+      "SecondBrain.Storage.Tests.ChatApprovalTests.UpdateCrashFinalizesTheOriginalRevisionWithoutApplyingItTwice"
+    ],
+    "PairedSessionCanApproveAProposalButCannotAutoApproveOrPairAnotherTerminal": [
+      "SecondBrain.Server.Tests.CliPairingTests.PairedSessionCanApproveAProposalButCannotAutoApproveOrPairAnotherTerminal"
+    ],
+    "RecordedProviderMeetsClaimSupportAndIrrelevantCorpusAbstentionThresholds": [
+      "SecondBrain.Server.Tests.ChatQualityEvaluationTests.RecordedProviderMeetsClaimSupportAndIrrelevantCorpusAbstentionThresholds"
+    ],
+    "HistoryCompactionPreservesLineageAndPurgeRedactsTheSummary": [
+      "SecondBrain.Storage.Tests.ChatRepositoryTests.HistoryCompactionPreservesLineageAndPurgeRedactsTheSummary"
+    ],
+    "RetryAfterPurgeHasOnlyRedactionMarkersAndCanStillFinish": [
+      "SecondBrain.Storage.Tests.ChatApprovalTests.RetryAfterPurgeHasOnlyRedactionMarkersAndCanStillFinish"
+    ],
+    "ANewPurgeAfterRetryStillStopsItsNextBoundary": [
+      "SecondBrain.Storage.Tests.ChatApprovalTests.ANewPurgeAfterRetryStillStopsItsNextBoundary"
+    ],
+    "PublicationBindsGeneratedDocumentLineageBeforeAssistantBookkeeping": [
+      "SecondBrain.Storage.Tests.ChatApprovalTests.PublicationBindsGeneratedDocumentLineageBeforeAssistantBookkeeping"
+    ],
+    "RetryUsesTheExistingTurnAndStartsAfterItsResumeMarker": [
+      "SecondBrain.Deploy.Tests.CliAssistantTests.RetryUsesTheExistingTurnAndStartsAfterItsResumeMarker"
+    ],
+    "SavePreviousSourcedAnswerRetainsLineageAndRequiresApprovalEvenWhenAutoApproveIsEnabled": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.SavePreviousSourcedAnswerRetainsLineageAndRequiresApprovalEvenWhenAutoApproveIsEnabled"
+    ],
+    "PortableTranscriptKeepsInvocationOrderInsteadOfSortingOpaqueIds": [
+      "SecondBrain.Storage.Tests.ChatApprovalTests.PortableTranscriptKeepsInvocationOrderInsteadOfSortingOpaqueIds"
+    ],
+    "ManifestDistinguishesQueryEmbeddingAndChatDestinations": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.ManifestDistinguishesQueryEmbeddingAndChatDestinations"
+    ],
+    "ReasoningPreferenceIsCapabilityGatedAndPrivateReasoningIsNotDisplayed": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.ReasoningPreferenceIsCapabilityGatedAndPrivateReasoningIsNotDisplayed(supported: False)",
+      "SecondBrain.Server.Tests.ChatWorkflowTests.ReasoningPreferenceIsCapabilityGatedAndPrivateReasoningIsNotDisplayed(supported: True)"
+    ],
+    "ReasoningContinuationIsBudgetedAndCannotChangeTheFrozenPreference": [
+      "SecondBrain.Server.Tests.TurnChatClientTests.ReasoningContinuationIsBudgetedAndCannotChangeTheFrozenPreference"
+    ],
+    "ExplicitFallbackBeforeAnyWriteReusesTheTurnAndRecordedRetrieval": [
+      "SecondBrain.Server.Tests.ChatWorkflowTests.ExplicitFallbackBeforeAnyWriteReusesTheTurnAndRecordedRetrieval"
+    ]
+  },
+  "quality": {
+    "supported_facts_cited": 30,
+    "supported_facts_total": 30,
+    "unsupported_claims_sourced": 0,
+    "unsupported_claim_prompts": 10,
+    "irrelevant_abstentions": 9,
+    "irrelevant_cases": 10,
+    "retrieved_passages_per_irrelevant_case": 4,
+    "assets_sha256": {
+      "documents.jsonl": "975a1a10cf72a2bfdbecd2ef12b40b4a12779210d1de9762f762fa4465b7282b",
+      "questions.jsonl": "0888cdcc6e1757727ce6b7352b10c41829e490c1d2e27a2cf12994f93dbea9c0",
+      "recording.json": "e5fd12683df69438b1a364654cedc6b44663c4d422d38eafa5a8a7057d8afacc",
+      "annotations.json": "d0328247e1e33144e6a28fc0f891c9c7437f54d71907d9d8c0e118cc72f01966"
+    }
+  },
+  "versions": {
+    "mcp_sdk": "2.2.0",
+    "mcp_protocols": [
+      "2026-07-28",
+      "2025-11-25"
+    ],
+    "microsoft_extensions_ai": "10.10.0",
+    "microsoft_extensions_ai_abstractions": "10.10.1",
+    "microsoft_extensions_ai_openai": "10.10.1",
+    "openai_dotnet": "2.14.0",
+    "local_vllm": "0.31.0"
+  },
+  "deployment_changed": false
+}

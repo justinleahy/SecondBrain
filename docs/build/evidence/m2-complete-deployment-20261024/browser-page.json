@@ -1,0 +1,10 @@
+{
+  "title": "Chat · SecondBrain",
+  "url": "http://10.66.10.20:7171/",
+  "signInVisible": true,
+  "scripts": [
+    "http://10.66.10.20:7171/_framework/blazor.web.js",
+    "http://10.66.10.20:7171/chat.js"
+  ],
+  "hasBlazor": true
+}

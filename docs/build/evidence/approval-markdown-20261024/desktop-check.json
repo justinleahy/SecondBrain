@@ -1,0 +1,12 @@
+{
+  "headings": [
+    "SecondBrain status",
+    "Milestones"
+  ],
+  "tableRows": 2,
+  "renderedCode": "brain ask 'What is next?'\n",
+  "scriptExecuted": false,
+  "activeHtml": 0,
+  "overflow": false,
+  "fontSize": "13.5px"
+}

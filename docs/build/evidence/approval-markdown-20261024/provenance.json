@@ -1,0 +1,25 @@
+{
+  "release": "Approval Markdown rendering",
+  "prepared_at_utc": "2026-10-24T20:13:56.600199+00:00",
+  "base": "Installed release verified against artifacts/auto-deploy/sha256-manifest.json",
+  "overlay": "Fresh Release, self-contained linux-x64 server publish; existing CLI/extractor retained",
+  "changed_files": [
+    "SecondBrain.Server.dll",
+    "SecondBrain.Server.pdb",
+    "SecondBrain.Server.staticwebassets.endpoints.json",
+    "wwwroot/SecondBrain.Server.styles.css",
+    "wwwroot/SecondBrain.Server.styles.css.br",
+    "wwwroot/SecondBrain.Server.styles.css.gz"
+  ],
+  "server_tests_passed": 302,
+  "configuration": "Release",
+  "warnings_as_errors": true,
+  "source_files": {
+    "src/SecondBrain.Server/Components/Pages/ApprovalCard.razor": "db84863e6382c448c016360c0f1850d4bd5e5d77628d1ae0723f45ac6cf6baf0",
+    "src/SecondBrain.Server/Components/Pages/ApprovalCard.razor.css": "28a84186600b7dad686cdc4b4ddd449d6bf486ef6b2011b99be8a4a07eec1a80",
+    "src/SecondBrain.Server/Components/Pages/ChatText.razor.css": "0a23cf4d6602718ad91645b77949e49be55d0832abb307358b9b6aa1e53ee45b",
+    "src/SecondBrain.Server/Chat/ChatTextRenderer.cs": "14af9cc41baa82e802450523ebf12302c221c0e65e02e0b55efedb68a0fcbb73",
+    "tests/SecondBrain.Server.Tests/ApprovalCardTests.cs": "04c8f2e688311eb0c43e02b023f0b84a8c9c6604bbd7afc8ff5952734afc4093",
+    "tests/SecondBrain.Server.Tests/ChatTextRendererTests.cs": "9631fcba1e6cd151f5df30bf21094e40b223fd791794e25235352ef56e482a99"
+  }
+}

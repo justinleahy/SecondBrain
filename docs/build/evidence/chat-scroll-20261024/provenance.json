@@ -1,0 +1,34 @@
+{
+  "release": "Chat scroll follows latest message",
+  "prepared_at_utc": "2026-10-24T20:17:29.662263+00:00",
+  "base": "Verified installed release; existing CLI/extractor retained",
+  "overlay": "Release self-contained linux-x64 server",
+  "changed_files": [
+    "SecondBrain.Server.dll",
+    "SecondBrain.Server.pdb",
+    "SecondBrain.Server.staticwebassets.endpoints.json",
+    "wwwroot/SecondBrain.Server.styles.css",
+    "wwwroot/SecondBrain.Server.styles.css.br",
+    "wwwroot/SecondBrain.Server.styles.css.gz",
+    "wwwroot/chat.js",
+    "wwwroot/chat.js.br",
+    "wwwroot/chat.js.gz"
+  ],
+  "server_tests_passed": 302,
+  "browser_checks": [
+    "opened-conversation",
+    "read-older",
+    "send-message",
+    "stream-follow",
+    "mobile-resize",
+    "mobile-send",
+    "viewport-change",
+    "approvals-unaffected"
+  ],
+  "source_files": {
+    "src/SecondBrain.Server/Components/Pages/Chat.razor": "b4a4778daf621e3625d89b6914e50b9195945a25255bba9259f4bf2466821c78",
+    "src/SecondBrain.Server/Components/Pages/Chat.razor.css": "7418d65050c6910031eea8c33fd087f52d97ea421c4e48a35d852a107d9b0f06",
+    "src/SecondBrain.Server/wwwroot/chat.js": "db0b3263199b78e956bb1ed2170c20fa0c4b00f25d3d2631d2c310312a67e5a3",
+    "tests/SecondBrain.Server.Tests/ChatBrowserQualification.cs": "0e6dcd8a5c0ada2c93cc97702db13769ded48fc58ea93a3f45ec533c0bdfea98"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "viewport": 390,
+  "pageWidth": 390,
+  "noPageOverflow": true,
+  "tableMinWidth": "448px",
+  "tableScrollsWithinPreview": true,
+  "tableContained": true,
+  "tableRows": 2,
+  "scriptExecuted": false
+}

@@ -1,0 +1,41 @@
+{
+  "status": "verified",
+  "verified_at_utc": "2026-10-24T20:14:31.171465+00:00",
+  "installed_files_verified": 433,
+  "http_checks": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    }
+  ],
+  "server_tests_passed": 302,
+  "test_results_sha256": "1f33457084a4f56599487606cb714df34fb856faa44ececf6fe8d00016197148",
+  "browser": "Authenticated disposable instance: desktop 1440x1000 and mobile 390x844; formatting, table containment, raw edit content, and inert embedded HTML checked.",
+  "live_checks": "Installed binary/asset hashes, loopback/LAN readiness and CSS. No approval action was submitted against real notes."
+}
