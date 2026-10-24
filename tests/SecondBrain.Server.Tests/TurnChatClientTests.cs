@@ -94,6 +94,7 @@ public sealed class TurnChatClientTests
         public ValueTask SettleTokensAsync(string turnId, string callId, long? actualTokens, CancellationToken cancellationToken = default) { Settlements.Add(actualTokens); return ValueTask.CompletedTask; }
         public ValueTask<ChatStart> StartAsync(ChatRequest request, ChatTurnPolicy policy, AuthenticatedCredential actor, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public ValueTask<IReadOnlyList<ChatConversation>> ListAsync(AuthenticatedCredential actor, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public ValueTask DeleteConversationAsync(string id, AuthenticatedCredential actor, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public ValueTask<IReadOnlyList<ChatTurn>> GetConversationAsync(string id, AuthenticatedCredential actor, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public ValueTask<ChatTurn> GetTurnAsync(string id, AuthenticatedCredential actor, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public ValueTask<IReadOnlyList<ChatHistoryMessage>> HistoryAsync(string turnId, AuthenticatedCredential actor, CancellationToken cancellationToken = default) => throw new NotSupportedException();

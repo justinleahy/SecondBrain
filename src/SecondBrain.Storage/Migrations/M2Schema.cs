@@ -56,6 +56,21 @@ internal static class M2Schema
           PRIMARY KEY(turn_id,call_id)
         );
         CREATE INDEX IF NOT EXISTS chat_model_calls_budget ON chat_model_calls(created_at,credential_id);
+        -- Content-free accounting survives removal of a conversation, so deletion
+        -- cannot refund consumed tokens or replay an old submission as new work.
+        CREATE TABLE IF NOT EXISTS chat_usage_history (
+          id INTEGER PRIMARY KEY,
+          credential_id TEXT NOT NULL,
+          charged_tokens INTEGER NOT NULL CHECK(charged_tokens>=0),
+          created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS chat_usage_history_budget ON chat_usage_history(created_at,credential_id);
+        CREATE TABLE IF NOT EXISTS chat_deleted_requests (
+          credential_id TEXT NOT NULL,
+          request_id TEXT NOT NULL,
+          deleted_at TEXT NOT NULL,
+          PRIMARY KEY(credential_id,request_id)
+        );
         CREATE TABLE IF NOT EXISTS chat_proposal_details (
           proposal_id TEXT PRIMARY KEY REFERENCES pending_operations(id),
           mutation_id TEXT NOT NULL UNIQUE,

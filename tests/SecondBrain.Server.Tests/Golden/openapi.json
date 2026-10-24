@@ -1,10 +1,12 @@
 {
   "operations": [
     "DELETE /auth/sessions/{id}",
+    "DELETE /conversations/{id}",
     "DELETE /documents/{id}",
     "DELETE /keys/{id}",
     "DELETE /sources/{id}",
     "DELETE /v1/auth/sessions/{id}",
+    "DELETE /v1/conversations/{id}",
     "DELETE /v1/documents/{id}",
     "DELETE /v1/keys/{id}",
     "DELETE /v1/sources/{id}",

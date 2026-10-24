@@ -20,6 +20,87 @@ public sealed class ChatRepositoryTests
     private static readonly ChatTurnPolicy Policy = new("local", "test-model");
 
     [Fact]
+    public async Task DeleteRemovesTranscriptSourcesEventsAndToolsButKeepsDocumentsAndOtherConversations()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores); var documents = Documents(stores);
+        var document = (await documents.CaptureAsync(new("Blue Otter", "Source"), Authority(Browser))).Document;
+        var turn = (await chat.StartAsync(new("Forget this private question", RequestId: "deleted-request"), Policy, Browser)).Turn;
+        await chat.ExposeAsync(turn.Id, [new(document.Id, 1, document.Chunks![0].Id)], Browser);
+        var execution = await chat.BeginToolAsync(turn.Id, "search", JsonSerializer.SerializeToElement(new { query = "private" }), 1, Browser);
+        await chat.CompleteToolAsync(execution, JsonSerializer.SerializeToElement(new { answer = "temporary result" }), [], Browser);
+        await chat.FinishAsync(turn.Id, "complete", new("Forget this private answer [1]", []));
+        var other = (await chat.StartAsync(new("Keep this conversation"), Policy, Browser)).Turn;
+        await chat.FinishAsync(other.Id, "complete", new("Keep this answer", []));
+
+        await chat.DeleteConversationAsync(turn.ConversationId, OtherBrowser);
+
+        Assert.Equal(other.ConversationId, Assert.Single(await chat.ListAsync(Browser)).Id);
+        await Assert.ThrowsAsync<ChatNotFoundException>(() => chat.GetTurnAsync(turn.Id, Browser).AsTask());
+        await Assert.ThrowsAsync<ChatNotFoundException>(() => chat.EventsAsync(turn.Id, 0, Browser).AsTask());
+        Assert.NotNull(await documents.GetAsync(document.Id, true));
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, $"SELECT COUNT(*) FROM payload_refs WHERE referrer_id='{turn.Id}'"));
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, $"SELECT COUNT(*) FROM chat_sources WHERE turn_id='{turn.Id}'"));
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, $"SELECT COUNT(*) FROM tool_executions WHERE turn_id='{turn.Id}'"));
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM payloads WHERE CAST(bytes AS TEXT) LIKE '%Forget this private%'"));
+        await Assert.ThrowsAsync<ChatConflictException>(() => chat.StartAsync(new("Forget this private question", RequestId: "deleted-request"), Policy, Browser).AsTask());
+    }
+
+    [Fact]
+    public async Task DeleteRetainsHourlyAndGlobalDailyTokenCharges()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores);
+        var policy = Policy with { HourlyTokens = 50, DailyTokens = 200 };
+        var turn = (await chat.StartAsync(new("Charge"), policy, Browser)).Turn;
+        await chat.ReserveTokensAsync(turn.Id, "call", 40, Browser);
+        await chat.SettleTokensAsync(turn.Id, "call", 35);
+        await chat.FinishAsync(turn.Id, "complete", new("Answer", []));
+        await chat.DeleteConversationAsync(turn.ConversationId, Browser);
+        var next = (await chat.StartAsync(new("Again"), policy, Browser)).Turn;
+        await Assert.ThrowsAsync<ChatLimitException>(() => chat.ReserveTokensAsync(next.Id, "hour", 16, Browser).AsTask());
+        var keyTurn = (await chat.StartAsync(new("Global budget"), policy with { DailyTokens = 40 }, Key)).Turn;
+        await Assert.ThrowsAsync<ChatLimitException>(() => chat.ReserveTokensAsync(keyTurn.Id, "day", 6, Key).AsTask());
+        Assert.Equal(35L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT SUM(charged_tokens) FROM chat_usage_history"));
+    }
+
+    [Fact]
+    public async Task DeleteRequiresCurrentWriteAuthorityOwnershipAndNoRunningTurn()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores);
+        var turn = (await chat.StartAsync(new("Key conversation"), Policy, Key)).Turn;
+        await Assert.ThrowsAsync<ChatNotFoundException>(() => chat.DeleteConversationAsync(turn.ConversationId, OtherKey).AsTask());
+        await Assert.ThrowsAsync<ChatConflictException>(() => chat.DeleteConversationAsync(turn.ConversationId, Key).AsTask());
+        await chat.FinishAsync(turn.Id, "complete", new("Done", []));
+        await MigrationTestSql.WriteAsync(stores.State, "UPDATE credentials SET scopes='read,infer' WHERE id='key'");
+        await Assert.ThrowsAsync<AuthorityChangedException>(() => chat.DeleteConversationAsync(turn.ConversationId, Key).AsTask());
+        Assert.Single(await chat.ListAsync(Key));
+        await MigrationTestSql.WriteAsync(stores.State, "UPDATE credentials SET scopes='write' WHERE id='key'");
+        await chat.DeleteConversationAsync(turn.ConversationId, Key);
+        await MigrationTestSql.WriteAsync(stores.State, "UPDATE credentials SET scopes='read' WHERE id='key'");
+        Assert.Empty(await chat.ListAsync(Key));
+    }
+
+    [Fact]
+    public async Task DeleteRemovesCompactedHistoryAndPreservesPayloadsOwnedElsewhere()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores); var policy = Policy with { MaxHistoryMessages = 1 };
+        var first = (await chat.StartAsync(new("Older message"), policy, Browser)).Turn;
+        await chat.FinishAsync(first.Id, "complete", new("Older answer", []));
+        var next = (await chat.StartAsync(new("Newest message", first.ConversationId), policy, Browser)).Turn;
+        await chat.HistoryAsync(next.Id, Browser);
+        await chat.FinishAsync(next.Id, "complete", new("Newest answer", []));
+        Assert.Equal(1L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM chat_summaries"));
+        await MigrationTestSql.WriteAsync(stores.State, $"INSERT INTO payload_refs(payload_id,referrer_kind,referrer_id) SELECT user_payload_id,'retained-fixture','shared' FROM chat_turn_details WHERE turn_id='{first.Id}'");
+        await chat.DeleteConversationAsync(first.ConversationId, Browser);
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM chat_summaries"));
+        Assert.Equal(1L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM payloads"));
+        Assert.Equal(1L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM payload_refs WHERE referrer_kind='retained-fixture'"));
+    }
+
+    [Fact]
     public async Task ToolResultsAreDurableAndTheManifestIncludesUncitedSources()
     {
         using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);

@@ -22,8 +22,14 @@ public sealed partial class SqliteChatRepository
         var day = AuthTime.Format(new DateTimeOffset(now.UtcDateTime.Date, TimeSpan.Zero));
         var hour = AuthTime.Format(now.AddHours(-1));
         var policy = Policy(turn);
-        var daily = await connection.ExecuteScalarAsync<long>(Sql("SELECT COALESCE(SUM(charged_tokens),0) FROM chat_model_calls WHERE created_at>=@day", new { day }, transaction, token));
-        var hourly = await connection.ExecuteScalarAsync<long>(Sql("SELECT COALESCE(SUM(charged_tokens),0) FROM chat_model_calls WHERE credential_id=@actor AND created_at>=@hour", new { actor = actor.Id, hour }, transaction, token));
+        var daily = await connection.ExecuteScalarAsync<long>(Sql("""
+            SELECT (SELECT COALESCE(SUM(charged_tokens),0) FROM chat_model_calls WHERE created_at>=@day)
+              +(SELECT COALESCE(SUM(charged_tokens),0) FROM chat_usage_history WHERE created_at>=@day)
+            """, new { day }, transaction, token));
+        var hourly = await connection.ExecuteScalarAsync<long>(Sql("""
+            SELECT (SELECT COALESCE(SUM(charged_tokens),0) FROM chat_model_calls WHERE credential_id=@actor AND created_at>=@hour)
+              +(SELECT COALESCE(SUM(charged_tokens),0) FROM chat_usage_history WHERE credential_id=@actor AND created_at>=@hour)
+            """, new { actor = actor.Id, hour }, transaction, token));
         if (tokens > policy.DailyTokens - daily || tokens > policy.HourlyTokens - hourly) throw new ChatLimitException("The model token budget is exhausted.");
         await connection.ExecuteAsync(Sql("""
             INSERT INTO chat_model_calls(turn_id,call_id,credential_id,reserved_tokens,charged_tokens,status,created_at)

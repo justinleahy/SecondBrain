@@ -24,16 +24,27 @@ else
     <div class="chat-shell">
         <aside class="sidebar">
             <a class="brand" href="/">◈ <span>SecondBrain</span></a>
-            <button class="new-chat" @onclick="NewConversation">＋ New conversation</button>
+            <button class="new-chat" disabled="@deleting" @onclick="NewConversation">＋ New conversation</button>
             <button class="new-chat" @onclick="ShowApprovalsAsync">Approvals @if (proposals.Count(item => item.Status is "pending" or "executing") is var count && count > 0) { <span>(@count)</span> }</button>
             <h2>Conversations</h2>
             <nav aria-label="Conversations">
                 @foreach (var conversation in conversations)
                 {
-                    <button class="conversation @(conversation.Id == selected ? "selected" : "")" @onclick="() => SelectAsync(conversation.Id)">
+                    <div class="conversation-row">
+                    <button class="conversation @(conversation.Id == selected ? "selected" : "")" disabled="@deleting" @onclick="() => SelectAsync(conversation.Id)">
                         <span>@conversation.Title</span>
                         @if (conversation.ActiveTurnId is not null) { <small>In progress</small> }
                     </button>
+                    <button class="delete-conversation" aria-label="Delete conversation: @conversation.Title" title="Delete conversation" disabled="@(deleting || conversation.ActiveTurnId is not null)" @onclick="() => confirmingDelete = conversation.Id">×</button>
+                    @if (confirmingDelete == conversation.Id)
+                    {
+                        <div class="delete-confirm" role="alert">
+                            <p>Delete this conversation and its pending proposals? Saved notes will remain. This cannot be undone.</p>
+                            <button disabled="@deleting" @onclick="() => DeleteConversationAsync(conversation.Id)">@(deleting ? "Deleting…" : "Delete")</button>
+                            <button disabled="@deleting" @onclick="() => confirmingDelete = null">Cancel</button>
+                        </div>
+                    }
+                    </div>
                 }
             </nav>
             <p class="sidebar-note">Your knowledge, with sources.<br />Changes require your approval.</p>
@@ -93,8 +104,8 @@ else
                 @if (error is not null) { <p class="error" role="alert">@error</p> }
                 <form class="composer" @onsubmit="SendAsync" @onsubmit:preventDefault>
                     <label class="sr-only" for="message">Message SecondBrain</label>
-                    <textarea id="message" data-chat-input aria-describedby="message-help" @bind="prompt" @bind:event="oninput" placeholder="Ask about your knowledge…" rows="3" maxlength="32768" disabled="@sending"></textarea>
-                    <div class="composer-actions"><label><input type="checkbox" @bind="askOnly" disabled="@(active || sending)" /> Read-only ask</label><button type="submit" disabled="@(active || sending || string.IsNullOrWhiteSpace(prompt))">@(active ? "Working…" : sending ? "Sending…" : "Send ↑")</button></div>
+                    <textarea id="message" data-chat-input aria-describedby="message-help" @bind="prompt" @bind:event="oninput" placeholder="Ask about your knowledge…" rows="3" maxlength="32768" disabled="@(sending || deleting)"></textarea>
+                    <div class="composer-actions"><label><input type="checkbox" @bind="askOnly" disabled="@(active || sending || deleting)" /> Read-only ask</label><button type="submit" disabled="@(active || sending || deleting || string.IsNullOrWhiteSpace(prompt))">@(active ? "Working…" : sending ? "Sending…" : "Send ↑")</button></div>
                 </form>
                 <p id="message-help" class="privacy-note">Enter to send · Shift+Enter for a new line</p>
                 <p class="privacy-note">Your message, recent conversation, and retrieved passages are sent to your configured model. Check sources before relying on an answer.</p>
@@ -113,9 +124,9 @@ else
     private readonly CancellationTokenSource lifetime = new();
     private CancellationTokenSource? observation;
     private Task? observing;
-    private string? selected, error;
+    private string? selected, error, confirmingDelete;
     private string prompt = "";
-    private bool sending, askOnly, showAllApprovals;
+    private bool sending, askOnly, showAllApprovals, deleting;
     private bool active => turns.Any(turn => turn.Status == "running");
     private void UseExample() => prompt = "What is the project codename?";
 
@@ -133,12 +144,12 @@ else
 
     private void NewConversation()
     {
-        observation?.Cancel(); selected = null; turns = []; error = null; showAllApprovals = false; askOnly = false;
+        observation?.Cancel(); selected = null; turns = []; error = null; confirmingDelete = null; showAllApprovals = false; askOnly = false;
     }
 
     private async Task SelectAsync(string id)
     {
-        observation?.Cancel(); selected = id; error = null; showAllApprovals = false;
+        observation?.Cancel(); selected = id; error = null; confirmingDelete = null; showAllApprovals = false;
         try
         {
             turns = await Repository.GetConversationAsync(id, actor!, lifetime.Token);
@@ -151,7 +162,7 @@ else
 
     private async Task SendAsync()
     {
-        if (active || sending || actor is null || string.IsNullOrWhiteSpace(prompt)) return;
+        if (active || sending || deleting || actor is null || string.IsNullOrWhiteSpace(prompt)) return;
         sending = true; error = null;
         try
         {
@@ -162,11 +173,32 @@ else
             conversations = await Repository.ListAsync(actor, lifetime.Token);
             Observe(result.Turn.Id);
         }
-        catch (Exception exception) when (exception is AuthorityChangedException or ChatConflictException or ChatLimitException or ArgumentException)
+        catch (Exception exception) when (exception is AuthorityChangedException or ChatConflictException or ChatLimitException or ChatNotFoundException or ArgumentException)
         {
             error = exception is AuthorityChangedException ? "Your session changed. Sign in again." : exception.Message;
         }
         finally { sending = false; }
+    }
+
+    private async Task DeleteConversationAsync(string id)
+    {
+        if (deleting || sending || actor is null) return;
+        deleting = true; error = null;
+        try
+        {
+            await Repository.DeleteConversationAsync(id, actor, lifetime.Token);
+            if (selected == id)
+            {
+                foreach (var turn in turns) { drafts.Remove(turn.Id); activity.Remove(turn.Id); }
+                NewConversation();
+            }
+            confirmingDelete = null;
+            conversations = await Repository.ListAsync(actor, lifetime.Token);
+            await ReloadProposalsAsync();
+        }
+        catch (Exception exception) when (exception is AuthorityChangedException or ChatNotFoundException or ChatConflictException)
+        { error = exception is AuthorityChangedException ? "Your session changed. Sign in again." : exception.Message; }
+        finally { deleting = false; }
     }
 
     private void Observe(string turnId)
@@ -208,6 +240,7 @@ else
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         catch (AuthorityChangedException) { error = "Your session expired or was revoked. Sign in again."; await InvokeAsync(StateHasChanged); }
+        catch (ChatNotFoundException) { error = "This conversation was deleted."; await InvokeAsync(StateHasChanged); }
         catch (Exception) { error = "The connection was interrupted. Reopen this conversation to reconnect."; await InvokeAsync(StateHasChanged); }
     }
 

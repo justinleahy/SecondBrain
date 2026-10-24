@@ -40,6 +40,9 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
         return state.QueueWriteAsync(async (connection, transaction, token) =>
         {
             var credential = await AuthorizeAsync(connection, transaction, actor, true, token);
+            if (await connection.ExecuteScalarAsync<int>(Sql("SELECT COUNT(*) FROM chat_deleted_requests WHERE credential_id=@actor AND request_id=@requestId",
+                new { actor = actor.Id, requestId }, transaction, token)) != 0)
+                throw new ChatConflictException("This message belongs to a deleted conversation.");
             var previous = await connection.QuerySingleOrDefaultAsync<RequestRow>(Sql("""
                 SELECT turn_id TurnId,request_hash Hash FROM chat_turn_details
                 WHERE credential_id=@actor AND request_id=@requestId

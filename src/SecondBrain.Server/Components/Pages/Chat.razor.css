@@ -76,6 +76,42 @@ button {
 .conversation small {
     font-size:10px
 }
+.conversation-row {
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap
+}
+.conversation-row .conversation {
+    flex:1;
+    min-width:0
+}
+.conversation-row .conversation span {
+    max-width:100%
+}
+.delete-conversation {
+    border:0;
+    background:transparent;
+    color:#80564e;
+    font-size:22px;
+    padding:6px 9px
+}
+.delete-conversation:disabled {
+    opacity:.35;
+    cursor:default
+}
+.delete-confirm {
+    box-sizing:border-box;
+    width:100%;
+    padding:10px;
+    border:1px solid #d9bbb5;
+    border-radius:8px;
+    background:#fff7f4;
+    color:#693e35;
+    font-size:12px;
+    line-height:1.5
+}
+.delete-confirm p { margin:0 0 8px }
+.delete-confirm button { margin-right:8px; padding:5px 9px }
 .conversation:hover,.selected {
     background:#dce7df
 }

@@ -24,6 +24,41 @@ public sealed class ChatApprovalTests
     private static readonly ChatTurnPolicy Policy = new("local", "test-model");
 
     [Fact]
+    public async Task DeletingConversationDiscardsPendingProposalsAndKeepsExecutedNotesAndJournal()
+    {
+        using var root = new MigrationTestDataRoot(); await using var fixture = await Fixture.CreateAsync(root.Path);
+        var turn = (await fixture.Chat.StartAsync(new("Save these"), Policy, Browser)).Turn;
+        var saved = await fixture.Chat.ProposeAsync(turn.Id, "create_document", JsonSerializer.SerializeToElement(new { title = "Saved", content = "Keep this note" }), Browser);
+        var pending = await fixture.Chat.ProposeAsync(turn.Id, "create_document", JsonSerializer.SerializeToElement(new { title = "Pending", content = "Never save this" }), Browser);
+        await fixture.Chat.FinishAsync(turn.Id, "complete", new("Review the proposals.", []));
+        await fixture.Chat.ApproveAsync(saved.Id, Browser);
+        await fixture.Chat.DeleteConversationAsync(turn.ConversationId, Browser);
+        Assert.Equal("Keep this note", await File.ReadAllTextAsync(saved.Plan!.Destination));
+        Assert.False(File.Exists(pending.Plan!.Destination));
+        Assert.Empty(await fixture.Chat.ListAsync(null, Browser));
+        await Assert.ThrowsAsync<ChatNotFoundException>(() => fixture.Chat.ApproveAsync(pending.Id, Browser).AsTask());
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(fixture.Stores.State, "SELECT COUNT(*) FROM pending_operations"));
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(fixture.Stores.State, "SELECT COUNT(*) FROM chat_proposal_details"));
+        Assert.Equal(1L, await MigrationTestSql.ScalarAsync(fixture.Stores.State, "SELECT COUNT(*) FROM mutations"));
+        Assert.NotNull(await fixture.Documents.GetAsync(saved.Plan.DocumentId, true));
+    }
+
+    [Fact]
+    public async Task DeletingConversationWaitsForAnExecutingApproval()
+    {
+        using var root = new MigrationTestDataRoot(); await using var fixture = await Fixture.CreateAsync(root.Path, new CrashOnce(MutationCrashPointNames.AfterTempFlush));
+        var turn = (await fixture.Chat.StartAsync(new("Save"), Policy, Browser)).Turn;
+        var proposal = await fixture.Chat.ProposeAsync(turn.Id, "create_document", JsonSerializer.SerializeToElement(new { title = "Note", content = "Recover this" }), Browser);
+        await fixture.Chat.FinishAsync(turn.Id, "complete", new("Review", []));
+        Assert.Equal("executing", (await fixture.Chat.ApproveAsync(proposal.Id, Browser)).Status);
+        await Assert.ThrowsAsync<ChatConflictException>(() => fixture.Chat.DeleteConversationAsync(turn.ConversationId, Browser).AsTask());
+        Assert.Single(await fixture.Chat.ListAsync(Browser));
+        await fixture.Journal.RecoverAsync(); await fixture.Coordinator.RecoverAsync(); await fixture.Chat.RecoverApprovalsAsync();
+        await fixture.Chat.DeleteConversationAsync(turn.ConversationId, Browser);
+        Assert.Equal("Recover this", await File.ReadAllTextAsync(proposal.Plan!.Destination));
+    }
+
+    [Fact]
     public async Task NextTurnReceivesTheConfirmedApprovalOutcome()
     {
         using var root = new MigrationTestDataRoot(); await using var fixture = await Fixture.CreateAsync(root.Path);

@@ -23,6 +23,8 @@ public static class ChatEndpoints
                 .Produces<IReadOnlyList<ChatConversation>>();
             endpoints.MapGet(prefix + "/conversations/{id}", ConversationAsync).WithMetadata(new EndpointPolicy("chat.read"))
                 .Produces<IReadOnlyList<ChatTurn>>();
+            endpoints.MapDelete(prefix + "/conversations/{id}", DeleteConversationAsync).WithMetadata(new EndpointPolicy("chat.delete"))
+                .Produces(204);
             endpoints.MapGet(prefix + "/turns/{id}", TurnAsync).WithMetadata(new EndpointPolicy("chat.read")).Produces<ChatTurn>();
             endpoints.MapGet(prefix + "/turns/{id}/manifest", ManifestAsync).WithMetadata(new EndpointPolicy("chat.read")).Produces<ChatEgressManifest>();
             endpoints.MapGet(prefix + "/turns/{id}/events", EventsAsync)
@@ -55,6 +57,8 @@ public static class ChatEndpoints
         GuardAsync(async () => Results.Ok(await repository.ListAsync(Actor(context), token)));
     private static Task<IResult> ConversationAsync(string id, HttpContext context, IChatRepository repository, CancellationToken token) =>
         GuardAsync(async () => Results.Ok(await repository.GetConversationAsync(id, Actor(context), token)));
+    private static Task<IResult> DeleteConversationAsync(string id, HttpContext context, IChatRepository repository, CancellationToken token) =>
+        GuardAsync(async () => { await repository.DeleteConversationAsync(id, Actor(context), token); return Results.NoContent(); });
     private static Task<IResult> TurnAsync(string id, HttpContext context, IChatRepository repository, CancellationToken token) =>
         GuardAsync(async () => Results.Ok(await repository.GetTurnAsync(id, Actor(context), token)));
     private static Task<IResult> PendingAsync(string? conversationId, HttpContext context, IChatProposalRepository repository, CancellationToken token) =>
@@ -98,6 +102,7 @@ public static class ChatEndpoints
             } while (await timer.WaitForNextTickAsync(token));
         }
         catch (AuthorityChangedException) { /* Close replay immediately when authority changes. The host owns the turn. */ }
+        catch (ChatNotFoundException) { /* A completed conversation was deleted while replaying it. */ }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
 

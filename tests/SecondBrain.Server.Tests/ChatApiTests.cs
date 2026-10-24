@@ -14,6 +14,50 @@ namespace SecondBrain.Server.Tests;
 public sealed class ChatApiTests
 {
     [Fact]
+    public async Task DeleteConversationApiRequiresOwnershipAndWriteScope()
+    {
+        await using var factory = Factory();
+        var owner = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Write, Scope.Infer });
+        var actor = new AuthenticatedCredential(owner.Record.Id, "api_key", owner.Record.Generation, owner.Record.AccountEpoch, owner.Record.GrantedScopes, null);
+        var repository = factory.Services.GetRequiredService<IChatRepository>();
+        var turn = (await repository.StartAsync(new("Delete through API"), new("mock", "mock-chat"), actor)).Turn;
+        await repository.FinishAsync(turn.Id, "complete", new("Finished", []));
+        using var client = factory.CreatePrivateClient();
+        client.DefaultRequestHeaders.Add("Origin", "http://private.test");
+        var path = "/v1/conversations/" + turn.ConversationId;
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.DeleteAsync(path)).StatusCode);
+        var reader = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read });
+        client.DefaultRequestHeaders.Authorization = new("Bearer", reader.Plaintext);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync(path)).StatusCode);
+        var other = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Write });
+        client.DefaultRequestHeaders.Authorization = new("Bearer", other.Plaintext);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.DeleteAsync(path)).StatusCode);
+        client.DefaultRequestHeaders.Authorization = new("Bearer", owner.Plaintext);
+        Assert.Equal(HttpStatusCode.NoContent, (await client.DeleteAsync(path)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(path)).StatusCode);
+    }
+
+    [Fact]
+    public async Task BrowserConversationDeletionRequiresAntiforgery()
+    {
+        await using var factory = Factory();
+        await factory.SeedAccountAsync();
+        using var browser = factory.CreatePrivateClient();
+        browser.DefaultRequestHeaders.Add("Origin", "http://private.test");
+        await browser.PostAsJsonAsync("/auth/login", new LoginRequest("test-password"));
+        var csrf = (await browser.GetFromJsonAsync<AntiforgeryResponse>("/auth/antiforgery"))!;
+        browser.DefaultRequestHeaders.Add(csrf.HeaderName, csrf.Token);
+        var start = (await (await browser.PostAsJsonAsync("/v1/ask", new ChatRequest("Hello"))).Content.ReadFromJsonAsync<ChatStart>())!;
+        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        while ((await browser.GetFromJsonAsync<ChatTurn>("/v1/turns/" + start.Turn.Id, deadline.Token))!.Status == "running")
+            await Task.Delay(25, deadline.Token);
+        browser.DefaultRequestHeaders.Remove(csrf.HeaderName);
+        Assert.Equal(HttpStatusCode.BadRequest, (await browser.DeleteAsync("/conversations/" + start.Turn.ConversationId)).StatusCode);
+        browser.DefaultRequestHeaders.Add(csrf.HeaderName, csrf.Token);
+        Assert.Equal(HttpStatusCode.NoContent, (await browser.DeleteAsync("/conversations/" + start.Turn.ConversationId)).StatusCode);
+    }
+
+    [Fact]
     public async Task AskApiPersistsItsTurnAndReplaysEventsAfterTheRequestedSequence()
     {
         await using var factory = Factory();
