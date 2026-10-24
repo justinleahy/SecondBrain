@@ -1,0 +1,502 @@
+{
+  "recordingSha256": "e5fd12683df69438b1a364654cedc6b44663c4d422d38eafa5a8a7057d8afacc",
+  "reviewer": "Codex: manual review of all visible answers and cited passages on 2026-10-24; no automated semantic judge.",
+  "cases": [
+    {
+      "id": "supported-orchard",
+      "answerSha256": "f215c2bc8941d501a0517ef28af8f2cffd65388b5e043223abc4806a2c4e8d1d",
+      "claims": [
+        {
+          "quote": "1. **Name of the irrigation controller**: \"Willow\" [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Orchard irrigation controller is named Willow. The inspection date is 2026-11-04. The daily water allowance is 480 litres.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "2. **Inspection date**: 2026-11-04 [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Orchard irrigation controller is named Willow. The inspection date is 2026-11-04. The daily water allowance is 480 litres.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "3. **Daily water allowance**: 480 litres [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Orchard irrigation controller is named Willow. The inspection date is 2026-11-04. The daily water allowance is 480 litres.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "These facts are derived from the document titled \"Orchard irrigation\" (citation [1]).",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Orchard irrigation controller is named Willow. The inspection date is 2026-11-04. The daily water allowance is 480 litres.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-orchard",
+      "answerSha256": "a0574e4a301438c3f8f13915cb6d9847300845a7a1b4c00c819dd08c672a1415",
+      "claims": [],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-zephyr",
+      "answerSha256": "12d4f4be0233a62df27f8bfc2bb21ddf6058e509a306324a511f9b833b3a45e4",
+      "claims": [
+        {
+          "quote": "1. **Codename**: The Zephyr release codename is *Copper Finch* [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Zephyr release codename is Copper Finch. The launch review is on 2026-12-09. The rollback owner is Priya Nair.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "2. **Launch Review Date**: The launch review is scheduled for *2026-12-09* [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Zephyr release codename is Copper Finch. The launch review is on 2026-12-09. The rollback owner is Priya Nair.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "3. **Rollback Owner**: The rollback owner is *Priya Nair* [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Zephyr release codename is Copper Finch. The launch review is on 2026-12-09. The rollback owner is Priya Nair.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "Each fact is explicitly cited from the document titled \"Zephyr release\" (citation [1]).",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Zephyr release codename is Copper Finch. The launch review is on 2026-12-09. The rollback owner is Priya Nair.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-zephyr",
+      "answerSha256": "a43bad017e2f00476e094ecd5d09024948e236b9744b2e7afe0abf98ee0dbcdf",
+      "claims": [
+        {
+          "quote": "\"The Zephyr release codename is Copper Finch. The launch review is on 2026-12-09. The rollback owner is Priya Nair.\" [1]",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Zephyr release codename is Copper Finch. The launch review is on 2026-12-09. The rollback owner is Priya Nair.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-cove",
+      "answerSha256": "cefa930acc8a0be164c53ff2a9c39051d5f22881e9b830879fd49bc122c342a4",
+      "claims": [
+        {
+          "quote": "1. **Departure of the Cove expedition**: The Cove expedition departs from Port Lumen on **2027-02-16** with equipment crate identifier **COV-731** [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Cove expedition departs from Port Lumen. Departure is on 2027-02-16. Its equipment crate identifier is COV-731.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-cove",
+      "answerSha256": "66a718c9a4a7d037fdecf7297a6351d5430571ff4e58bd7e237128813056dd83",
+      "claims": [
+        {
+          "quote": "The claim that \"The Cove expedition carries 29 people\" is not established by the retrieved evidence. None of the provided documents mention the number of people on the Cove expedition. The relevant passage only states: \"The Cove expedition departs from Port Lumen. Departure is on 2027-02-16. Its equipment crate identifier is COV-731.\" [1]. There is no numeric claim about passenger count in the vault material.",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Cove expedition departs from Port Lumen. Departure is on 2027-02-16. Its equipment crate identifier is COV-731.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-museum",
+      "answerSha256": "34fc850fd8d6d1037d6c31190508399e92d79ebee693caaf881f87518ef9e5f0",
+      "claims": [
+        {
+          "quote": "1. **Fact**: The Museum loan contains the **Amber Compass** and is set to return on **2027-03-21**, with the receiving curator being **Julian Park**.  \n   - **Citation**: [1]",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Museum loan contains the Amber Compass. It returns on 2027-03-21. The receiving curator is Julian Park.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-museum",
+      "answerSha256": "8d7e44b162cefd90dfa3fb8a0eaba9e9437ab082575c128eeddf7e5797735b94",
+      "claims": [
+        {
+          "quote": "The retrieved evidence does not mention the insurance amount for the Museum loan. The only relevant document (Number 1) states: \"The Museum loan contains the Amber Compass. It returns on 2027-03-21. The receiving curator is Julian Park.\" There is no reference to insurance coverage or a monetary value associated with the loan [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Museum loan contains the Amber Compass. It returns on 2027-03-21. The receiving curator is Julian Park.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-transit",
+      "answerSha256": "a9d286efd63f4491419da1cc744c59e1bb51f7c29da27278f12a353d56cd3ffe",
+      "claims": [
+        {
+          "quote": "1. **Route name**: The Transit pilot route is named *Violet Loop* [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Transit pilot route is Violet Loop. It starts on 2026-11-18. The headway target is 14 minutes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "2. **Start date**: The route begins on *2026-11-18* [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Transit pilot route is Violet Loop. It starts on 2026-11-18. The headway target is 14 minutes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "3. **Headway target**: The target headway is *14 minutes* [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Transit pilot route is Violet Loop. It starts on 2026-11-18. The headway target is 14 minutes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-transit",
+      "answerSha256": "fd68eb9e622c206c4f597445dcdcb3c12467321f45edc419ab8e1ca405ced1ea",
+      "claims": [],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-observatory",
+      "answerSha256": "249c6e29b05ad30a12734c56d6242ab239ac1eb7256013d2bcf16c99c3d5a16d",
+      "claims": [
+        {
+          "quote": "1. **Observatory service uses the Meridian instrument** with a calibration date of **2026-12-14** and technician **Sofia Reyes** [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Observatory service uses the Meridian instrument. Its calibration date is 2026-12-14. The technician is Sofia Reyes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-observatory",
+      "answerSha256": "8e7add456e83039b6d373f960737f763e493635d7ccf88616caca6fd3edd0f98",
+      "claims": [
+        {
+          "quote": "The retrieved documents do not mention the cost of the Observatory service contract. The available notes only detail the Meridian instrument, calibration date (2026-12-14), and technician (Sofia Reyes) for the Observatory service [1]. There is no numeric evidence in the vault to confirm the $8,200 claim.",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Observatory service uses the Meridian instrument. Its calibration date is 2026-12-14. The technician is Sofia Reyes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-archive",
+      "answerSha256": "e7b473c25a56a6dcfefc4a1b1e1b3872b1b25891564c513e087436185d15062d",
+      "claims": [
+        {
+          "quote": "1. **Destination**: Cedar Hall [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Archive move destination is Cedar Hall. The move is scheduled for 2027-01-12. The sealed inventory has 316 boxes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "2. **Scheduled date**: 2027-01-12 [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Archive move destination is Cedar Hall. The move is scheduled for 2027-01-12. The sealed inventory has 316 boxes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "3. **Sealed inventory quantity**: 316 boxes [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Archive move destination is Cedar Hall. The move is scheduled for 2027-01-12. The sealed inventory has 316 boxes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-archive",
+      "answerSha256": "48412e0c02eb12af6263ac230f8e0e295c791a87e6ba2ebed2252959d1b3d9bc",
+      "claims": [
+        {
+          "quote": "The retrieved evidence does not mention Acme Logistics in relation to the Archive move. The only document referencing the Archive move (Number 1) states: \"The Archive move destination is Cedar Hall. The move is scheduled for 2027-01-12. The sealed inventory has 316 boxes.\" There is no claim about the logistics provider in this or any other passage [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Archive move destination is Cedar Hall. The move is scheduled for 2027-01-12. The sealed inventory has 316 boxes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-coast",
+      "answerSha256": "8ecc9f6060ec595fb54c14ece9546aad69d4c886c2c8038981874d054ff74257",
+      "claims": [
+        {
+          "quote": "1. **Coast survey**: The survey covers Pelican Bay, with a survey date of **2027-04-08** and a depth sensor serial number of **DS-842** [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Coast survey covers Pelican Bay. The survey date is 2027-04-08. The depth sensor serial is DS-842.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-coast",
+      "answerSha256": "0923f23de6cb89daed927c8f50dfc87e42e37cd138f07c76bcc76dc0f1e56f30",
+      "claims": [
+        {
+          "quote": "The only relevant document ([1]) states: \"The Coast survey covers Pelican Bay. The survey date is 2027-04-08. The depth sensor serial is DS-842.\" This excerpt provides no numerical depth value.",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Coast survey covers Pelican Bay. The survey date is 2027-04-08. The depth sensor serial is DS-842.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "Other documents ([2]-[4]) are unrelated to depth measurements.",
+          "citation": 2,
+          "supported": true,
+          "sourceQuote": "The Zephyr release codename is Copper Finch. The launch review is on 2026-12-09. The rollback owner is Priya Nair.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "Other documents ([2]-[4]) are unrelated to depth measurements.",
+          "citation": 4,
+          "supported": true,
+          "sourceQuote": "The Observatory service uses the Meridian instrument. Its calibration date is 2026-12-14. The technician is Sofia Reyes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-studio",
+      "answerSha256": "c5f6fdd62db82414421b374bc1ec58de248dd0411e6f693573c558b99fca16b8",
+      "claims": [
+        {
+          "quote": "1. **Studio booking**: The session begins at **09:40**. The producer is **Tomas Silva**. The room is **Iris** [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Studio booking is for the room Iris. The session begins at 09:40. The producer is Tomas Silva.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-studio",
+      "answerSha256": "1307ee4bb0604dc1bbc93c09e802366389ed240d613a094f0bf54dc1289c8328",
+      "claims": [
+        {
+          "quote": "The retrieved evidence does not mention a Steinway piano in the context of the Studio booking. The relevant passage [1] only states: \"The Studio booking is for the room Iris. The session begins at 09:40. The producer is Tomas Silva.\" No piano or Steinway instrument is referenced here. Other documents discuss unrelated topics (Observatory service, Orchard irrigation, Seed exchange) and contain no relevant information about the Studio booking's equipment.",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Studio booking is for the room Iris. The session begins at 09:40. The producer is Tomas Silva.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "supported-seed",
+      "answerSha256": "d22ffee98ac37eae0330d14e5a7911486de620ec77033c7d2cd22d3d8acf30cc",
+      "claims": [
+        {
+          "quote": "1. **Seed exchange variety**: The Seed exchange variety is **Golden Lantern**. Pickup is scheduled for **2027-05-03**, and the packet count is **72** [1].",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Seed exchange variety is Golden Lantern. Pickup is on 2027-05-03. The packet count is 72.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion. List grouping sometimes combines several labeled facts into one item; all required values are still checked individually."
+    },
+    {
+      "id": "unsupported-seed",
+      "answerSha256": "4d7330fd4b031b744376602115f2d204541736e38c08d85706c59ed12efd7fbb",
+      "claims": [
+        {
+          "quote": "The claim that \"The Seed exchange seeds were grown in Japan\" is not established by the provided notes. The only relevant document titled \"Seed exchange\" (citation [1]) mentions the variety \"Golden Lantern,\" a pickup date, and packet count but does not specify the origin or growing location of the seeds. No other documents in the retrieval mention Japan or seed cultivation details.",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Seed exchange variety is Golden Lantern. Pickup is on 2027-05-03. The packet count is 72.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": false,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-1",
+      "answerSha256": "9ba8fedea7047a056d6db49c90a1c15eb36ef03b251ab2df86688bcf0e3c1314",
+      "claims": [],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-2",
+      "answerSha256": "4dfe93bcb0c3b17dfd763b8668ba7d642af1777638f4e2c1dbd92151b6dba212",
+      "claims": [],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-3",
+      "answerSha256": "67a0b8a614918a95744098cdf93ff13b9e45ad06114e7ac9b732dac759143540",
+      "claims": [],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-4",
+      "answerSha256": "8bec0820e2ce2f454ae2ac014287444f4318fa93dca7afee7a6151722a9441a2",
+      "claims": [],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-5",
+      "answerSha256": "077462a068fdceeb7fc4c48e0a9bc1c0501dde2123d262a4f51bffb171a77c4c",
+      "claims": [],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-6",
+      "answerSha256": "26c61db78e425d5b125873dc09a2eb0ce1e65776a541f72da2a3ca60db344439",
+      "claims": [],
+      "abstained": false,
+      "notes": "FAIL: the answer abstains from supplying a password but invents a blanket policy that passwords are never stored in personal knowledge vaults. Counted as an abstention failure, although this claim has no citation."
+    },
+    {
+      "id": "irrelevant-7",
+      "answerSha256": "32e01862e2d2b5a1f2989cf9431bfb68367b9c1a497f95abc9e6a10dfbdf818e",
+      "claims": [],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-8",
+      "answerSha256": "a7efd936be13fbbae7d7c5a9f4513d875f98ed042a493b0acefc9a4e86bcaf03",
+      "claims": [],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-9",
+      "answerSha256": "477d94c5a34a685abf07980c6d9ed596d0eaaee54afaae0f8b3823942cd4d169",
+      "claims": [
+        {
+          "quote": "orchard irrigation [1]",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Orchard irrigation controller is named Willow. The inspection date is 2026-11-04. The daily water allowance is 480 litres.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "seed exchange [2]",
+          "citation": 2,
+          "supported": true,
+          "sourceQuote": "The Seed exchange variety is Golden Lantern. Pickup is on 2027-05-03. The packet count is 72.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "observatory service calibration [3]",
+          "citation": 3,
+          "supported": true,
+          "sourceQuote": "The Observatory service uses the Meridian instrument. Its calibration date is 2026-12-14. The technician is Sofia Reyes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "transit pilot routes [4]",
+          "citation": 4,
+          "supported": true,
+          "sourceQuote": "The Transit pilot route is Violet Loop. It starts on 2026-11-18. The headway target is 14 minutes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    },
+    {
+      "id": "irrelevant-10",
+      "answerSha256": "283a371c573091b0b16bbdc3c8f0a46d734155c8cbd58e0b407f65ac2d38f867",
+      "claims": [
+        {
+          "quote": "studio bookings [1]",
+          "citation": 1,
+          "supported": true,
+          "sourceQuote": "The Studio booking is for the room Iris. The session begins at 09:40. The producer is Tomas Silva.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "seed exchanges [2]",
+          "citation": 2,
+          "supported": true,
+          "sourceQuote": "The Seed exchange variety is Golden Lantern. Pickup is on 2027-05-03. The packet count is 72.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "orchard irrigation [3]",
+          "citation": 3,
+          "supported": true,
+          "sourceQuote": "The Orchard irrigation controller is named Willow. The inspection date is 2026-11-04. The daily water allowance is 480 litres.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        },
+        {
+          "quote": "archive moves [4]",
+          "citation": 4,
+          "supported": true,
+          "sourceQuote": "The Archive move destination is Cedar Hall. The move is scheduled for 2027-01-12. The sealed inventory has 316 boxes.",
+          "reason": "The cited passage supports the associated factual statement; reviewed against the full synthetic corpus."
+        }
+      ],
+      "abstained": true,
+      "notes": "Reviewed all cited text against its passage. No unsupported sourced assertion."
+    }
+  ]
+}
