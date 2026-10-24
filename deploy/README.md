@@ -200,6 +200,12 @@ to `deployment-result.json` in the selected evidence directory. Detailed command
 output stays in the root-only backup. Unprivileged safeguard tests run with
 `python3 -m unittest discover -s deploy/tests -p test_systemd_upgrade.py -v`.
 
+For the browser-chat release, use the same helper with `--release chat` and
+the new bundle and manifest. This adds verification of the chat schema,
+authenticated chat routes, home page, and static assets. See the
+[browser chat deployment record](../docs/build/M2-browser-chat-deployment.md)
+for the prepared command and release provenance.
+
 ### LAN listener on the reference workstation
 
 Configured on 2026-10-24: open **http://10.66.10.20:7171** from

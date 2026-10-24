@@ -69,6 +69,68 @@ class UpgradeTests(unittest.TestCase):
         with mock.patch.object(upgrade.urllib.request, 'urlopen', side_effect=unauthenticated):
             self.assertEqual(upgrade.request('/v1/jobs'), (401, None))
 
+    def test_chat_release_uses_separate_backup_and_staging_names(self):
+        with mock.patch.object(upgrade, 'BACKUP_BASE', self.root / 'backups'):
+            runner = upgrade.Upgrade(self.root, self.root, 'chat')
+        self.addCleanup(runner.log.close)
+        self.assertTrue(runner.backup.name.startswith('chat-'))
+        self.assertTrue(runner.previous.name.startswith('secondbrain.pre-chat-'))
+        self.assertTrue(runner.staged.name.startswith('.secondbrain.chat-'))
+
+    def test_chat_bundle_requires_styles_and_icon(self):
+        root, _ = self.bundle()
+        with self.assertRaisesRegex(RuntimeError, 'static assets'):
+            upgrade.verify_chat_bundle(root)
+        (root / 'wwwroot/app.css').write_text('body {}')
+        with self.assertRaisesRegex(RuntimeError, 'static assets'):
+            upgrade.verify_chat_bundle(root)
+        (root / 'wwwroot/favicon.svg').write_text('<svg/>')
+        upgrade.verify_chat_bundle(root)
+
+    def test_chat_schema_requires_all_tables_and_active_turn_constraint(self):
+        data = self.root / 'data'
+        (data / 'state').mkdir(parents=True)
+        tables = ['chat_conversation_owners', 'chat_turn_details', 'chat_events',
+                  'chat_sources', 'chat_model_calls', 'chat_proposal_details', 'chat_summaries']
+        with sqlite3.connect(data / 'state/state.db') as db:
+            for table in tables[:-1]:
+                db.execute(f'CREATE TABLE {table}(id TEXT)')
+        with self.assertRaisesRegex(RuntimeError, 'schema is incomplete'):
+            upgrade.verify_chat_schema(data)
+        with sqlite3.connect(data / 'state/state.db') as db:
+            db.execute('CREATE TABLE chat_summaries(id TEXT)')
+        with self.assertRaisesRegex(RuntimeError, 'active-turn constraint'):
+            upgrade.verify_chat_schema(data)
+        with sqlite3.connect(data / 'state/state.db') as db:
+            db.execute('CREATE UNIQUE INDEX chat_one_active_turn ON chat_turn_details(id)')
+        upgrade.verify_chat_schema(data)
+
+    def test_chat_http_gate_rejects_missing_routes_page_policy_and_assets(self):
+        page = mock.MagicMock()
+        page.__enter__.return_value = page
+        page.read.return_value = b'Sign in to chat with your knowledge.'
+        page.headers = {'Content-Security-Policy': "default-src 'self'; style-src 'self'"}
+        page.status = 200
+        with mock.patch.object(upgrade, 'request', return_value=(401, None)) as request, \
+                mock.patch.object(upgrade.urllib.request, 'urlopen', return_value=page):
+            upgrade.verify_chat_endpoints()
+            self.assertEqual(request.call_count, 3)
+            request.return_value = (404, None)
+            with self.assertRaisesRegex(RuntimeError, 'endpoint is missing'):
+                upgrade.verify_chat_endpoints()
+            request.return_value = (401, None)
+            page.read.return_value = b'Old home page'
+            with self.assertRaisesRegex(RuntimeError, 'home page'):
+                upgrade.verify_chat_endpoints()
+            page.read.return_value = b'Sign in to chat with your knowledge.'
+            page.headers = {}
+            with self.assertRaisesRegex(RuntimeError, 'content security policy'):
+                upgrade.verify_chat_endpoints()
+            page.headers = {'Content-Security-Policy': "style-src 'self'"}
+            page.status = 404
+            with self.assertRaisesRegex(RuntimeError, 'static asset'):
+                upgrade.verify_chat_endpoints()
+
     def test_identity_allows_new_documents_but_preserves_account_keys_and_existing_documents(self):
         data = self.root / 'data'
         (data / 'state').mkdir(parents=True)

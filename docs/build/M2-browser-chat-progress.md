@@ -15,9 +15,11 @@ The working implementation has:
 - The full assistant tool set, durable per-call execution records, linked-document lookup, and a per-turn exposure manifest. Conversation history is compacted into bounded, portable excerpts with source lineage and explicit omission notices; confirmed approval outcomes are included when a conversation resumes.
 - Authenticated chat/ask, conversation, approval, event-replay, and manifest HTTP endpoints. Browser output uses CSP-compatible static styles and formatting that encodes model HTML instead of executing it.
 
+The self-contained `linux-x64` release is ready in `artifacts/m2-release-20261024/merged`. Its 427 files match the recorded SHA-256 manifest; the CLI starts from the merged bundle. All 11 upgrade safeguard tests pass. The [deployment handoff](M2-browser-chat-deployment.md) records the exact installation command and verification gates.
+
 The following remain before the browser chat goal can be accepted:
 
-- An operator-ready deployment artifact and installation verification against the main service.
+- The password-authorized installation and verification against the main service. The host requires interactive sudo; the prepared command has been sent to the operator.
 
 Full M2 also includes the paired CLI/MCP work in specification §§7.4, 10, and 12, which this progress record does not claim as complete.
 

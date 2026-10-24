@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Upgrade the existing reference systemd installation with a verified M1 bundle.
+"""Upgrade the reference systemd installation with a verified M1 or browser-chat bundle.
 
 Run as root. Private backups and command output stay under /var/backups/secondbrain.
 Only sanitized verification results are written to the requested artifacts directory.
@@ -94,6 +94,33 @@ def verify_schema(data):
         require({'document_text', 'chunks', 'chunks_fts', 'chunk_vectors', 'embedding_cache'}.issubset(tables), 'M1 index schema is incomplete.')
 
 
+def verify_chat_schema(data):
+    required = {'chat_conversation_owners', 'chat_turn_details', 'chat_events', 'chat_sources',
+                'chat_model_calls', 'chat_proposal_details', 'chat_summaries'}
+    with open_store(data, 'state') as db:
+        tables = {row[0] for row in db.execute("SELECT name FROM sqlite_schema WHERE type='table'")}
+        require(required.issubset(tables), 'Browser-chat state schema is incomplete.')
+        indexes = {row[0] for row in db.execute("SELECT name FROM sqlite_schema WHERE type='index'")}
+        require('chat_one_active_turn' in indexes, 'Browser-chat active-turn constraint is missing.')
+
+
+def verify_chat_bundle(root):
+    require((root / 'wwwroot/app.css').is_file() and (root / 'wwwroot/favicon.svg').is_file(),
+            'Browser-chat static assets are missing from the bundle.')
+
+
+def verify_chat_endpoints():
+    for path in ('/v1/conversations', '/v1/pending', '/v1/turns/' + '0' * 26):
+        require(request(path)[0] == 401, 'A browser-chat endpoint is missing or does not require authentication.')
+    with urllib.request.urlopen(ORIGIN + '/', timeout=10) as response:
+        html = response.read(1024 * 1024).decode('utf-8')
+        require('Sign in to chat with your knowledge.' in html, 'The installed home page is not the chat application.')
+        require("style-src 'self'" in response.headers.get('Content-Security-Policy', ''), 'The chat page is missing its content security policy.')
+    for path in ('/app.css', '/SecondBrain.Server.styles.css', '/favicon.svg'):
+        with urllib.request.urlopen(ORIGIN + path, timeout=10) as response:
+            require(response.status == 200, 'A browser-chat static asset is not served.')
+
+
 def request(path):
     req = urllib.request.Request(ORIGIN + path)
     try:
@@ -119,7 +146,13 @@ def wait_ready(seconds=120):
 
 
 class Upgrade:
-    def __init__(self, repo, evidence):
+    release_name = 'm1'
+    label = 'M1'
+
+    def __init__(self, repo, evidence, release='m1'):
+        require(release in ('m1', 'chat'), 'Unsupported release profile.')
+        self.release_name = release
+        self.label = 'M1' if release == 'm1' else 'Browser chat'
         self.repo = repo
         self.evidence = evidence
         self.tag = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
@@ -128,10 +161,10 @@ class Upgrade:
         parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         require(parent.stat().st_uid == os.geteuid(), 'Backup root must be root-owned.')
         parent.chmod(0o700)
-        self.backup = parent / ('m1-' + self.tag)
+        self.backup = parent / (self.release_name + '-' + self.tag)
         self.backup.mkdir(mode=0o700)
-        self.previous = INSTALL.with_name('secondbrain.pre-m1-' + self.tag)
-        self.staged = INSTALL.with_name('.secondbrain.m1-' + self.tag)
+        self.previous = INSTALL.with_name('secondbrain.pre-' + self.release_name + '-' + self.tag)
+        self.staged = INSTALL.with_name('.secondbrain.' + self.release_name + '-' + self.tag)
         self.stopped = False
         self.snapshotted = False
         self.swapped = False
@@ -164,6 +197,8 @@ class Upgrade:
         import yaml
 
         verify_bundle(bundle, expected)
+        if self.release_name == 'chat':
+            verify_chat_bundle(bundle)
         for path in (INSTALL, DATA, CONFIG, INCOMING, UNITS):
             require(path.is_dir() and path.resolve() == path, 'A reference installation path is missing or traverses a symlink.')
         for name, uid in [('secondbrain', 1654), ('secondbrain-extract', 1655), ('secondbrain-sync', 1656)]:
@@ -186,7 +221,7 @@ class Upgrade:
         self.run(['chown', '-R', 'root:root', str(self.staged)])
         self.run(['chmod', '-R', 'a+rX', str(self.staged)])
         verify_bundle(self.staged, expected)
-        print('Preflight passed: verified M1 bundle, reference paths, identities, listener, and security labels.', flush=True)
+        print('Preflight passed: verified ' + self.label + ' bundle, reference paths, identities, listener, and security labels.', flush=True)
 
     def deploy(self, bundle, expected):
         self.preflight(bundle, expected)
@@ -225,7 +260,7 @@ class Upgrade:
         self.data_lock.close()
         self.data_lock = None
         self.run(['systemctl', 'start', 'secondbrain-extractor.socket', 'secondbrain.service'])
-        print('M1 installed; waiting for stores, extractor, provider roles, and egress readiness.', flush=True)
+        print(self.label + ' installed; waiting for stores, extractor, provider roles, and egress readiness.', flush=True)
         readiness = wait_ready()
         require(all(c['ready'] for c in readiness['components'].values()), 'A readiness component is unhealthy.')
         require('Blocked' in readiness['components']['canary']['detail'], 'The enabled egress canary did not prove blocking.')
@@ -241,16 +276,25 @@ class Upgrade:
         require(request('/health')[0] == 200, 'Health endpoint failed.')
         require(request('/v1/jobs')[0] == 401, 'Jobs endpoint did not require authentication.')
         require(request('/v1/documents/' + '0' * 26)[0] == 401, 'Document endpoint did not require authentication.')
+        if self.release_name == 'chat':
+            self.phase = 'verify-chat-schema-and-browser'
+            verify_chat_schema(DATA)
+            verify_chat_endpoints()
         modes = {str(p): {'uid': p.stat().st_uid, 'gid': p.stat().st_gid, 'mode': oct(stat.S_IMODE(p.stat().st_mode))} for p in [DATA, INCOMING, INCOMING / 'inbox', INCOMING / 'inbox/.claimed']}
         require(modes[str(INCOMING / 'inbox')]['mode'] == '0o1770' and modes[str(INCOMING / 'inbox/.claimed')]['mode'] == '0o700', 'M1 inbox permissions are incorrect.')
         report = {'status': 'deployed', 'at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'backup': str(self.backup), 'previous_binaries': str(self.previous), 'bundle_files_verified': len(expected), 'readiness': readiness, 'm1_schema': 'applied', 'account_and_credentials_preserved': True, 'configuration_and_secrets_preserved': True, 'keyring_preserved': True, 'existing_documents_preserved': len(before['documents']), 'directory_modes': modes, 'unauthenticated_documents_and_jobs': 401, 'units': {}}
         for name in UNIT_NAMES:
             result = subprocess.check_output(['systemctl', 'show', name, '--property=ActiveState', '--property=SubState', '--property=MainPID', '--property=ExecMainStartTimestamp', '--property=MemoryMax', '--property=PrivateNetwork'], text=True)
             report['units'][name] = dict(line.split('=', 1) for line in result.splitlines() if '=' in line)
+        report['release'] = self.release_name
+        if self.release_name == 'chat':
+            report['chat_schema'] = 'applied'
+            report['chat_endpoints_require_authentication'] = True
+            report['chat_home_and_static_assets_served'] = True
         self.write('deployment-result.json', report)
         self.write('deployment-result.json', report, public=True)
         self.done = True
-        print('M1 deployed and ready. Existing account, credentials, configuration, key ring, and document identities verified.', flush=True)
+        print(self.label + ' deployed and ready. Existing account, credentials, configuration, key ring, and document identities verified.', flush=True)
         print('Private rollback backup: ' + str(self.backup), flush=True)
 
     def rollback(self):
@@ -259,15 +303,15 @@ class Upgrade:
         if getattr(self, 'data_lock', None) is not None:
             self.data_lock.close()
             self.data_lock = None
-        print('Deployment failed; restoring the previous installation. New M1 data will be retained privately.', flush=True)
+        print('Deployment failed; restoring the previous installation. New ' + self.label + ' data will be retained privately.', flush=True)
         self.run(['systemctl', 'stop', *UNIT_NAMES])
         if self.swapped:
-            failed_binary = INSTALL.with_name('secondbrain.failed-m1-' + self.tag)
+            failed_binary = INSTALL.with_name('secondbrain.failed-' + self.release_name + '-' + self.tag)
             if INSTALL.exists():
                 INSTALL.rename(failed_binary)
             self.previous.rename(INSTALL)
         if self.snapshotted:
-            failed_data = DATA.with_name('secondbrain.failed-m1-' + self.tag)
+            failed_data = DATA.with_name('secondbrain.failed-' + self.release_name + '-' + self.tag)
             DATA.rename(failed_data)
             self.run(['cp', '-a', '--reflink=auto', str(self.backup / 'data'), str(DATA)])
             self.run(['cp', '-a', str(self.backup / 'config') + '/.', str(CONFIG)])
@@ -280,7 +324,7 @@ class Upgrade:
         self.run(['systemctl', 'daemon-reload'])
         self.run(['systemctl', 'reset-failed', *UNIT_NAMES])
         self.run(['systemctl', 'start', 'secondbrain-extractor.socket', 'secondbrain.service'])
-        report = {'status': 'rolled_back', 'backup': str(self.backup), 'new_data_retained': str(DATA.with_name('secondbrain.failed-m1-' + self.tag)) if self.snapshotted else None, 'failure': getattr(self, 'failure', None)}
+        report = {'status': 'rolled_back', 'backup': str(self.backup), 'new_data_retained': str(DATA.with_name('secondbrain.failed-' + self.release_name + '-' + self.tag)) if self.snapshotted else None, 'failure': getattr(self, 'failure', None)}
         self.write('deployment-result.json', report, public=True)
         print('Previous installation restarted. Private recovery files: ' + str(self.backup), flush=True)
 
@@ -290,6 +334,7 @@ def main():
     parser.add_argument('bundle', type=pathlib.Path)
     parser.add_argument('manifest', type=pathlib.Path)
     parser.add_argument('--evidence-dir', type=pathlib.Path, required=True)
+    parser.add_argument('--release', choices=('m1', 'chat'), default='m1')
     args = parser.parse_args()
     require(os.geteuid() == 0, 'Root is required for the installed systemd upgrade.')
     repo = pathlib.Path(__file__).resolve().parents[2]
@@ -299,7 +344,7 @@ def main():
     os.umask(0o077)
     with open('/run/lock/secondbrain-upgrade.lock', 'w') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        upgrade = Upgrade(repo, evidence)
+        upgrade = Upgrade(repo, evidence, args.release)
         try:
             expected = json.loads(args.manifest.resolve().read_text())
             upgrade.deploy(args.bundle.resolve(), expected)
