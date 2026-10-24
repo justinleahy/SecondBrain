@@ -25,7 +25,9 @@ public sealed class CredentialAuthenticationHandler(IOptionsMonitor<Authenticati
         if (authorization.Length > 0)
         {
             if (!authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) return AuthenticateResult.Fail("Invalid authentication scheme.");
-            identity = await service.AuthenticateKeyAsync(authorization[7..], Context.RequestAborted);
+            identity = authorization[7..].StartsWith("sbcli_", StringComparison.Ordinal)
+                ? await service.AuthenticateCliAsync(authorization[7..], CredentialService.IsSecure(Context, Context.RequestServices.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue), Context.RequestAborted)
+                : await service.AuthenticateKeyAsync(authorization[7..], Context.RequestAborted);
         }
         else
         {

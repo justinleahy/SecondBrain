@@ -14,8 +14,16 @@ namespace SecondBrain.Storage.Chat;
 
 public sealed partial class SqliteChatRepository
 {
-    public async ValueTask<ChatProposal> ProposeAsync(string turnId, string tool, JsonElement arguments,
-        AuthenticatedCredential actor, CancellationToken cancellationToken = default)
+    public ValueTask<ChatProposal> ProposeAsync(string turnId, string tool, JsonElement arguments,
+        AuthenticatedCredential actor, CancellationToken cancellationToken = default) =>
+        ProposeCoreAsync(turnId, tool, arguments, null, actor, cancellationToken);
+
+    public ValueTask<ChatProposal> ProposeForCallAsync(string turnId, string tool, JsonElement arguments, string executionId,
+        AuthenticatedCredential actor, CancellationToken cancellationToken = default) =>
+        ProposeCoreAsync(turnId, tool, arguments, executionId, actor, cancellationToken);
+
+    private async ValueTask<ChatProposal> ProposeCoreAsync(string turnId, string tool, JsonElement arguments, string? executionId,
+        AuthenticatedCredential actor, CancellationToken cancellationToken)
     {
         await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
@@ -30,7 +38,15 @@ public sealed partial class SqliteChatRepository
             var turn = await RunningAsync(connection, transaction, turnId, actor, token);
             if (turn.Mode == "ask") throw new AuthorityChangedException();
             await WriteAuthorityAsync(connection, transaction, actor, false, token);
-            return await InsertProposalAsync(connection, transaction, turn, tool, plan, actor, token);
+            if (executionId is not null && await connection.ExecuteScalarAsync<int>(Sql("""
+                SELECT COUNT(*) FROM tool_executions WHERE id=@executionId AND turn_id=@turnId AND tool=@tool
+                AND status='running' AND args_hash=@hash
+                """, new { executionId, turnId, tool, hash = Hash(JsonSerializer.SerializeToUtf8Bytes(arguments, Json)) }, transaction, token)) != 1)
+                throw new ChatConflictException("The proposal has no matching active tool invocation.");
+            var proposal = await InsertProposalAsync(connection, transaction, turn, tool, plan, actor, token);
+            if (executionId is not null)
+                await connection.ExecuteAsync(Sql("INSERT INTO chat_proposal_calls(proposal_id,invocation_id) VALUES(@id,@executionId)", new { id = proposal.Id, executionId }, transaction, token));
+            return proposal;
         }, cancellationToken);
     }
 
@@ -59,6 +75,8 @@ public sealed partial class SqliteChatRepository
             var plan = ToProposal(row).Plan!;
             if (automatic)
             {
+                if (await connection.ExecuteScalarAsync<string>(Sql("SELECT name FROM credentials WHERE id=@id", new { id = actor.Id }, transaction, token)) == "cli")
+                    throw new AuthorityChangedException();
                 var turn = await TurnAsync(connection, transaction, row.TurnId, token);
                 var retrieved = await connection.ExecuteScalarAsync<long>(Sql("SELECT retrieved_content FROM turns WHERE id=@id", new { id = row.TurnId }, transaction, token));
                 if (turn.Initiator != actor.Id || turn.Generation != actor.Generation || turn.Epoch != actor.AccountEpoch ||
@@ -130,7 +148,22 @@ public sealed partial class SqliteChatRepository
     private async Task ExecuteClaimAsync(ProposalRow claim, AuthenticatedCredential actor, CancellationToken token)
     {
         var plan = ToProposal(claim).Plan;
-        if (plan is null) { await FailClaimAsync(claim, "source_purged", token); return; }
+        if (plan is null)
+        {
+            var committed = await ReadAsync((connection, transaction, cancellation) => connection.ExecuteScalarAsync<bool>(Sql("""
+                SELECT EXISTS(SELECT 1 FROM chat_proposal_details d JOIN mutations m ON m.id=d.mutation_id
+                WHERE d.proposal_id=@id AND m.status='finalized')
+                """, new { id = claim.Id }, transaction, cancellation)), token);
+            if (committed)
+                await state.QueueWriteAsync(async (connection, transaction, cancellation) =>
+                {
+                    await CompleteRedactedClaimAsync(connection, transaction, claim,
+                        JsonSerializer.Deserialize<string[]>(claim.DocumentRefs, Json) ?? [], cancellation);
+                    return 0;
+                }, token);
+            else await FailClaimAsync(claim, "source_purged", token);
+            return;
+        }
         try
         {
             var problem = await state.QueueWriteAsync(async (connection, transaction, cancellation) =>
@@ -147,11 +180,20 @@ public sealed partial class SqliteChatRepository
                 if (row.Status is not ("executing" or "executed")) throw new ChatConflictException("The approved write changed state unexpectedly.");
                 var refs = JsonSerializer.Deserialize<string[]>(row.DocumentRefs, Json) ?? [];
                 refs = refs.Append(plan.DocumentId).Distinct().ToArray();
+                if (!await LiveLineageAsync(connection, transaction, refs, cancellation))
+                {
+                    // The journal already committed the effect, but a purge won the race
+                    // before this callback. Retain that outcome without restoring its data.
+                    await CompleteRedactedClaimAsync(connection, transaction, row, refs, cancellation);
+                    return 0;
+                }
                 var result = await PayloadAsync(connection, transaction, new { documentId = plan.DocumentId, revision = plan.Revision + 1 }, refs, "chat-execution", row.TurnId, cancellation);
                 await connection.ExecuteAsync(Sql("""
                     UPDATE pending_operations SET status='executed',resolved_at=@now WHERE id=@id;
                     UPDATE tool_executions SET status='committed',result_payload_id=@result,committed_at=@now WHERE id=@execution;
                     UPDATE payloads SET document_refs_json=@refs WHERE id=@payload;
+                    UPDATE payloads SET document_refs_json=@refs WHERE id IN
+                      (SELECT e.payload_id FROM chat_proposal_calls c JOIN tool_executions e ON e.id=c.invocation_id WHERE c.proposal_id=@id);
                     """, new { id = row.Id, now = Now(), result, execution = row.ExecutionId, payload = row.PayloadId, refs = JsonSerializer.Serialize(refs, Json) }, transaction, cancellation));
                 await EventAsync(connection, transaction, row.TurnId, "proposal", new { id = row.Id, status = "executed", documentId = plan.DocumentId }, refs, cancellation);
                 return 0;
@@ -172,6 +214,18 @@ public sealed partial class SqliteChatRepository
         }
     }
 
+    private async Task CompleteRedactedClaimAsync(DbConnection connection, DbTransaction transaction, ProposalRow row, string[] refs, CancellationToken token)
+    {
+        var marker = await PayloadAsync(connection, transaction, new { redacted = true }, refs, "chat-execution", row.TurnId, token);
+        await connection.ExecuteAsync(Sql("""
+            UPDATE payloads SET bytes=X'',sha256='',redacted_at=@now,document_refs_json=@refs
+            WHERE id IN (@payload,@marker) OR id IN
+              (SELECT e.payload_id FROM chat_proposal_calls c JOIN tool_executions e ON e.id=c.invocation_id WHERE c.proposal_id=@id);
+            UPDATE pending_operations SET status='executed',resolved_at=@now WHERE id=@id;
+            UPDATE tool_executions SET status='committed',result_payload_id=@marker,committed_at=@now WHERE id=@execution;
+            """, new { id = row.Id, payload = row.PayloadId, marker, execution = row.ExecutionId, now = Now(), refs = JsonSerializer.Serialize(refs, Json) }, transaction, token));
+    }
+
     private ValueTask<int> FailClaimAsync(ProposalRow row, string reason, CancellationToken token) => state.QueueWriteAsync(async (connection, transaction, cancellation) =>
     {
         await ResolveProposalAsync(connection, transaction, row, "failed", reason, cancellation);
@@ -188,7 +242,7 @@ public sealed partial class SqliteChatRepository
         var id = create ? NewId() : arguments.GetProperty("id").GetString() ?? throw new ArgumentException("Document ID is required.");
         var before = create ? null : await Documents.GetAsync(id, true, token) ?? throw new ChatNotFoundException();
         var revision = create ? 0 : arguments.GetProperty("revision").GetInt64();
-        if (before is not null && (before.Revision != revision || before.Status is "deleted" or "purged" or "missing")) throw new ChatConflictException("The target document changed or is unavailable.");
+        if (before is not null && (before.Revision != revision || DocumentStatusNames.IsUnavailable(before.Status))) throw new ChatConflictException("The target document changed or is unavailable.");
         var hasContent = arguments.TryGetProperty("content", out var contentValue);
         var beforeText = before is not null && (!hasContent || tool == "link_documents" || arguments.TryGetProperty("append", out var requestedAppend) && requestedAppend.GetBoolean())
             ? await OriginalTextAsync(before, token) : "";
@@ -204,7 +258,7 @@ public sealed partial class SqliteChatRepository
         {
             var targetId = arguments.GetProperty("targetId").GetString() ?? throw new ArgumentException("Link target is required.");
             var target = await Documents.GetAsync(targetId, false, token) ?? throw new ChatNotFoundException();
-            if (target.Status is "deleted" or "purged" or "missing") throw new ChatNotFoundException();
+            if (DocumentStatusNames.IsUnavailable(target.Status)) throw new ChatNotFoundException();
             related = [targetId];
             content = beforeText + (beforeText.EndsWith('\n') ? "" : "\n") + "[[" + targetId + "]]\n";
         }
@@ -238,7 +292,7 @@ public sealed partial class SqliteChatRepository
         var targets = new List<ProposalTarget>();
         foreach (var id in refs)
         {
-            var revision = await connection.ExecuteScalarAsync<long?>(Sql("SELECT revision FROM documents WHERE id=@id AND status NOT IN ('deleted','purged','missing')", new { id }, transaction, token));
+            var revision = await connection.ExecuteScalarAsync<long?>(Sql("SELECT revision FROM documents WHERE id=@id AND status NOT IN ('deleted','purged','missing','removed_from_source')", new { id }, transaction, token));
             if (revision is null || id == plan.DocumentId && revision != plan.Revision) throw new ChatConflictException("A referenced document changed.");
             if (await connection.ExecuteScalarAsync<long>(Sql("SELECT COUNT(*) FROM chat_sources WHERE turn_id=@turn AND document_id=@id AND revision!=@revision", new { turn = turn.Id, id, revision }, transaction, token)) != 0)
                 throw new ChatConflictException("A retrieved source changed before the proposal was prepared.");

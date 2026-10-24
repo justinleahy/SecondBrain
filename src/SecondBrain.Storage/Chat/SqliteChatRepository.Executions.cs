@@ -12,7 +12,7 @@ public sealed partial class SqliteChatRepository
         {
             await AuthorizeAsync(connection, transaction, actor, false, token);
             await OwnTurnAsync(connection, transaction, turnId, actor, token);
-            return (await connection.QueryAsync<ChatToolActivity>(Sql("SELECT id Id,tool Name,status Status FROM tool_executions WHERE turn_id=@turnId ORDER BY id LIMIT 100", new { turnId }, transaction, token))).ToArray();
+            return (await connection.QueryAsync<ChatToolActivity>(Sql("SELECT id Id,tool Name,status Status FROM tool_executions WHERE turn_id=@turnId ORDER BY rowid LIMIT 100", new { turnId }, transaction, token))).ToArray();
         }, cancellationToken);
 
     public ValueTask<ChatEgressManifest> ManifestAsync(string turnId, AuthenticatedCredential actor, CancellationToken cancellationToken = default) =>
@@ -32,7 +32,12 @@ public sealed partial class SqliteChatRepository
             FROM chat_turn_details d WHERE d.turn_id=@turnId
             """, new { turnId, conversation = turn.ConversationId, ordinal = turn.Ordinal }, transaction, token));
         var policy = Policy(turn);
-        return new ChatEgressManifest(policy.Provider, policy.Model, documents, counts.History != 0, counts.Compacted != 0, counts.Bytes, counts.Tokens);
+        var exposures = await connection.QueryAsync<ProviderExposureRow>(Sql("""
+            SELECT call_id CallId,provider Provider,model Model,endpoint Endpoint,documents_json Documents
+            FROM chat_provider_exposures WHERE turn_id=@turnId ORDER BY rowid
+            """, new { turnId }, transaction, token));
+        return new ChatEgressManifest(policy.Provider, policy.Model, documents, counts.History != 0, counts.Compacted != 0, counts.Bytes, counts.Tokens,
+            exposures.Select(row => new ChatProviderExposure(row.CallId, row.Provider, row.Model, row.Endpoint, JsonSerializer.Deserialize<string[]>(row.Documents, Json) ?? [])).ToArray());
     }, cancellationToken);
     public ValueTask<string> BeginToolAsync(string turnId, string name, JsonElement arguments, int metadataRecords,
         AuthenticatedCredential actor, CancellationToken cancellationToken = default) => state.QueueWriteAsync(async (connection, transaction, token) =>
@@ -78,6 +83,8 @@ public sealed partial class SqliteChatRepository
             """, new { turnId, bytes, limit = Policy(turn).MaxReadBytes }, transaction, token)) != 1)
             throw new ChatLimitException("This turn reached its tool-result byte limit.");
         var payload = await PayloadAsync(connection, transaction, result, refs, "chat-tool-result", turnId, token);
+        await connection.ExecuteAsync(Sql("UPDATE payloads SET document_refs_json=@refs WHERE id=(SELECT payload_id FROM tool_executions WHERE id=@executionId)",
+            new { refs = JsonSerializer.Serialize(refs, Json), executionId }, transaction, token));
         await connection.ExecuteAsync(Sql("UPDATE tool_executions SET status='committed',result_payload_id=@payload,committed_at=@now WHERE id=@executionId", new { executionId, payload, now = Now() }, transaction, token));
         if (refs.Length != 0) await connection.ExecuteAsync(Sql("UPDATE turns SET retrieved_content=1 WHERE id=@turnId", new { turnId }, transaction, token));
         await EventAsync(connection, transaction, turnId, "tool", envelope, refs, token);
@@ -98,5 +105,10 @@ public sealed partial class SqliteChatRepository
         public string Status { get; set; } = "";
     }
     private sealed class ManifestSource { public string Id { get; set; } = ""; public long Revision { get; set; } }
+    private sealed class ProviderExposureRow
+    {
+        public string CallId { get; set; } = ""; public string Provider { get; set; } = ""; public string Model { get; set; } = "";
+        public string? Endpoint { get; set; } public string Documents { get; set; } = "[]";
+    }
     private sealed class ManifestCounts { public long Bytes { get; set; } public long Tokens { get; set; } public long History { get; set; } public long Compacted { get; set; } }
 }

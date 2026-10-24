@@ -12,6 +12,10 @@ public sealed record ChatProposal(string Id, string TurnId, string Tool, string 
 public interface IChatProposalRepository
 {
     ValueTask<ChatProposal> ProposeAsync(string turnId, string tool, JsonElement arguments, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
+    ValueTask<ChatProposal> ProposeForCallAsync(string turnId, string tool, JsonElement arguments, string executionId, AuthenticatedCredential actor, CancellationToken cancellationToken = default)
+        => ProposeAsync(turnId, tool, arguments, actor, cancellationToken);
+    ValueTask<ChatProposal> ProposeExternalUpdateAsync(JsonElement arguments, AuthenticatedCredential actor, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException("External proposals require the durable approval repository.");
     ValueTask<IReadOnlyList<ChatProposal>> ListAsync(string? conversationId, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
     ValueTask<ChatProposal> ApproveAsync(string id, AuthenticatedCredential actor, bool automatic = false, CancellationToken cancellationToken = default);
     ValueTask<ChatProposal> DiscardAsync(string id, AuthenticatedCredential actor, CancellationToken cancellationToken = default);

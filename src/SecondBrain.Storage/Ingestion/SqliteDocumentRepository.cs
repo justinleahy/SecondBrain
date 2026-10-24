@@ -26,7 +26,9 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
     private async ValueTask<CaptureResult> CaptureCoreAsync(CaptureRequest request, IngestionAuthority authority, string? idempotencyKey, CancellationToken cancellationToken, SecondBrain.Core.Chat.ApprovedDocumentWrite? approved = null)
     {
         Validate(request);
+        if (authority.Door is not ("api" or "mcp" or "ui")) throw new ArgumentException("Invalid capture surface.");
         var requestHash = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request)));
+        if (authority.Door != "api") requestHash = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new { request, authority.Door })));
         if (idempotencyKey is { Length: > 200 }) throw new ArgumentException("Idempotency key exceeds bound.");
         var id = approved?.Plan.DocumentId ?? Ulid.NewUlid().ToString();
         authority = await state.QueueWriteAsync(async (connection, transaction, token) =>
@@ -53,7 +55,8 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
             await using var source = Command(connection, transaction,
-                "INSERT OR IGNORE INTO sources(id,kind,name,created_at) VALUES('api-captures','api','API captures',$now)", ("$now", Now()));
+                "INSERT OR IGNORE INTO sources(id,kind,name,created_at) VALUES($source,$kind,$name,$now)",
+                ("$source", authority.Door + "-captures"), ("$kind", authority.Door), ("$name", authority.Door.ToUpperInvariant() + " captures"), ("$now", Now()));
             return await source.ExecuteNonQueryAsync(token);
         }, cancellationToken);
         var jobId = approved?.ExecutionId ?? Ulid.NewUlid().ToString();
@@ -65,13 +68,13 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         var basis = new TypeRegistry().GetProcessingType(request.Type ?? "note").Metadata.OccurredBasis;
         var declared = basis is not null && timeProperties.RootElement.TryGetProperty(basis, out var timeValue) && timeValue.ValueKind == JsonValueKind.String ? timeValue.GetString() : null;
         var occurred = basis is null ? null : SourceTime.Parse(declared, basis, TimeZoneInfo.FindSystemTimeZoneById(options?.Value.Time.Zone ?? TimeZoneInfo.Local.Id));
-        var publication = new DocumentPublication(id, "api-captures", 0, Generation, "capture", title,
-            Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(request.Content))), "api:" + authority.CredentialName)
+        var publication = new DocumentPublication(id, authority.Door + "-captures", 0, Generation, "capture", title,
+            Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(request.Content))), authority.Door + ":" + authority.CredentialName)
         { Type = request.Type ?? "note", TypeOrigin = request.Type is null ? "format-default" : "door", PropsJson = props,
             PropsOriginalJson = props, Mime = "text/plain", SourceUrl = request.SourceUrl, Projection = projection,
             OccurredAt = occurred?.At, OccurredOffset = occurred?.Offset, OccurredBasis = occurred?.Basis, OccurredPrecision = occurred?.Precision,
             SizeBytes = Encoding.UTF8.GetByteCount(request.Content), Status = "indexed_partial",
-            Admission = new PublicationAdmission(authority, jobId, idempotencyKey, requestHash, Encoding.UTF8.GetByteCount(request.Content)) };
+            Admission = new PublicationAdmission(authority, jobId, idempotencyKey, requestHash, Encoding.UTF8.GetByteCount(request.Content), ApprovedProposalId: approved?.ProposalId) };
         // ING-4: capacity admission precedes the vault write, so a rejected capture leaves no original behind.
         await coordinator.CheckAdmissionAsync(id, publication.SourceId, publication.Admission, cancellationToken);
         if (files is not null)

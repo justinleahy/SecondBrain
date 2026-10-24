@@ -11,6 +11,20 @@ namespace SecondBrain.Server.Tests;
 
 public sealed class TurnChatClientTests
 {
+    [Fact]
+    public async Task ReasoningContinuationIsBudgetedAndCannotChangeTheFrozenPreference()
+    {
+        var repository = new Repository();
+        var provider = new Provider(_ => new(new ChatMessage(ChatRole.Assistant, "Final")));
+        using var client = new TurnChatClient(provider, repository, "turn", Actor, Policy with { Reasoning = "high" }, 5000, () => true);
+        var messages = new[] { new ChatMessage(ChatRole.Assistant, [new TextReasoningContent(new string('x', 500))]) };
+        var options = new ChatOptions { MaxOutputTokens = 128, Reasoning = new() { Effort = ReasoningEffort.High } };
+        await client.GetResponseAsync(messages, options);
+        Assert.True(Assert.Single(repository.Reservations) >= 1652);
+        await Assert.ThrowsAsync<ChatLimitException>(() => client.GetResponseAsync(messages,
+            new ChatOptions { MaxOutputTokens = 128, Reasoning = new() { Effort = ReasoningEffort.Low } }));
+    }
+
     private static readonly AuthenticatedCredential Actor = new("test", "session", 1, 1, new HashSet<Scope> { Scope.Read, Scope.Infer }, null);
     private static readonly ChatTurnPolicy Policy = new("test", "test", MaxOutputTokens: 128);
 

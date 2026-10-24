@@ -20,7 +20,7 @@ public sealed class ProviderRequestException : HttpRequestException
 
 /// <summary>The configured role and fallback, resolved before any inference is admitted.</summary>
 public sealed record ProviderRoleBinding(ModelRole Role, IProviderBinding Provider,
-    ResolvedModel Model, ProviderRoleBinding? Fallback = null);
+    ResolvedModel Model, ProviderRoleBinding? Fallback = null, string? Reasoning = null);
 
 /// <summary>Provider-neutral CLI/HTTP integration; all diagnostic network operations use policy transport.</summary>
 public interface IProviderRegistry

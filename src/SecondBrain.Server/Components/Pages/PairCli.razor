@@ -1,0 +1,43 @@
+@page "/pair"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using SecondBrain.Core.Auth
+@using SecondBrain.Server.Auth
+@inject AuthenticationStateProvider Authentication
+@inject ICliPairingRepository Pairings
+
+<PageTitle>Pair terminal · SecondBrain</PageTitle>
+<main class="sign-in">
+    <h1>Pair a terminal</h1>
+    @if (!signedIn)
+    {
+        <p>Sign in, then reopen the pairing link from your terminal.</p><a href="/login">Sign in</a>
+    }
+    else if (pairing is null || pairing.Status != "pending")
+    {
+        <p>This pairing request is expired or already resolved. Start pairing again in your terminal.</p>
+    }
+    else
+    {
+        <p>Device: <strong>@pairing.Name</strong></p>
+        <p>Confirm that your terminal shows this code: <strong>@pairing.Code</strong></p>
+        <p>Approve only a terminal you started pairing. It will be able to read your knowledge, propose and approve changes, and manage your account for up to eight hours.</p>
+        <form method="post" action="/auth/cli/approve" data-enhance="false">
+            <AntiforgeryToken />
+            <input type="hidden" name="Code" value="@pairing.Code" />
+            <label for="pair-password">Confirm your password</label>
+            <input id="pair-password" name="Password" type="password" autocomplete="current-password" required maxlength="1024" />
+            <button type="submit">Approve this terminal</button>
+        </form>
+    }
+</main>
+@code {
+    [SupplyParameterFromQuery(Name = "code")] public string? Code { get; set; }
+    private bool signedIn;
+    private CliPairingView? pairing;
+    protected override async Task OnParametersSetAsync()
+    {
+        signedIn = SessionRevalidationProvider.TryAuthority((await Authentication.GetAuthenticationStateAsync()).User, out _, out _, out _);
+        pairing = signedIn && Code is { Length: 12 } ? await Pairings.FindPairingAsync(Code) : null;
+    }
+}

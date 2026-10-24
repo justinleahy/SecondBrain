@@ -1,22 +1,26 @@
 using System.Text.Json;
 using SecondBrain.Core.Auth;
+using SecondBrain.Core.Retrieval;
 
 namespace SecondBrain.Core.Chat;
 
-public sealed record ChatRequest(string Prompt, string? ConversationId = null, string Mode = "chat", string? RequestId = null);
+public sealed record ChatRequest(string Prompt, string? ConversationId = null, string Mode = "chat", string? RequestId = null, bool Deep = false, RetrievalFilters? Filters = null);
+public sealed record ChatRetryRequest(string RequestId, bool UseFallback = false);
 
 /// <summary>A frozen policy snapshot. A reload cannot expand the authority of an in-flight turn.</summary>
 public sealed record ChatTurnPolicy(
     string Provider, string Model, int MaxToolCalls = 8, int MaxReadDocuments = 12,
     int MaxReadBytes = 200_000, int MaxMetadataRecords = 200, int MaxOutputTokens = 2048,
     int MaxHistoryMessages = 20, long HourlyTokens = 200_000, long DailyTokens = 2_000_000,
-    bool AutoApproveNotes = false, int MaxHistoryBytes = 12_000);
+    bool AutoApproveNotes = false, int MaxHistoryBytes = 12_000, int MaxSearches = 32, RetrievalFilters? Filters = null,
+    int MaxContextTokens = 32768, string? ProviderEndpoint = null, string? Reasoning = null);
 
 public sealed record ChatConversation(string Id, string Title, string UpdatedAt, string? ActiveTurnId);
 public sealed record ChatTurn(string Id, string ConversationId, int Ordinal, string Status, string Mode,
     string Prompt, ChatTurnPolicy Policy, string StartedAt, string? EndedAt, string? FailureCode,
     ChatAnswer? Answer, bool Redacted = false);
-public sealed record ChatStart(ChatTurn Turn, bool Created);
+public sealed record ChatStart(ChatTurn Turn, bool Created, long ReplayAfter = 0);
+public sealed record ChatTranscriptTurn(ChatTurn Turn, IReadOnlyList<ChatRecordedCall> Calls);
 public sealed record ChatHistoryMessage(string Role, string Text, string[] DocumentReferences);
 public sealed record ChatEvent(long Sequence, string Kind, JsonElement? Data, bool Redacted, string CreatedAt);
 public sealed record ChatSourceRequest(string DocumentId, long Revision, string ChunkId);
@@ -32,6 +36,14 @@ public sealed record ChatAnswer(string Text, IReadOnlyList<ChatCitation> Citatio
 public interface IChatRepository
 {
     ValueTask<ChatStart> StartAsync(ChatRequest request, ChatTurnPolicy policy, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
+    ValueTask<ChatStart> RetryAsync(string turnId, ChatRetryRequest request, ChatTurnPolicy policy, AuthenticatedCredential actor, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException("Retry requires the durable turn repository.");
+    ValueTask<ChatResumeState> ResumeStateAsync(string turnId, AuthenticatedCredential actor, CancellationToken cancellationToken = default)
+        => ValueTask.FromResult(new ChatResumeState(0, null, [], [], false));
+    ValueTask SaveInitialContextAsync(string turnId, JsonElement context, AuthenticatedCredential actor, CancellationToken cancellationToken = default)
+        => ValueTask.CompletedTask;
+    ValueTask<IReadOnlyList<ChatTranscriptTurn>> TranscriptAsync(string conversationId, AuthenticatedCredential actor, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException("Transcripts require the durable repository.");
     ValueTask<IReadOnlyList<ChatConversation>> ListAsync(AuthenticatedCredential actor, CancellationToken cancellationToken = default);
     ValueTask DeleteConversationAsync(string id, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
     ValueTask<IReadOnlyList<ChatTurn>> GetConversationAsync(string id, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
@@ -46,6 +58,8 @@ public interface IChatRepository
     ValueTask CountToolAsync(string turnId, int metadataRecords, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
     ValueTask CheckActiveAsync(string turnId, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
     ValueTask ReserveTokensAsync(string turnId, string callId, long tokens, AuthenticatedCredential actor, CancellationToken cancellationToken = default);
+    ValueTask RecordProviderExposureAsync(string turnId, string callId, AuthenticatedCredential actor, CancellationToken cancellationToken = default, ChatProviderTarget? target = null)
+        => ValueTask.CompletedTask;
     ValueTask SettleTokensAsync(string turnId, string callId, long? actualTokens, CancellationToken cancellationToken = default);
     ValueTask FinishAsync(string turnId, string status, ChatAnswer answer, string? failureCode = null, CancellationToken cancellationToken = default);
     ValueTask<int> RecoverInterruptedAsync(CancellationToken cancellationToken = default);

@@ -14,6 +14,7 @@ using SecondBrain.Cli;
 using SecondBrain.Cli.Commands;
 using SecondBrain.Cli.Credentials;
 using SecondBrain.Core.Auth;
+using SecondBrain.Core.Chat;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Infrastructure.Configuration;
 using SecondBrain.Infrastructure.Security;
@@ -32,6 +33,83 @@ public sealed class CliConvergenceTests
 {
     private const string Password = "isolated-convergence-password";
     private static readonly PasswordParameters TestParameters = new(MemoryKiB: 1024, Iterations: 1);
+
+    [Fact]
+    public async Task Cli_McpBridgeUsesCurrentProtocolAgainstRealDaemon()
+    {
+        await using var daemon = await CliDaemon.CreateAsync();
+        Assert.Equal(0, (await daemon.Run(["login", daemon.Origin.ToString(), "--name", "mcp-reader", "--scopes", "read", "--json"])).Exit);
+        var metadata = new Dictionary<string, object>
+        {
+            ["io.modelcontextprotocol/protocolVersion"] = "2026-07-28",
+            ["io.modelcontextprotocol/clientCapabilities"] = new { },
+            ["io.modelcontextprotocol/clientInfo"] = new { name = "bridge-test", version = "1" }
+        };
+        var input = string.Join('\n',
+            JsonSerializer.Serialize(new { jsonrpc = "2.0", id = 1, method = "server/discover", @params = new { _meta = metadata } }),
+            JsonSerializer.Serialize(new { jsonrpc = "2.0", id = 2, method = "tools/list", @params = new { _meta = metadata } }),
+            JsonSerializer.Serialize(new { jsonrpc = "2.0", id = 3, method = "tools/call", @params = new { _meta = metadata, name = "brain_remember", arguments = new { content = "Read key must not save this" } } })) + "\n";
+        var output = new StringWriter(); var error = new StringWriter();
+        var services = new CliServices { CredentialStore = daemon.Credentials, Input = new StringReader(input) };
+        Assert.Equal(0, await Cli.Program.RunAsync(["mcp", "--url", daemon.Origin.ToString(), "--credential", "mcp-reader"], services, output, error));
+        var messages = output.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(line => JsonSerializer.Deserialize<JsonElement>(line)).ToArray();
+        Assert.Equal(3, messages.Length);
+        Assert.True(messages[0].TryGetProperty("result", out _), output.ToString());
+        Assert.Equal(8, messages[1].GetProperty("result").GetProperty("tools").GetArrayLength());
+        Assert.True(messages[2].TryGetProperty("error", out _));
+        Assert.Empty(error.ToString());
+    }
+
+    [Fact]
+    public async Task Cli_PairThroughBrowserThenAskAndApproveWithoutReplacingApiKey()
+    {
+        await using var daemon = await CliDaemon.CreateAsync();
+        Assert.Equal(0, (await daemon.Run(["login", daemon.Origin.ToString(), "--name", "paired", "--scopes", "read,write,infer", "--json"])).Exit);
+        var originalKey = await daemon.Credentials.ReadAsync(daemon.Origin, "paired", default);
+        var services = new CliServices { CredentialStore = daemon.Credentials };
+        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        var instructions = new PairingInstructions();
+        var output = new StringWriter();
+        var pendingLogin = Cli.Program.RunAsync(["login", daemon.Origin.ToString(), "--interactive", "--name", "paired", "--json"], services, output, instructions, deadline.Token);
+        var link = await instructions.Link.Task.WaitAsync(deadline.Token);
+        var code = link.Query["?code=".Length..];
+        using var browser = daemon.Browser();
+        Assert.Equal(HttpStatusCode.OK, (await browser.PostAsJsonAsync("/auth/login", new LoginRequest(Password), deadline.Token)).StatusCode);
+        var csrf = (await browser.GetFromJsonAsync<AntiforgeryResponse>("/auth/antiforgery", deadline.Token))!;
+        using var approval = await browser.PostAsync("/auth/cli/approve", new FormUrlEncodedContent(new Dictionary<string, string>
+        { ["Code"] = code, ["Password"] = Password, ["__RequestVerificationToken"] = csrf.Token }), deadline.Token);
+        Assert.Equal(HttpStatusCode.OK, approval.StatusCode);
+        Assert.Equal(0, await pendingLogin);
+        var session = await daemon.Credentials.ReadAsync(daemon.Origin, "paired.session", default);
+        Assert.StartsWith("sbcli_", session);
+        Assert.Equal(originalKey, await daemon.Credentials.ReadAsync(daemon.Origin, "paired", default));
+        Assert.DoesNotContain(session!, output.ToString() + instructions.ToString());
+
+        var actor = (await daemon.Services.GetRequiredService<CredentialService>().AuthenticateKeyAsync(originalKey!))!;
+        var turns = daemon.Services.GetRequiredService<IChatRepository>();
+        var proposals = daemon.Services.GetRequiredService<IChatProposalRepository>();
+        var turn = (await turns.StartAsync(new("Save a note"), new("mock", "mock-chat"), actor)).Turn;
+        var proposal = await proposals.ProposeAsync(turn.Id, "create_document", JsonSerializer.SerializeToElement(new { title = "Paired note", content = "Approved from CLI" }), actor);
+        await turns.FinishAsync(turn.Id, "complete", new("Proposed a note", []));
+        var accepted = await Run(["pending", "approve", proposal.Id, "--url", daemon.Origin.ToString(), "--credential-name", "paired", "--json"], services);
+        Assert.True(accepted.Exit == 0, accepted.Output);
+        Assert.Equal("executed", accepted.Json.GetProperty("data").GetProperty("status").GetString());
+        Assert.Equal("Approved from CLI", await File.ReadAllTextAsync(proposal.Plan!.Destination));
+        var ask = await Run(["ask", "What was approved?", "--url", daemon.Origin.ToString(), "--credential-name", "paired", "--json"], services);
+        Assert.True(ask.Exit == 0, ask.Output);
+        Assert.Equal("ask", ask.Json.GetProperty("data").GetProperty("mode").GetString());
+        Assert.Equal("complete", ask.Json.GetProperty("data").GetProperty("status").GetString());
+    }
+
+    private sealed class PairingInstructions : StringWriter
+    {
+        public TaskCompletionSource<Uri> Link { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public override Task WriteLineAsync(string? value)
+        {
+            if (value?.StartsWith("Open ", StringComparison.Ordinal) == true) Link.TrySetResult(new Uri(value[5..]));
+            return base.WriteLineAsync(value);
+        }
+    }
 
     [Fact]
     public async Task Cli_AddSearchQueryAgainstDaemon()
@@ -389,7 +467,7 @@ public sealed class CliConvergenceTests
     private sealed class StaticCredentialStore : ICredentialStore
     {
         public Task StoreAsync(Uri origin, string name, string key, CancellationToken cancellationToken) => Task.CompletedTask;
-        public Task<string?> ReadAsync(Uri origin, string name, CancellationToken cancellationToken) => Task.FromResult<string?>("sb_paged.secret");
+        public Task<string?> ReadAsync(Uri origin, string name, CancellationToken cancellationToken) => Task.FromResult<string?>(name.EndsWith(".access", StringComparison.Ordinal) ? null : "sb_paged.secret");
     }
 
     /// <summary>Serves one-item pages and a caller-chosen Link header per page number.</summary>
@@ -429,6 +507,7 @@ public sealed class CliConvergenceTests
         public Uri Origin { get; private set; } = null!;
         public FileCredentialStore Credentials { get; private set; } = null!;
         public WebApplication Mock { get; private set; } = null!;
+        public IServiceProvider Services => daemon!.Services;
 
         public static async Task<CliDaemon> CreateAsync()
         {

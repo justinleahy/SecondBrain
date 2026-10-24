@@ -17,7 +17,11 @@
         }
         else
         {
-            <details open="@(Proposal.Status == "pending")"><summary>Review content @(plan.Revision > 0 ? $"· replaces revision {plan.Revision}" : "· new note")</summary><pre>@plan.Payload.GetProperty("content").GetString()</pre><p class="destination">Destination: @plan.Destination</p></details>
+            <details open="@(Proposal.Status == "pending")">
+                <summary>Review content @(plan.Revision > 0 ? $"· replaces revision {plan.Revision}" : "· new note")</summary>
+                <div class="proposal-content"><ChatText Text="@(plan.Payload.GetProperty("content").GetString() ?? "")" /></div>
+                <p class="destination">Destination: @plan.Destination</p>
+            </details>
             @if (Proposal.Status == "pending")
             {
                 <div class="actions"><button @onclick="ApproveAsync" disabled="@busy">@(busy ? "Working…" : "Approve change")</button><button class="secondary" @onclick="Edit" disabled="@busy">Edit</button><button class="discard" @onclick="DiscardAsync" disabled="@busy">Discard</button></div>

@@ -48,8 +48,12 @@ public sealed record QueryRequest(string? Type = null, PropertyPredicate[]? Pred
     string? Cursor = null, string? Source = null, [property: JsonPropertyName("path_prefix")] string? PathPrefix = null, string? Mime = null);
 public sealed record QueryPage(IReadOnlyList<DocumentRecord> Records, [property: JsonPropertyName("next_cursor")] string? NextCursor, bool Truncated,
     object? Coverage = null);
+public sealed record TagCount(string Tag, long Count);
+public sealed record TagPage(IReadOnlyList<TagCount> Tags, [property: JsonPropertyName("next_cursor")] string? NextCursor, bool Truncated);
 public interface IRetrievalRepository
 {
+    ValueTask<TagPage> TagsAsync(IngestionAuthority authority, int limit = 100, string? cursor = null, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException("Tag vocabulary is unavailable.");
     ValueTask<SearchResponse> SearchAsync(SearchRequest request, float[]? queryVector = null, string? spaceId = null, CancellationToken cancellationToken = default);
     ValueTask<QueryPage> QueryAsync(QueryRequest request, IngestionAuthority authority, CancellationToken cancellationToken = default);
     ValueTask<IReadOnlyList<DocumentRecord>> RelatedAsync(string documentId, IngestionAuthority authority, int limit = 8, CancellationToken cancellationToken = default)

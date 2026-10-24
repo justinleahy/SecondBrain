@@ -15,6 +15,28 @@ public sealed class CredentialService(IAuthRepository repository, IKeyRing keyRi
 {
     public const string CookieName = "sb_session";
     private readonly IDataProtector protector = keyRing.DataProtectionProvider.CreateProtector(KeyRingPurposes.Session);
+    public async Task<AuthenticatedCredential?> AuthenticateCliAsync(string bearer, bool secureRequest, CancellationToken token = default)
+    {
+        if (bearer.Length > 128 || !bearer.StartsWith("sbcli_", StringComparison.Ordinal)) return null;
+        var split = bearer.IndexOf('.', 6);
+        if (split != 32 || !Ulid.TryParse(bearer[6..split], out _)) return null;
+        var record = await repository.FindAsync(bearer[6..split], token);
+        if (record is null || record.Kind != "session" || record.Name != "cli") return null;
+        try
+        {
+            var device = JsonSerializer.Deserialize<SessionDevice>(record.Device ?? "null");
+            if (device is null || device.Secure && !secureRequest) return null;
+            var secret = WebEncoders.Base64UrlDecode(bearer[(split + 1)..]);
+            try
+            {
+                if (secret.Length != 32 || !CryptographicOperations.FixedTimeEquals(keyRing.Sign(record.Kid, secret), Convert.FromBase64String(record.Verifier))) return null;
+            }
+            finally { CryptographicOperations.ZeroMemory(secret); }
+        }
+        catch (Exception exception) when (exception is FormatException or JsonException or KeyNotFoundException) { return null; }
+        if (!await repository.TouchAsync(record.Id, record.Generation, record.AccountEpoch, clock.GetUtcNow(), clock.GetUtcNow().AddHours(1), token)) return null;
+        return ToIdentity(record);
+    }
     public async Task<AuthenticatedCredential?> AuthenticateKeyAsync(string bearer, CancellationToken cancellationToken = default)
     {
         CredentialRecord? record = null;
@@ -96,5 +118,5 @@ public sealed class CredentialService(IAuthRepository repository, IKeyRing keyRi
     public static bool IsSecure(HttpContext context, SecondBrainOptions config) => context.Request.IsHttps ||
         string.Equals(context.Request.Host.Host, config.Server.CloudflareAccess?.PublicHostname, StringComparison.OrdinalIgnoreCase);
     private static AuthenticatedCredential ToIdentity(CredentialRecord record) =>
-        new(record.Id, record.Kind, record.Generation, record.AccountEpoch, record.GrantedScopes, record.SteppedUpAt);
+        new(record.Id, record.Kind, record.Generation, record.AccountEpoch, record.GrantedScopes, record.SteppedUpAt, record.Kind == "session" && record.Name == "cli");
 }

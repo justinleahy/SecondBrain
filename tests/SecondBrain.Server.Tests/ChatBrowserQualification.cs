@@ -50,6 +50,13 @@ public sealed class ChatBrowserQualification
                 + "\n\n## Final detail\n\nFull-note-only detail: the follow-up owner is Rowan Ellis.";
         var note = await documents.CaptureAsync(new(noteText, "Project Lighthouse launch", Tags: ["lighthouse"]), authority);
         var other = await documents.CaptureAsync(new("The garden needs watering on Sundays. The shed key is on the kitchen hook.", "Garden routine"), authority);
+        if (Environment.GetEnvironmentVariable("SECONDBRAIN_APPROVAL_MARKDOWN_FIXTURE") == "1")
+        {
+            var actor = new AuthenticatedCredential(key.Record.Id, "api_key", key.Record.Generation, key.Record.AccountEpoch, key.Record.GrantedScopes, null);
+            var content = "# SecondBrain status\n\n## Milestones\n\n| Milestone | Status | Next step |\n| --- | --- | --- |\n| **M2** | Deployed | Read `docs/project-status.md` |\n| **M3** | Next | Browser workflows |\n\n- **Verified:** 1,895 tests passed.\n- Local MCP is ready.\n\n```sh\nbrain ask 'What is next?'\n```\n\n<script>window.untrustedProposalExecuted = true</script>";
+            await factory.Services.GetRequiredService<IChatProposalRepository>().ProposeExternalUpdateAsync(
+                JsonSerializer.SerializeToElement(new { id = note.Document.Id, revision = note.Document.Revision, content }), actor);
+        }
         string? formattingConversation = null;
         if (Environment.GetEnvironmentVariable("SECONDBRAIN_CHAT_FORMATTING_FIXTURE") == "1")
         {
@@ -79,10 +86,25 @@ public sealed class ChatBrowserQualification
                 await chat.FinishAsync(followup.Id, "complete", new("The follow-up uses its own source [1].", []));
             }
         }
+        string? scrollConversation = null;
+        if (Environment.GetEnvironmentVariable("SECONDBRAIN_CHAT_SCROLL_FIXTURE") == "1")
+        {
+            var auth = factory.Services.GetRequiredService<IAuthRepository>();
+            var session = factory.Services.GetRequiredService<CredentialFactory>().CreateSession("scroll fixture", false, await auth.GetEpochAsync(), 1, 1);
+            await auth.AddAsync(session.Record);
+            var actor = new AuthenticatedCredential(session.Record.Id, "session", session.Record.Generation, session.Record.AccountEpoch, session.Record.GrantedScopes, null);
+            var chat = factory.Services.GetRequiredService<IChatRepository>();
+            for (var index = 1; index <= 12; index++)
+            {
+                var turn = (await chat.StartAsync(new($"Scroll regression message {index}", scrollConversation), new("local-chat", "Qwen/Qwen3-8B"), actor)).Turn;
+                scrollConversation = turn.ConversationId;
+                await chat.FinishAsync(turn.Id, "complete", new(string.Join("\n\n", Enumerable.Range(1, 8).Select(line => $"Saved reply {index}, paragraph {line}. This is earlier conversation content for scrolling checks.")), []));
+            }
+        }
         await File.WriteAllTextAsync(Path.Combine(output, "ready.json"), JsonSerializer.Serialize(new
         {
             origin, dataRoot = factory.Options.CurrentValue.DataRoot, projectDocument = note.Document.Id,
-            unrelatedDocument = other.Document.Id, temporaryTestAccount = true, formattingConversation
+            unrelatedDocument = other.Document.Id, temporaryTestAccount = true, formattingConversation, scrollConversation
         }));
         using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(30));
         while (!File.Exists(Path.Combine(output, "stop"))) await Task.Delay(500, deadline.Token);

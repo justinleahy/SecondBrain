@@ -7,7 +7,7 @@ namespace SecondBrain.Core.Ingestion;
 
 public sealed record CaptureRequest(string Content, string? Title = null, string? Type = null,
     JsonElement? Props = null, string[]? Tags = null, [property: JsonPropertyName("source_url")] string? SourceUrl = null);
-public sealed record IngestionAuthority([property: JsonPropertyName("credential_id")] string CredentialId, [property: JsonPropertyName("credential_generation")] long CredentialGeneration, [property: JsonPropertyName("account_epoch")] long AccountEpoch, [property: JsonPropertyName("credential_name")] string CredentialName, string Kind);
+public sealed record IngestionAuthority([property: JsonPropertyName("credential_id")] string CredentialId, [property: JsonPropertyName("credential_generation")] long CredentialGeneration, [property: JsonPropertyName("account_epoch")] long AccountEpoch, [property: JsonPropertyName("credential_name")] string CredentialName, string Kind, string Door = "api");
 public sealed record DocumentRecord(string Id, long Revision, string Type, string Title, string Status,
     [property: JsonPropertyName("content_hash")] string ContentHash, [property: JsonPropertyName("props_json")] string PropsJson, string Provenance, [property: JsonPropertyName("updated_at")] string UpdatedAt, string? Path = null,
     string? Text = null, IReadOnlyList<TextChunk>? Chunks = null, string[]? Tags = null);

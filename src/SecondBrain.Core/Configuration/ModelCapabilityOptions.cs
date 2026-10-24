@@ -20,4 +20,8 @@ public sealed record ModelCapabilityOptions
     /// <summary>Whether the served model supports schema-constrained structured output.</summary>
     [YamlMember(Alias = "structured_output")]
     public bool? StructuredOutput { get; init; }
+
+    /// <summary>Whether the endpoint accepts the standard reasoning_effort control for this model.</summary>
+    [YamlMember(Alias = "reasoning_control")]
+    public bool? ReasoningControl { get; init; }
 }

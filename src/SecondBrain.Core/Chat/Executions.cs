@@ -16,5 +16,12 @@ public interface IChatExecutionRepository
 
 public sealed record ChatEgressDocument(string DocumentId, long? Revision, string Origin);
 public sealed record ChatEgressManifest(string Provider, string Model, IReadOnlyList<ChatEgressDocument> Documents,
-    bool HistoryIncluded, bool HistoryCompacted, long ToolResultBytes, long ChargedTokens);
+    bool HistoryIncluded, bool HistoryCompacted, long ToolResultBytes, long ChargedTokens,
+    IReadOnlyList<ChatProviderExposure>? ProviderCalls = null);
+public sealed record ChatProviderExposure(string CallId, string Provider, string Model, string? Endpoint, string[] DocumentIds);
+public sealed record ChatProviderTarget(string Provider, string Model, string? Endpoint);
 public sealed record ChatToolActivity(string Id, string Name, string Status);
+public sealed record ChatRecordedCall(string Id, string Name, string ArgumentsHash, JsonElement Arguments, JsonElement? Result,
+    string Status, string[] DocumentReferences, bool Redacted = false);
+public sealed record ChatResumeState(int Attempt, JsonElement? InitialContext, IReadOnlyList<ChatRecordedCall> Calls,
+    string[] AllowedTools, bool HasCommittedWrite);

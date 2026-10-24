@@ -125,7 +125,7 @@ public sealed class CliIngestTests
     private sealed class TestCredentials : ICredentialStore
     {
         public Task StoreAsync(Uri origin, string name, string secret, CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public Task<string?> ReadAsync(Uri origin, string name, CancellationToken cancellationToken = default) => Task.FromResult<string?>("test-key");
+        public Task<string?> ReadAsync(Uri origin, string name, CancellationToken cancellationToken = default) => Task.FromResult<string?>(name.EndsWith(".access", StringComparison.Ordinal) ? null : "test-key");
     }
     private sealed class RecordingHandler(string response, HttpStatusCode status = HttpStatusCode.OK) : HttpMessageHandler
     {

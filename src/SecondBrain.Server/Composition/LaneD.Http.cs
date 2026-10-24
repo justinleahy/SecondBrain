@@ -29,6 +29,8 @@ public static class LaneDHttp
         services.TryAddSingleton(provider => ActivatorUtilities.CreateInstance<CredentialFactory>(provider));
         services.TryAddSingleton<IAdminCredentialFactory>(provider => provider.GetRequiredService<CredentialFactory>());
         services.TryAddSingleton<IAuthRepository>(provider => ActivatorUtilities.CreateInstance<AuthRepository>(provider));
+        services.TryAddSingleton<ICliPairingRepository>(provider => (ICliPairingRepository)provider.GetRequiredService<IAuthRepository>());
+        services.TryAddSingleton<CliPairingService>();
         services.TryAddSingleton<ICredentialAuthority>(provider => ActivatorUtilities.CreateInstance<CredentialAuthority>(provider));
         services.TryAddSingleton(provider => ActivatorUtilities.CreateInstance<CredentialService>(provider));
         services.TryAddSingleton(provider => ActivatorUtilities.CreateInstance<LoginService>(provider));

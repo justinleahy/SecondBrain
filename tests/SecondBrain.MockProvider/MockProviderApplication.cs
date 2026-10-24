@@ -336,6 +336,11 @@ public static class MockProviderApplication
 
     private static async Task EmbeddingsAsync(HttpContext context)
     {
+        if (context.RequestServices.GetRequiredService<MockProviderState>().EmbeddingsResponse is { } scripted)
+        {
+            await scripted(context);
+            return;
+        }
         using var request = await ReadRequestAsync(context);
         if (request is null)
         {

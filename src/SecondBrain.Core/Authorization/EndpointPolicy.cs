@@ -20,6 +20,9 @@ public sealed class M0ScopePolicy : IScopePolicy
         ["providers.list"] = [Scope.Admin], ["providers.test"] = [Scope.Admin], ["diagnostics.read"] = [Scope.Admin],
         ["sessions.list"] = [], ["sessions.revoke"] = [], ["sessions.logout"] = [],
         ["sessions.logout-all"] = [], ["sessions.step-up"] = [], ["session.current"] = [],
+        ["sessions.pair"] = [Scope.Admin],
+        ["mcp"] = [],
+        ["credential.current"] = [],
     });
     public bool IsAllowed(string operation, IReadOnlySet<Scope> grantedScopes) =>
         Matrix.Requirements.TryGetValue(operation, out var required) && required.IsSubsetOf(grantedScopes);

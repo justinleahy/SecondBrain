@@ -18,6 +18,7 @@ using SecondBrain.Server.Chat;
 using SecondBrain.Server.Components;
 using SecondBrain.Server.Ingestion;
 using SecondBrain.Server.Limits;
+using SecondBrain.Server.Mcp;
 using SecondBrain.Server.Sources;
 
 namespace SecondBrain.Server.Http;
@@ -31,6 +32,7 @@ public static class HttpServices
         services.TryAddSingleton<ChatService>();
         services.AddHostedService(provider => provider.GetRequiredService<ChatService>());
         services.AddOpenApi();
+        services.AddSecondBrainMcp();
         services.TryAddSingleton<IPayloadProtection, KeyRingPayloadProtector>();
         services.TryAddSingleton<IExtractorClient>(provider => new DescriptorExtractorClient(provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.Extractor.SocketPath));
         services.TryAddSingleton<IManagedDocumentFiles>(provider => new ManagedDocumentFiles(provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.DataRoot, provider.GetRequiredService<IMutationJournal>()));
@@ -83,14 +85,17 @@ public sealed class LaneDStartupFilter : IStartupFilter
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseMiddleware<RequestAuthorizationMiddleware>();
+        app.UseMiddleware<McpRequestMiddleware>();
         app.UseMiddleware<AdmissionMiddleware>();
         app.UseAntiforgery();
         app.UseEndpoints(endpoints =>
         {
             AuthEndpoints.Map(endpoints);
+            CliPairingEndpoints.Map(endpoints);
             SourceEndpoints.Map(endpoints);
             KnowledgeEndpoints.Map(endpoints);
             ChatEndpoints.Map(endpoints);
+            endpoints.MapSecondBrainMcp();
             AdministrationEndpoints.Map(endpoints);
             endpoints.MapGet("/ready", ReadinessService.RespondAsync).WithName("readiness");
             endpoints.MapOpenApi("/v1/openapi.json");

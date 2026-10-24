@@ -14,13 +14,47 @@ public static partial class ChatTextRenderer
         var sources = (sourceNumbers ?? []).ToHashSet();
         string? list = null;
         var code = false;
-        foreach (var line in text.ReplaceLineEndings("\n").Split('\n'))
+        var lines = text.ReplaceLineEndings("\n").Split('\n');
+        for (var index = 0; index < lines.Length; index++)
         {
+            var line = lines[index];
             if (line.TrimStart().StartsWith("```", StringComparison.Ordinal))
             {
                 CloseList(); html.Append(code ? "</code></pre>" : "<pre><code>"); code = !code; continue;
             }
             if (code) { html.Append(WebUtility.HtmlEncode(line)).Append('\n'); continue; }
+            if (index + 1 < lines.Length && line.Contains('|') && TableColumns(line) is var headers &&
+                TableColumns(lines[index + 1]) is var separators && headers.Length == separators.Length &&
+                separators.All(cell => TableSeparator().IsMatch(cell)))
+            {
+                CloseList();
+                html.Append("<div class=\"markdown-table\"><table><thead><tr>");
+                WriteCells(headers, "th");
+                html.Append("</tr></thead><tbody>");
+                index++;
+                while (index + 1 < lines.Length && lines[index + 1].Contains('|') &&
+                    !lines[index + 1].TrimStart().StartsWith("```", StringComparison.Ordinal))
+                {
+                    html.Append("<tr>");
+                    WriteCells(TableColumns(lines[++index]), "td");
+                    html.Append("</tr>");
+                }
+                html.Append("</tbody></table></div>");
+                continue;
+
+                void WriteCells(string[] cells, string tag)
+                {
+                    for (var column = 0; column < headers.Length; column++)
+                    {
+                        var separator = separators[column];
+                        var alignment = separator.EndsWith(':') ? separator.StartsWith(':') ? "align-center" : "align-right" : "";
+                        html.Append('<').Append(tag);
+                        if (alignment.Length > 0) html.Append(" class=\"").Append(alignment).Append('"');
+                        html.Append('>').Append(Inline(column < cells.Length ? cells[column] : "", turnId, sources));
+                        html.Append("</").Append(tag).Append('>');
+                    }
+                }
+            }
             // Markdown permits blank lines between items of the same list.
             // The next non-list block, rather than the blank line, closes it.
             if (string.IsNullOrWhiteSpace(line)) continue;
@@ -43,6 +77,27 @@ public static partial class ChatTextRenderer
         CloseList(); if (code) html.Append("</code></pre>");
         return html.ToString();
         void CloseList() { if (list is not null) { html.Append("</").Append(list).Append('>'); list = null; } }
+    }
+
+    private static string[] TableColumns(string line)
+    {
+        var cells = new List<string>();
+        var cell = new StringBuilder();
+        var code = false;
+        line = line.Trim();
+        for (var index = 0; index < line.Length; index++)
+        {
+            var character = line[index];
+            if (character == '\\' && index + 1 < line.Length && line[index + 1] == '|')
+            { cell.Append('|'); index++; continue; }
+            if (character == '`') code = !code;
+            if (character == '|' && !code) { cells.Add(cell.ToString().Trim()); cell.Clear(); }
+            else cell.Append(character);
+        }
+        cells.Add(cell.ToString().Trim());
+        if (cells.Count > 1 && cells[0].Length == 0) cells.RemoveAt(0);
+        if (cells.Count > 1 && cells[^1].Length == 0) cells.RemoveAt(cells.Count - 1);
+        return cells.ToArray();
     }
 
     public static string CitationTargetId(string turnId, int number)
@@ -93,4 +148,6 @@ public static partial class ChatTextRenderer
     private static partial Regex InlineToken();
     [GeneratedRegex(@"\[(\d+)\]", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
     private static partial Regex CitationMarker();
+    [GeneratedRegex(@"^:?-{3,}:?$", RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
+    private static partial Regex TableSeparator();
 }

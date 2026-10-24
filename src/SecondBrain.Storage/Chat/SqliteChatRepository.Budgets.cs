@@ -1,4 +1,5 @@
 using Dapper;
+using System.Text.Json;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Chat;
 
@@ -6,6 +7,22 @@ namespace SecondBrain.Storage.Chat;
 
 public sealed partial class SqliteChatRepository
 {
+    public ValueTask RecordProviderExposureAsync(string turnId, string callId, AuthenticatedCredential actor, CancellationToken cancellationToken = default, ChatProviderTarget? target = null) =>
+        new(state.QueueWriteAsync(async (connection, transaction, token) =>
+        {
+            var turn = await RunningAsync(connection, transaction, turnId, actor, token);
+            var policy = Policy(turn);
+            var refs = await ReferencesAsync(connection, transaction, turnId, token);
+            await RequireLiveLineageAsync(connection, transaction, refs, token);
+            if (await connection.ExecuteScalarAsync<int>(Sql("SELECT COUNT(*) FROM chat_model_calls WHERE turn_id=@turnId AND call_id=@callId AND status='reserved'", new { turnId, callId }, transaction, token)) != 1)
+                throw new ChatConflictException("The provider exposure needs an active model reservation.");
+            return await connection.ExecuteAsync(Sql("""
+                INSERT INTO chat_provider_exposures(turn_id,call_id,provider,model,endpoint,documents_json)
+                VALUES(@turnId,@callId,@provider,@model,@endpoint,@documents)
+                """, new { turnId, callId, provider = target?.Provider ?? policy.Provider, model = target?.Model ?? policy.Model,
+                    endpoint = target is null ? policy.ProviderEndpoint : target.Endpoint, documents = JsonSerializer.Serialize(refs, Json) }, transaction, token));
+        }, cancellationToken).AsTask());
+
     public ValueTask ReserveTokensAsync(string turnId, string callId, long tokens, AuthenticatedCredential actor,
         CancellationToken cancellationToken = default) => new(state.QueueWriteAsync(async (connection, transaction, token) =>
     {

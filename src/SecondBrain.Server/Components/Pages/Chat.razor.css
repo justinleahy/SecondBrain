@@ -164,6 +164,7 @@ header>a {
     flex:1;
     min-height:0;
     overflow-y:auto;
+    overflow-anchor:none;
     overscroll-behavior-y:contain;
     scrollbar-gutter:stable;
     scroll-padding:20px

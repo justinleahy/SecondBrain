@@ -118,6 +118,8 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
 
         void Validate(ModelBindingOptions binding, ModelRole role, HashSet<ModelBindingOptions> visited)
         {
+            if (binding.Reasoning is not (null or "low" or "medium" or "high"))
+                throw new InvalidOperationException("Reasoning must be low, medium or high.");
             if (!visited.Add(binding)) throw new InvalidOperationException("Provider fallback configuration contains a cycle.");
             if (!options.Providers.TryGetValue(binding.Provider, out var provider))
                 throw new InvalidOperationException("Model role names an unknown provider.");
@@ -170,7 +172,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
                 var binding = NewBinding(bindingOptions.Provider, provider, role,
                     role == ModelRole.Embed ? resolved.Limits.EmbedDimensions : null, resolved.Limits, resolved.Model, bindingOptions.Capabilities);
                 providers.TryAdd(bindingOptions.Provider, binding);
-                return new(role, binding, resolved, bindingOptions.Fallback is null ? null : Create(bindingOptions.Fallback, role));
+                return new(role, binding, resolved, bindingOptions.Fallback is null ? null : Create(bindingOptions.Fallback, role), bindingOptions.Reasoning);
             }
 
             OpenAICompatibleBinding NewBinding(string name, ProviderOptions provider, ModelRole role, int? dimensions, ModelLimits? limits,

@@ -6,8 +6,16 @@
     <button @onclick="LoadAsync">@(manifest is null ? "Show data sent to the model" : "Refresh data manifest")</button>
     @if (manifest is not null)
     {
-        <p>Provider: <strong>@manifest.Provider</strong> · Model: @manifest.Model</p>
+        <p>Chat binding: <strong>@manifest.Provider</strong> · Model: @manifest.Model</p>
+        @if (manifest.ProviderCalls is { Count: > 0 })
+        {
+            <details><summary>Prepared provider requests · @manifest.ProviderCalls.Count</summary>
+                <ul>@foreach (var call in manifest.ProviderCalls)
+                { <li>@call.Provider · @call.Model · @call.DocumentIds.Length referenced documents @if (call.DocumentIds.Length > 0) { <span>(@string.Join(", ", call.DocumentIds))</span> }</li> }</ul>
+            </details>
+        }
         <p>Conversation history: @(manifest.HistoryIncluded ? manifest.HistoryCompacted ? "included, with earlier excerpts compacted" : "included" : "not included")<br />Tool results: @manifest.ToolResultBytes.ToString("N0") bytes · Accounted tokens: @manifest.ChargedTokens.ToString("N0")</p>
+        <p>Referenced documents are recorded at each chat or query-embedding boundary. A request can still fail before delivery.</p>
         @if (manifest.Documents.Count == 0) { <p>No document content was included.</p> }
         else
         {

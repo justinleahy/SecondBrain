@@ -17,7 +17,7 @@ using Xunit;
 
 namespace SecondBrain.Storage.Tests;
 
-public sealed class ChatApprovalTests
+public sealed partial class ChatApprovalTests
 {
     private static readonly AuthenticatedCredential Browser = Actor("browser", "session");
     private static readonly AuthenticatedCredential Key = Actor("key", "api_key");

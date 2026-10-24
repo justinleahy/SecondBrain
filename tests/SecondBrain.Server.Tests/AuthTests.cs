@@ -35,8 +35,25 @@ public sealed class AuthTests(ITestOutputHelper output)
             foreach (var method in endpoint.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods)
             {
                 using var request = new HttpRequestMessage(new HttpMethod(method), path) { Content = JsonContent.Create(new { password = "ignored", name = "ignored", scopes = new[] { "read" }, path = "/proc" }) };
-                using var response = await client.SendAsync(request);
                 var endpointPolicy = endpoint.Metadata.GetMetadata<EndpointPolicy>()!;
+                if (endpointPolicy.Operation == "mcp")
+                {
+                    request.Content.Dispose();
+                    request.Content = JsonContent.Create(new
+                    {
+                        jsonrpc = "2.0", id = 1, method = "tools/list",
+                        @params = new { _meta = new Dictionary<string, object>
+                        {
+                            ["io.modelcontextprotocol/protocolVersion"] = "2026-07-28",
+                            ["io.modelcontextprotocol/clientInfo"] = new { name = "scope-test", version = "1" },
+                            ["io.modelcontextprotocol/clientCapabilities"] = new { }
+                        } }
+                    });
+                    request.Headers.Accept.ParseAdd("application/json, text/event-stream");
+                    request.Headers.Add("MCP-Protocol-Version", "2026-07-28");
+                    request.Headers.Add("Mcp-Method", "tools/list");
+                }
+                using var response = await client.SendAsync(request);
                 var granted = policy.IsAllowed(endpointPolicy.Operation, new HashSet<Scope> { Scope.Read }) && !endpointPolicy.SessionOnly;
                 var expected = granted
                     ? method == "GET" && endpoint.RoutePattern.RawText!.Contains("{id}", StringComparison.Ordinal) ? HttpStatusCode.NotFound

@@ -44,7 +44,7 @@ public sealed class LoginAttempt
 public sealed record CredentialCursor(string CreatedAt, string Id);
 public sealed record CredentialPage(IReadOnlyList<CredentialRecord> Items, CredentialCursor? Next);
 
-public sealed record AuthenticatedCredential(string Id, string Kind, long Generation, long AccountEpoch, IReadOnlySet<Scope> Scopes, string? SteppedUpAt);
+public sealed record AuthenticatedCredential(string Id, string Kind, long Generation, long AccountEpoch, IReadOnlySet<Scope> Scopes, string? SteppedUpAt, bool IsCliSession = false);
 public sealed record SessionTicket(string Id, string Secret, long Generation, long AccountEpoch, bool Secure);
 public sealed record SessionDevice(string Summary, bool Secure);
 

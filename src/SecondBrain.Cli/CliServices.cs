@@ -29,6 +29,8 @@ public sealed class CliServices
             Login = http;
             DoctorExtension = http;
             Knowledge = http;
+            Assistant = http;
+            Mcp = http;
         }
         else
         {
@@ -41,6 +43,8 @@ public sealed class CliServices
         }
     }
     public IKnowledgeCommands? Knowledge { get; init; }
+    public IAssistantCommands? Assistant { get; init; }
+    public IMcpBridge? Mcp { get; init; }
     public TextReader Input { get; init; } = Console.In;
     public IInitializationCommands Initialization { get; init; }
     public ICredentialCommands Credentials { get; init; }

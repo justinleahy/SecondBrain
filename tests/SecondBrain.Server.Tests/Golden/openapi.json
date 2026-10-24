@@ -11,10 +11,12 @@
     "DELETE /v1/keys/{id}",
     "DELETE /v1/sources/{id}",
     "GET /auth/antiforgery",
+    "GET /auth/credential",
     "GET /auth/me",
     "GET /auth/sessions",
     "GET /conversations",
     "GET /conversations/{id}",
+    "GET /conversations/{id}/transcript",
     "GET /diagnostics",
     "GET /documents/{id}",
     "GET /files/{id}",
@@ -30,10 +32,12 @@
     "GET /turns/{id}/events",
     "GET /turns/{id}/manifest",
     "GET /v1/auth/antiforgery",
+    "GET /v1/auth/credential",
     "GET /v1/auth/me",
     "GET /v1/auth/sessions",
     "GET /v1/conversations",
     "GET /v1/conversations/{id}",
+    "GET /v1/conversations/{id}/transcript",
     "GET /v1/diagnostics",
     "GET /v1/documents/{id}",
     "GET /v1/files/{id}",
@@ -51,6 +55,9 @@
     "PATCH /v1/documents/{id}",
     "PATCH /v1/sources/{id}",
     "POST /ask",
+    "POST /auth/cli/approve",
+    "POST /auth/cli/poll",
+    "POST /auth/cli/start",
     "POST /auth/login",
     "POST /auth/logout",
     "POST /auth/logout-all",
@@ -70,7 +77,11 @@
     "POST /search",
     "POST /sources",
     "POST /sources/{id}/scan",
+    "POST /turns/{id}/retry",
     "POST /v1/ask",
+    "POST /v1/auth/cli/approve",
+    "POST /v1/auth/cli/poll",
+    "POST /v1/auth/cli/start",
     "POST /v1/auth/login",
     "POST /v1/auth/logout",
     "POST /v1/auth/logout-all",
@@ -89,7 +100,8 @@
     "POST /v1/query",
     "POST /v1/search",
     "POST /v1/sources",
-    "POST /v1/sources/{id}/scan"
+    "POST /v1/sources/{id}/scan",
+    "POST /v1/turns/{id}/retry"
   ],
   "schemas": {
     "AntiforgeryResponse": {
@@ -127,6 +139,10 @@
         },
         "id": {
           "type": "string"
+        },
+        "isCliSession": {
+          "default": false,
+          "type": "boolean"
         },
         "kind": {
           "type": "string"
@@ -353,6 +369,15 @@
         "provider": {
           "type": "string"
         },
+        "providerCalls": {
+          "items": {
+            "$ref": "#/components/schemas/ChatProviderExposure"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
         "toolResultBytes": {
           "format": "int64",
           "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -427,12 +452,108 @@
       ],
       "type": "object"
     },
+    "ChatProviderExposure": {
+      "properties": {
+        "callId": {
+          "type": "string"
+        },
+        "documentIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "endpoint": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "callId",
+        "provider",
+        "model",
+        "endpoint",
+        "documentIds"
+      ],
+      "type": "object"
+    },
+    "ChatRecordedCall": {
+      "properties": {
+        "arguments": {
+          "$ref": "#/components/schemas/JsonElement"
+        },
+        "argumentsHash": {
+          "type": "string"
+        },
+        "documentReferences": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "redacted": {
+          "default": false,
+          "type": "boolean"
+        },
+        "result": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/JsonElement"
+            }
+          ]
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "argumentsHash",
+        "arguments",
+        "result",
+        "status",
+        "documentReferences"
+      ],
+      "type": "object"
+    },
     "ChatRequest": {
       "properties": {
         "conversationId": {
           "type": [
             "null",
             "string"
+          ]
+        },
+        "deep": {
+          "default": false,
+          "type": "boolean"
+        },
+        "filters": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/RetrievalFilters"
+            }
           ]
         },
         "mode": {
@@ -451,6 +572,21 @@
       },
       "required": [
         "prompt"
+      ],
+      "type": "object"
+    },
+    "ChatRetryRequest": {
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "useFallback": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "requestId"
       ],
       "type": "object"
     },
@@ -527,6 +663,15 @@
         "created": {
           "type": "boolean"
         },
+        "replayAfter": {
+          "default": 0,
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
         "turn": {
           "$ref": "#/components/schemas/ChatTurn"
         }
@@ -534,6 +679,24 @@
       "required": [
         "turn",
         "created"
+      ],
+      "type": "object"
+    },
+    "ChatTranscriptTurn": {
+      "properties": {
+        "calls": {
+          "items": {
+            "$ref": "#/components/schemas/ChatRecordedCall"
+          },
+          "type": "array"
+        },
+        "turn": {
+          "$ref": "#/components/schemas/ChatTurn"
+        }
+      },
+      "required": [
+        "turn",
+        "calls"
       ],
       "type": "object"
     },
@@ -625,9 +788,28 @@
             "string"
           ]
         },
+        "filters": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/RetrievalFilters"
+            }
+          ]
+        },
         "hourlyTokens": {
           "default": 200000,
           "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxContextTokens": {
+          "default": 32768,
+          "format": "int32",
           "pattern": "^-?(?:0|[1-9]\\d*)$",
           "type": [
             "integer",
@@ -688,6 +870,15 @@
             "string"
           ]
         },
+        "maxSearches": {
+          "default": 32,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
         "maxToolCalls": {
           "default": 8,
           "format": "int32",
@@ -702,6 +893,18 @@
         },
         "provider": {
           "type": "string"
+        },
+        "providerEndpoint": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "reasoning": {
+          "type": [
+            "null",
+            "string"
+          ]
         }
       },
       "required": [

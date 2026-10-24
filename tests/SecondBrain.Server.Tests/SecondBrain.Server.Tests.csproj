@@ -20,5 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="Golden/**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../eval/assistant/*" Link="AssistantEvaluation/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

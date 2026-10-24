@@ -2,6 +2,7 @@ using System.Text.Json;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Ingestion;
 using SecondBrain.Core.Retrieval;
+using SecondBrain.Core.Chat;
 
 namespace SecondBrain.Cli.Commands;
 
@@ -107,6 +108,18 @@ public interface IKnowledgeCommands
     Task<CliResult> QueryAsync(QueryRequest request, CancellationToken cancellationToken);
 }
 
+public interface IAssistantCommands
+{
+    Task<CliResult> AskAsync(string question, bool deep, CancellationToken cancellationToken);
+    Task<CliResult> ChatAsync(string? conversationId, TextReader input, TextWriter output, TextWriter error, bool json, CancellationToken cancellationToken);
+    Task<CliResult> PendingAsync(string operation, string? id, CancellationToken cancellationToken);
+    Task<LoginCredential> PairAsync(Uri origin, string name, TextWriter instructions, CancellationToken cancellationToken);
+}
+public interface IMcpBridge
+{
+    Task<CliResult> RunMcpAsync(string? credential, TextReader input, TextWriter output, CancellationToken cancellationToken);
+}
+
 /// <summary>Only initialization and new-key issuance may expose freshly created secrets.</summary>
 public interface IOneTimeSecret
 {
@@ -121,6 +134,11 @@ internal static class CliOutput
         if (json) await output.WriteLineAsync(JsonSerializer.Serialize(result, JsonOptions));
         else
         {
+            if (result.Data is ChatTurn turn)
+            {
+                await AssistantOutput.WriteTurnAsync(turn, output, error);
+                return (int)result.ExitCode;
+            }
             await (result.ExitCode == CliExitCode.Ok ? output : error).WriteLineAsync(result.Message);
             if (result.ExitCode == CliExitCode.Ok && result.Data is IOneTimeSecret issued) await output.WriteLineAsync(issued.Secret);
             else if (result.Data is not null)

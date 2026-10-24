@@ -46,6 +46,7 @@ ModelBindingOptions.Limits=limits
 ModelBindingOptions.Model=model
 ModelBindingOptions.Provider=provider
 ModelBindingOptions.Reasoning=reasoning
+ModelCapabilityOptions.ReasoningControl=reasoning_control
 ModelCapabilityOptions.Streaming=streaming
 ModelCapabilityOptions.StructuredOutput=structured_output
 ModelCapabilityOptions.Tools=tools

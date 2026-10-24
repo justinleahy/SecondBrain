@@ -51,6 +51,11 @@ public sealed class TurnChatClient(IChatClient inner, IChatRepository repository
         if (options?.MaxOutputTokens is not { } output || output < 1 || output > policy.MaxOutputTokens || options.RawRepresentationFactory is not null ||
             options.ModelId is not null && options.ModelId != policy.Model)
             throw new ChatLimitException("The provider request does not match the frozen turn limits.");
+        ReasoningEffort? reasoning = policy.Reasoning switch
+        {
+            "low" => ReasoningEffort.Low, "medium" => ReasoningEffort.Medium, "high" => ReasoningEffort.High, _ => null
+        };
+        if (options.Reasoning?.Effort != reasoning) throw new ChatLimitException("The reasoning preference changed during this turn.");
         long bytes = 1024;
         foreach (var message in messages)
         {
@@ -60,6 +65,7 @@ public sealed class TurnChatClient(IChatClient inner, IChatRepository repository
                 bytes += content switch
                 {
                     TextContent text => Encoding.UTF8.GetByteCount(text.Text),
+                    TextReasoningContent thought => JsonSerializer.SerializeToUtf8Bytes(new { thought.Text, thought.ProtectedData }).LongLength,
                     FunctionCallContent call => Encoding.UTF8.GetByteCount(call.Name) + JsonSerializer.SerializeToUtf8Bytes(call.Arguments).LongLength + 64,
                     FunctionResultContent result => JsonSerializer.SerializeToUtf8Bytes(result.Result).LongLength + 64,
                     _ => throw new ChatLimitException("This chat supports text and registered tool results only.")
@@ -76,6 +82,7 @@ public sealed class TurnChatClient(IChatClient inner, IChatRepository repository
         if (reservation > contextTokens) throw new ChatLimitException("The conversation exceeds this model's context limit. Start a new conversation.");
         var id = Guid.NewGuid().ToString("N");
         await repository.ReserveTokensAsync(turnId, id, reservation, actor, token);
+        await repository.RecordProviderExposureAsync(turnId, id, actor, token);
         return id;
     }
 

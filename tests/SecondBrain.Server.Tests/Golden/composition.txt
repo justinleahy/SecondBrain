@@ -60,6 +60,8 @@ Singleton EgressCanary -> EgressCanary
 Singleton IHostedService -> PrivacyCanaryHost
 Singleton ChatService -> ChatService
 Singleton IHostedService -> factory
+Singleton McpOperations -> McpOperations
+Singleton IHostedService -> IdleTrackingBackgroundService
 Singleton IPayloadProtection -> KeyRingPayloadProtector
 Singleton IExtractorClient -> factory
 Singleton IManagedDocumentFiles -> factory
@@ -92,6 +94,8 @@ Singleton IPasswordHasher -> PasswordHasher
 Singleton CredentialFactory -> factory
 Singleton IAdminCredentialFactory -> factory
 Singleton IAuthRepository -> factory
+Singleton ICliPairingRepository -> factory
+Singleton CliPairingService -> CliPairingService
 Singleton ICredentialAuthority -> factory
 Singleton CredentialService -> factory
 Singleton LoginService -> factory

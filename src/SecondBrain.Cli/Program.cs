@@ -43,7 +43,9 @@ public static class Program
             ConfigurationValidator.Validate(options, UnixHostPathInspector.Instance);
             return options;
         }
-        void Bind(Command command, Func<ParseResult, CancellationToken, Task<CliResult>> handler) => command.SetAction(async (parse, token) =>
+        void Bind(Command command, Func<ParseResult, CancellationToken, Task<CliResult>> handler) => BindCore(command, handler, false);
+        void BindProtocol(Command command, Func<ParseResult, CancellationToken, Task<CliResult>> handler) => BindCore(command, handler, true);
+        void BindCore(Command command, Func<ParseResult, CancellationToken, Task<CliResult>> handler, bool protocol) => command.SetAction(async (parse, token) =>
         {
             CliResult result;
             try
@@ -59,10 +61,22 @@ public static class Program
             { result = new(CliExitCode.PreconditionFailed, "precondition-failed", ex.Message); }
             catch (OperationCanceledException) { result = new(CliExitCode.Error, "cancelled", "Command cancelled."); }
             catch (Exception) { result = new(CliExitCode.Error, "error", "Command failed; inspect the installation and daemon logs."); }
+            if (protocol)
+            {
+                if (result.ExitCode != CliExitCode.Ok) await error.WriteLineAsync(result.Message);
+                return (int)result.ExitCode;
+            }
             return await CliOutput.WriteAsync(result, parse.GetValue(json), output, error);
         });
 
         KnowledgeCommandRegistration.Add(root, services, Bind);
+        AssistantCommandRegistration.Add(root, services, Bind, json, output, error);
+        var mcp = new Command("mcp", "Run the MCP stdio bridge. Uses a read-only API key unless a credential is explicitly selected.");
+        var bridgeCredential = new Option<string?>("--credential") { Description = "Select a dedicated non-admin API key for this MCP client." };
+        mcp.Options.Add(bridgeCredential);
+        BindProtocol(mcp, (parse, token) => (services.Mcp ?? throw new CliPreconditionException("The MCP bridge adapter is unavailable."))
+            .RunMcpAsync(parse.GetValue(bridgeCredential), services.Input, output, token));
+        root.Subcommands.Add(mcp);
 
         var init = new Command("init", "Provision a host or initialize the stores and account.");
         var initialRoot = new Argument<string?>("data-root") { Arity = ArgumentArity.ZeroOrOne };
@@ -111,7 +125,10 @@ public static class Program
         var url = new Argument<string>("url");
         var name = new Option<string>("--name") { DefaultValueFactory = _ => Environment.MachineName };
         var loginScopes = new Option<string>("--scopes") { DefaultValueFactory = _ => "read" };
-        login.Arguments.Add(url); login.Options.Add(name); login.Options.Add(loginScopes);
+        var interactive = new Option<bool>("--interactive") { Description = "Pair a short-lived session through the signed-in browser." };
+        var accessId = new Option<string?>("--access-client-id") { Description = "Store a Cloudflare Access service-token ID for this origin and credential name." };
+        var accessSecret = new Option<string?>("--access-client-secret") { Description = "Cloudflare Access service-token secret; alternatively set SECONDBRAIN_ACCESS_CLIENT_SECRET." };
+        login.Arguments.Add(url); login.Options.Add(name); login.Options.Add(loginScopes); login.Options.Add(interactive); login.Options.Add(accessId); login.Options.Add(accessSecret);
         Bind(login, async (parse, token) =>
         {
             if (!Uri.TryCreate(parse.GetValue(url), UriKind.Absolute, out var origin) || origin.Scheme is not ("http" or "https") ||
@@ -120,6 +137,23 @@ public static class Program
             var scopes = ParseScopes(parse.GetValue(loginScopes)!);
             var credentialName = parse.GetValue(name)!;
             if (string.IsNullOrWhiteSpace(credentialName)) throw new CliUsageException("--name cannot be empty.");
+            if (parse.GetValue(accessId) is { } clientId || parse.GetValue(accessSecret) is not null)
+            {
+                clientId = parse.GetValue(accessId) ?? throw new CliUsageException("--access-client-id is required with an Access secret.");
+                var secret = parse.GetValue(accessSecret) ?? Environment.GetEnvironmentVariable("SECONDBRAIN_ACCESS_CLIENT_SECRET");
+                if (parse.GetValue(interactive) || string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(secret) ||
+                    clientId.Length > 1024 || secret.Length > 4096 || clientId.Any(char.IsControl) || secret.Any(char.IsControl))
+                    throw new CliUsageException("Supply an Access token ID and secret separately from interactive login.");
+                await services.CredentialStore.StoreAsync(origin, credentialName + ".access", System.Text.Json.JsonSerializer.Serialize(new { clientId, secret }), token);
+                return CliResult.Ok("Cloudflare Access service token stored for this origin and credential name.", new { origin = origin.GetLeftPart(UriPartial.Authority), name = credentialName });
+            }
+            if (parse.GetValue(interactive))
+            {
+                var adapter = services.Assistant ?? throw new CliPreconditionException("The assistant HTTP adapter is unavailable.");
+                var paired = await adapter.PairAsync(origin, credentialName, error, token);
+                await services.CredentialStore.StoreAsync(origin, credentialName + ".session", paired.ApiKey, token);
+                return CliResult.Ok("Paired CLI session stored separately from the API key; valid for up to eight hours.", new { origin = origin.GetLeftPart(UriPartial.Authority), name = credentialName, credentialId = paired.CredentialId });
+            }
             var credential = await services.Login.AcquireAsync(origin, credentialName, scopes, token);
             await services.CredentialStore.StoreAsync(origin, credentialName, credential.ApiKey, token);
             return CliResult.Ok("Login credential stored.", new { origin = origin.GetLeftPart(UriPartial.Authority), name = credentialName, scopes, credentialId = credential.CredentialId });
@@ -188,7 +222,14 @@ public static class Program
         root.Subcommands.Add(serve);
         var parsed = root.Parse(args);
         if (parsed.Errors.Count > 0)
+        {
+            if (parsed.CommandResult.Command.Name == "mcp")
+            {
+                await error.WriteLineAsync(string.Join(" ", parsed.Errors.Select(item => item.Message)));
+                return (int)CliExitCode.Usage;
+            }
             return await CliOutput.WriteAsync(new(CliExitCode.Usage, "usage", string.Join(" ", parsed.Errors.Select(item => item.Message))), args.Contains("--json", StringComparer.Ordinal), output, error);
+        }
         return await parsed.InvokeAsync(new InvocationConfiguration { Output = output, Error = error, EnableDefaultExceptionHandler = false }, cancellationToken);
     }
 

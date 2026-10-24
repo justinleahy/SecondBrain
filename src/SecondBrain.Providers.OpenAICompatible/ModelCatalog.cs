@@ -35,7 +35,8 @@ public sealed class ModelCatalog
             if (declaredCapabilities is not null &&
                 (declaredCapabilities.Tools is { } tools && tools != capabilities.Tools ||
                  declaredCapabilities.Streaming is { } streaming && streaming != capabilities.Streaming ||
-                 declaredCapabilities.StructuredOutput is { } structured && structured != capabilities.StructuredOutput))
+                 declaredCapabilities.StructuredOutput is { } structured && structured != capabilities.StructuredOutput ||
+                 declaredCapabilities.ReasoningControl is { } reasoning && reasoning != capabilities.ReasoningControl))
                 throw new InvalidOperationException("Configured model capabilities contradict the reviewed catalog declaration.");
         }
         else
@@ -45,6 +46,7 @@ public sealed class ModelCatalog
                 Tools = declaredCapabilities?.Tools ?? false,
                 Streaming = declaredCapabilities?.Streaming ?? false,
                 StructuredOutput = declaredCapabilities?.StructuredOutput ?? false,
+                ReasoningControl = declaredCapabilities?.ReasoningControl ?? false,
             };
             limits = new ModelLimits();
         }

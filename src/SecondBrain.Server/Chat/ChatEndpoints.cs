@@ -23,9 +23,13 @@ public static class ChatEndpoints
                 .Produces<IReadOnlyList<ChatConversation>>();
             endpoints.MapGet(prefix + "/conversations/{id}", ConversationAsync).WithMetadata(new EndpointPolicy("chat.read"))
                 .Produces<IReadOnlyList<ChatTurn>>();
+            endpoints.MapGet(prefix + "/conversations/{id}/transcript", TranscriptAsync).WithMetadata(new EndpointPolicy("chat.read"))
+                .Produces<IReadOnlyList<ChatTranscriptTurn>>();
             endpoints.MapDelete(prefix + "/conversations/{id}", DeleteConversationAsync).WithMetadata(new EndpointPolicy("chat.delete"))
                 .Produces(204);
             endpoints.MapGet(prefix + "/turns/{id}", TurnAsync).WithMetadata(new EndpointPolicy("chat.read")).Produces<ChatTurn>();
+            endpoints.MapPost(prefix + "/turns/{id}/retry", RetryAsync).WithMetadata(new EndpointPolicy("chat.start"))
+                .Accepts<ChatRetryRequest>("application/json").Produces<ChatStart>(202);
             endpoints.MapGet(prefix + "/turns/{id}/manifest", ManifestAsync).WithMetadata(new EndpointPolicy("chat.read")).Produces<ChatEgressManifest>();
             endpoints.MapGet(prefix + "/turns/{id}/events", EventsAsync)
                 .WithMetadata(new EndpointPolicy("chat.read"), new AdmissionPolicy(AdmissionResource.Stream))
@@ -41,6 +45,8 @@ public static class ChatEndpoints
 
     private static Task<IResult> StartAsync(HttpContext context, ChatService service, CancellationToken token) => StartCoreAsync(context, service, false, token);
     private static Task<IResult> AskAsync(HttpContext context, ChatService service, CancellationToken token) => StartCoreAsync(context, service, true, token);
+    private static Task<IResult> RetryAsync(string id, HttpContext context, ChatService service, CancellationToken token) => GuardAsync(async () =>
+        Results.Json(await service.RetryAsync(id, await KnowledgeEndpoints.ReadJsonAsync<ChatRetryRequest>(context.Request.Body, 2048, token), Actor(context), token), statusCode: 202));
     private static Task<IResult> StartCoreAsync(HttpContext context, ChatService service, bool ask, CancellationToken token) => GuardAsync(async () =>
     {
         var request = await KnowledgeEndpoints.ReadJsonAsync<ChatRequest>(context.Request.Body, 65_536, token);
@@ -57,6 +63,8 @@ public static class ChatEndpoints
         GuardAsync(async () => Results.Ok(await repository.ListAsync(Actor(context), token)));
     private static Task<IResult> ConversationAsync(string id, HttpContext context, IChatRepository repository, CancellationToken token) =>
         GuardAsync(async () => Results.Ok(await repository.GetConversationAsync(id, Actor(context), token)));
+    private static Task<IResult> TranscriptAsync(string id, HttpContext context, IChatRepository repository, CancellationToken token) =>
+        GuardAsync(async () => Results.Ok(await repository.TranscriptAsync(id, Actor(context), token)));
     private static Task<IResult> DeleteConversationAsync(string id, HttpContext context, IChatRepository repository, CancellationToken token) =>
         GuardAsync(async () => { await repository.DeleteConversationAsync(id, Actor(context), token); return Results.NoContent(); });
     private static Task<IResult> TurnAsync(string id, HttpContext context, IChatRepository repository, CancellationToken token) =>

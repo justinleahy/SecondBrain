@@ -5,6 +5,7 @@
     <RestoreEnablePackagePruning>false</RestoreEnablePackagePruning>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ModelContextProtocol.Core" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="../SecondBrain.Core/SecondBrain.Core.csproj" />
     <ProjectReference Include="../SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj" />

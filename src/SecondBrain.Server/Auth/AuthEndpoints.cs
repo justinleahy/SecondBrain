@@ -33,6 +33,8 @@ public static class AuthEndpoints
             });
             endpoints.MapGet(prefix + "/auth/me", (HttpContext context) => TypedResults.Ok(Identity(context)))
                 .WithMetadata(new EndpointPolicy("session.current", SessionOnly: true));
+            endpoints.MapGet(prefix + "/auth/credential", (HttpContext context) => TypedResults.Ok(Identity(context)))
+                .WithMetadata(new EndpointPolicy("credential.current"));
             endpoints.MapPost(prefix + "/auth/logout", async (HttpContext context, IAuthRepository repository, IOptionsMonitor<SecondBrainOptions> options) =>
             {
                 await repository.RevokeAuthorizedAsync(Identity(context).Id, "session", Identity(context), TimeSpan.FromMinutes(options.CurrentValue.Auth.StepUpMinutes), context.RequestAborted);

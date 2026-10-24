@@ -87,12 +87,14 @@ public sealed class EmbeddingProcessor(IProviderRegistry providers, IEmbeddingWo
         return processed;
     }
 
-    public async ValueTask<(float[]? Vector, string? SpaceId)> QueryAsync(string query, CancellationToken cancellationToken = default)
+    public async ValueTask<(float[]? Vector, string? SpaceId)> QueryAsync(string query, CancellationToken cancellationToken = default,
+        Func<IProviderBinding, EmbeddingSpace, CancellationToken, ValueTask>? beforeSend = null)
     {
         var space = await repository.ActiveAsync(cancellationToken);
         if (space is null) return (null, null);
         var provider = providers.GetEmbeddingProvider(space.Provider, space.Model, space.Dimensions, space.Fingerprint);
         var generator = provider.GetEmbeddingGenerator(space.Model) ?? throw new InvalidOperationException("Embedding generator unavailable.");
+        if (beforeSend is not null) await beforeSend(provider, space, cancellationToken);
         var result = await generator.GenerateAsync(new[] { query }, new EmbeddingGenerationOptions { AdditionalProperties = new() { ["intent"] = "query" } }, cancellationToken);
         if (result.Count != 1 || result[0].Vector.Length != space.Dimensions) throw new ArgumentException("Invalid query embedding.");
         return (result[0].Vector.ToArray(), space.Id);

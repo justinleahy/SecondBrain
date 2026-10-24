@@ -509,6 +509,15 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             var count = await connection.ExecuteAsync(Command("UPDATE pending_operations SET status='executed',resolved_at=@now WHERE id=@id AND status IN ('pending','executing');",
                 new { id = finalize.PendingOperationId, now }, transaction, ct)).ConfigureAwait(false);
             if (count != 1) throw new InvalidOperationException("Proposal is missing or already resolved.");
+            // Bind generated-note lineage in the same transaction as the effect. A purge can
+            // run before the assistant receives this result or performs its own bookkeeping.
+            if (finalize.DocumentId is not null)
+                await connection.ExecuteAsync(Command("""
+                    UPDATE payloads SET document_refs_json=json_insert(document_refs_json,'$[#]',@document)
+                    WHERE (id IN (SELECT payload_id FROM pending_operations WHERE id=@proposal)
+                      OR id IN (SELECT e.payload_id FROM chat_proposal_calls c JOIN tool_executions e ON e.id=c.invocation_id WHERE c.proposal_id=@proposal))
+                      AND NOT EXISTS(SELECT 1 FROM json_each(document_refs_json) WHERE value=@document);
+                    """, new { document = finalize.DocumentId, proposal = finalize.PendingOperationId }, transaction, ct)).ConfigureAwait(false);
         }
         if (finalize.ToolExecutionId is not null)
         {

@@ -69,4 +69,50 @@ public sealed class ChatTextRendererTests
         Assert.DoesNotContain("<a", html); Assert.DoesNotContain("<img", html); Assert.DoesNotContain("<iframe", html);
         Assert.Contains("&lt;iframe", html);
     }
+
+    [Fact]
+    public void TablesRenderInlineFormattingAlignmentAndBoundedRows()
+    {
+        var html = ChatTextRenderer.Render("""
+            ## Milestones
+
+            | Milestone | Status | Count |
+            | --- | :---: | ---: |
+            | **M2** | `deployed` | 1895 |
+            | M3 | Next |
+            | M4 | Planned | 0 | Ignore excess |
+
+            After the table.
+            """);
+        Assert.Contains("<thead><tr><th>Milestone</th><th class=\"align-center\">Status</th><th class=\"align-right\">Count</th></tr></thead>", html);
+        Assert.Contains("<td><strong>M2</strong></td><td class=\"align-center\"><code>deployed</code></td>", html);
+        Assert.Contains("<td>M3</td><td class=\"align-center\">Next</td><td class=\"align-right\"></td>", html);
+        Assert.DoesNotContain("Ignore excess", html);
+        Assert.EndsWith("</tbody></table></div><p>After the table.</p>", html);
+    }
+
+    [Fact]
+    public void TableCellsPreserveCodePipesAndCitationBoundariesAndEncodeHtml()
+    {
+        var html = ChatTextRenderer.Render("""
+            Source | Content
+            --- | ---
+            [1] | `a|b` and c\|d <script>alert(1)</script>
+            [99] | ![image](https://example.com/pixel)
+            """, "turn-a", [1]);
+        Assert.Contains("href=\"#source-turn-a-1\"", html);
+        Assert.Contains("<code>a|b</code> and c|d &lt;script&gt;", html);
+        Assert.Contains("<td>[99]</td>", html);
+        Assert.DoesNotContain("<script", html);
+        Assert.DoesNotContain("<img", html);
+        Assert.DoesNotContain("source-turn-a-99", html);
+    }
+
+    [Fact]
+    public void CodeFencesAndInvalidSeparatorsDoNotBecomeTables()
+    {
+        var html = ChatTextRenderer.Render("```\nA | B\n--- | ---\n```\nA | B\n-- | text");
+        Assert.DoesNotContain("<table", html);
+        Assert.Contains("<pre><code>A | B\n--- | ---\n</code></pre>", html);
+    }
 }

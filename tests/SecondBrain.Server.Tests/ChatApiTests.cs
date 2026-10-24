@@ -14,6 +14,54 @@ namespace SecondBrain.Server.Tests;
 public sealed class ChatApiTests
 {
     [Fact]
+    public async Task RetryAndPortableTranscriptRequireOwnershipAndRetryAlsoRequiresInference()
+    {
+        await using var factory = Factory();
+        var owner = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Infer });
+        var actor = new AuthenticatedCredential(owner.Record.Id, "api_key", owner.Record.Generation, owner.Record.AccountEpoch, owner.Record.GrantedScopes, null);
+        var repository = factory.Services.GetRequiredService<IChatRepository>();
+        var turn = (await repository.StartAsync(new("Retry API"), new("mock", "mock-chat"), actor)).Turn;
+        await repository.FinishAsync(turn.Id, "partial", new("", []), "interrupted");
+        var retryPath = "/v1/turns/" + turn.Id + "/retry";
+        var transcriptPath = "/v1/conversations/" + turn.ConversationId + "/transcript";
+        using var client = factory.CreatePrivateClient();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(transcriptPath)).StatusCode);
+        var reader = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read });
+        client.DefaultRequestHeaders.Authorization = new("Bearer", reader.Plaintext);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync(retryPath, new ChatRetryRequest("retry"))).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(transcriptPath)).StatusCode);
+        var other = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Infer });
+        client.DefaultRequestHeaders.Authorization = new("Bearer", other.Plaintext);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsJsonAsync(retryPath, new ChatRetryRequest("retry"))).StatusCode);
+        client.DefaultRequestHeaders.Authorization = new("Bearer", owner.Plaintext);
+        var request = new ChatRetryRequest("retry");
+        using var accepted = await client.PostAsJsonAsync(retryPath, request);
+        Assert.Equal(HttpStatusCode.Accepted, accepted.StatusCode);
+        var first = (await accepted.Content.ReadFromJsonAsync<ChatStart>())!;
+        Assert.True(first.Created); Assert.True(first.ReplayAfter > 0); Assert.Equal(turn.Id, first.Turn.Id);
+        using var replayed = await client.PostAsJsonAsync(retryPath, request);
+        Assert.False((await replayed.Content.ReadFromJsonAsync<ChatStart>())!.Created);
+        var transcript = await client.GetFromJsonAsync<ChatTranscriptTurn[]>(transcriptPath);
+        Assert.Equal(turn.Id, Assert.Single(transcript!).Turn.Id);
+    }
+
+    [Fact]
+    public async Task AskDeepOptionIsFrozenAndCannotChangeOnIdempotentReplay()
+    {
+        await using var factory = Factory();
+        var key = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Infer });
+        using var client = factory.CreatePrivateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", key.Plaintext);
+        var request = new ChatRequest("Hello", RequestId: "deep-identity", Deep: true);
+        using var accepted = await client.PostAsJsonAsync("/v1/ask", request);
+        Assert.Equal(HttpStatusCode.Accepted, accepted.StatusCode);
+        var start = (await accepted.Content.ReadFromJsonAsync<ChatStart>())!;
+        Assert.Equal(5, start.Turn.Policy.MaxSearches);
+        using var changed = await client.PostAsJsonAsync("/v1/ask", request with { Deep = false });
+        Assert.Equal(HttpStatusCode.Conflict, changed.StatusCode);
+    }
+
+    [Fact]
     public async Task DeleteConversationApiRequiresOwnershipAndWriteScope()
     {
         await using var factory = Factory();

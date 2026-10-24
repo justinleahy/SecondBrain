@@ -56,7 +56,7 @@ else
         </aside>
         <main class="workspace">
             <header class="workspace-header"><div><span class="eyebrow">YOUR KNOWLEDGE ASSISTANT</span><h1>@(showAllApprovals ? "Approvals" : "Chat")</h1></div><a href="/">SecondBrain</a></header>
-            <section class="messages" aria-label="Conversation" aria-live="polite" aria-busy="@(active ? "true" : "false")">
+            <section class="messages" data-chat-scroll="@(showAllApprovals ? null : "conversation")" data-conversation-id="@selected" aria-label="Conversation" aria-live="polite" aria-busy="@(active ? "true" : "false")">
                 @if (showAllApprovals)
                 {
                     <h2>Review proposed changes</h2>
@@ -72,7 +72,7 @@ else
                 @foreach (var turn in showAllApprovals ? Array.Empty<ChatTurn>() : turns)
                 {
                     var displayedAnswer = turn.Answer is null ? null : ChatAnswerPresentation.ForDisplay(turn.Answer);
-                    <article class="turn" @key="turn.Id">
+                    <article class="turn" data-chat-turn="@turn.Id" @key="turn.Id">
                         <div class="user-message"><span class="message-label">YOU</span><p>@turn.Prompt</p></div>
                         <div class="assistant-message"><span class="message-label">SECOND BRAIN <small>@turn.Policy.Model</small></span>
                             @if (turn.Redacted) { <p class="notice">This answer was removed because a source was purged.</p> }
@@ -80,7 +80,9 @@ else
                             else if (drafts.TryGetValue(turn.Id, out var draft) && draft.Length > 0) { <ChatText Text="@draft" /> }
                             else if (turn.Status == "running") { <p class="thinking"><span></span> Searching your knowledge…</p> }
                             @if (turn.Status == "running") { <small class="notice">Generating · citations will be checked when the answer is complete</small> }
-                            @if (turn.FailureCode is not null) { <p class="notice">This turn stopped: @FriendlyReason(turn.FailureCode). You can send another message.</p> }
+                            @if (turn.FailureCode is not null) { <p class="notice">This turn stopped: @FriendlyReason(turn.FailureCode). You can retry it or send another message.</p> }
+                            @if (turn.Status is "partial" or "failed" && turn.Id == turns.LastOrDefault()?.Id)
+                            { <button class="activity-link" disabled="@(active || sending || deleting)" @onclick="() => RetryAsync(turn.Id)">Retry this turn</button> }
                             @if (turn.Answer?.Warnings?.Contains("no_verified_sources") == true) { <p class="notice">This response has no verified sources.</p> }
                             @foreach (var warning in turn.Answer?.Warnings?.Where(value => value != "no_verified_sources") ?? [])
                             { <p class="notice">@WarningText(warning)</p> }
@@ -189,6 +191,7 @@ else
         sending = true; error = null;
         try
         {
+            if (prompt.Trim() == "/new") { prompt = ""; await NewConversation(); return; }
             var result = await Assistant.StartAsync(new(prompt, selected, askOnly ? "ask" : "chat", Guid.NewGuid().ToString("N")), actor, lifetime.Token);
             selected = result.Turn.ConversationId; prompt = "";
             showAllApprovals = false;
@@ -224,17 +227,32 @@ else
         finally { deleting = false; }
     }
 
-    private void Observe(string turnId)
+    private async Task RetryAsync(string id)
+    {
+        if (actor is null || active || sending || deleting) return;
+        sending = true; error = null;
+        try
+        {
+            var result = await Assistant.RetryAsync(id, new(Guid.NewGuid().ToString("N")), actor, lifetime.Token);
+            turns = await Repository.GetConversationAsync(result.Turn.ConversationId, actor, lifetime.Token);
+            Observe(result.Turn.Id, result.ReplayAfter);
+        }
+        catch (Exception exception) when (exception is AuthorityChangedException or ChatConflictException or ChatLimitException or ChatNotFoundException)
+        { error = exception is AuthorityChangedException ? "The original session is no longer valid. Send a new message instead." : exception.Message; }
+        finally { sending = false; }
+    }
+
+    private void Observe(string turnId, long after = 0)
     {
         observation?.Cancel();
         observation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
         drafts[turnId] = ""; activity[turnId] = [];
-        observing = ObserveAsync(turnId, selected!, observation.Token);
+        observing = ObserveAsync(turnId, selected!, observation.Token, after);
     }
 
-    private async Task ObserveAsync(string turnId, string conversationId, CancellationToken token)
+    private async Task ObserveAsync(string turnId, string conversationId, CancellationToken token, long after = 0)
     {
-        long sequence = 0;
+        long sequence = after;
         try
         {
             using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
@@ -248,9 +266,11 @@ else
                     sequence = item.Sequence;
                     if (item.Redacted) { drafts[turnId] = ""; activity[turnId].Clear(); continue; }
                     if (item.Kind == "delta" && item.Data is { } delta) drafts[turnId] += delta.GetProperty("text").GetString();
+                    if (item.Kind == "resumed") drafts[turnId] = "";
                     if (item.Kind == "tool" && item.Data is { } tool) activity[turnId].Add(tool.GetProperty("name").GetString() ?? "Tool");
                     if (item.Kind == "finished")
                     {
+                        if ((await Repository.GetTurnAsync(turnId, actor!, token)).Status == "running") continue;
                         if (selected == conversationId) turns = await Repository.GetConversationAsync(conversationId, actor!, token);
                         conversations = await Repository.ListAsync(actor!, token);
                         await ReloadProposalsAsync();

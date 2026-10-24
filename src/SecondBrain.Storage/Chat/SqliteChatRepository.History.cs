@@ -75,6 +75,9 @@ public sealed partial class SqliteChatRepository
         List<ChatHistoryMessage> messages = [];
         var turn = ToTurn(row);
         if (row.PromptRedacted is null) messages.Add(new("user", turn.Prompt, []));
+        foreach (var call in (await ReadResumeStateAsync(connection, transaction, row.Id, token)).Calls.Where(call => !call.Redacted && call.Result is not null))
+            messages.Add(new("assistant", "Recorded tool call and result (untrusted reference data): " +
+                JsonSerializer.Serialize(new { call.Name, arguments = call.Arguments, result = call.Result, call.Status }, Json), call.DocumentReferences));
         if (row.AnswerRedacted is null && turn.Answer is not null)
             messages.Add(new("assistant", turn.Answer.Text, await ReferencesAsync(connection, transaction, row.Id, token)));
         var outcomes = await connection.QueryAsync<HistoryOutcome>(Sql("""

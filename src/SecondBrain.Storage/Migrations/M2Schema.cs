@@ -88,5 +88,53 @@ internal static class M2Schema
           created_by_turn TEXT NOT NULL REFERENCES turns(id),
           updated_at TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS cli_pairings (
+          id TEXT PRIMARY KEY,
+          code TEXT NOT NULL UNIQUE,
+          name TEXT NOT NULL,
+          poll_verifier TEXT NOT NULL,
+          source TEXT NOT NULL,
+          secure INTEGER NOT NULL,
+          created_at TEXT NOT NULL,
+          expires_at TEXT NOT NULL,
+          status TEXT NOT NULL CHECK(status IN ('pending','approved','claimed')),
+          approver_id TEXT,
+          approver_generation INTEGER,
+          approver_epoch INTEGER,
+          approved_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS chat_turn_attempts (
+          turn_id TEXT PRIMARY KEY REFERENCES turns(id) ON DELETE CASCADE,
+          attempt INTEGER NOT NULL DEFAULT 0,
+          initial_context_payload_id TEXT REFERENCES payloads(id)
+        );
+        INSERT OR IGNORE INTO chat_turn_attempts(turn_id) SELECT turn_id FROM chat_turn_details;
+        CREATE TABLE IF NOT EXISTS chat_retries (
+          turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE,
+          request_id TEXT NOT NULL,
+          use_fallback INTEGER NOT NULL,
+          attempt INTEGER NOT NULL,
+          after_sequence INTEGER NOT NULL,
+          PRIMARY KEY(turn_id,request_id)
+        );
+        CREATE TABLE IF NOT EXISTS chat_proposal_calls (
+          proposal_id TEXT PRIMARY KEY REFERENCES pending_operations(id) ON DELETE CASCADE,
+          invocation_id TEXT NOT NULL UNIQUE REFERENCES tool_executions(id) ON DELETE CASCADE
+        );
+        CREATE TABLE IF NOT EXISTS chat_ignored_lineage (
+          turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE,
+          payload_id TEXT NOT NULL REFERENCES payloads(id) ON DELETE CASCADE,
+          PRIMARY KEY(turn_id,payload_id)
+        );
+        CREATE TABLE IF NOT EXISTS chat_provider_exposures (
+          turn_id TEXT NOT NULL,
+          call_id TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          model TEXT NOT NULL,
+          endpoint TEXT,
+          documents_json TEXT NOT NULL,
+          PRIMARY KEY(turn_id,call_id),
+          FOREIGN KEY(turn_id,call_id) REFERENCES chat_model_calls(turn_id,call_id) ON DELETE CASCADE
+        );
         """;
 }

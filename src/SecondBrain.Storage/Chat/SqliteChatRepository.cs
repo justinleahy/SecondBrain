@@ -36,7 +36,9 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
         if (request.RequestId is { Length: > 128 } || request.RequestId is "") throw new ArgumentException("Invalid request ID.", nameof(request));
         ValidatePolicy(policy);
         var requestId = request.RequestId ?? NewId();
-        var hash = Hash(JsonSerializer.SerializeToUtf8Bytes(new { request.Prompt, request.ConversationId, request.Mode }, Json));
+        var hash = request.Deep || request.Filters is not null
+            ? Hash(JsonSerializer.SerializeToUtf8Bytes(new { request.Prompt, request.ConversationId, request.Mode, request.Deep, request.Filters }, Json))
+            : Hash(JsonSerializer.SerializeToUtf8Bytes(new { request.Prompt, request.ConversationId, request.Mode }, Json));
         return state.QueueWriteAsync(async (connection, transaction, token) =>
         {
             var credential = await AuthorizeAsync(connection, transaction, actor, true, token);
@@ -87,6 +89,7 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
                 provider = policy.Provider, model = policy.Model, now, requestId, hash, mode = request.Mode,
                 policy = JsonSerializer.Serialize(policy, Json), payload }, transaction, token));
             await EventAsync(connection, transaction, id, "started", new { turnId = id, conversationId, ordinal }, [], token);
+            await connection.ExecuteAsync(Sql("INSERT INTO chat_turn_attempts(turn_id) VALUES(@id)", new { id }, transaction, token));
             return new ChatStart(ToTurn(await TurnAsync(connection, transaction, id, token)), true);
         }, cancellationToken);
     }
@@ -303,6 +306,7 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
         (await connection.QueryAsync<string>(Sql("""
             SELECT DISTINCT j.value FROM payload_refs r JOIN payloads p ON p.id=r.payload_id,json_each(p.document_refs_json) j
             WHERE r.referrer_id=@turnId AND r.referrer_kind LIKE 'chat-%'
+              AND NOT EXISTS(SELECT 1 FROM chat_ignored_lineage i WHERE i.turn_id=@turnId AND i.payload_id=p.id)
             """, new { turnId }, transaction, token))).ToArray();
     private static async Task<bool> LiveLineageAsync(DbConnection connection, DbTransaction transaction, IReadOnlyList<string> refs, CancellationToken token) =>
         refs.Count == 0 || await connection.ExecuteScalarAsync<int>(Sql("SELECT COUNT(*) FROM documents WHERE id IN @refs AND status!='purged'", new { refs }, transaction, token)) == refs.Distinct().Count();
@@ -337,8 +341,10 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
     {
         if (string.IsNullOrWhiteSpace(policy.Provider) || string.IsNullOrWhiteSpace(policy.Model) || policy.MaxToolCalls is < 1 or > 32 ||
             policy.MaxReadDocuments is < 1 or > 100 || policy.MaxReadBytes is < 1 or > 1_000_000 || policy.MaxMetadataRecords is < 1 or > 1000 ||
-            policy.MaxOutputTokens is < 1 or > 32768 || policy.MaxHistoryMessages is < 0 or > 100 || policy.MaxHistoryBytes is < 2048 or > 65536 || policy.HourlyTokens < 1 || policy.DailyTokens < 1)
+            policy.MaxOutputTokens is < 1 or > 32768 || policy.MaxHistoryMessages is < 0 or > 100 || policy.MaxHistoryBytes is < 2048 or > 65536 || policy.MaxSearches is < 1 or > 32 || policy.HourlyTokens < 1 || policy.DailyTokens < 1)
             throw new ArgumentException("Invalid chat policy.", nameof(policy));
+        if (policy.MaxContextTokens is < 1 or > 10_000_000) throw new ArgumentException("Invalid context bound.", nameof(policy));
+        if (policy.Reasoning is not (null or "low" or "medium" or "high")) throw new ArgumentException("Invalid reasoning preference.", nameof(policy));
     }
 
     private sealed class RequestRow { public string TurnId { get; set; } = ""; public string Hash { get; set; } = ""; }

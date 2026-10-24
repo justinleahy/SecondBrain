@@ -7,7 +7,7 @@ using SecondBrain.Core.Storage;
 namespace SecondBrain.Storage.Auth;
 
 /// <summary>Database-only callbacks, through the store's bounded writer; no transaction ownership escapes.</summary>
-public sealed class AuthRepository(IStateStore store, TimeProvider clock) : IAuthRepository
+public sealed partial class AuthRepository(IStateStore store, TimeProvider clock) : IAuthRepository, ICliPairingRepository
 {
     private const string Columns = "id Id, name Name, kind Kind, verifier Verifier, scopes Scopes, generation Generation, kid Kid, account_epoch AccountEpoch, device Device, idle_expires_at IdleExpiresAt, absolute_expires_at AbsoluteExpiresAt, stepped_up_at SteppedUpAt, created_at CreatedAt, last_used_at LastUsedAt, expires_at ExpiresAt, revoked_at RevokedAt";
     private const string Insert = "INSERT INTO credentials (id,name,kind,verifier,scopes,generation,kid,account_epoch,device,idle_expires_at,absolute_expires_at,stepped_up_at,created_at,last_used_at,expires_at,revoked_at) VALUES (@Id,@Name,@Kind,@Verifier,@Scopes,@Generation,@Kid,@AccountEpoch,@Device,@IdleExpiresAt,@AbsoluteExpiresAt,@SteppedUpAt,@CreatedAt,@LastUsedAt,@ExpiresAt,@RevokedAt)";

@@ -17,6 +17,8 @@ public sealed partial class SqliteChatRepository
         var turn = await RunningAsync(connection, transaction, turnId, actor, token);
         var policy = Policy(turn);
         var existing = (await ReadSourcesAsync(connection, transaction, turnId, token)).ToList();
+        var exposedDocuments = (await connection.QueryAsync<string>(Sql("SELECT DISTINCT document_id FROM chat_sources WHERE turn_id=@turnId", new { turnId }, transaction, token))).ToHashSet(StringComparer.Ordinal);
+        var nextNumber = await connection.ExecuteScalarAsync<int>(Sql("SELECT COALESCE(MAX(number),0)+1 FROM chat_sources WHERE turn_id=@turnId", new { turnId }, transaction, token));
         var bytes = await connection.ExecuteScalarAsync<long>(Sql("SELECT tool_result_bytes+(SELECT COALESCE(SUM(byte_count),0) FROM chat_sources WHERE turn_id=@turnId) FROM chat_turn_details WHERE turn_id=@turnId", new { turnId }, transaction, token));
         List<ChatSource> selected = [];
         foreach (var request in sources.Distinct())
@@ -34,10 +36,10 @@ public sealed partial class SqliteChatRepository
             var text = JsonSerializer.Deserialize<TextProjection>(projection.Bytes, Json) ?? throw new InvalidDataException("Invalid document projection.");
             var chunk = text.Chunks.SingleOrDefault(chunk => chunk.Id == request.ChunkId)
                 ?? throw new ChatConflictException("The retrieved passage is no longer current.");
-            var source = new ChatSource(existing.Count + 1, request.DocumentId, request.Revision, projection.Generation,
+            var source = new ChatSource(nextNumber, request.DocumentId, request.Revision, projection.Generation,
                 chunk.Id, chunk.Ordinal, chunk.Page, projection.Title, chunk.Text, Hash(Encoding.UTF8.GetBytes(chunk.Text)));
             var byteCount = JsonSerializer.SerializeToUtf8Bytes(source, Json).Length;
-            if (bytes + byteCount > policy.MaxReadBytes || existing.Select(item => item.DocumentId).Append(source.DocumentId).Distinct().Count() > policy.MaxReadDocuments)
+            if (bytes + byteCount > policy.MaxReadBytes || !exposedDocuments.Contains(source.DocumentId) && exposedDocuments.Count >= policy.MaxReadDocuments)
                 throw new ChatLimitException("This turn reached its source exposure limit.");
             var payload = await PayloadAsync(connection, transaction, source, [source.DocumentId], "chat-source", turnId, token);
             await connection.ExecuteAsync(Sql("""
@@ -46,6 +48,8 @@ public sealed partial class SqliteChatRepository
                 """, new { turnId, number = source.Number, documentId = source.DocumentId, revision = source.Revision,
                 generation = source.Generation, chunkId = source.ChunkId, byteCount, payload }, transaction, token));
             bytes += byteCount;
+            nextNumber++;
+            exposedDocuments.Add(source.DocumentId);
             existing.Add(source);
             selected.Add(source);
         }

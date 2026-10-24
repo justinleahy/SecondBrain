@@ -5,4 +5,10 @@
 .answer-text ::deep code { font-size: .9em; background: #eaf0eb; border-radius: 3px; padding: 1px 4px; }
 .answer-text ::deep pre { background: #eaf0eb; padding: 14px; border-radius: 8px; overflow: auto; }
 .answer-text ::deep pre code { padding: 0; white-space: pre; }
+.answer-text ::deep .markdown-table { max-width: 100%; overflow-x: auto; margin: 14px 0; }
+.answer-text ::deep table { border-collapse: collapse; width: 100%; min-width: 28rem; font-size: .9em; }
+.answer-text ::deep th, .answer-text ::deep td { border: 1px solid #cbdccf; padding: 8px 10px; text-align: left; vertical-align: top; overflow-wrap: normal; }
+.answer-text ::deep th { background: #eaf0eb; font-weight: 600; }
+.answer-text ::deep .align-center { text-align: center; }
+.answer-text ::deep .align-right { text-align: right; }
 .answer-text ::deep .citation-link { color: #27654b; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }

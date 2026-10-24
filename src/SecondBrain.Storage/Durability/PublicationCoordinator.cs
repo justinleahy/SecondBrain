@@ -167,6 +167,25 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
                     ("$epoch", admission.Authority?.AccountEpoch ?? 0), ("$status", admission.JobStatus), ("$error", admission.JobError),
                     ("$payload", admission.PayloadJson ?? JsonSerializer.Serialize(new { admitted_bytes = admission.AdmittedBytes })), ("$now", now));
                 await job.ExecuteNonQueryAsync(token);
+                if (admission.ApprovedProposalId is { } proposalId)
+                {
+                    // Create publishes after its file journal completes. Bind lineage as soon
+                    // as the document exists, before any concurrent purge can observe it.
+                    await using var claim = Command(connection, transaction, """
+                        SELECT COUNT(*) FROM pending_operations p JOIN payloads b ON b.id=p.payload_id
+                        WHERE p.id=$proposal AND p.execution_id=$execution AND p.status='executing'
+                          AND b.redacted_at IS NULL AND json_extract(CAST(b.bytes AS TEXT),'$.documentId')=$id
+                        """, ("$proposal", proposalId), ("$execution", admission.JobId), ("$id", publication.DocumentId));
+                    if (Convert.ToInt64(await claim.ExecuteScalarAsync(token), CultureInfo.InvariantCulture) != 1)
+                        throw new IngestionConflictException("approval-changed");
+                    await using var lineage = Command(connection, transaction, """
+                        UPDATE payloads SET document_refs_json=json_insert(document_refs_json,'$[#]',$id)
+                        WHERE (id IN (SELECT payload_id FROM pending_operations WHERE id=$proposal)
+                          OR id IN (SELECT e.payload_id FROM chat_proposal_calls c JOIN tool_executions e ON e.id=c.invocation_id WHERE c.proposal_id=$proposal))
+                          AND NOT EXISTS(SELECT 1 FROM json_each(document_refs_json) WHERE value=$id);
+                        """, ("$proposal", proposalId), ("$id", publication.DocumentId));
+                    await lineage.ExecuteNonQueryAsync(token);
+                }
                 if (admission.Occurrence is { } occurrence)
                 {
                     await using var clearOld = Command(connection, transaction, "DELETE FROM occurrences WHERE source_id=$source AND document_id=$id AND path<>$path", ("$source", occurrence.SourceId), ("$id", publication.DocumentId), ("$path", occurrence.RelativePath)); await clearOld.ExecuteNonQueryAsync(token);

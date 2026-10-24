@@ -60,6 +60,7 @@ public sealed partial class HttpDaemonCommands(
     {
         ValidateOrigin(origin);
         using var client = NewClient(origin);
+        await AddAccessHeadersAsync(client, origin, name, cancellationToken);
         var password = await readPassword("login", cancellationToken);
         await LoginAsync(client, password, cancellationToken);
         try
@@ -192,7 +193,7 @@ public sealed partial class HttpDaemonCommands(
         return CliResult.Ok(message);
     }
 
-    private async Task<HttpClient> OpenAsync(bool apiKey, CancellationToken cancellationToken, SecondBrainOptions? options = null)
+    private async Task<HttpClient> OpenAsync(bool apiKey, CancellationToken cancellationToken, SecondBrainOptions? options = null, bool interactive = false)
     {
         var origin = configuredOrigin is not null ? ParseOrigin(configuredOrigin) : ResolveOrigin(options ?? loadOptions?.Invoke()
             ?? throw new CliPreconditionException("Select the daemon origin with --url or SECONDBRAIN_URL, or supply --config."));
@@ -202,10 +203,12 @@ public sealed partial class HttpDaemonCommands(
             if (apiKey)
             {
                 var key = Environment.GetEnvironmentVariable("SECONDBRAIN_API_KEY")
+                    ?? (interactive ? await credentialStore().ReadAsync(origin, credentialName + ".session", cancellationToken) : null)
                     ?? await credentialStore().ReadAsync(origin, credentialName, cancellationToken);
                 if (string.IsNullOrWhiteSpace(key)) throw new CliPreconditionException("No API key is stored for this daemon and credential name; run brain login with the scopes required by this command.");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", key);
             }
+            await AddAccessHeadersAsync(client, origin, credentialName, cancellationToken);
             return client;
         }
         catch { client.Dispose(); throw; }
@@ -224,6 +227,23 @@ public sealed partial class HttpDaemonCommands(
         if (Environment.GetEnvironmentVariable("SECONDBRAIN_ACCESS_ASSERTION") is { Length: > 0 } assertion)
             client.DefaultRequestHeaders.Add("Cf-Access-Jwt-Assertion", assertion);
         return client;
+    }
+
+    private async Task AddAccessHeadersAsync(HttpClient client, Uri origin, string name, CancellationToken token)
+    {
+        var stored = await credentialStore().ReadAsync(origin, name + ".access", token);
+        if (stored is null) return;
+        if (stored.Length > 8192) throw new CliPreconditionException("The stored Access token is invalid.");
+        using var json = JsonDocument.Parse(stored);
+        if (!json.RootElement.TryGetProperty("clientId", out var idValue) || !json.RootElement.TryGetProperty("secret", out var secretValue))
+            throw new CliPreconditionException("The stored Access token is invalid.");
+        var id = idValue.GetString(); var secret = secretValue.GetString();
+        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(secret) || id.Any(char.IsControl) || secret.Any(char.IsControl))
+            throw new CliPreconditionException("The stored Access token is invalid.");
+        client.DefaultRequestHeaders.Remove("Cf-Access-Client-Id"); client.DefaultRequestHeaders.Remove("Cf-Access-Client-Secret");
+        client.DefaultRequestHeaders.Remove("Cf-Access-Jwt-Assertion");
+        client.DefaultRequestHeaders.Add("Cf-Access-Client-Id", id);
+        client.DefaultRequestHeaders.Add("Cf-Access-Client-Secret", secret);
     }
 
     private static Uri ResolveOrigin(SecondBrainOptions options)

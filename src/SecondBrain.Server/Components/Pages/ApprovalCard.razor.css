@@ -10,7 +10,7 @@ header { display: flex; justify-content: space-between; gap: 12px; color: #345e4
 header span { font-size: 11px; text-transform: capitalize; }
 h4 { margin: 16px 0 10px; font-size: 15px; }
 summary { cursor: pointer; color: #5a7362; font-size: 12px; }
-pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.7; max-height: 300px; overflow: auto; }
+.proposal-content { max-height: 28rem; overflow: auto; margin-top: 12px; }
 .destination, .help { font-size: 11px; color: #6c7f70; line-height: 1.7; overflow-wrap: anywhere; }
 .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 button { border: 0; border-radius: 7px; background: #285d40; color: white; padding: 9px 13px; font: inherit; font-size: 12px; cursor: pointer; }

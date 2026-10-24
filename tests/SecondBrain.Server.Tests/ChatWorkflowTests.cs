@@ -12,8 +12,60 @@ using Xunit;
 
 namespace SecondBrain.Server.Tests;
 
-public sealed class ChatWorkflowTests
+public sealed partial class ChatWorkflowTests
 {
+    [Fact]
+    public async Task FilteredAskCannotReadAnExplicitlyNamedDocumentOutsideItsFilters()
+    {
+        await using var factory = BufferedFactory();
+        var actor = await CreateActorAsync(factory);
+        var docs = factory.Services.GetRequiredService<IDocumentRepository>();
+        var authority = new IngestionAuthority(actor.Id, actor.Generation, actor.AccountEpoch, "browser", "session");
+        var allowed = (await docs.CaptureAsync(new("Orchard apples grow here", "Allowed", Tags: ["chosen"]), authority)).Document;
+        var excluded = (await docs.CaptureAsync(new("EXCLUDED_PRIVATE_ORCHARD_TEXT", "Excluded", Type: "article"), authority)).Document;
+        factory.MockProvider.Services.GetRequiredService<MockProviderState>().ChatResponse = async context =>
+        {
+            using var body = await JsonDocument.ParseAsync(context.Request.Body);
+            Assert.DoesNotContain("EXCLUDED_PRIVATE_ORCHARD_TEXT", body.RootElement.GetRawText(), StringComparison.Ordinal);
+            await ToolResponseAsync(context, "read_document", new { id = excluded.Id });
+        };
+        var start = await factory.Services.GetRequiredService<ChatService>().StartAsync(new("Orchard " + excluded.Id, Mode: "ask",
+            Filters: new SecondBrain.Core.Retrieval.RetrievalFilters(Type: "note", Tags: ["chosen"])), actor);
+        var repository = factory.Services.GetRequiredService<IChatRepository>();
+        var final = await FinishAsync(repository, start.Turn.Id, actor);
+        Assert.NotEqual("complete", final.Status);
+        Assert.Equal("note", final.Policy.Filters!.Type);
+        Assert.DoesNotContain(await repository.SourcesAsync(final.Id, actor), source => source.DocumentId == excluded.Id);
+        Assert.All(await repository.SourcesAsync(final.Id, actor), source => Assert.Equal(allowed.Id, source.DocumentId));
+    }
+
+    [Theory]
+    [InlineData(false, 1)]
+    [InlineData(true, 5)]
+    public async Task AskSearchCapIsEnforcedOutsideTheModel(bool deep, int maximumSearches)
+    {
+        await using var factory = new LaneDWebFactory(options =>
+        {
+            options.Models.Chat!.Capabilities = options.Models.Chat.Capabilities with { Streaming = false };
+            options.Models.Chat.Limits = options.Models.Chat.Limits with { ContextTokens = 32768 };
+            options.Assistant.MaxToolCallsPerTurn = 16;
+        });
+        var actor = await CreateActorAsync(factory);
+        var calls = 0;
+        factory.MockProvider.Services.GetRequiredService<MockProviderState>().ChatResponse = context =>
+        {
+            Interlocked.Increment(ref calls);
+            return ToolResponseAsync(context, "search", new { query = "irrelevant", limit = 1 });
+        };
+        var start = await factory.Services.GetRequiredService<ChatService>().StartAsync(new("irrelevant question", Mode: "ask", Deep: deep), actor);
+        Assert.Equal(maximumSearches, start.Turn.Policy.MaxSearches);
+        var final = await FinishAsync(factory.Services.GetRequiredService<IChatRepository>(), start.Turn.Id, actor);
+        Assert.NotEqual("complete", final.Status);
+        // Initial retrieval consumes one search; a malicious model cannot use a sixth (or second) search.
+        Assert.InRange(calls, 1, maximumSearches);
+        Assert.Equal(maximumSearches, calls);
+    }
+
     [Fact]
     public async Task ModelWriteRemainsPendingUntilBrowserApprovesAndThenCreatesOneNote()
     {
