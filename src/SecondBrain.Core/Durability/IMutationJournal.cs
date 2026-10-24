@@ -37,6 +37,9 @@ public sealed record MutationWriteRequest
 /// <summary>Durable metadata applied atomically with the mutation's finalized transition.</summary>
 public sealed record MutationFinalization
 {
+    /// <summary>Stable identity for a previously authorized assistant write; ordinary writes generate a fresh identity.</summary>
+    public string? MutationIdentity { get; init; }
+    public bool AssistantNote { get; init; }
     public bool PurgeDocumentLineage { get; init; }
     public bool SuppressDocument { get; init; }
     public bool ClearSuppression { get; init; }

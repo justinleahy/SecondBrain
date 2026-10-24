@@ -1,4 +1,5 @@
 @page "/chat"
+@page "/approvals"
 @using Microsoft.AspNetCore.Components.Authorization
 @using SecondBrain.Core.Auth
 @using SecondBrain.Core.Chat
@@ -6,8 +7,10 @@
 @using SecondBrain.Server.Chat
 @implements IAsyncDisposable
 @inject AuthenticationStateProvider Authentication
+@inject NavigationManager Navigation
 @inject IAuthRepository Auth
 @inject IChatRepository Repository
+@inject IChatProposalRepository Approvals
 @inject ChatService Assistant
 
 <PageTitle>Chat · SecondBrain</PageTitle>
@@ -21,6 +24,7 @@ else
         <aside class="sidebar">
             <a class="brand" href="/">◈ <span>SecondBrain</span></a>
             <button class="new-chat" @onclick="NewConversation">＋ New conversation</button>
+            <button class="new-chat" @onclick="ShowApprovalsAsync">Approvals @if (proposals.Count(item => item.Status is "pending" or "executing") is var count && count > 0) { <span>(@count)</span> }</button>
             <h2>Conversations</h2>
             <nav aria-label="Conversations">
                 @foreach (var conversation in conversations)
@@ -34,13 +38,21 @@ else
             <p class="sidebar-note">Your knowledge, with sources.<br />Changes require your approval.</p>
         </aside>
         <main class="workspace">
-            <header><div><span class="eyebrow">YOUR KNOWLEDGE ASSISTANT</span><h1>Chat</h1></div><a href="/">SecondBrain</a></header>
+            <header><div><span class="eyebrow">YOUR KNOWLEDGE ASSISTANT</span><h1>@(showAllApprovals ? "Approvals" : "Chat")</h1></div><a href="/">SecondBrain</a></header>
             <section class="messages" aria-label="Conversation" aria-live="polite" aria-busy="@active">
-                @if (turns.Count == 0)
+                @if (showAllApprovals)
+                {
+                    <h2>Review proposed changes</h2>
+                    <p class="notice">Changes suggested by chat or connected clients wait here for your approval.</p>
+                    @foreach (var proposal in proposals.Where(item => item.Status is "pending" or "executing"))
+                    { <ApprovalCard @key="proposal.Id" Proposal="proposal" Actor="actor" Changed="ReloadProposalsAsync" /> }
+                    @if (!proposals.Any(item => item.Status is "pending" or "executing")) { <p>No changes are waiting for approval.</p> }
+                }
+                else if (turns.Count == 0)
                 {
                     <div class="welcome"><span class="welcome-icon">◈</span><h2>What would you like to find out?</h2><p>Ask a question about your notes and documents. Answers link back to the passages they use.</p><button @onclick="UseExample">What is the project codename? <span>↗</span></button></div>
                 }
-                @foreach (var turn in turns)
+                @foreach (var turn in showAllApprovals ? Array.Empty<ChatTurn>() : turns)
                 {
                     <article class="turn" @key="turn.Id">
                         <div class="user-message"><span class="message-label">YOU</span><p>@turn.Prompt</p></div>
@@ -65,6 +77,8 @@ else
                             {
                                 <details class="activity"><summary>Activity · @entries.Count actions</summary><ul>@foreach (var entry in entries) { <li>@entry</li> }</ul></details>
                             }
+                            @foreach (var proposal in proposals.Where(item => item.TurnId == turn.Id))
+                            { <ApprovalCard @key="proposal.Id" Proposal="proposal" Actor="actor" Changed="ReloadProposalsAsync" /> }
                         </div>
                     </article>
                 }
@@ -86,6 +100,7 @@ else
     private AuthenticatedCredential? actor;
     private IReadOnlyList<ChatConversation> conversations = [];
     private IReadOnlyList<ChatTurn> turns = [];
+    private IReadOnlyList<ChatProposal> proposals = [];
     private readonly Dictionary<string, string> drafts = [];
     private readonly Dictionary<string, List<string>> activity = [];
     private readonly CancellationTokenSource lifetime = new();
@@ -93,32 +108,34 @@ else
     private Task? observing;
     private string? selected, error;
     private string prompt = "";
-    private bool sending, askOnly;
+    private bool sending, askOnly, showAllApprovals;
     private bool active => turns.Any(turn => turn.Status == "running");
     private void UseExample() => prompt = "What is the project codename?";
 
     protected override async Task OnInitializedAsync()
     {
+        showAllApprovals = new Uri(Navigation.Uri).AbsolutePath == "/approvals";
         var principal = (await Authentication.GetAuthenticationStateAsync()).User;
         if (!SessionRevalidationProvider.TryAuthority(principal, out var id, out var generation, out var epoch)) return;
         var credential = await Auth.FindAsync(id!, lifetime.Token);
         if (credential is null) return;
         actor = new(id!, "session", generation, epoch, credential.GrantedScopes, credential.SteppedUpAt);
-        try { conversations = await Repository.ListAsync(actor, lifetime.Token); }
+        try { conversations = await Repository.ListAsync(actor, lifetime.Token); await ReloadProposalsAsync(); }
         catch (AuthorityChangedException) { actor = null; }
     }
 
     private void NewConversation()
     {
-        observation?.Cancel(); selected = null; turns = []; error = null;
+        observation?.Cancel(); selected = null; turns = []; error = null; showAllApprovals = false;
     }
 
     private async Task SelectAsync(string id)
     {
-        observation?.Cancel(); selected = id; error = null;
+        observation?.Cancel(); selected = id; error = null; showAllApprovals = false;
         try
         {
             turns = await Repository.GetConversationAsync(id, actor!, lifetime.Token);
+            await ReloadProposalsAsync();
             if (turns.LastOrDefault()?.Status == "running") Observe(turns[^1].Id);
         }
         catch (Exception exception) when (exception is AuthorityChangedException or ChatNotFoundException) { error = "This conversation is no longer available. Sign in again if your session expired."; }
@@ -132,6 +149,7 @@ else
         {
             var result = await Assistant.StartAsync(new(prompt, selected, askOnly ? "ask" : "chat", Guid.NewGuid().ToString("N")), actor, lifetime.Token);
             selected = result.Turn.ConversationId; prompt = "";
+            showAllApprovals = false;
             turns = await Repository.GetConversationAsync(selected, actor, lifetime.Token);
             conversations = await Repository.ListAsync(actor, lifetime.Token);
             Observe(result.Turn.Id);
@@ -161,6 +179,7 @@ else
             {
                 var events = await Repository.EventsAsync(turnId, sequence, actor!, token);
                 token.ThrowIfCancellationRequested();
+                if (events.Any(item => item.Kind == "proposal")) await ReloadProposalsAsync();
                 foreach (var item in events)
                 {
                     sequence = item.Sequence;
@@ -171,6 +190,7 @@ else
                     {
                         if (selected == conversationId) turns = await Repository.GetConversationAsync(conversationId, actor!, token);
                         conversations = await Repository.ListAsync(actor!, token);
+                        await ReloadProposalsAsync();
                         await InvokeAsync(StateHasChanged); return;
                     }
                 }
@@ -184,6 +204,8 @@ else
     }
 
     private static string FriendlyReason(string code) => code.Replace('_', ' ');
+    private async Task ReloadProposalsAsync() => proposals = await Approvals.ListAsync(null, actor!, lifetime.Token);
+    private async Task ShowApprovalsAsync() { await ReloadProposalsAsync(); showAllApprovals = true; }
     public async ValueTask DisposeAsync()
     {
         await lifetime.CancelAsync(); observation?.Cancel();

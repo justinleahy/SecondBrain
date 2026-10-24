@@ -70,6 +70,24 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                     !saved.DocumentReferences.SequenceEqual(plan.DocumentReferences, StringComparer.Ordinal) ||
                     saved.ReplayResultHash != plan.ReplayResultHash || !(saved.RemovalTargets ?? []).SequenceEqual(plan.RemovalTargets ?? []))
                     throw new MutationReuseException(request.MutationId);
+                // Recovery marks an unapplied preparation failed after removing its temporary file.
+                // An approved assistant operation may resume that same immutable preparation, after
+                // reacquiring its document/destination reservations. Applied effects never take this path.
+                if (existing.Status == "failed" && finalization.MutationIdentity == request.MutationId)
+                {
+                    if (!await PlanIsCurrentAsync(connection, transaction, saved, ct).ConfigureAwait(false))
+                        throw new MutationRevisionException(finalization.DocumentId ?? request.MutationId);
+                    if (await connection.ExecuteScalarAsync<long>(Command("SELECT COUNT(*) FROM mutations WHERE destination=@destination AND status IN ('prepared','applied');", new { destination }, transaction, ct)).ConfigureAwait(false) != 0)
+                        throw new InvalidOperationException("Mutation destination is already reserved.");
+                    if (finalization.DocumentId is { } retryDocument)
+                    {
+                        if (await connection.ExecuteScalarAsync<string?>(Command("SELECT value FROM meta WHERE key=@key;", new { key = DocumentReservationKey(retryDocument) }, transaction, ct)).ConfigureAwait(false) is not null)
+                            throw new InvalidOperationException("Mutation document already has an active mutation.");
+                        await connection.ExecuteAsync(Command("INSERT INTO meta(key,value) VALUES(@key,@id);", new { key = DocumentReservationKey(retryDocument), id = request.MutationId }, transaction, ct)).ConfigureAwait(false);
+                    }
+                    await connection.ExecuteAsync(Command("UPDATE mutations SET status='prepared',resulting_hash=NULL,updated_at=@now WHERE id=@id AND status='failed';", new { id = request.MutationId, now }, transaction, ct)).ConfigureAwait(false);
+                    return Record((await LoadAsync(connection, transaction, request.MutationId, ct).ConfigureAwait(false))!);
+                }
                 return Record(existing);
             }
             var reserved = await connection.ExecuteScalarAsync<long>(Command(
@@ -488,7 +506,7 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         }
         if (finalize.PendingOperationId is not null)
         {
-            var count = await connection.ExecuteAsync(Command("UPDATE pending_operations SET status='executed',resolved_at=@now WHERE id=@id AND status='pending';",
+            var count = await connection.ExecuteAsync(Command("UPDATE pending_operations SET status='executed',resolved_at=@now WHERE id=@id AND status IN ('pending','executing');",
                 new { id = finalize.PendingOperationId, now }, transaction, ct)).ConfigureAwait(false);
             if (count != 1) throw new InvalidOperationException("Proposal is missing or already resolved.");
         }

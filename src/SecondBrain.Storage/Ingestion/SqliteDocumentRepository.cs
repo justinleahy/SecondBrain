@@ -11,7 +11,7 @@ using SecondBrain.Extraction.Contracts;
 
 namespace SecondBrain.Storage.Ingestion;
 
-public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore index, IPublicationCoordinator coordinator, IManagedDocumentFiles? files = null, Microsoft.Extensions.Options.IOptions<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null) : IDocumentRepository
+public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexStore index, IPublicationCoordinator coordinator, IManagedDocumentFiles? files = null, Microsoft.Extensions.Options.IOptions<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null) : IDocumentRepository
 {
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IStateStore, SemaphoreSlim> CaptureGates = new();
     private readonly SemaphoreSlim captureGate = CaptureGates.GetValue(state, static _ => new SemaphoreSlim(1, 1));
@@ -23,12 +23,12 @@ public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore inde
         finally { captureGate.Release(); }
     }
 
-    private async ValueTask<CaptureResult> CaptureCoreAsync(CaptureRequest request, IngestionAuthority authority, string? idempotencyKey, CancellationToken cancellationToken)
+    private async ValueTask<CaptureResult> CaptureCoreAsync(CaptureRequest request, IngestionAuthority authority, string? idempotencyKey, CancellationToken cancellationToken, SecondBrain.Core.Chat.ApprovedDocumentWrite? approved = null)
     {
         Validate(request);
         var requestHash = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request)));
         if (idempotencyKey is { Length: > 200 }) throw new ArgumentException("Idempotency key exceeds bound.");
-        var id = Ulid.NewUlid().ToString();
+        var id = approved?.Plan.DocumentId ?? Ulid.NewUlid().ToString();
         authority = await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
             var row = await SecondBrain.Storage.Auth.IngestionAuthorityValidator.ValidateAsync(connection, transaction, authority,
@@ -56,9 +56,9 @@ public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore inde
                 "INSERT OR IGNORE INTO sources(id,kind,name,created_at) VALUES('api-captures','api','API captures',$now)", ("$now", Now()));
             return await source.ExecuteNonQueryAsync(token);
         }, cancellationToken);
-        var jobId = Ulid.NewUlid().ToString();
+        var jobId = approved?.ExecutionId ?? Ulid.NewUlid().ToString();
         var title = request.Title ?? FirstLine(request.Content);
-        var managedPath = files?.GetManagedPath(id, ".md");
+        var managedPath = approved is null ? files?.GetManagedPath(id, ".md") : files?.GetAssistantNotePath(id);
         var projection = TextProcessor.Process(id, title, request.Content, request.Tags, managedPath);
         var props = request.Props?.GetRawText() ?? "{}";
         using var timeProperties = JsonDocument.Parse(props);
@@ -74,24 +74,29 @@ public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore inde
             Admission = new PublicationAdmission(authority, jobId, idempotencyKey, requestHash, Encoding.UTF8.GetByteCount(request.Content)) };
         // ING-4: capacity admission precedes the vault write, so a rejected capture leaves no original behind.
         await coordinator.CheckAdmissionAsync(id, publication.SourceId, publication.Admission, cancellationToken);
-        if (files is not null) await files.WriteAsync(id, Encoding.UTF8.GetBytes(request.Content), ".md", cancellationToken: cancellationToken);
-        await PublishFreshAsync(publication, managedPath, cancellationToken);
+        if (files is not null)
+        {
+            if (approved is null) await files.WriteAsync(id, Encoding.UTF8.GetBytes(request.Content), ".md", cancellationToken: cancellationToken);
+            else await files.WriteRevisionAsync(id, Encoding.UTF8.GetBytes(request.Content), ".md", null,
+                new MutationFinalization { MutationIdentity = approved.Plan.MutationId, AssistantNote = true }, cancellationToken);
+        }
+        await PublishFreshAsync(publication, managedPath, cancellationToken, preserveOnFailure: approved is not null);
         return new CaptureResult((await GetAsync(id, true, cancellationToken))!, new ProcessingJob(jobId, id, 1, "queued", 0));
     }
 
     // Admission is re-checked atomically at publication; a concurrent admission that wins the remaining
     // capacity must not strand the original just written for a document that will never exist.
-    private async ValueTask PublishFreshAsync(DocumentPublication publication, string? managedPath, CancellationToken cancellationToken)
+    private async ValueTask PublishFreshAsync(DocumentPublication publication, string? managedPath, CancellationToken cancellationToken, bool preserveOnFailure = false)
     {
         PublicationOutcome outcome;
         try { outcome = await coordinator.PublishAsync(publication, cancellationToken); }
         catch
         {
-            if (managedPath is not null) await files!.DiscardUnpublishedAsync(managedPath, CancellationToken.None);
+            if (managedPath is not null && !preserveOnFailure) await files!.DiscardUnpublishedAsync(managedPath, CancellationToken.None);
             throw;
         }
         if (outcome == PublicationOutcome.Published) return;
-        if (managedPath is not null) await files!.DiscardUnpublishedAsync(managedPath, CancellationToken.None);
+        if (managedPath is not null && !preserveOnFailure) await files!.DiscardUnpublishedAsync(managedPath, CancellationToken.None);
         throw new IngestionConflictException("revision-mismatch");
     }
 
@@ -463,7 +468,10 @@ public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore inde
         return result;
     }
 
-    public async ValueTask<CaptureResult> MutateAsync(string id, long revision, string operation, JsonElement payload, IngestionAuthority authority, CancellationToken cancellationToken = default)
+    public ValueTask<CaptureResult> MutateAsync(string id, long revision, string operation, JsonElement payload, IngestionAuthority authority, CancellationToken cancellationToken = default)
+        => MutateCoreAsync(id, revision, operation, payload, authority, cancellationToken);
+
+    private async ValueTask<CaptureResult> MutateCoreAsync(string id, long revision, string operation, JsonElement payload, IngestionAuthority authority, CancellationToken cancellationToken, SecondBrain.Core.Chat.ApprovedDocumentWrite? approved = null)
     {
         // A tags array is the requested tag set. Only a superset of the current tags (pure additions) is additive
         // metadata that a key executes directly; omitting any current tag is a removal and needs a proposal (ING-12).
@@ -537,12 +545,16 @@ public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore inde
                 }
             }
             var lifecycle = operation is "delete" or "restore" or "purge";
-            var targetPath = lifecycle ? files.GetLifecyclePath(id, extension, operation) : files.GetManagedPath(id, extension);
-            var projectionId = "mutation-projection:" + Ulid.NewUlid();
+            var assistantNote = priorPath == files.GetAssistantNotePath(id);
+            var targetPath = lifecycle ? files.GetLifecyclePath(id, extension, operation) : assistantNote ? files.GetAssistantNotePath(id) : files.GetManagedPath(id, extension);
+            var projectionId = "mutation-projection:" + (approved?.ExecutionId ?? Ulid.NewUlid().ToString());
             var plannedProjection = operation == "purge" ? TextProcessor.Process(id, "[purged]", "", []) : publication.Projection! with
             {
                 Aliases = durableProjection?.Aliases, SourceCreatedAt = durableProjection?.SourceCreatedAt,
-                SourceUpdatedAt = durableProjection?.SourceUpdatedAt, Links = hasContent ? null : durableProjection?.Links
+                SourceUpdatedAt = durableProjection?.SourceUpdatedAt,
+                Links = approved?.Plan.RelatedDocumentIds is { Length: > 0 } related
+                    ? (durableProjection?.Links ?? []).Concat(related).Distinct(StringComparer.Ordinal).ToArray()
+                    : hasContent ? null : durableProjection?.Links
             };
             var projectionBytes = JsonSerializer.SerializeToUtf8Bytes(plannedProjection with { Path = targetPath });
             await state.QueueWriteAsync(async (connection, transaction, token) =>
@@ -552,9 +564,12 @@ public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore inde
                 await using var fence = Command(connection, transaction, "SELECT COUNT(*) FROM documents WHERE id=$id AND revision=$revision AND status!='purged'", ("$id", id), ("$revision", revision));
                 if ((long)(await fence.ExecuteScalarAsync(token))! != 1) throw new IngestionConflictException("revision-mismatch");
                 await using var body = Command(connection, transaction,
-                    "INSERT INTO payloads(id,sha256,bytes,document_refs_json,created_at) VALUES($payload,$hash,$bytes,$refs,$now)",
+                    "INSERT OR IGNORE INTO payloads(id,sha256,bytes,document_refs_json,created_at) VALUES($payload,$hash,$bytes,$refs,$now)",
                     ("$payload", projectionId), ("$hash", Convert.ToHexStringLower(SHA256.HashData(projectionBytes))), ("$bytes", projectionBytes), ("$refs", JsonSerializer.Serialize(new[] { id })), ("$now", Now()));
-                return await body.ExecuteNonQueryAsync(token);
+                await body.ExecuteNonQueryAsync(token);
+                await using var verify = Command(connection, transaction, "SELECT sha256 FROM payloads WHERE id=$payload AND redacted_at IS NULL", ("$payload", projectionId));
+                if (await verify.ExecuteScalarAsync(token) as string != Convert.ToHexStringLower(SHA256.HashData(projectionBytes))) throw new IngestionConflictException("projection-changed");
+                return 0;
             }, cancellationToken);
             var overrideValues = new Dictionary<string,string>(StringComparer.Ordinal);
             foreach (var kind in new[] { "type", "props", "tags", "title" })
@@ -569,6 +584,8 @@ public sealed class SqliteDocumentRepository(IStateStore state, IIndexStore inde
             var occurred = operation == "purge" || occurrenceBasis is null ? null : SourceTime.Parse(occurrenceValue, occurrenceBasis, sourceZone);
             var finalization = new MutationFinalization
             {
+                MutationIdentity = approved?.Plan.MutationId, AssistantNote = assistantNote,
+                PendingOperationId = approved?.ProposalId, ToolExecutionId = approved?.ExecutionId,
                 DocumentId = id, RevisionBefore = revision, RevisionAfter = revision + 1, RevisionCause = operation, GenerationJson = Generation,
                 SuppressDocument = operation is "delete" or "purge", ClearSuppression = operation == "restore", PurgeDocumentLineage = operation == "purge",
                 DocumentMetadata = operation == "purge" ? new("[purged]", type, typeOrigin, "{}", "{}", status, projectionId, UpdateOccurred: true) : new(title, type, typeOrigin, effectiveProps, originalProps, status, projectionId, mime, sourceUrl, overrideValues, updateOccurred, occurred?.At, occurred?.Offset, occurred?.Basis, occurred?.Precision)

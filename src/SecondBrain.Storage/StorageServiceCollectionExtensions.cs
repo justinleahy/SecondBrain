@@ -57,7 +57,9 @@ public static class StorageServiceCollectionExtensions
         services.TryAddSingleton<IFolderDocumentRepository, SqliteFolderDocumentRepository>();
         services.TryAddSingleton<IEmbeddingWorkRepository, SqliteEmbeddingWorkRepository>();
         services.TryAddSingleton<IDocumentRepository, SqliteDocumentRepository>();
-        services.TryAddSingleton<IChatRepository, SqliteChatRepository>();
+        services.TryAddSingleton<SqliteChatRepository>();
+        services.TryAddSingleton<IChatRepository>(provider => provider.GetRequiredService<SqliteChatRepository>());
+        services.TryAddSingleton<IChatProposalRepository>(provider => provider.GetRequiredService<SqliteChatRepository>());
         // A factory, because IPayloadProtection comes from the host's key-ring composition, not from Storage.
         services.TryAddSingleton<IRetrievalRepository>(provider => new SqliteRetrievalRepository(
             provider.GetRequiredService<IIndexStore>(), provider.GetRequiredService<IPayloadProtection>(),
@@ -92,6 +94,7 @@ public sealed class StorageStartupService(IServiceProvider services, ILogger<Sto
         var publications = await services.GetRequiredService<IPublicationCoordinator>().RecoverAsync(cancellationToken).ConfigureAwait(false);
         await services.GetRequiredService<IChatRepository>().RecoverInterruptedAsync(cancellationToken).ConfigureAwait(false);
         var purges = await PurgeCleanup.RecoverAsync(services.GetRequiredService<IStateStore>(), services.GetRequiredService<IIndexStore>(), cancellationToken).ConfigureAwait(false);
+        await services.GetRequiredService<IChatProposalRepository>().RecoverApprovalsAsync(cancellationToken).ConfigureAwait(false);
         logger.LogInformation("Storage recovered: {Finalized} finalized mutations, {Discarded} discarded preparations, {Publications} completed publications, {Purges} completed purge cleanups", journal.Finalized, journal.Discarded, publications, purges);
         if (services.GetService<IStagingRecovery>() is { } staging)
         {

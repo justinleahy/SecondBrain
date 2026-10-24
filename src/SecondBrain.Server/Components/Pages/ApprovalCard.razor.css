@@ -1,0 +1,22 @@
+.approval-card {
+    margin: 18px 0;
+    padding: 18px;
+    border: 1px solid #cbdccf;
+    border-radius: 10px;
+    background: #f1f7f2;
+    font-size: 13px;
+}
+header { display: flex; justify-content: space-between; gap: 12px; color: #345e43; }
+header span { font-size: 11px; text-transform: capitalize; }
+h4 { margin: 16px 0 10px; font-size: 15px; }
+summary { cursor: pointer; color: #5a7362; font-size: 12px; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.7; max-height: 300px; overflow: auto; }
+.destination, .help { font-size: 11px; color: #6c7f70; line-height: 1.7; overflow-wrap: anywhere; }
+.actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+button { border: 0; border-radius: 7px; background: #285d40; color: white; padding: 9px 13px; font: inherit; font-size: 12px; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.secondary { background: #e0eae2; color: #37523e; }
+.discard { background: transparent; color: #826258; }
+label { display: block; color: #556c5d; font-size: 12px; margin: 12px 0; }
+input, textarea { display: block; box-sizing: border-box; width: 100%; margin-top: 7px; border: 1px solid #c5d5ca; border-radius: 6px; padding: 10px; background: white; font: inherit; line-height: 1.7; }
+.error { color: #99452b; font-size: 12px; }

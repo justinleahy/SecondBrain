@@ -22,6 +22,8 @@ public interface IDocumentRepository
 {
     ValueTask<ExtractionResult?> CachedExtractionAsync(string documentId, CancellationToken cancellationToken = default);
     ValueTask<CaptureResult> CaptureAsync(CaptureRequest request, IngestionAuthority authority, string? idempotencyKey = null, CancellationToken cancellationToken = default);
+    ValueTask<CaptureResult> ExecuteApprovedAsync(SecondBrain.Core.Chat.ApprovedDocumentWrite write, IngestionAuthority authority, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException("Approved writes require the durable document repository.");
     ValueTask<CaptureResult> AdmitFileAsync(byte[] bytes, CaptureRequest metadata, string fileName, IngestionAuthority authority, string? idempotencyKey = null, CancellationToken cancellationToken = default);
     ValueTask<CaptureResult> CompleteFileAsync(string documentId, long revision, ExtractionResult extraction, CancellationToken cancellationToken = default);
     ValueTask<IReadOnlyList<FileProcessingWork>> PendingClaimCleanupAsync(int limit = 16, CancellationToken cancellationToken = default);

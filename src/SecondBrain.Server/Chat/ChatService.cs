@@ -14,7 +14,7 @@ using SecondBrain.Core.Retrieval;
 namespace SecondBrain.Server.Chat;
 
 /// <summary>The host owns accepted turns. A disconnected request or circuit only stops its observer.</summary>
-public sealed class ChatService(IChatRepository repository, IProviderRegistry providers, IAuthRepository auth,
+public sealed class ChatService(IChatRepository repository, IChatProposalRepository proposals, IProviderRegistry providers, IAuthRepository auth,
     IRetrievalRepository retrieval, IDocumentRepository documents, EmbeddingProcessor embeddings,
     IOptionsMonitor<SecondBrainOptions> options, IAdmissionController admission, ILogger<ChatService> logger) : BackgroundService
 {
@@ -78,7 +78,7 @@ public sealed class ChatService(IChatRepository repository, IProviderRegistry pr
         var answer = new StringBuilder();
         try
         {
-            var executor = new ChatToolExecutor(repository, retrieval, documents, embeddings, work.Turn, work.Actor);
+            var executor = new ChatToolExecutor(repository, proposals, retrieval, documents, embeddings, work.Turn, work.Actor);
             var history = await repository.HistoryAsync(work.Turn.Id, work.Actor, token);
             var historyReferences = history.SelectMany(message => message.DocumentReferences).Distinct().ToArray();
             if (historyReferences.Length != 0)
@@ -101,7 +101,7 @@ public sealed class ChatService(IChatRepository repository, IProviderRegistry pr
             var tools = executor.Tools;
             pipeline.FunctionInvoker = async (context, cancellation) =>
             {
-                if (!tools.Any(tool => ReferenceEquals(tool, context.Function))) throw new ChatConflictException("Unknown tool.");
+                if (!tools.Any(tool => ReferenceEquals(tool, context.Function))) throw new ChatToolNotAllowedException();
                 await repository.CheckActiveAsync(work.Turn.Id, work.Actor, cancellation);
                 return await context.Function.InvokeAsync(context.Arguments, cancellation);
             };
@@ -110,6 +110,7 @@ public sealed class ChatService(IChatRepository repository, IProviderRegistry pr
             {
                 await foreach (var update in pipeline.GetStreamingResponseAsync(messages, chatOptions, token))
                 {
+                    if (update.Contents.OfType<FunctionCallContent>().Any(call => !tools.Any(tool => tool.Name == call.Name))) throw new ChatToolNotAllowedException();
                     if (update.Role == ChatRole.Tool || string.IsNullOrEmpty(update.Text)) continue;
                     if (answer.Length + update.Text.Length > work.Turn.Policy.MaxOutputTokens * 16) throw new ChatLimitException("The response exceeded its output limit.");
                     answer.Append(update.Text);
@@ -120,6 +121,7 @@ public sealed class ChatService(IChatRepository repository, IProviderRegistry pr
             else
             {
                 var response = await pipeline.GetResponseAsync(messages, chatOptions, token);
+                if (response.Messages.SelectMany(message => message.Contents).OfType<FunctionCallContent>().Any(call => !tools.Any(tool => tool.Name == call.Name))) throw new ChatToolNotAllowedException();
                 if (response.Text.Length > work.Turn.Policy.MaxOutputTokens * 16) throw new ChatLimitException("The response exceeded its output limit.");
                 answer.Append(response.Text);
             }
@@ -135,11 +137,13 @@ public sealed class ChatService(IChatRepository repository, IProviderRegistry pr
                 OperationCanceledException => hostToken.IsCancellationRequested ? "service_stopping" : "deadline",
                 ChatLimitException => "limit_reached",
                 ChatConflictException => "context_changed",
+                ChatToolNotAllowedException => "tool_not_allowed",
                 _ => "provider_or_tool_failed"
             };
             // Content and raw provider exceptions are intentionally excluded from operational logs.
             logger.LogWarning("Chat turn {Turn} stopped: {Reason}", work.Turn.Id, code);
-            await repository.FinishAsync(work.Turn.Id, answer.Length == 0 ? "failed" : "partial", new(answer.ToString(), []), code, CancellationToken.None);
+            var partial = error is AuthorityChangedException or ChatLimitException or ChatConflictException or ChatToolNotAllowedException or OperationCanceledException;
+            await repository.FinishAsync(work.Turn.Id, partial || answer.Length != 0 ? "partial" : "failed", new(answer.ToString(), []), code, CancellationToken.None);
         }
     }
 

@@ -1,0 +1,75 @@
+@using System.Text.Json
+@using SecondBrain.Core.Auth
+@using SecondBrain.Core.Chat
+@inject IChatProposalRepository Approvals
+
+<section class="approval-card" aria-label="Proposed change">
+    <header><strong>@(Proposal.Plan?.Operation == "create" ? "Suggested note" : "Suggested update")</strong><span>@Proposal.Status.Replace('_', ' ')</span></header>
+    @if (Proposal.Plan is { } plan)
+    {
+        <h4>@plan.Payload.GetProperty("title").GetString()</h4>
+        @if (editing)
+        {
+            <label>Title<input @bind="title" maxlength="512" /></label>
+            <label>Content<textarea @bind="content" rows="8" maxlength="32768"></textarea></label>
+            <p class="help">Saving an edit creates a new proposal. Review and approve it before the note changes.</p>
+            <div class="actions"><button @onclick="SaveEditAsync" disabled="@busy">Save new proposal</button><button class="secondary" @onclick="() => editing = false" disabled="@busy">Cancel</button></div>
+        }
+        else
+        {
+            <details open="@(Proposal.Status == "pending")"><summary>Review content @(plan.Revision > 0 ? $"· replaces revision {plan.Revision}" : "· new note")</summary><pre>@plan.Payload.GetProperty("content").GetString()</pre><p class="destination">Destination: @plan.Destination</p></details>
+            @if (Proposal.Status == "pending")
+            {
+                <div class="actions"><button @onclick="ApproveAsync" disabled="@busy">@(busy ? "Working…" : "Approve change")</button><button class="secondary" @onclick="Edit" disabled="@busy">Edit</button><button class="discard" @onclick="DiscardAsync" disabled="@busy">Discard</button></div>
+            }
+        }
+    }
+    else
+    {
+        <p class="help">The content was removed when a source was purged.</p>
+        @if (Proposal.Status == "pending") { <button class="discard" @onclick="DiscardAsync" disabled="@busy">Discard</button> }
+    }
+    @if (Proposal.FailureCode is not null) { <p class="help">@Proposal.FailureCode.Replace('_', ' ')</p> }
+    @if (Proposal.Status == "executing") { <p class="help">This approved change is being applied. Recovery will finish it if the service restarts.</p> }
+    @if (error is not null) { <p class="error" role="alert">@error</p> }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public ChatProposal Proposal { get; set; } = default!;
+    [Parameter, EditorRequired] public AuthenticatedCredential Actor { get; set; } = default!;
+    [Parameter] public EventCallback Changed { get; set; }
+    private bool busy, editing;
+    private string title = "", content = "";
+    private string? error;
+
+    private void Edit()
+    {
+        title = Proposal.Plan!.Payload.GetProperty("title").GetString() ?? "";
+        content = Proposal.Plan.Payload.GetProperty("content").GetString() ?? "";
+        editing = true;
+    }
+    private Task ApproveAsync() => ActAsync(async () => { await Approvals.ApproveAsync(Proposal.Id, Actor); });
+    private Task DiscardAsync() => ActAsync(async () => { await Approvals.DiscardAsync(Proposal.Id, Actor); });
+    private Task SaveEditAsync() => ActAsync(async () =>
+    {
+        var plan = Proposal.Plan!;
+        Dictionary<string, object?> arguments = new()
+        {
+            ["title"] = title, ["content"] = content, ["type"] = plan.Payload.GetProperty("type").GetString(),
+            ["props"] = plan.Payload.GetProperty("props"), ["tags"] = plan.Payload.GetProperty("tags")
+        };
+        if (plan.Operation != "create") { arguments["id"] = plan.DocumentId; arguments["revision"] = plan.Revision; }
+        await Approvals.EditAsync(Proposal.Id, JsonSerializer.SerializeToElement(arguments), Actor);
+        editing = false;
+    });
+    private async Task ActAsync(Func<Task> action)
+    {
+        if (busy) return;
+        busy = true; error = null;
+        try { await action(); await Changed.InvokeAsync(); }
+        catch (AuthorityChangedException) { error = "Your session or write permission changed. Sign in again."; }
+        catch (Exception exception) when (exception is ChatConflictException or ArgumentException or ChatNotFoundException)
+        { error = exception.Message; }
+        finally { busy = false; }
+    }
+}

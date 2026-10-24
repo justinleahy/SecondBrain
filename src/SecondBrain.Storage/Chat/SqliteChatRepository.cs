@@ -12,7 +12,9 @@ using SecondBrain.Storage.Auth;
 namespace SecondBrain.Storage.Chat;
 
 /// <summary>State transactions serialize admission, event numbering, exposure, and token reservations.</summary>
-public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider clock) : IChatRepository
+public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider clock,
+    IDocumentRepository? documents = null, IManagedDocumentFiles? files = null,
+    Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null) : IChatRepository, IChatProposalRepository
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private const string TurnSelect = """
@@ -76,7 +78,9 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
                 VALUES(@id,@actor,@requestId,@hash,@mode,@policy,@payload);
                 UPDATE conversations SET updated_at=@now WHERE id=@conversationId;
                 """, new { id, conversationId, ordinal, actor = actor.Id, generation = actor.Generation, epoch = actor.AccountEpoch,
-                tools = request.Mode == "ask" || !credential.GrantedScopes.Contains(Scope.Write) ? "[\"read\"]" : "[\"read\",\"propose\"]",
+                tools = JsonSerializer.Serialize(request.Mode == "ask" || !credential.GrantedScopes.Contains(Scope.Write)
+                    ? new[] { "search", "read_document", "query_records", "list_recent" }
+                    : new[] { "search", "read_document", "query_records", "list_recent", "create_document", "update_document", "tag_document", "link_documents" }, Json),
                 provider = policy.Provider, model = policy.Model, now, requestId, hash, mode = request.Mode,
                 policy = JsonSerializer.Serialize(policy, Json), payload }, transaction, token));
             await EventAsync(connection, transaction, id, "started", new { turnId = id, conversationId, ordinal }, [], token);

@@ -30,7 +30,9 @@ Singleton IPersistentAdmissionAccounting -> PersistentAdmissionAccounting
 Singleton IFolderDocumentRepository -> SqliteFolderDocumentRepository
 Singleton IEmbeddingWorkRepository -> SqliteEmbeddingWorkRepository
 Singleton IDocumentRepository -> SqliteDocumentRepository
-Singleton IChatRepository -> SqliteChatRepository
+Singleton SqliteChatRepository -> SqliteChatRepository
+Singleton IChatRepository -> factory
+Singleton IChatProposalRepository -> factory
 Singleton IRetrievalRepository -> factory
 Singleton StorageStartupService -> StorageStartupService
 Singleton IStorageStatus -> factory

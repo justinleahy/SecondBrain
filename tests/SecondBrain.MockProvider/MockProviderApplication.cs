@@ -159,6 +159,11 @@ public static class MockProviderApplication
 
     private static async Task ChatAsync(HttpContext context)
     {
+        if (context.RequestServices.GetRequiredService<MockProviderState>().ChatResponse is { } scripted)
+        {
+            await scripted(context);
+            return;
+        }
         using var request = await ReadRequestAsync(context);
         if (request is null)
         {

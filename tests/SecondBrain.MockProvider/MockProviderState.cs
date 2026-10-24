@@ -22,6 +22,14 @@ public sealed class MockProviderState
     private long _timeoutTicks = TimeSpan.FromSeconds(30).Ticks;
     private Uri _redirectTarget = new("https://example.com/mock-provider-redirect");
     private Func<HttpContext, Task>? _modelsResponse;
+    private Func<HttpContext, Task>? _chatResponse;
+
+    /// <summary>Scripted provider responses for real-transport assistant/executor tests.</summary>
+    public Func<HttpContext, Task>? ChatResponse
+    {
+        get => Volatile.Read(ref _chatResponse);
+        set => Volatile.Write(ref _chatResponse, value);
+    }
 
     public MockFault Fault
     {
@@ -88,6 +96,7 @@ public sealed class MockProviderState
         RedirectTarget = new Uri("https://example.com/mock-provider-redirect");
         Timeout = TimeSpan.FromSeconds(30);
         ModelsResponse = null;
+        ChatResponse = null;
         ResetCounts();
     }
 

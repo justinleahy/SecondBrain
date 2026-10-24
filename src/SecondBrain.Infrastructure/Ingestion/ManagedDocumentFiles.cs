@@ -35,6 +35,12 @@ public sealed class ManagedDocumentFiles(string dataRoot, IMutationJournal journ
         };
     }
 
+    public string GetAssistantNotePath(string documentId)
+    {
+        var original = GetManagedPath(documentId, ".md");
+        return Path.Combine(Path.GetFullPath(dataRoot), "vault", "notes", Path.GetFileName(original));
+    }
+
     public async ValueTask<string> ApplyLifecycleAsync(string documentId, string? managedPath, string extension, string operation, string? expectedHash, byte[] fallbackContent, MutationFinalization finalization, CancellationToken cancellationToken = default)
     {
         var target = GetLifecyclePath(documentId, extension, operation);
@@ -69,7 +75,7 @@ public sealed class ManagedDocumentFiles(string dataRoot, IMutationJournal journ
         }
         if (removals.Any(removal => removal.Path == target)) throw new InvalidDataException("lifecycle_already_at_destination");
         InputStager.EnsurePrivateDirectory(Path.GetDirectoryName(target)!);
-        var mutation = Guid.NewGuid().ToString("N");
+        var mutation = finalization.MutationIdentity ?? Guid.NewGuid().ToString("N");
         var result = await journal.ExecuteAsync(new MutationWriteRequest
         {
             MutationId = mutation, OperationId = mutation, Kind = operation == "delete" ? "trash" : operation,
@@ -90,10 +96,10 @@ public sealed class ManagedDocumentFiles(string dataRoot, IMutationJournal journ
         if (documentId.Length is < 1 or > 128 || documentId.Any(character => !char.IsAsciiLetterOrDigit(character) && character is not '-' and not '_')) throw new ArgumentException("Invalid document identifier.", nameof(documentId));
         if (extension.Length is < 1 or > 16 || extension[0] != '.' || extension[1..].Any(character => !char.IsAsciiLetterOrDigit(character))) throw new ArgumentException("Invalid extension.", nameof(extension));
         if (bytes.LongLength > InputStager.MaximumInputBytes) throw new InvalidDataException("input_bytes");
-        var destination = GetManagedPath(documentId, extension);
+        var destination = finalization.AssistantNote ? GetAssistantNotePath(documentId) : GetManagedPath(documentId, extension);
         InputStager.EnsurePrivateDirectory(Path.Combine(Path.GetFullPath(dataRoot), "vault"));
         InputStager.EnsurePrivateDirectory(Path.GetDirectoryName(destination)!);
-        var mutation = Guid.NewGuid().ToString("N");
+        var mutation = finalization.MutationIdentity ?? Guid.NewGuid().ToString("N");
         var result = await journal.ExecuteAsync(new MutationWriteRequest
         {
             MutationId = mutation, OperationId = mutation, Kind = "import", Destination = destination,

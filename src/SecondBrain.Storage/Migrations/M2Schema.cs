@@ -56,5 +56,15 @@ internal static class M2Schema
           PRIMARY KEY(turn_id,call_id)
         );
         CREATE INDEX IF NOT EXISTS chat_model_calls_budget ON chat_model_calls(created_at,credential_id);
+        CREATE TABLE IF NOT EXISTS chat_proposal_details (
+          proposal_id TEXT PRIMARY KEY REFERENCES pending_operations(id),
+          mutation_id TEXT NOT NULL UNIQUE,
+          policy_hash TEXT NOT NULL,
+          creator_generation INTEGER NOT NULL,
+          creator_epoch INTEGER NOT NULL,
+          approver_generation INTEGER,
+          approver_epoch INTEGER,
+          failure_code TEXT
+        );
         """;
 }

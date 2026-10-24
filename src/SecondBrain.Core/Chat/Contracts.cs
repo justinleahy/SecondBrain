@@ -53,3 +53,4 @@ public interface IChatRepository
 public sealed class ChatConflictException(string message) : InvalidOperationException(message);
 public sealed class ChatLimitException(string message) : InvalidOperationException(message);
 public sealed class ChatNotFoundException() : InvalidOperationException("Conversation or turn was not found.");
+public sealed class ChatToolNotAllowedException() : InvalidOperationException("The provider requested a tool that is not allowed for this turn.");

@@ -521,7 +521,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
         {
             var kind = Uri.TryCreate(link, UriKind.Absolute, out _) ? "markdown" : "wikilink";
             await using var insert = Command(connection, transaction,
-                "INSERT OR IGNORE INTO links(from_document_id,to_document_id,target_text,kind) VALUES($id,(SELECT document_id FROM indexed_documents WHERE title=$target ORDER BY document_id LIMIT 1),$target,$kind)",
+                "INSERT OR IGNORE INTO links(from_document_id,to_document_id,target_text,kind) VALUES($id,(SELECT document_id FROM indexed_documents WHERE document_id=$target OR title=$target ORDER BY CASE WHEN document_id=$target THEN 0 ELSE 1 END,document_id LIMIT 1),$target,$kind)",
                 ("$id", id), ("$target", link), ("$kind", kind));
             await insert.ExecuteNonQueryAsync(token);
         }
