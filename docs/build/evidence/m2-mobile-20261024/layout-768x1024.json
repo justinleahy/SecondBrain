@@ -1,0 +1,13 @@
+{
+  "width": 768,
+  "height": 1024,
+  "pageWidth": 768,
+  "pageHeight": 1024,
+  "composerBottom": 1024,
+  "composerTop": 775.828125,
+  "messageHeight": 666,
+  "messageScrolls": true,
+  "mobileToolbar": false,
+  "draft": "Mobile draft to preserve",
+  "viewportCss": "1024px"
+}

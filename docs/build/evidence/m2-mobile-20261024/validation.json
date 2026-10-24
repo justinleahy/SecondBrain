@@ -1,0 +1,65 @@
+{
+  "server_regression_tests_passed": 263,
+  "browser_qualification_tests_passed": 1,
+  "browser_console_errors": 0,
+  "viewports": [
+    [
+      320,
+      568
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      390,
+      420
+    ],
+    [
+      568,
+      320
+    ],
+    [
+      760,
+      800
+    ],
+    [
+      768,
+      1024
+    ],
+    [
+      1440,
+      900
+    ],
+    [
+      844,
+      390
+    ],
+    [
+      932,
+      430
+    ],
+    [
+      932,
+      300
+    ]
+  ],
+  "checks": [
+    "scrolling conversation list with 25 conversations",
+    "44 px primary touch controls",
+    "navigation close and keyboard focus restoration",
+    "Escape closes navigation",
+    "delete confirmation and cancellation",
+    "approvals navigation",
+    "draft preservation",
+    "full note rendering",
+    "viewport resize with long note open",
+    "Shift+Enter newline",
+    "Enter submits one real provider-backed turn",
+    "login input sizing"
+  ],
+  "limits": [
+    "Viewport resizing was checked in the browser; a physical Safari software keyboard and hardware safe-area insets were not exercised."
+  ],
+  "landscape_qualification_tests_passed": 1
+}

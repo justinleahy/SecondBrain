@@ -1,0 +1,113 @@
+{
+  "status": "deployed",
+  "at_utc": "2026-10-24T18:51:39.515313+00:00",
+  "backup": "/var/backups/secondbrain/chat-20261024T185127Z-b2f86dc2",
+  "previous_binaries": "/usr/local/lib/secondbrain.pre-chat-20261024T185127Z-b2f86dc2",
+  "bundle_files_verified": 430,
+  "readiness": {
+    "ready": true,
+    "components": {
+      "stores": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": null
+      },
+      "migrations": {
+        "ready": true,
+        "detail": "Migrations and durability recovery completed.",
+        "checkedAt": null
+      },
+      "lock": {
+        "ready": true,
+        "detail": "Exclusive data-root lock.",
+        "checkedAt": null
+      },
+      "canary": {
+        "ready": true,
+        "detail": "Egress canary: Blocked. Egress canary state is current.",
+        "checkedAt": "2026-10-24T18:51:35.1871005+00:00"
+      },
+      "extractor": {
+        "ready": true,
+        "detail": "Extractor answered ping.",
+        "checkedAt": null
+      },
+      "provider:chat": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T18:51:37.6496906+00:00"
+      },
+      "provider:enrich": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T18:51:37.6514538+00:00"
+      },
+      "provider:embed": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T18:51:37.652698+00:00"
+      },
+      "provider:rerank": {
+        "ready": true,
+        "detail": "Optional rerank role is not configured.",
+        "checkedAt": "2026-10-24T18:51:39.3248409+00:00"
+      }
+    }
+  },
+  "m1_schema": "applied",
+  "account_and_credentials_preserved": true,
+  "configuration_and_secrets_preserved": true,
+  "keyring_preserved": true,
+  "existing_documents_preserved": 4,
+  "directory_modes": {
+    "/srv/secondbrain": {
+      "uid": 1654,
+      "gid": 1654,
+      "mode": "0o700"
+    },
+    "/srv/secondbrain-incoming": {
+      "uid": 1656,
+      "gid": 1654,
+      "mode": "0o750"
+    },
+    "/srv/secondbrain-incoming/inbox": {
+      "uid": 1654,
+      "gid": 1654,
+      "mode": "0o1770"
+    },
+    "/srv/secondbrain-incoming/inbox/.claimed": {
+      "uid": 1654,
+      "gid": 1654,
+      "mode": "0o700"
+    }
+  },
+  "unauthenticated_documents_and_jobs": 401,
+  "units": {
+    "secondbrain.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "2527990",
+      "ExecMainStartTimestamp": "Sat 2026-10-24 14:51:32 EDT",
+      "MemoryMax": "8589934592",
+      "PrivateNetwork": "no"
+    },
+    "secondbrain-extractor.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "2534660",
+      "ExecMainStartTimestamp": "Sat 2026-10-24 14:51:35 EDT",
+      "MemoryMax": "1073741824",
+      "PrivateNetwork": "yes"
+    },
+    "secondbrain-extractor.socket": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MemoryMax": "infinity",
+      "PrivateNetwork": "no"
+    }
+  },
+  "release": "chat",
+  "chat_schema": "applied",
+  "chat_endpoints_require_authentication": true,
+  "chat_home_and_static_assets_served": true
+}

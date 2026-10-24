@@ -1,0 +1,13 @@
+{
+  "width": 568,
+  "height": 320,
+  "pageWidth": 568,
+  "pageHeight": 320,
+  "composerBottom": 320,
+  "composerTop": 189,
+  "messageHeight": 144,
+  "messageScrolls": true,
+  "mobileToolbar": true,
+  "draft": "Mobile draft to preserve",
+  "viewportCss": "320px"
+}

@@ -1,0 +1,11 @@
+{
+  "source_commit": "df2f3845f1872fed37b53e35f99a71bf3d897d01",
+  "file_count": 430,
+  "runtime_identifier": "linux-x64",
+  "self_contained": true,
+  "server_tests_passed": 263,
+  "browser_qualification_passed": true,
+  "manifest_sha256": "7d6fed7e267142126d1dbd174177ffe0f66ceac7802b603d69994552039102ae",
+  "base_manifest_sha256": "02e9f2be96d6b8b2d367ee9d0e740989a273e388376c8227eebbc6f523302ade",
+  "merge": "Previous qualified CLI/extractor bundle overlaid with the final server publish."
+}

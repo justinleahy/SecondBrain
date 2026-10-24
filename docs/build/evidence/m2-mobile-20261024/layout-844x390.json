@@ -1,0 +1,11 @@
+{
+  "width": 844,
+  "height": 390,
+  "mobileToolbar": true,
+  "noOverflow": true,
+  "composerVisible": true,
+  "inputFont": "16px",
+  "noteButtonHeight": 44,
+  "fullNote": true,
+  "messageHeight": 214
+}

@@ -1,0 +1,14 @@
+{
+  "at_utc": "2026-10-24T18:52:01.082012+00:00",
+  "installed_bundle_verified": true,
+  "files_verified": 430,
+  "loopback_authentication_and_assets_verified": true,
+  "lan_ready": true,
+  "lan_assets_match_installed_files": {
+    "chat.js": "7cac8fa920d9b4f3ee93b73aa823dbfbee22a8ea0d23e6f061936551f02968e8",
+    "app.css": "8a3c0418ae7cd2a0d918564b5afc5459a0a816b1c3a63a0f010c572d1d3266a0",
+    "SecondBrain.Server.styles.css": "2f2cdb3b6da0281812fe4b65224607916362861489cca8bda241447500636348"
+  },
+  "mobile_viewport_meta": true,
+  "deployment_at_utc": "2026-10-24T18:51:39.515313+00:00"
+}
