@@ -93,9 +93,10 @@ else
                 @if (error is not null) { <p class="error" role="alert">@error</p> }
                 <form class="composer" @onsubmit="SendAsync" @onsubmit:preventDefault>
                     <label class="sr-only" for="message">Message SecondBrain</label>
-                    <textarea id="message" @bind="prompt" @bind:event="oninput" placeholder="Ask about your knowledge…" rows="3" maxlength="32768" disabled="@sending"></textarea>
+                    <textarea id="message" data-chat-input aria-describedby="message-help" @bind="prompt" @bind:event="oninput" placeholder="Ask about your knowledge…" rows="3" maxlength="32768" disabled="@sending"></textarea>
                     <div class="composer-actions"><label><input type="checkbox" @bind="askOnly" disabled="@(active || sending)" /> Read-only ask</label><button type="submit" disabled="@(active || sending || string.IsNullOrWhiteSpace(prompt))">@(active ? "Working…" : sending ? "Sending…" : "Send ↑")</button></div>
                 </form>
+                <p id="message-help" class="privacy-note">Enter to send · Shift+Enter for a new line</p>
                 <p class="privacy-note">Your message, recent conversation, and retrieved passages are sent to your configured model. Check sources before relying on an answer.</p>
             </div>
         </main>
