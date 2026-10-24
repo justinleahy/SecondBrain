@@ -1,0 +1,34 @@
+{
+  "before": {
+    "result": {
+      "executionId": "0a435aaa-9baf-4cbb-ad6e-60df43e56edb",
+      "testId": "a5f69b67-afca-a269-5048-44b76261f9d2",
+      "testName": "SecondBrain.Server.Tests.FolderApiTests.PollingSourceWakesAtDeadlineAfterLateSchedulerTick",
+      "computerName": "DESKTOP-8NJSRF2",
+      "duration": "00:00:03.4143419",
+      "startTime": "2026-10-24T12:59:03.2466845-04:00",
+      "endTime": "2026-10-24T12:59:06.6722198-04:00",
+      "testType": "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b",
+      "outcome": "Failed",
+      "testListId": "8c84fa94-04c1-424b-9868-57a2d4851a1d",
+      "relativeResultsDirectory": "0a435aaa-9baf-4cbb-ad6e-60df43e56edb"
+    },
+    "error": "A durable source capture did not become keyword searchable within 2 seconds."
+  },
+  "after": {
+    "result": {
+      "executionId": "9b98ae53-000e-4cb2-b538-cf892af84a65",
+      "testId": "a5f69b67-afca-a269-5048-44b76261f9d2",
+      "testName": "SecondBrain.Server.Tests.FolderApiTests.PollingSourceWakesAtDeadlineAfterLateSchedulerTick",
+      "computerName": "DESKTOP-8NJSRF2",
+      "duration": "00:00:01.4853067",
+      "startTime": "2026-10-24T12:59:22.7567538-04:00",
+      "endTime": "2026-10-24T12:59:24.2481952-04:00",
+      "testType": "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b",
+      "outcome": "Passed",
+      "testListId": "8c84fa94-04c1-424b-9868-57a2d4851a1d",
+      "relativeResultsDirectory": "9b98ae53-000e-4cb2-b538-cf892af84a65"
+    },
+    "error": null
+  }
+}

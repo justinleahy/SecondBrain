@@ -952,6 +952,8 @@ Capacity is reserved before work is accepted and released on completion; a reque
 
 Reference hardware: a Linux x64 server with at least 32 GB RAM and NVMe storage, running the daemon in Docker, plus a separate vLLM server with an RTX 5090 on the same private network serving the chat and embedding models. Targets are measured warm, with one concurrent user, unless stated.
 
+**M1 acceptance scope (2026-10-24).** The operator explicitly accepted the existing single-host Fedora x86_64 / RTX 5090 deployment for M1 and deferred qualification against a separate LAN provider machine. All M1 correctness, isolation, latency, throughput, rebuild and memory targets below remain required. Same-host measurements do not establish separate-LAN behavior; that qualification remains a follow-up using [the recorded procedure](deploy/tests/m1-live-LAN-handoff.md). This acceptance does not waive the current-M1 systemd qualification or change later milestones' requirements.
+
 | Area | Target |
 |---|---|
 | Scale | 100k documents / 1M chunks; 1024-dimension embeddings (400 MB of vectors in memory at 100k chunks, 4 GB at 1M) |

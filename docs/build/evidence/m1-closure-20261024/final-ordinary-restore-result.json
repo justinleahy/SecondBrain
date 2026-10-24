@@ -1,0 +1,13 @@
+{
+  "command": [
+    "dotnet",
+    "restore",
+    "SecondBrain.slnx",
+    "--locked-mode",
+    "--disable-build-servers",
+    "-m:1"
+  ],
+  "started_utc": "2026-10-24T17:01:44.034778+00:00",
+  "finished_utc": "2026-10-24T17:01:45.734236+00:00",
+  "exit_code": 0
+}

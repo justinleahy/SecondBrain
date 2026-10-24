@@ -3,8 +3,10 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text;
 using System.Diagnostics;
+using System.Threading.Channels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Time.Testing;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
 using SecondBrain.Core.Ingestion;
@@ -91,6 +93,55 @@ public sealed class FolderApiTests(ITestOutputHelper output)
         Assert.Equal(initial.DocumentId, edited.DocumentId);
         Assert.True(edited.Revision > initial.Revision);
         Assert.True(elapsed.Elapsed < TimeSpan.FromSeconds(budgetSeconds));
+    }
+
+    [Fact]
+    public async Task PollingSourceWakesAtDeadlineAfterLateSchedulerTick()
+    {
+        var clock = new ObservedPollingClock();
+        await using var factory = new LaneDWebFactory(configureServices: services => services.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock)));
+        using var client = await ClientAsync(factory);
+        await clock.WaitForPollingDelayAsync();
+        var path = Directory.CreateDirectory(Path.Combine(factory.Options.CurrentValue.Sources.AllowedRoots[0], "poll-deadline")).FullName;
+        var markdown = Path.Combine(path, "note.md");
+        await File.WriteAllTextAsync(markdown, "Initial echidna evidence.");
+        using var created = await client.PostAsJsonAsync("/v1/sources", new CreateSourceRequest { Path = path, Watch = "poll", PollIntervalSeconds = 2 });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+
+        clock.Advance(TimeSpan.FromMilliseconds(250));
+        await clock.WaitForPollingDelayAsync();
+        var initial = await WaitForHitAsync(client, "echidna");
+        await File.WriteAllTextAsync(markdown, "Updated quokka evidence.");
+
+        // A delayed scheduler pass lands 100 ms before this source's next poll.
+        // Its next sleep must stop at that deadline, not add another 250 ms.
+        clock.Advance(TimeSpan.FromMilliseconds(1900));
+        await clock.WaitForPollingDelayAsync();
+        using var before = await client.PostAsJsonAsync("/v1/search", new SearchRequest("quokka", "keyword"));
+        Assert.Empty((await before.Content.ReadFromJsonAsync<SearchResponse>())!.Results);
+        clock.Advance(TimeSpan.FromMilliseconds(100));
+
+        var edited = await WaitForHitAsync(client, "quokka", 2);
+        Assert.Equal(initial.DocumentId, edited.DocumentId);
+        Assert.True(edited.Revision > initial.Revision);
+    }
+
+    private sealed class ObservedPollingClock : TimeProvider
+    {
+        private readonly FakeTimeProvider inner = new(DateTimeOffset.UtcNow);
+        private readonly Channel<TimeSpan> delays = Channel.CreateUnbounded<TimeSpan>();
+        public override DateTimeOffset GetUtcNow() => inner.GetUtcNow();
+        public override long GetTimestamp() => inner.GetTimestamp();
+        public override long TimestampFrequency => inner.TimestampFrequency;
+        public override TimeZoneInfo LocalTimeZone => inner.LocalTimeZone;
+        public void Advance(TimeSpan elapsed) => inner.Advance(elapsed);
+        public async Task WaitForPollingDelayAsync() => await delays.Reader.ReadAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5));
+        public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+        {
+            var timer = inner.CreateTimer(callback, state, dueTime, period);
+            if (dueTime > TimeSpan.Zero && dueTime <= TimeSpan.FromMilliseconds(250)) delays.Writer.TryWrite(dueTime);
+            return timer;
+        }
     }
 
     [Fact]

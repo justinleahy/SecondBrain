@@ -1,0 +1,17 @@
+{
+  "command": [
+    "dotnet",
+    "build",
+    "SecondBrain.slnx",
+    "--configuration",
+    "Release",
+    "--no-restore",
+    "--disable-build-servers",
+    "-m:1",
+    "-warnaserror",
+    "-t:Rebuild"
+  ],
+  "started_utc": "2026-10-24T16:59:34.709264+00:00",
+  "finished_utc": "2026-10-24T17:00:20.181680+00:00",
+  "exit_code": 0
+}

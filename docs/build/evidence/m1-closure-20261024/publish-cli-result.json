@@ -1,0 +1,23 @@
+{
+  "command": [
+    "dotnet",
+    "publish",
+    "src/SecondBrain.Cli/SecondBrain.Cli.csproj",
+    "--configuration",
+    "Release",
+    "--runtime",
+    "linux-x64",
+    "--self-contained",
+    "true",
+    "--no-restore",
+    "-warnaserror",
+    "-p:ContinuousIntegrationBuild=true",
+    "--disable-build-servers",
+    "-m:1",
+    "--output",
+    "/home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish-20261024-poll-deadline/cli"
+  ],
+  "started_utc": "2026-10-24T17:01:35.621581+00:00",
+  "finished_utc": "2026-10-24T17:01:40.352527+00:00",
+  "exit_code": 0
+}

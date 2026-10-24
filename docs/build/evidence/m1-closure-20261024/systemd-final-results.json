@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "workflow": {
+    "metrics": {
+      "capture_keyword_seconds": 0.3946179668419063,
+      "capture_vectors_seconds": 0.40288036596029997,
+      "inbox_pdf_drop_to_keyword_seconds": 12.731682390905917,
+      "poll_edit_after_rsync_commit_seconds": 4.929144850932062,
+      "poll_edit_including_rsync_seconds": 4.99288974609226,
+      "poll_interval_seconds": 5,
+      "watched_edit_seconds": 1.8122983411885798
+    },
+    "profile": "isolated deployed daemon",
+    "rebuild_text_chunks_equal": true,
+    "source_identity_preserved": true,
+    "sync_tool": "rsync --delay-updates --times",
+    "workflow": "text/PDF/crafted-PDF/query/watch/edit/move/suppress/restore/restart/rebuild/jobs"
+  },
+  "readiness": true,
+  "runtime_hashes_verified": 416,
+  "cleanup": "verified separately in systemd-final-cleanup.json",
+  "separate_lan": "not tested; explicitly deferred by the operator on 2026-10-24"
+}

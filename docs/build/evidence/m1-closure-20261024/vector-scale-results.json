@@ -1,0 +1,8 @@
+[
+  {
+    "name": "SecondBrain.Core.Tests.Retrieval.VectorScaleQualification.MillionChunkDenseSlotsRemainBoundedUnderReplacement",
+    "outcome": "Passed",
+    "duration": "00:00:03.5483618",
+    "output": "Initial load: 2.92s; 4294967296 vector bytes.\n100k replacements: 0.61s; vector bytes=4294967296; managed bytes=4448001528; working set=4775735296."
+  }
+]

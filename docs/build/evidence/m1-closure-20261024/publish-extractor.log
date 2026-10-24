@@ -1,0 +1,4 @@
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/linux-x64/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Release/net10.0/linux-x64/SecondBrain.Extractor.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/operator-publish-20261024-poll-deadline/extractor/

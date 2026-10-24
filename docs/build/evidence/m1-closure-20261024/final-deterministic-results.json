@@ -1,0 +1,194 @@
+{
+  "stage": "After deadline-aware polling correction",
+  "totals": {
+    "total": 1750,
+    "passed": 1750,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "projects": [
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_00_21.trx",
+      "counters": {
+        "total": 63,
+        "executed": 63,
+        "passed": 63,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_00_22.trx",
+      "counters": {
+        "total": 152,
+        "executed": 152,
+        "passed": 152,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_00_23.trx",
+      "counters": {
+        "total": 142,
+        "executed": 142,
+        "passed": 142,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_00_28.trx",
+      "counters": {
+        "total": 780,
+        "executed": 780,
+        "passed": 780,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_00_30.trx",
+      "counters": {
+        "total": 81,
+        "executed": 81,
+        "passed": 81,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_00_32.trx",
+      "counters": {
+        "total": 72,
+        "executed": 72,
+        "passed": 72,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_00_35.trx",
+      "counters": {
+        "total": 231,
+        "executed": 231,
+        "passed": 231,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_13_01_11.trx",
+      "counters": {
+        "total": 229,
+        "executed": 229,
+        "passed": 229,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    }
+  ],
+  "new_regression": [
+    {
+      "executionId": "c4272619-d8e9-4ebf-bd2b-b0097d22f324",
+      "testId": "a5f69b67-afca-a269-5048-44b76261f9d2",
+      "testName": "SecondBrain.Server.Tests.FolderApiTests.PollingSourceWakesAtDeadlineAfterLateSchedulerTick",
+      "computerName": "DESKTOP-8NJSRF2",
+      "duration": "00:00:00.7232434",
+      "startTime": "2026-10-24T13:00:45.8247321-04:00",
+      "endTime": "2026-10-24T13:00:46.5480385-04:00",
+      "testType": "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b",
+      "outcome": "Passed",
+      "testListId": "8c84fa94-04c1-424b-9868-57a2d4851a1d",
+      "relativeResultsDirectory": "c4272619-d8e9-4ebf-bd2b-b0097d22f324"
+    }
+  ]
+}

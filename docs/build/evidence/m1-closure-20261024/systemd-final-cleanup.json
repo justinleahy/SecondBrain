@@ -1,0 +1,28 @@
+{
+  "checked_utc": "2026-10-24T17:08:24.631652+00:00",
+  "remaining_fixture_paths": [],
+  "units": {
+    "sb-m1-qualification.kXpKUfjj.service": {
+      "LoadState": "not-found",
+      "ActiveState": "inactive",
+      "SubState": "dead"
+    },
+    "sb-m1-qualification.kXpKUfjj-extractor.service": {
+      "LoadState": "not-found",
+      "ActiveState": "inactive",
+      "SubState": "dead"
+    },
+    "sb-m1-qualification.kXpKUfjj-extractor.socket": {
+      "LoadState": "not-found",
+      "ActiveState": "inactive",
+      "SubState": "dead"
+    }
+  },
+  "qualification_port_open": false,
+  "installed_service": {
+    "ActiveState": "active",
+    "SubState": "running",
+    "ActiveEnterTimestamp": "Fri 2026-10-09 10:48:58 EDT",
+    "ExecMainStartTimestamp": "Fri 2026-10-09 10:48:58 EDT"
+  }
+}

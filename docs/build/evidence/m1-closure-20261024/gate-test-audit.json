@@ -1,0 +1,417 @@
+{
+  "verified_utc": "2026-10-24T17:03:31.116295+00:00",
+  "scope": "All 1750 final deterministic tests plus the separate million-vector qualification. The corrected-binary systemd workflow passed; unchanged extraction/retrieval paths retain the verified October 9 deployed evidence. Separate-LAN qualification was explicitly deferred by the operator.",
+  "gates": [
+    {
+      "gate": "M1-G1",
+      "requirement": "U1: inbox PDF becomes retrievable within 30 seconds",
+      "test_references": [
+        {
+          "reference": "FolderApiTests.InboxPdfTextLayerCompletesWithinThirtySecondsAndMalformedPdfDoesNotBlockSearch",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "InboxClaimsAndImportsThenRewrittenOriginalCreatesSeparateIdentity",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Run the daemon, real descriptor transport and sandbox against a text-layer PDF; include the inbox poll and staging time. A rewrite of the original pathname becomes a separate entry.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G2",
+      "requirement": "U2: watched Markdown edits reach search",
+      "test_references": [
+        {
+          "reference": "FolderApiTests.AutomaticSourceEditsReachSearchWithinTimingBudget",
+          "passed_cases": 2,
+          "failed_cases": 0
+        },
+        {
+          "reference": "PollingSourceWakesAtDeadlineAfterLateSchedulerTick",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "FolderDeepScanPublishesEditsAndUnambiguousMovePreservesIdentity",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "StagingTests.FolderDeepScanHashesOnlyMatchingFilesAndSkipsSymlinkDirectories",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Events meet the <10-second edit target; polling meets the configured interval; shallow/deep scans cover missed events and unchanged stat tuples.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json",
+        "docs/build/evidence/m1-closure-20261024/poll-regression-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G3",
+      "requirement": "U9: an unambiguous move preserves identity without re-embedding",
+      "test_references": [
+        {
+          "reference": "FolderApiTests.UnambiguousSourceMovePreservesIdentityWithoutEmbeddingProviderCalls",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "FileCompletionTests.AmbiguousSameHashAbsencesNeverGuessMoveIdentity",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Compare document id, revision history and embedding-call count. Identical bytes at two simultaneous paths remain two documents.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G4",
+      "requirement": "U17: suppression prevents resurrection; absence remains reversible",
+      "test_references": [
+        {
+          "reference": "FileCompletionTests.FolderAbsenceReattachesIdentityWhileSuppressionPreventsImport",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "ManagedLifecycleTests.ManagedEditTrashRestoreAndPurgeJournalBytesAndRejectLateRevision",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Rescan and restart do not clear suppression. Source disappearance never deletes an external file and does not create user suppression.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G5",
+      "requirement": "U18: interrupted imports resume without duplicates or stale chunks",
+      "test_references": [
+        {
+          "reference": "FileCompletionTests.InterruptedCompletionRecoversWithoutDuplicateAdmissionOrProjectionPayload",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "M1PublicationRetrievalTests.InterruptedCaptureRecoversAdmissionAndReplaysWithoutDuplicates",
+          "passed_cases": 2,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Restart after admission, lease acquisition and projection publication; repeat recovery; inspect identities, queued jobs and projections.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G6",
+      "requirement": "U21: a crafted file fails without stopping the daemon",
+      "test_references": [
+        {
+          "reference": "FolderApiTests.InboxPdfTextLayerCompletesWithinThirtySecondsAndMalformedPdfDoesNotBlockSearch",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "ExtractionParserTests.MalformedPdfReturnsHonestError",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "The real sandbox exits or reports a bounded error, the stage/reason is durable, and `/health` plus an unrelated search still succeed.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G7",
+      "requirement": "Rebuild preserves authored truth, deterministic projections and citation resolution",
+      "test_references": [
+        {
+          "reference": "M1PublicationRetrievalTests.PhysicalIndexLossRebuildsTextChunksAndSuppressionsWithoutNewRevisions",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "FileCompletionTests.SourceReextractionPreservesJournaledUserOverridesAndRawProperties",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Delete the index, rebuild from vault plus state, compare identities/overrides/suppressions, lossless text/chunks/FTS/metadata and fixture locators/excerpts. Full assistant citation generation is M2.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json",
+        "docs/build/evidence/m1-closure-20261009/fullscale-final-genuine-rebuild.json"
+      ]
+    },
+    {
+      "gate": "M1-G8",
+      "requirement": "Every publication boundary keeps the preceding committed projections searchable",
+      "test_references": [
+        {
+          "reference": "M1PublicationRetrievalTests.InterruptedReplacementExposesOneCompleteProjection",
+          "passed_cases": 2,
+          "failed_cases": 0
+        },
+        {
+          "reference": "LateMismatchedChunkRollsBackTheWholeVectorBatchAndCache",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "PublicationTests",
+          "passed_cases": 17,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Inject faults after state publishing, before and after index commit, and before finalization. Recover across two restarts; query metadata, lexical and vector projections together.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G9",
+      "requirement": "Symlink swaps and hard links cannot expose bytes outside the source boundary",
+      "test_references": [
+        {
+          "reference": "StagingTests.SymlinkAndParentTraversalAreRejected",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "HardLinkIsRejected",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "RetainedRootDoesNotFollowReplacedRootPath",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Use descriptor-relative opens and adversarial races, plus distinct daemon/sync UIDs on Linux. A registration-time realpath check alone is insufficient.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261009/distinct-uid.log"
+      ]
+    },
+    {
+      "gate": "M1-G10",
+      "requirement": "The sandbox has no network, store or secret access and receives only a descriptor",
+      "test_references": [
+        {
+          "reference": "deploy/tests/extractor-isolation.py",
+          "kind": "deployed harness",
+          "exists": true
+        },
+        {
+          "reference": "SupervisorTests.TimeoutKillsHungWorkerAndItsDescendant",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Exercise the actual Linux service/container boundaries and a hung parser with a child process. An in-process parser substitute cannot close this gate.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261009/extractor-isolation.log",
+        "docs/build/evidence/m1-closure-20261024/systemd-final-observation.json"
+      ]
+    },
+    {
+      "gate": "M1-G11",
+      "requirement": "Work bounds reject bombs and deterministic failures are not retried",
+      "test_references": [
+        {
+          "reference": "ExtractionParserTests",
+          "passed_cases": 14,
+          "failed_cases": 0
+        },
+        {
+          "reference": "ExtractionOutputTests",
+          "passed_cases": 3,
+          "failed_cases": 0
+        },
+        {
+          "reference": "SupervisorTests",
+          "passed_cases": 2,
+          "failed_cases": 0
+        },
+        {
+          "reference": "deploy/tests/extractor-isolation.py",
+          "kind": "deployed harness",
+          "exists": true
+        }
+      ],
+      "required_deployed_evidence": "Assert named bound, bounded CPU/memory/output, metadata-only or skipped status as appropriate, and zero further attempts until bytes or extractor generation change. Disable external entity/resource/action fetching.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261009/extractor-isolation.log",
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G12",
+      "requirement": "Delete/replace churn uses vector memory proportional to live chunks",
+      "test_references": [
+        {
+          "reference": "VectorSlotsTests",
+          "passed_cases": 11,
+          "failed_cases": 0
+        },
+        {
+          "reference": "VectorScaleQualification.MillionChunkDenseSlotsRemainBoundedUnderReplacement",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "M1PublicationRetrievalTests.CommittedReplacementInvalidatesPreviouslyLoadedVectorGeneration",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Run sustained replacements and deletions across segment boundaries; check live slots, retired slots and measured array allocation after old readers finish. SQLite row-id growth must not drive allocation.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/vector-scale-results.json",
+        "docs/build/evidence/m1-closure-20261009/fullscale-final-post-consolidation-startup-memory.json"
+      ]
+    },
+    {
+      "gate": "M1-G13",
+      "requirement": "A competing editor's change is preserved as a conflict",
+      "test_references": [
+        {
+          "reference": "JournalTests.ExternalEditBetweenHashAndRenameIsPreserved",
+          "passed_cases": 2,
+          "failed_cases": 0
+        },
+        {
+          "reference": "RemovalHashRaceRestoresActualExternalBytesAndRecordsConflict",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "ManagedLifecycleTests",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Race the watcher/editor against an import or managed-file write. Preserve the external bytes, write the conflict file, record the target change and admit the new revision; repeat recovery.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G14",
+      "requirement": "Filtered retrieval finds candidates outside the unfiltered top 50",
+      "test_references": [
+        {
+          "reference": "M1PublicationRetrievalTests.FiltersApplyBeforeBothLegsWithMoreThanFiftyDistractors",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "SemanticSelectionDiversifiesBeforeTopFiftyAndHonorsExactCap",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Exercise keyword and vector legs separately and together, with distractors dominating the global ranking.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G15",
+      "requirement": "Retrieval recall@8 is at least 0.85 on the seed set",
+      "test_references": [
+        {
+          "reference": "RetrievalEvaluationTests.SeedRecallAt8Meets085",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Commit the seed documents, labeled questions, recorded embeddings and provider/model fingerprint; report recall@5, recall@8 and MRR for each mode. Do not fit the labels to results.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G16",
+      "requirement": "Embedding space changes activate only after complete current-generation coverage",
+      "test_references": [
+        {
+          "reference": "M1PublicationRetrievalTests.NewSpaceCannotReplaceActiveSpaceUntilEveryAuthoritativeRevisionHasCoverage",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "During catch-up, create/edit/delete documents and restart. Queries continue using the old space until activation and never mix dimensions or spaces.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G17",
+      "requirement": "Capture, authorization and bounded query contracts work end to end",
+      "test_references": [
+        {
+          "reference": "DocumentsApiTests",
+          "passed_cases": 32,
+          "failed_cases": 0
+        },
+        {
+          "reference": "FolderApiTests",
+          "passed_cases": 15,
+          "failed_cases": 0
+        },
+        {
+          "reference": "CliIngestTests",
+          "passed_cases": 19,
+          "failed_cases": 0
+        },
+        {
+          "reference": "CliConvergenceTests.Cli_AddSearchQueryAgainstDaemon",
+          "passed_cases": 1,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Include provider outage, stale revision, input limits, query with no provider calls, revocation between pages, every CLI exit status, and `--json`.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json",
+        "docs/build/evidence/m1-closure-20261024/systemd-final-results.json"
+      ]
+    },
+    {
+      "gate": "M1-G18",
+      "requirement": "Purge removes every live copy by reference and preserves the named retained classes",
+      "test_references": [
+        {
+          "reference": "ManagedLifecycleTests.ManagedEditTrashRestoreAndPurgeJournalBytesAndRejectLateRevision",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "M1PublicationRetrievalTests.TracesAreOptInBoundedAndDoNotResurrectDeletedLineage",
+          "passed_cases": 1,
+          "failed_cases": 0
+        },
+        {
+          "reference": "JournalTests",
+          "passed_cases": 41,
+          "failed_cases": 0
+        }
+      ],
+      "required_deployed_evidence": "Seed payloads and references even though assistant turns arrive in M2. Verify redaction markers and deletion of derived copies; retain user-typed messages, unowned originals and other classes listed in \u00a715.9.",
+      "evidence": [
+        "docs/build/evidence/m1-closure-20261024/final-deterministic-results.json"
+      ]
+    }
+  ]
+}

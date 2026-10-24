@@ -1,0 +1,104 @@
+{
+  "observed_utc": "2026-10-24T16:56:03.018891+00:00",
+  "ready": {
+    "status": 200,
+    "body": {
+      "ready": true,
+      "components": {
+        "stores": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": null
+        },
+        "migrations": {
+          "ready": true,
+          "detail": "Migrations and durability recovery completed.",
+          "checkedAt": null
+        },
+        "lock": {
+          "ready": true,
+          "detail": "Exclusive data-root lock.",
+          "checkedAt": null
+        },
+        "canary": {
+          "ready": true,
+          "detail": "Egress canary: Blocked. Egress canary state is current.",
+          "checkedAt": "2026-10-24T16:55:44.8641757+00:00"
+        },
+        "extractor": {
+          "ready": true,
+          "detail": "Extractor answered ping.",
+          "checkedAt": null
+        },
+        "provider:chat": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T16:55:48.1956576+00:00"
+        },
+        "provider:enrich": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T16:55:48.1982855+00:00"
+        },
+        "provider:embed": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T16:55:48.1998793+00:00"
+        },
+        "provider:rerank": {
+          "ready": true,
+          "detail": "Optional rerank role is not configured.",
+          "checkedAt": "2026-10-24T16:56:03.0228503+00:00"
+        }
+      }
+    }
+  },
+  "health": {
+    "status": 200,
+    "body": ""
+  },
+  "units": {
+    "sb-m1-qualification.8JLNeLty-extractor.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MemoryMax": "1073741824",
+      "TasksMax": "64",
+      "IPAddressAllow": "",
+      "IPAddressDeny": "0.0.0.0/0 ::/0",
+      "LimitFSIZE": "536870912",
+      "LimitCORE": "0",
+      "CapabilityBoundingSet": "",
+      "AmbientCapabilities": "",
+      "User": "1655",
+      "Group": "1654",
+      "ReadWritePaths": "/run/sb-m1-qualification.8JLNeLty",
+      "InaccessiblePaths": "/srv/sb-m1-qualification.8JLNeLty/data /srv/sb-m1-qualification.8JLNeLty/incoming /srv/sb-m1-qualification.8JLNeLty/config /srv/sb-m1-qualification.8JLNeLty/secrets",
+      "PrivateNetwork": "yes",
+      "ProtectHome": "yes",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes",
+      "RestrictAddressFamilies": "AF_UNIX"
+    },
+    "sb-m1-qualification.8JLNeLty.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MemoryMax": "8589934592",
+      "TasksMax": "256",
+      "IPAddressAllow": "10.8.0.5/32 192.0.2.1/32 127.0.0.0/8 10.8.0.1/32 ::1/128",
+      "IPAddressDeny": "0.0.0.0/0 ::/0",
+      "LimitFSIZE": "infinity",
+      "LimitCORE": "0",
+      "CapabilityBoundingSet": "",
+      "AmbientCapabilities": "",
+      "User": "1654",
+      "Group": "1654",
+      "ReadWritePaths": "/srv/sb-m1-qualification.8JLNeLty/data /srv/sb-m1-qualification.8JLNeLty/incoming/inbox /run/sb-m1-qualification.8JLNeLty",
+      "InaccessiblePaths": "",
+      "PrivateNetwork": "no",
+      "ProtectHome": "yes",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes",
+      "RestrictAddressFamilies": "AF_INET AF_INET6 AF_UNIX"
+    }
+  }
+}

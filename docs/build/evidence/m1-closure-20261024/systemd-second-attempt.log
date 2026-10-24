@@ -1,0 +1,8 @@
+curl: (22) The requested URL returned error: 503
+Traceback (most recent call last):
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-workflow.py", line 153, in <module>
+    wait(lambda: any(hit['document_id']==poll_id for hit in search('magnetosphere',source=poll_source['id'])),5)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justinleahy/Developer/SecondBrain/deploy/tests/m1-workflow.py", line 54, in wait
+    raise AssertionError('Deployed workflow did not converge within ' + str(budget) + ' seconds.')
+AssertionError: Deployed workflow did not converge within 5 seconds.

@@ -1,0 +1,37 @@
+{
+  "checked_utc": "2026-10-24T16:55:18.181861+00:00",
+  "commit": "fbe98d8e34b5dc96eb1c5593dcc719c8cae5a08a",
+  "historical_evidence": {
+    "file_count": 63,
+    "mismatches": []
+  },
+  "current_source": {
+    "file_count": 278,
+    "mismatches": [
+      {
+        "path": "src/SecondBrain.Storage/Migrations/M1Schema.cs",
+        "expected": "f7a307bf2a2177ab6d3d2185ac5a92f4163b5ccdbbf13f175d1377302e50a43e",
+        "actual": "900727d41dacdf22e70d1511837b2bab13a05824047d616b8ae6de4454032fd2"
+      }
+    ],
+    "documented_formatting_exception_matches": true
+  },
+  "operator_bundle": {
+    "file_count": 416,
+    "mismatches": []
+  },
+  "separate_lan": {
+    "status": "deferred_by_operator",
+    "decision_date": "2026-10-24",
+    "accepted_scope": "Single-host Fedora x86_64 / RTX 5090",
+    "basis": "User explicitly accepted single-host scope and deferral of separate-LAN qualification; all other M1 targets remain required.",
+    "procedure": "deploy/tests/m1-live-LAN-handoff.md"
+  },
+  "systemd": {
+    "status": "pending_operator",
+    "basis": "Noninteractive sudo on host requires a password; user agreed to run isolated harness"
+  },
+  "conclusion": "M1 closure awaits current deterministic results and successful systemd qualification; separate-LAN evidence is explicitly deferred, not passing.",
+  "stage": "Initial inspection before the polling correction; see final-publish-provenance.json for the corrected source.",
+  "superseded_by": "closure-audit.json"
+}

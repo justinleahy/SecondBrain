@@ -28,9 +28,11 @@ qualification_unit=/run/systemd/system/$qualification_name
 qualification_password=$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')
 qualification_cleanup() {
     systemctl stop "$qualification_name.service" "$qualification_name-extractor.socket" "$qualification_name-extractor.service" 2>/dev/null || true
+    systemctl reset-failed "$qualification_name.service" "$qualification_name-extractor.service" 2>/dev/null || true
     rm -f "$qualification_unit.service" "$qualification_unit-extractor.socket" "$qualification_unit-extractor.service"
     systemctl daemon-reload
     rm -rf -- "$qualification_runtime" "$qualification_install" "$qualification_root"
+    printf 'Qualification cleanup finished for %s.\n' "$qualification_name"
 }
 trap qualification_cleanup EXIT
 mkdir -p "$qualification_root"/{data,incoming,config,secrets,results} "$qualification_runtime" "$qualification_install"

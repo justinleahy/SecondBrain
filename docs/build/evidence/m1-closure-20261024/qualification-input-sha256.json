@@ -1,0 +1,7 @@
+{
+  "src/SecondBrain.Server/Sources/FolderProcessingOrchestrator.cs": "caee37b4ed3c7c22958100a376b0d5869bfd77fefcee86c5d7728b6818bd43eb",
+  "tests/SecondBrain.Server.Tests/FolderApiTests.cs": "f83a3a06a2a0950c874f4b049bd0b2e86a886b56017bf2b7d5497c71fb585e90",
+  "deploy/tests/m1-workflow.py": "1d42f7d0503c48802761b716286de3b73c845bf640a6d10658cfd5fa9fc8c0b4",
+  "deploy/tests/systemd-m1-qualification.sh": "23b98e46819aab2e0a986c9fbe25d46ad1b0f90348f212d1456a086a7f10f878",
+  "deploy/tests/config.m1-systemd.yaml": "41857803757b50b0997cac9a8c67a973e55046f3b3996e1c48d5b9590b900bf6"
+}

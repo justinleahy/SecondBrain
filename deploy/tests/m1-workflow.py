@@ -107,10 +107,10 @@ captured = request('POST','/v1/documents', {'content':prefix+' capture astronomy
 identifier = captured['document']['id']
 wait(lambda: any(hit['document_id']==identifier for hit in search(prefix)))
 metrics['capture_keyword_seconds']=time.monotonic()-capture_started
-assert metrics['capture_keyword_seconds'] < 1
+assert metrics['capture_keyword_seconds'] < 1, json.dumps(metrics, sort_keys=True)
 wait(lambda: request('GET','/v1/documents/'+identifier)['status']=='indexed',3)
 metrics['capture_vectors_seconds']=time.monotonic()-capture_started
-assert metrics['capture_vectors_seconds'] < 3
+assert metrics['capture_vectors_seconds'] < 3, json.dumps(metrics, sort_keys=True)
 assert any(doc['id']==identifier for doc in request('POST','/v1/query', {'tags':['qualification']})['records'])
 pdf = upload(pdf_bytes(),prefix+'.pdf')
 pdf_id=pdf['document']['id']
@@ -119,7 +119,7 @@ inbox_started=time.monotonic()
 sync('write',prefix+'-inbox.pdf',pdf_bytes(),inbox=True)
 inbox_hits,_=wait(lambda: search('spectroscopy',source='inbox'),30)
 metrics['inbox_pdf_drop_to_keyword_seconds']=time.monotonic()-inbox_started
-assert metrics['inbox_pdf_drop_to_keyword_seconds'] < 30
+assert metrics['inbox_pdf_drop_to_keyword_seconds'] < 30, json.dumps(metrics, sort_keys=True)
 inbox_id=inbox_hits[0]['document_id']
 assert inbox_id != pdf_id and inbox_hits[0]['page']==1
 sync('write',prefix+'-inbox.pdf',pdf_bytes(prefix+' rewritten quasar'),inbox=True)
@@ -139,7 +139,7 @@ edit_started=time.monotonic()
 sync('write','note.md','# '+prefix+'\n\nUpdated scintillation evidence.\n')
 wait(lambda: any(hit['document_id']==source_id for hit in search('scintillation')),10)
 metrics['watched_edit_seconds']=time.monotonic()-edit_started
-assert metrics['watched_edit_seconds'] < 10
+assert metrics['watched_edit_seconds'] < 10, json.dumps(metrics, sort_keys=True)
 # Qualify actual rsync publication under polling separately from event notification.
 poll_folder=prefix+'-poll'
 sync('write','note.md','# '+prefix+'\n\nInitial polling heliosphere evidence.\n',folder=poll_folder)
@@ -150,11 +150,14 @@ poll_id=poll_hits[0]['document_id']
 poll_started=time.monotonic()
 sync('write','note.md','# '+prefix+'\n\nUpdated polling magnetosphere evidence.\n',folder=poll_folder)
 poll_committed=time.monotonic()
-wait(lambda: any(hit['document_id']==poll_id for hit in search('magnetosphere',source=poll_source['id'])),5)
-metrics['poll_edit_after_rsync_commit_seconds']=time.monotonic()-poll_committed
-metrics['poll_edit_including_rsync_seconds']=time.monotonic()-poll_started
-metrics['poll_interval_seconds']=5
-assert metrics['poll_edit_after_rsync_commit_seconds'] < 5
+try:
+    wait(lambda: any(hit['document_id']==poll_id for hit in search('magnetosphere',source=poll_source['id'])),5)
+finally:
+    metrics['poll_edit_after_rsync_commit_seconds']=time.monotonic()-poll_committed
+    metrics['poll_edit_including_rsync_seconds']=time.monotonic()-poll_started
+    metrics['poll_interval_seconds']=5
+    print(json.dumps({'checkpoint':'polled-edit', 'metrics':metrics}, sort_keys=True), flush=True)
+assert metrics['poll_edit_after_rsync_commit_seconds'] < 5, json.dumps(metrics, sort_keys=True)
 sync('move','note.md','moved.md')
 request('POST','/v1/sources/'+source['id']+'/scan?deep=true')
 wait(lambda: any(hit['document_id']==source_id for hit in search('scintillation',source=source['id'])))

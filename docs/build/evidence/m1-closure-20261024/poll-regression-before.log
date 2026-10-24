@@ -1,0 +1,27 @@
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Release/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Release/net10.0/SecondBrain.Core.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Release/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Release/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Release/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Release/net10.0/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Release/net10.0/SecondBrain.Server.dll
+  SecondBrain.MockProvider -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/bin/Release/net10.0/SecondBrain.MockProvider.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Release/net10.0/SecondBrain.Extractor.dll
+  SecondBrain.Server.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Release/net10.0/SecondBrain.Server.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Release/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:03.64]     SecondBrain.Server.Tests.FolderApiTests.PollingSourceWakesAtDeadlineAfterLateSchedulerTick [FAIL]
+  Failed SecondBrain.Server.Tests.FolderApiTests.PollingSourceWakesAtDeadlineAfterLateSchedulerTick [3 s]
+  Error Message:
+   A durable source capture did not become keyword searchable within 2 seconds.
+  Stack Trace:
+     at SecondBrain.Server.Tests.FolderApiTests.WaitForHitAsync(HttpClient client, String text, Int32 timeoutSeconds) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/FolderApiTests.cs:line 541
+   at SecondBrain.Server.Tests.FolderApiTests.PollingSourceWakesAtDeadlineAfterLateSchedulerTick() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/FolderApiTests.cs:line 124
+   at SecondBrain.Server.Tests.FolderApiTests.PollingSourceWakesAtDeadlineAfterLateSchedulerTick() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/FolderApiTests.cs:line 126
+--- End of stack trace from previous location ---
+Results File: /home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/recheck-20261024/poll-regression-before/_DESKTOP-8NJSRF2_2026-10-24_12_59_06.trx
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 3 s - SecondBrain.Server.Tests.dll (net10.0)

@@ -1,0 +1,31 @@
+{
+  "checked_utc": "2026-10-24T17:09:08.144091+00:00",
+  "status": "complete within operator-accepted M1 scope",
+  "accepted_scope": "Single-host Fedora x86_64 / RTX 5090; operator explicitly deferred separate-LAN qualification on 2026-10-24; all other targets unchanged.",
+  "counts": {
+    "total": 1750,
+    "passed": 1750,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "historical_artifacts_verified": 63,
+  "final_source_files_verified": 240,
+  "package_locks_verified": 19,
+  "published_and_live_binary_files_verified": 416,
+  "runtime_differences_from_october9": [
+    "src/SecondBrain.Server/Sources/FolderProcessingOrchestrator.cs",
+    "src/SecondBrain.Storage/Migrations/M1Schema.cs"
+  ],
+  "formatting_exception": {
+    "path": "src/SecondBrain.Storage/Migrations/M1Schema.cs",
+    "qualified_sha256": "f7a307bf2a2177ab6d3d2185ac5a92f4163b5ccdbbf13f175d1377302e50a43e",
+    "repository_sha256": "900727d41dacdf22e70d1511837b2bab13a05824047d616b8ae6de4454032fd2",
+    "change": "Remove spaces on blank-only source lines; no SQL or runtime behavior change; no rebuild performed"
+  },
+  "regression": "Failed before scheduling correction; passed after",
+  "systemd": "Complete workflow, all-role readiness, hardening and teardown passed",
+  "retained_scale_evidence": "October 9 100k-document/1M-chunk, 1024-dimension deployed rebuild/latency/memory and live ingestion results remain authoritative for unchanged paths. Not rerun on October 24.",
+  "gate_audit": "gate-test-audit.json",
+  "deferred_followup": "M1-F1: separate-LAN provider topology; procedure deploy/tests/m1-live-LAN-handoff.md",
+  "installed_m0": "Unchanged; active since 2026-10-09 10:48:58 EDT"
+}

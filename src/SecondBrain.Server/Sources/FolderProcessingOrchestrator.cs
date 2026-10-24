@@ -141,6 +141,7 @@ public sealed class FolderProcessingOrchestrator(ISourceRepository sources, IFol
         await documents.EnsureInboxAsync(inboxPath, stoppingToken);
         while (!stoppingToken.IsCancellationRequested)
         {
+            var nextWakeAt = DateTimeOffset.MaxValue;
             try
             {
                 foreach (var source in await sources.ListAsync(stoppingToken))
@@ -158,17 +159,26 @@ public sealed class FolderProcessingOrchestrator(ISourceRepository sources, IFol
                     var changed = ready.Count > 0;
                     var due = !nextScan.TryGetValue(source.Id, out var shallowAt) || shallowAt <= now;
                     var deep = nextDeep.TryGetValue(source.Id, out var deepAt) && deepAt <= now;
-                    if (!changed && !due && !deep) continue;
-                    try { await ScanAsync(source, deep, stoppingToken, changed && !due && !deep && !ready.Contains("") && !ready.Any(path => Path.GetFileName(path) == ".brainignore") ? ready : null); }
-                    // Source-controlled content (ignore rules, entry counts, policy rejections) fails only its own scan.
-                    catch (Exception ex) when (ex is IOException or ArgumentException or InvalidOperationException or InvalidDataException or IngestionConflictException)
-                    { logger.LogWarning("Source {Source} scan could not complete ({Reason}); it will be retried at the next interval.", source.Id, ex is InvalidDataException or IngestionConflictException ? ex.Message : ex.GetType().Name); }
-                    nextScan[source.Id] = now.AddSeconds(source.Config.Watch == "poll" ? source.Config.PollIntervalSeconds : 600);
-                    nextDeep[source.Id] = deep || !nextDeep.ContainsKey(source.Id) ? DeepRescanSchedule.Next(now, options.CurrentValue.Ingest.DeepRescanAt, TimeZoneInfo.TryFindSystemTimeZoneById(options.CurrentValue.Time.Zone, out var zone) ? zone : TimeZoneInfo.Local) : nextDeep[source.Id];
+                    if (changed || due || deep)
+                    {
+                        try { await ScanAsync(source, deep, stoppingToken, changed && !due && !deep && !ready.Contains("") && !ready.Any(path => Path.GetFileName(path) == ".brainignore") ? ready : null); }
+                        // Source-controlled content (ignore rules, entry counts, policy rejections) fails only its own scan.
+                        catch (Exception ex) when (ex is IOException or ArgumentException or InvalidOperationException or InvalidDataException or IngestionConflictException)
+                        { logger.LogWarning("Source {Source} scan could not complete ({Reason}); it will be retried at the next interval.", source.Id, ex is InvalidDataException or IngestionConflictException ? ex.Message : ex.GetType().Name); }
+                        nextScan[source.Id] = now.AddSeconds(source.Config.Watch == "poll" ? source.Config.PollIntervalSeconds : 600);
+                        nextDeep[source.Id] = deep || !nextDeep.ContainsKey(source.Id) ? DeepRescanSchedule.Next(now, options.CurrentValue.Ingest.DeepRescanAt, TimeZoneInfo.TryFindSystemTimeZoneById(options.CurrentValue.Time.Zone, out var zone) ? zone : TimeZoneInfo.Local) : nextDeep[source.Id];
+                    }
+                    // Only active sources contribute deadlines; removed sources must not create a busy loop.
+                    if (nextScan[source.Id] < nextWakeAt) nextWakeAt = nextScan[source.Id];
+                    if (nextDeep[source.Id] < nextWakeAt) nextWakeAt = nextDeep[source.Id];
                 }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { break; }
-            await Task.Delay(TimeSpan.FromMilliseconds(250), clock, stoppingToken);
+            // Keep the event/source-registration backstop, but do not sleep past a pending poll.
+            var delay = nextWakeAt - clock.GetUtcNow();
+            if (delay > TimeSpan.FromMilliseconds(250)) delay = TimeSpan.FromMilliseconds(250);
+            if (delay < TimeSpan.Zero) delay = TimeSpan.Zero;
+            await Task.Delay(delay, clock, stoppingToken);
         }
         await Task.WhenAll(watchers.Values);
     }

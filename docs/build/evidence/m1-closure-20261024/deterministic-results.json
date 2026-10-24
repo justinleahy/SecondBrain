@@ -1,0 +1,179 @@
+{
+  "stage": "2026-10-24 Release rebuild and host deterministic rerun",
+  "totals": {
+    "total": 1749,
+    "passed": 1749,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  "projects": [
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_55_24.trx",
+      "counters": {
+        "total": 63,
+        "executed": 63,
+        "passed": 63,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_55_25.trx",
+      "counters": {
+        "total": 152,
+        "executed": 152,
+        "passed": 152,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_55_26.trx",
+      "counters": {
+        "total": 142,
+        "executed": 142,
+        "passed": 142,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_55_31.trx",
+      "counters": {
+        "total": 780,
+        "executed": 780,
+        "passed": 780,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_55_34.trx",
+      "counters": {
+        "total": 81,
+        "executed": 81,
+        "passed": 81,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_55_35.trx",
+      "counters": {
+        "total": 72,
+        "executed": 72,
+        "passed": 72,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_55_39.trx",
+      "counters": {
+        "total": 230,
+        "executed": 230,
+        "passed": 230,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    },
+    {
+      "result_file": "_DESKTOP-8NJSRF2_2026-10-24_12_56_15.trx",
+      "counters": {
+        "total": 229,
+        "executed": 229,
+        "passed": 229,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      }
+    }
+  ]
+}

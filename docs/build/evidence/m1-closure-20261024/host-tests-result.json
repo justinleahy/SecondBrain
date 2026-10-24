@@ -1,0 +1,22 @@
+{
+  "command": [
+    "dotnet",
+    "test",
+    "SecondBrain.slnx",
+    "--configuration",
+    "Release",
+    "--no-build",
+    "--no-restore",
+    "--disable-build-servers",
+    "-m:1",
+    "--filter",
+    "Category!=Qualification",
+    "--logger",
+    "trx",
+    "--results-directory",
+    "/home/justinleahy/Developer/SecondBrain/artifacts/m1-qualification/recheck-20261024/host-test-results"
+  ],
+  "started_utc": "2026-10-24T16:55:22.659116+00:00",
+  "finished_utc": "2026-10-24T16:56:19.368934+00:00",
+  "exit_code": 0
+}
