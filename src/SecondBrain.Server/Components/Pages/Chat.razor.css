@@ -274,6 +274,7 @@ header>a {
     font-weight:700;
     margin-right:6px
 }
+.sources details:focus-within { border-color:#347858; box-shadow:0 0 0 2px #34785822; }
 .sources blockquote {
     border-left:2px solid #a9c9b4;
     margin:14px 0;

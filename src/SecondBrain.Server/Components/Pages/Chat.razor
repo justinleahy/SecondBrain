@@ -71,7 +71,7 @@ else
                         <div class="user-message"><span class="message-label">YOU</span><p>@turn.Prompt</p></div>
                         <div class="assistant-message"><span class="message-label">SECOND BRAIN <small>@turn.Policy.Model</small></span>
                             @if (turn.Redacted) { <p class="notice">This answer was removed because a source was purged.</p> }
-                            else if (displayedAnswer is not null) { <ChatText Text="@displayedAnswer.Text" /> }
+                            else if (displayedAnswer is not null) { <ChatText Text="@displayedAnswer.Text" TurnId="@turn.Id" SourceNumbers="@displayedAnswer.Citations.Select(citation => citation.Source.Number).ToArray()" /> }
                             else if (drafts.TryGetValue(turn.Id, out var draft) && draft.Length > 0) { <ChatText Text="@draft" /> }
                             else if (turn.Status == "running") { <p class="thinking"><span></span> Searching your knowledge…</p> }
                             @if (turn.Status == "running") { <small class="notice">Generating · citations will be checked when the answer is complete</small> }
@@ -84,7 +84,7 @@ else
                                 <div class="sources"><h3>Sources</h3>
                                     @foreach (var citation in displayedAnswer.Citations)
                                     {
-                                        <details><summary><span class="source-number">[@citation.Source.Number]</span> @citation.Source.Title <small>revision @citation.Source.Revision · @citation.State</small></summary><blockquote>@citation.Source.Excerpt</blockquote><small>Document @citation.Source.DocumentId · passage @(citation.Source.Ordinal + 1) @if (citation.Source.Page is not null) { <span>· page @citation.Source.Page</span> }</small></details>
+                                        <details id="@ChatTextRenderer.CitationTargetId(turn.Id, citation.Source.Number)" data-citation-source><summary><span class="source-number">[@citation.Source.Number]</span> @citation.Source.Title <small>revision @citation.Source.Revision · @citation.State</small></summary><blockquote>@citation.Source.Excerpt</blockquote><small>Document @citation.Source.DocumentId · passage @(citation.Source.Ordinal + 1) @if (citation.Source.Page is not null) { <span>· page @citation.Source.Page</span> }</small></details>
                                     }
                                 </div>
                             }

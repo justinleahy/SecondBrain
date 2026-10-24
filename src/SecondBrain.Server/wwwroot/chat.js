@@ -14,3 +14,20 @@ document.addEventListener("keydown", (event) => {
         input.form.requestSubmit();
     }
 });
+
+document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element) || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest("a[data-citation-link]");
+    if (!link || !link.hash) return;
+    const source = document.getElementById(link.hash.slice(1));
+    if (!(source instanceof HTMLDetailsElement) || !source.hasAttribute("data-citation-source") ||
+        source.closest(".turn") !== link.closest(".turn")) return;
+
+    event.preventDefault();
+    source.open = true;
+    source.querySelector("summary")?.focus({ preventScroll: true });
+    source.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "center"
+    });
+});
