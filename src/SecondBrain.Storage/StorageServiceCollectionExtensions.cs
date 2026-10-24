@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Core.Chat;
 using SecondBrain.Core.Durability;
 using SecondBrain.Core.Ingestion;
 using SecondBrain.Core.Limits;
@@ -11,6 +12,7 @@ using SecondBrain.Core.Retrieval;
 using SecondBrain.Core.Sources;
 using SecondBrain.Core.Storage;
 using SecondBrain.Storage.Durability;
+using SecondBrain.Storage.Chat;
 using SecondBrain.Storage.Ingestion;
 using SecondBrain.Storage.Initialization;
 using SecondBrain.Storage.Migrations;
@@ -28,6 +30,7 @@ public static class StorageServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddSecondBrainStorage(this IServiceCollection services)
     {
+        services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton(new SqliteStoreOptions());
         services.TryAddSingleton<ICrashPoints, NoOpCrashPoints>();
         services.TryAddSingleton(provider => new SqliteStateStore(
@@ -54,6 +57,7 @@ public static class StorageServiceCollectionExtensions
         services.TryAddSingleton<IFolderDocumentRepository, SqliteFolderDocumentRepository>();
         services.TryAddSingleton<IEmbeddingWorkRepository, SqliteEmbeddingWorkRepository>();
         services.TryAddSingleton<IDocumentRepository, SqliteDocumentRepository>();
+        services.TryAddSingleton<IChatRepository, SqliteChatRepository>();
         // A factory, because IPayloadProtection comes from the host's key-ring composition, not from Storage.
         services.TryAddSingleton<IRetrievalRepository>(provider => new SqliteRetrievalRepository(
             provider.GetRequiredService<IIndexStore>(), provider.GetRequiredService<IPayloadProtection>(),
@@ -86,6 +90,7 @@ public sealed class StorageStartupService(IServiceProvider services, ILogger<Sto
         }, cancellationToken).ConfigureAwait(false);
         var journal = await services.GetRequiredService<IMutationJournal>().RecoverAsync(cancellationToken).ConfigureAwait(false);
         var publications = await services.GetRequiredService<IPublicationCoordinator>().RecoverAsync(cancellationToken).ConfigureAwait(false);
+        await services.GetRequiredService<IChatRepository>().RecoverInterruptedAsync(cancellationToken).ConfigureAwait(false);
         var purges = await PurgeCleanup.RecoverAsync(services.GetRequiredService<IStateStore>(), services.GetRequiredService<IIndexStore>(), cancellationToken).ConfigureAwait(false);
         logger.LogInformation("Storage recovered: {Finalized} finalized mutations, {Discarded} discarded preparations, {Publications} completed publications, {Purges} completed purge cleanups", journal.Finalized, journal.Discarded, publications, purges);
         if (services.GetService<IStagingRecovery>() is { } staging)

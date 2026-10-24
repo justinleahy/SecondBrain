@@ -1,3 +1,9 @@
+AssistantOptions.AllowExternalWrites=allow_external_writes
+AssistantOptions.AutoApproveWrites=auto_approve_writes
+AssistantOptions.MaxReadBytes=max_read_bytes
+AssistantOptions.MaxReadDocuments=max_read_documents
+AssistantOptions.MaxToolCallsPerTurn=max_tool_calls_per_turn
+AssistantOptions.PendingTtlHours=pending_ttl_hours
 AuthOptions.CliSessionAbsoluteHours=cli_session_absolute_hours
 AuthOptions.CliSessionIdleHours=cli_session_idle_hours
 AuthOptions.Passkeys=passkeys
@@ -64,6 +70,7 @@ ProviderOptions.Endpoint=endpoint
 ProviderOptions.Kind=kind
 ProviderOptions.Trusted=trusted
 RetrievalOptions.MaxExactCandidates=max_exact_candidates
+SecondBrainOptions.Assistant=assistant
 SecondBrainOptions.Auth=auth
 SecondBrainOptions.Budgets=budgets
 SecondBrainOptions.DataRoot=data_root

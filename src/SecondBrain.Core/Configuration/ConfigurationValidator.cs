@@ -8,6 +8,9 @@ public static class ConfigurationValidator
     public static void Validate(SecondBrainOptions options, IHostPathInspector paths)
     {
         if (!Path.IsPathFullyQualified(options.DataRoot)) Fail("data_root must be absolute.");
+        if (options.Assistant is null || options.Assistant.MaxToolCallsPerTurn is < 1 or > 32 ||
+            options.Assistant.MaxReadDocuments is < 1 or > 100 || options.Assistant.MaxReadBytes is < 1 or > 1_000_000 ||
+            options.Assistant.PendingTtlHours is < 1 or > 720) Fail("assistant limits are outside their supported bounds.");
         if (options.Retrieval is null || options.Retrieval.MaxExactCandidates is < 1 or > 10_000_000) Fail("retrieval.max_exact_candidates must be in 1..10000000.");
         if (options.Ingest is null || options.Ingest.SyncEmbedDeadlineMs is < 0 or > 30000) Fail("ingest.sync_embed_deadline_ms must be in 0..30000.");
         if (!TimeOnly.TryParseExact(options.Ingest.DeepRescanAt, "HH:mm", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))

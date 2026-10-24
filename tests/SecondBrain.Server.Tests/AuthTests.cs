@@ -261,7 +261,7 @@ public sealed class AuthTests(ITestOutputHelper output)
         var result = await client.PostAsync("/auth/login", new FormUrlEncodedContent(new Dictionary<string, string>
         { ["Password"] = "test-password", ["__RequestVerificationToken"] = WebUtility.HtmlDecode(match.Groups[1].Value) }));
         Assert.Equal(HttpStatusCode.SeeOther, result.StatusCode);
-        Assert.Contains("You are signed in.", await client.GetStringAsync("/"), StringComparison.Ordinal);
+        Assert.Contains("New conversation", await client.GetStringAsync("/"), StringComparison.Ordinal);
     }
 
     [Fact]

@@ -1,17 +1,2 @@
 @page "/"
-@using Microsoft.AspNetCore.Components.Authorization
-
-<PageTitle>SecondBrain</PageTitle>
-<main>
-    <h1>SecondBrain</h1>
-    <AuthorizeView>
-        <Authorized>
-            <p>You are signed in.</p>
-            <p>Your session has read, write, infer and admin access.</p>
-        </Authorized>
-        <NotAuthorized>
-            <p>Sign in to access your knowledge.</p>
-            <a href="/login">Sign in</a>
-        </NotAuthorized>
-    </AuthorizeView>
-</main>
+<Chat />

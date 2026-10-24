@@ -14,6 +14,7 @@ using SecondBrain.Infrastructure.Extraction;
 using SecondBrain.Infrastructure.Ingestion;
 using SecondBrain.Infrastructure.Security;
 using SecondBrain.Server.Auth;
+using SecondBrain.Server.Chat;
 using SecondBrain.Server.Components;
 using SecondBrain.Server.Ingestion;
 using SecondBrain.Server.Limits;
@@ -27,6 +28,8 @@ public static class HttpServices
     {
         services.AddOptions<SecondBrainOptions>();
         services.TryAddSingleton(TimeProvider.System);
+        services.TryAddSingleton<ChatService>();
+        services.AddHostedService(provider => provider.GetRequiredService<ChatService>());
         services.AddOpenApi();
         services.TryAddSingleton<IPayloadProtection, KeyRingPayloadProtector>();
         services.TryAddSingleton<IExtractorClient>(provider => new DescriptorExtractorClient(provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.Extractor.SocketPath));

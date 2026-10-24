@@ -1,0 +1,193 @@
+@page "/chat"
+@using Microsoft.AspNetCore.Components.Authorization
+@using SecondBrain.Core.Auth
+@using SecondBrain.Core.Chat
+@using SecondBrain.Server.Auth
+@using SecondBrain.Server.Chat
+@implements IAsyncDisposable
+@inject AuthenticationStateProvider Authentication
+@inject IAuthRepository Auth
+@inject IChatRepository Repository
+@inject ChatService Assistant
+
+<PageTitle>Chat · SecondBrain</PageTitle>
+@if (actor is null)
+{
+    <main class="sign-in"><h1>SecondBrain</h1><p>Sign in to chat with your knowledge.</p><a href="/login">Sign in</a></main>
+}
+else
+{
+    <div class="chat-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/">◈ <span>SecondBrain</span></a>
+            <button class="new-chat" @onclick="NewConversation">＋ New conversation</button>
+            <h2>Conversations</h2>
+            <nav aria-label="Conversations">
+                @foreach (var conversation in conversations)
+                {
+                    <button class="conversation @(conversation.Id == selected ? "selected" : "")" @onclick="() => SelectAsync(conversation.Id)">
+                        <span>@conversation.Title</span>
+                        @if (conversation.ActiveTurnId is not null) { <small>In progress</small> }
+                    </button>
+                }
+            </nav>
+            <p class="sidebar-note">Your knowledge, with sources.<br />Changes require your approval.</p>
+        </aside>
+        <main class="workspace">
+            <header><div><span class="eyebrow">YOUR KNOWLEDGE ASSISTANT</span><h1>Chat</h1></div><a href="/">SecondBrain</a></header>
+            <section class="messages" aria-label="Conversation" aria-live="polite" aria-busy="@active">
+                @if (turns.Count == 0)
+                {
+                    <div class="welcome"><span class="welcome-icon">◈</span><h2>What would you like to find out?</h2><p>Ask a question about your notes and documents. Answers link back to the passages they use.</p><button @onclick="UseExample">What is the project codename? <span>↗</span></button></div>
+                }
+                @foreach (var turn in turns)
+                {
+                    <article class="turn" @key="turn.Id">
+                        <div class="user-message"><span class="message-label">YOU</span><p>@turn.Prompt</p></div>
+                        <div class="assistant-message"><span class="message-label">SECOND BRAIN <small>@turn.Policy.Model</small></span>
+                            @if (turn.Redacted) { <p class="notice">This answer was removed because a source was purged.</p> }
+                            else if (turn.Answer is not null) { <p class="answer">@turn.Answer.Text</p> }
+                            else if (drafts.TryGetValue(turn.Id, out var draft) && draft.Length > 0) { <p class="answer">@draft</p> }
+                            else if (turn.Status == "running") { <p class="thinking"><span></span> Searching your knowledge…</p> }
+                            @if (turn.Status == "running") { <small class="notice">Generating · citations will be checked when the answer is complete</small> }
+                            @if (turn.FailureCode is not null) { <p class="notice">This turn stopped: @FriendlyReason(turn.FailureCode). You can send another message.</p> }
+                            @if (turn.Answer?.Warnings?.Contains("no_verified_sources") == true) { <p class="notice">This response has no verified sources.</p> }
+                            @if (turn.Answer?.Citations.Count > 0)
+                            {
+                                <div class="sources"><h3>Sources</h3>
+                                    @foreach (var citation in turn.Answer.Citations)
+                                    {
+                                        <details><summary><span class="source-number">[@citation.Source.Number]</span> @citation.Source.Title <small>revision @citation.Source.Revision · @citation.State</small></summary><blockquote>@citation.Source.Excerpt</blockquote><small>Document @citation.Source.DocumentId · passage @(citation.Source.Ordinal + 1) @if (citation.Source.Page is not null) { <span>· page @citation.Source.Page</span> }</small></details>
+                                    }
+                                </div>
+                            }
+                            @if (activity.TryGetValue(turn.Id, out var entries) && entries.Count > 0)
+                            {
+                                <details class="activity"><summary>Activity · @entries.Count actions</summary><ul>@foreach (var entry in entries) { <li>@entry</li> }</ul></details>
+                            }
+                        </div>
+                    </article>
+                }
+            </section>
+            <div class="composer-area">
+                @if (error is not null) { <p class="error" role="alert">@error</p> }
+                <form class="composer" @onsubmit="SendAsync" @onsubmit:preventDefault>
+                    <label class="sr-only" for="message">Message SecondBrain</label>
+                    <textarea id="message" @bind="prompt" @bind:event="oninput" placeholder="Ask about your knowledge…" rows="3" maxlength="32768" disabled="@sending"></textarea>
+                    <div class="composer-actions"><label><input type="checkbox" @bind="askOnly" disabled="@(active || sending)" /> Read-only ask</label><button type="submit" disabled="@(active || sending || string.IsNullOrWhiteSpace(prompt))">@(active ? "Working…" : sending ? "Sending…" : "Send ↑")</button></div>
+                </form>
+                <p class="privacy-note">Your message, recent conversation, and retrieved passages are sent to your configured model. Check sources before relying on an answer.</p>
+            </div>
+        </main>
+    </div>
+}
+
+@code {
+    private AuthenticatedCredential? actor;
+    private IReadOnlyList<ChatConversation> conversations = [];
+    private IReadOnlyList<ChatTurn> turns = [];
+    private readonly Dictionary<string, string> drafts = [];
+    private readonly Dictionary<string, List<string>> activity = [];
+    private readonly CancellationTokenSource lifetime = new();
+    private CancellationTokenSource? observation;
+    private Task? observing;
+    private string? selected, error;
+    private string prompt = "";
+    private bool sending, askOnly;
+    private bool active => turns.Any(turn => turn.Status == "running");
+    private void UseExample() => prompt = "What is the project codename?";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var principal = (await Authentication.GetAuthenticationStateAsync()).User;
+        if (!SessionRevalidationProvider.TryAuthority(principal, out var id, out var generation, out var epoch)) return;
+        var credential = await Auth.FindAsync(id!, lifetime.Token);
+        if (credential is null) return;
+        actor = new(id!, "session", generation, epoch, credential.GrantedScopes, credential.SteppedUpAt);
+        try { conversations = await Repository.ListAsync(actor, lifetime.Token); }
+        catch (AuthorityChangedException) { actor = null; }
+    }
+
+    private void NewConversation()
+    {
+        observation?.Cancel(); selected = null; turns = []; error = null;
+    }
+
+    private async Task SelectAsync(string id)
+    {
+        observation?.Cancel(); selected = id; error = null;
+        try
+        {
+            turns = await Repository.GetConversationAsync(id, actor!, lifetime.Token);
+            if (turns.LastOrDefault()?.Status == "running") Observe(turns[^1].Id);
+        }
+        catch (Exception exception) when (exception is AuthorityChangedException or ChatNotFoundException) { error = "This conversation is no longer available. Sign in again if your session expired."; }
+    }
+
+    private async Task SendAsync()
+    {
+        if (active || sending || actor is null || string.IsNullOrWhiteSpace(prompt)) return;
+        sending = true; error = null;
+        try
+        {
+            var result = await Assistant.StartAsync(new(prompt, selected, askOnly ? "ask" : "chat", Guid.NewGuid().ToString("N")), actor, lifetime.Token);
+            selected = result.Turn.ConversationId; prompt = "";
+            turns = await Repository.GetConversationAsync(selected, actor, lifetime.Token);
+            conversations = await Repository.ListAsync(actor, lifetime.Token);
+            Observe(result.Turn.Id);
+        }
+        catch (Exception exception) when (exception is AuthorityChangedException or ChatConflictException or ChatLimitException or ArgumentException)
+        {
+            error = exception is AuthorityChangedException ? "Your session changed. Sign in again." : exception.Message;
+        }
+        finally { sending = false; }
+    }
+
+    private void Observe(string turnId)
+    {
+        observation?.Cancel();
+        observation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+        drafts[turnId] = ""; activity[turnId] = [];
+        observing = ObserveAsync(turnId, selected!, observation.Token);
+    }
+
+    private async Task ObserveAsync(string turnId, string conversationId, CancellationToken token)
+    {
+        long sequence = 0;
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
+            do
+            {
+                var events = await Repository.EventsAsync(turnId, sequence, actor!, token);
+                token.ThrowIfCancellationRequested();
+                foreach (var item in events)
+                {
+                    sequence = item.Sequence;
+                    if (item.Redacted) { drafts[turnId] = ""; activity[turnId].Clear(); continue; }
+                    if (item.Kind == "delta" && item.Data is { } delta) drafts[turnId] += delta.GetProperty("text").GetString();
+                    if (item.Kind == "tool" && item.Data is { } tool) activity[turnId].Add(tool.GetProperty("name").GetString() ?? "Tool");
+                    if (item.Kind == "finished")
+                    {
+                        if (selected == conversationId) turns = await Repository.GetConversationAsync(conversationId, actor!, token);
+                        conversations = await Repository.ListAsync(actor!, token);
+                        await InvokeAsync(StateHasChanged); return;
+                    }
+                }
+                if (selected != conversationId) return;
+                await InvokeAsync(StateHasChanged);
+            } while (await timer.WaitForNextTickAsync(token));
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        catch (AuthorityChangedException) { error = "Your session expired or was revoked. Sign in again."; await InvokeAsync(StateHasChanged); }
+        catch (Exception) { error = "The connection was interrupted. Reopen this conversation to reconnect."; await InvokeAsync(StateHasChanged); }
+    }
+
+    private static string FriendlyReason(string code) => code.Replace('_', ' ');
+    public async ValueTask DisposeAsync()
+    {
+        await lifetime.CancelAsync(); observation?.Cancel();
+        if (observing is not null) await observing;
+        observation?.Dispose(); lifetime.Dispose();
+    }
+}

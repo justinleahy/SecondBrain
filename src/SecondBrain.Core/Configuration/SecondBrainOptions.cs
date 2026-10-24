@@ -61,6 +61,25 @@ public sealed class SecondBrainOptions
 
     [YamlMember(Alias = "retrieval")]
     public RetrievalOptions Retrieval { get; set; } = new();
+
+    [YamlMember(Alias = "assistant")]
+    public AssistantOptions Assistant { get; set; } = new();
+}
+
+public sealed class AssistantOptions
+{
+    [YamlMember(Alias = "auto_approve_writes")]
+    public bool AutoApproveWrites { get; set; }
+    [YamlMember(Alias = "max_tool_calls_per_turn")]
+    public int MaxToolCallsPerTurn { get; set; } = 8;
+    [YamlMember(Alias = "max_read_documents")]
+    public int MaxReadDocuments { get; set; } = 12;
+    [YamlMember(Alias = "max_read_bytes")]
+    public int MaxReadBytes { get; set; } = 200_000;
+    [YamlMember(Alias = "allow_external_writes")]
+    public bool AllowExternalWrites { get; set; }
+    [YamlMember(Alias = "pending_ttl_hours")]
+    public int PendingTtlHours { get; set; } = 72;
 }
 
 public sealed class RetrievalOptions

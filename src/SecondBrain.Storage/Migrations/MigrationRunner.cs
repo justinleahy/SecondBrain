@@ -72,6 +72,8 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
 
             await MigrateStoreAsync(index, "index", recoveries, cancellationToken).ConfigureAwait(false);
             await ApplyM1Async(cancellationToken).ConfigureAwait(false);
+            await state.QueueWriteAsync((connection, transaction, token) =>
+                MigrationSql.ExecuteAsync(connection, transaction, M2Schema.StateDdl, token), cancellationToken).ConfigureAwait(false);
             return new MigrationReport(M0Schema.Version, M0Schema.Version, recoveries.AsReadOnly());
         }
         finally

@@ -13,7 +13,7 @@ namespace SecondBrain.Infrastructure.Configuration;
 public sealed class YamlConfigurationLoader
 {
     private static readonly HashSet<string> DeferredSections = new(StringComparer.Ordinal)
-    { "chunking", "classification", "types", "calendar", "retrieval", "assistant", "enrichment", "sandbox", "retention", "backup" };
+    { "chunking", "classification", "types", "calendar", "retrieval", "enrichment", "sandbox", "retention", "backup" };
     // Appendix B sections of which only some keys are modeled; the remaining keys stay deferred.
     private static readonly Dictionary<string, HashSet<string>> PartialSections = new(StringComparer.Ordinal)
     { ["ingest"] = new(StringComparer.Ordinal) { "sync_embed_deadline_ms", "deep_rescan_at" } };
