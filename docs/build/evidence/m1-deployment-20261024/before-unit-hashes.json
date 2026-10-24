@@ -1,0 +1,6 @@
+{
+  "/etc/systemd/system/secondbrain.service": "aaf6169639ea2577ef1fd80455d8be956d0c159060d0790fb78d991d093957a2",
+  "/etc/systemd/system/secondbrain-extractor.service": "4ad8921074a5a1144ae40a7bb32f96d9360c6df4f897cd1ce64202cab78384b3",
+  "/etc/systemd/system/secondbrain-extractor.socket": "680191d7fd4c7b370d607ff169287d8b0b3d898c6d8bec1c8083b38b170c15d7",
+  "/etc/systemd/system/secondbrain.service.d/10-host.conf": "2d514dd7d0501f859eb4894e9063993b0fc6fa61cb50d1794df136b2f1cc33da"
+}

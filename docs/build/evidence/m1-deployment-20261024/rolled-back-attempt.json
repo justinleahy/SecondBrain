@@ -1,0 +1,5 @@
+{
+  "status": "rolled_back",
+  "backup": "/var/backups/secondbrain/m1-20261024T171412Z-15d65cf6",
+  "new_data_retained": "/srv/secondbrain.failed-m1-20261024T171412Z-15d65cf6"
+}

@@ -1,0 +1,12 @@
+{
+  "recorded_utc": "2026-10-24T17:18:05.795928+00:00",
+  "upgrade_commit": "e792171",
+  "qualified_bundle_manifest": "docs/build/evidence/m1-closure-20261024/final-bundle-sha256.json",
+  "sha256": {
+    "deploy/systemd/upgrade-m1.py": "c645dca7060d6ea3137202e744cf81fb5bcabeb74676b0cde22aa37bcf606451",
+    "deploy/tests/test_systemd_upgrade.py": "49a7d34ccb3d9d2817aeae22656e169ef0d7ffe79d3463c22563653fbd074c13",
+    "deploy/systemd/secondbrain.service": "0042315ae82e03b75fc70dcb2e0f63dcc9e5957a60d14c5b90188c9aca5f9602",
+    "deploy/systemd/secondbrain-extractor.service": "7741e88fd62c19e9922074c22b1aef75cfbdfb91714028912f60aa7ecf4c2390",
+    "deploy/systemd/secondbrain-extractor.socket": "680191d7fd4c7b370d607ff169287d8b0b3d898c6d8bec1c8083b38b170c15d7"
+  }
+}

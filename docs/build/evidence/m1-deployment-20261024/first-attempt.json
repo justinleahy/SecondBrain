@@ -1,0 +1,6 @@
+{
+  "status": "preflight_failed",
+  "reason": "Host did not have /var/backups; corrected parent directory creation.",
+  "service_unchanged": true,
+  "original_pid": 130481
+}

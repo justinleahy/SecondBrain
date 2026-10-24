@@ -1,0 +1,14 @@
+Deployment failed; restoring the previous installation. New M1 data will be retained privately.
+Previous installation restarted. Private recovery files: /tmp/tmp3yl4muzk/backup
+test_authentication_probe_uses_get_without_request_body (test_systemd_upgrade.UpgradeTests.test_authentication_probe_uses_get_without_request_body) ... ok
+test_backup_creation_handles_missing_parent_directory (test_systemd_upgrade.UpgradeTests.test_backup_creation_handles_missing_parent_directory) ... ok
+test_bundle_rejects_modified_extra_and_symlinked_content (test_systemd_upgrade.UpgradeTests.test_bundle_rejects_modified_extra_and_symlinked_content) ... ok
+test_failed_upgrade_restores_old_files_and_retains_new_data (test_systemd_upgrade.UpgradeTests.test_failed_upgrade_restores_old_files_and_retains_new_data) ... ok
+test_identity_allows_new_documents_but_preserves_account_keys_and_existing_documents (test_systemd_upgrade.UpgradeTests.test_identity_allows_new_documents_but_preserves_account_keys_and_existing_documents) ... ok
+test_manifest_cannot_escape_bundle (test_systemd_upgrade.UpgradeTests.test_manifest_cannot_escape_bundle) ... ok
+test_partial_stop_failure_is_eligible_for_recovery (test_systemd_upgrade.UpgradeTests.test_partial_stop_failure_is_eligible_for_recovery) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.016s
+
+OK

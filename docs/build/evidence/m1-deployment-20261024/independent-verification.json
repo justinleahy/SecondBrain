@@ -1,0 +1,112 @@
+{
+  "verified_utc": "2026-10-24T17:17:53.692817+00:00",
+  "status": "M1 deployed and ready",
+  "installed_files_verified": 416,
+  "installed_file_mismatches": [],
+  "readiness": {
+    "ready": true,
+    "components": {
+      "stores": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": null
+      },
+      "migrations": {
+        "ready": true,
+        "detail": "Migrations and durability recovery completed.",
+        "checkedAt": null
+      },
+      "lock": {
+        "ready": true,
+        "detail": "Exclusive data-root lock.",
+        "checkedAt": null
+      },
+      "canary": {
+        "ready": true,
+        "detail": "Egress canary: Blocked. Egress canary state is current.",
+        "checkedAt": "2026-10-24T17:17:31.7464149+00:00"
+      },
+      "extractor": {
+        "ready": true,
+        "detail": "Extractor answered ping.",
+        "checkedAt": null
+      },
+      "provider:chat": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:17:34.152082+00:00"
+      },
+      "provider:enrich": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:17:34.1540485+00:00"
+      },
+      "provider:embed": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:17:34.1553846+00:00"
+      },
+      "provider:rerank": {
+        "ready": true,
+        "detail": "Optional rerank role is not configured.",
+        "checkedAt": "2026-10-24T17:17:53.6540713+00:00"
+      }
+    }
+  },
+  "unauthenticated_read_checks": {
+    "/v1/jobs": 401,
+    "/v1/documents/00000000000000000000000000": 401
+  },
+  "units": {
+    "secondbrain.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "3131766",
+      "NRestarts": "0",
+      "ExecMainStartTimestamp": "Sat 2026-10-24 13:17:28 EDT",
+      "ExecStart": "{ path=/usr/local/lib/secondbrain/brain ; argv[]=/usr/local/lib/secondbrain/brain serve ; ignore_errors=no ; start_time=[Sat 2026-10-24 13:17:28 EDT] ; stop_time=[n/a] ; pid=3131766 ; code=(null) ; status=0/0 }",
+      "MemoryMax": "8589934592",
+      "TasksMax": "256",
+      "LimitCPU": "infinity",
+      "CapabilityBoundingSet": "",
+      "AmbientCapabilities": "",
+      "PrivateNetwork": "no",
+      "NoNewPrivileges": "yes"
+    },
+    "secondbrain-extractor.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "3138709",
+      "NRestarts": "0",
+      "ExecMainStartTimestamp": "Sat 2026-10-24 13:17:32 EDT",
+      "ExecStart": "{ path=/usr/local/lib/secondbrain/SecondBrain.Extractor ; argv[]=/usr/local/lib/secondbrain/SecondBrain.Extractor --socket /run/secondbrain/extractor.sock ; ignore_errors=no ; start_time=[Sat 2026-10-24 13:17:32 EDT] ; stop_time=[n/a] ; pid=3138709 ; code=(null) ; status=0/0 }",
+      "MemoryMax": "1073741824",
+      "TasksMax": "64",
+      "LimitCPU": "infinity",
+      "CapabilityBoundingSet": "",
+      "AmbientCapabilities": "",
+      "PrivateNetwork": "yes",
+      "NoNewPrivileges": "yes"
+    },
+    "secondbrain-extractor.socket": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MemoryMax": "infinity",
+      "TasksMax": "154266",
+      "LimitCPU": "infinity",
+      "CapabilityBoundingSet": "cap_chown cap_dac_override cap_dac_read_search cap_fowner cap_fsetid cap_kill cap_setgid cap_setuid cap_setpcap cap_linux_immutable cap_net_bind_service cap_net_broadcast cap_net_admin cap_net_raw cap_ipc_lock cap_ipc_owner cap_sys_module cap_sys_rawio cap_sys_chroot cap_sys_ptrace cap_sys_pacct cap_sys_admin cap_sys_boot cap_sys_nice cap_sys_resource cap_sys_time cap_sys_tty_config cap_mknod cap_lease cap_audit_write cap_audit_control cap_setfcap cap_mac_override cap_mac_admin cap_syslog cap_wake_alarm cap_block_suspend cap_audit_read cap_perfmon cap_bpf cap_checkpoint_restore",
+      "AmbientCapabilities": "",
+      "PrivateNetwork": "no",
+      "NoNewPrivileges": "no"
+    }
+  },
+  "base_units_match_repository": true,
+  "host_dropin_preserved": true,
+  "tls_check": {
+    "exit_code": 60,
+    "detail": "curl: (60) SSL certificate OpenSSL verify result: unable to get local issuer certificate (20)\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify the legitimacy of the server and therefore could not\nestablish a secure connection to it. To learn more about this situation and\nhow to fix it, please visit the webpage mentioned above.",
+    "pre_existing": true,
+    "baseline": "Before upgrade, the server supplied only its leaf certificate; normal system-CA validation also failed with curl exit 60."
+  },
+  "rollback_backup": "/var/backups/secondbrain/m1-20261024T171727Z-b7073b94"
+}

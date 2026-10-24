@@ -1,0 +1,13 @@
+{
+  "status": "M1 installed and ready on the reference systemd service",
+  "sha256": {
+    "before-unit-hashes.json": "1fe01fb4a3f5caa3d1035516ff2e89127a056824fd4c8badc11ceeb8ed7587df",
+    "deployment-result.json": "6cd6360b39202d232eeb425b513803201607aec7e1aa88f8ba090425db87c495",
+    "first-attempt.json": "5bb2d2df1ce10ca7720b9ce69f9c31ed5ddfdb8e7033e188114bfb0c48a66815",
+    "independent-verification.json": "140c0cecbb0b2c7836457eaa7a9e770c55ab18f76ca7c634da654aacb6a5ba49",
+    "input-provenance.json": "3b3b53067c1dbd9866854b7491426a67d980f4f73a912f1247540909aaf6645c",
+    "rolled-back-attempt.json": "17191cb3491c3b598b68dbffc66bb388dd171aece394ec2ee5ff963ac58551ea",
+    "upgrade-tests-result.json": "9f43a766f0b4f1bbcb2c44ca5435ee5974d97fa516a13e48fb4a54363f7f0cb9",
+    "upgrade-tests.log": "5601901645dbd701e7541191f1af4ca5615c125393f1a3aaa3cbed3ad586d96c"
+  }
+}
