@@ -1,5 +1,7 @@
 # Conversation controls
 
+Click a citation number to jump to its source card and open the excerpt. Each answer links to its own sources.
+
 Enter sends a message; Shift+Enter inserts a new line. Empty input and repeated held keys do not send extra requests. Text composition retains its normal Enter behavior.
 
 Each conversation has a delete button and an explicit confirmation. Deleting removes its transcript, replay events, source excerpts, summaries, and pending proposals. Notes already saved to the vault remain. A conversation cannot be deleted while its response or an approved write is still running.

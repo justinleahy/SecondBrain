@@ -1,0 +1,39 @@
+{
+  "links": [
+    {
+      "text": "[1]",
+      "href": "#source-01M5QK04Q3NMT1RT6AQ84417RP-1"
+    },
+    {
+      "text": "[2]",
+      "href": "#source-01M5QK04Q3NMT1RT6AQ84417RP-2"
+    },
+    {
+      "text": "[1]",
+      "href": "#source-01M5QK04Q3NMT1RT6AQ84417RP-1"
+    },
+    {
+      "text": "[2]",
+      "href": "#source-01M5QK04Q3NMT1RT6AQ84417RP-2"
+    },
+    {
+      "text": "[1]",
+      "href": "#source-01M5QK04RD60M2G5E8AK6N6E2X-1"
+    }
+  ],
+  "sources": [
+    {
+      "id": "source-01M5QK04Q3NMT1RT6AQ84417RP-1",
+      "open": false
+    },
+    {
+      "id": "source-01M5QK04Q3NMT1RT6AQ84417RP-2",
+      "open": false
+    },
+    {
+      "id": "source-01M5QK04RD60M2G5E8AK6N6E2X-1",
+      "open": false
+    }
+  ],
+  "turnCount": 2
+}
