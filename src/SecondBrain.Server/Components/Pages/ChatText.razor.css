@@ -1,0 +1,7 @@
+.answer-text { line-height: 1.8; font-size: 15px; overflow-wrap: anywhere; }
+.answer-text ::deep p { margin: 12px 0; }
+.answer-text ::deep ul, .answer-text ::deep ol { padding-left: 22px; }
+.answer-text ::deep li { margin: 8px 0; }
+.answer-text ::deep code { font-size: .9em; background: #eaf0eb; border-radius: 3px; padding: 1px 4px; }
+.answer-text ::deep pre { background: #eaf0eb; padding: 14px; border-radius: 8px; overflow: auto; }
+.answer-text ::deep pre code { padding: 0; white-space: pre; }

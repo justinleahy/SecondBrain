@@ -60,6 +60,7 @@ public static class StorageServiceCollectionExtensions
         services.TryAddSingleton<SqliteChatRepository>();
         services.TryAddSingleton<IChatRepository>(provider => provider.GetRequiredService<SqliteChatRepository>());
         services.TryAddSingleton<IChatProposalRepository>(provider => provider.GetRequiredService<SqliteChatRepository>());
+        services.TryAddSingleton<IChatExecutionRepository>(provider => provider.GetRequiredService<SqliteChatRepository>());
         // A factory, because IPayloadProtection comes from the host's key-ring composition, not from Storage.
         services.TryAddSingleton<IRetrievalRepository>(provider => new SqliteRetrievalRepository(
             provider.GetRequiredService<IIndexStore>(), provider.GetRequiredService<IPayloadProtection>(),

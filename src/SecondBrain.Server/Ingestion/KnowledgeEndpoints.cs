@@ -278,7 +278,7 @@ public static class KnowledgeEndpoints
         : result;
     private static IResult Invalid(string code) => Failure(code, 400);
     private static IResult Failure(string code, int status) => Results.Problem(statusCode: status, type: "https://secondbrain.dev/problems/" + Uri.EscapeDataString(code), title: code);
-    private static async Task<T> ReadJsonAsync<T>(Stream source, int maximumBytes, CancellationToken token)
+    internal static async Task<T> ReadJsonAsync<T>(Stream source, int maximumBytes, CancellationToken token)
     {
         using var bounded = new MemoryStream();
         await CopyBoundedAsync(source, bounded, maximumBytes, token);

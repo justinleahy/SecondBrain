@@ -1,0 +1,101 @@
+{
+  "modelConfirmsSaved": true,
+  "turns": [
+    {
+      "id": "01M5QH277QT2726DZQ83PYEB1S",
+      "conversationId": "01M5QH277QFN74B28EB8GF8CN8",
+      "ordinal": 1,
+      "status": "complete",
+      "mode": "chat",
+      "prompt": "Please propose a new note titled Receipt check with exactly this content: The browser approval was verified.",
+      "policy": {
+        "provider": "local-chat",
+        "model": "Qwen/Qwen3-8B",
+        "maxToolCalls": 8,
+        "maxReadDocuments": 12,
+        "maxReadBytes": 200000,
+        "maxMetadataRecords": 200,
+        "maxOutputTokens": 2048,
+        "maxHistoryMessages": 20,
+        "hourlyTokens": 200000,
+        "dailyTokens": 2000000,
+        "autoApproveNotes": false,
+        "maxHistoryBytes": 8192
+      },
+      "startedAt": "2026-10-24T17:58:24.8853776+00:00",
+      "endedAt": "2026-10-24T17:58:24.8853776+00:00",
+      "failureCode": null,
+      "answer": {
+        "text": "I have proposed a new note titled \"Receipt check\" with the content: \"The browser approval was verified.\" The note is currently pending approval.",
+        "citations": [],
+        "invalidCitationCount": 0,
+        "warnings": [
+          "no_verified_sources"
+        ]
+      },
+      "redacted": false
+    },
+    {
+      "id": "01M5QH2J68Y43CWJN1NV4Q8D0T",
+      "conversationId": "01M5QH277QFN74B28EB8GF8CN8",
+      "ordinal": 2,
+      "status": "complete",
+      "mode": "chat",
+      "prompt": "Was Receipt check saved, or is it still awaiting approval?",
+      "policy": {
+        "provider": "local-chat",
+        "model": "Qwen/Qwen3-8B",
+        "maxToolCalls": 8,
+        "maxReadDocuments": 12,
+        "maxReadBytes": 200000,
+        "maxMetadataRecords": 200,
+        "maxOutputTokens": 2048,
+        "maxHistoryMessages": 20,
+        "hourlyTokens": 200000,
+        "dailyTokens": 2000000,
+        "autoApproveNotes": false,
+        "maxHistoryBytes": 8192
+      },
+      "startedAt": "2026-10-24T17:58:24.8853776+00:00",
+      "endedAt": "2026-10-24T17:58:24.8853776+00:00",
+      "failureCode": null,
+      "answer": {
+        "text": "The note titled \"Receipt check\" has been saved. It was created with the content \"The browser approval was verified.\" The document ID for this note is 01M5QH27RSYM5CTGCYKZGBFDZB.",
+        "citations": [],
+        "invalidCitationCount": 0,
+        "warnings": [
+          "no_verified_sources"
+        ]
+      },
+      "redacted": false
+    }
+  ],
+  "proposals": [
+    {
+      "id": "01M5QH27RZYSTK2JD2QHGMGEHA",
+      "turnId": "01M5QH277QT2726DZQ83PYEB1S",
+      "tool": "create_document",
+      "status": "executed",
+      "plan": {
+        "operation": "create",
+        "documentId": "01M5QH27RSYM5CTGCYKZGBFDZB",
+        "revision": 0,
+        "destination": "/tmp/secondbrain-lane-d-SgDDgx/data/vault/notes/01M5QH27RSYM5CTGCYKZGBFDZB.md",
+        "payload": {
+          "content": "The browser approval was verified.",
+          "title": "Receipt check",
+          "type": "note",
+          "props": {},
+          "tags": []
+        },
+        "mutationId": "01M5QH27RV3VW6BGQCXEA92J8A",
+        "relatedDocumentIds": [],
+        "appendOnly": false
+      },
+      "createdAt": "2026-10-24T17:58:24.8853776+00:00",
+      "expiresAt": "2026-10-27T17:58:24.8853776+00:00",
+      "failureCode": null,
+      "executionId": "01M5QH27RZV49ECGHWMX0WK95N"
+    }
+  ]
+}

@@ -6,11 +6,13 @@ using SecondBrain.Core.Chat;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Durability;
 using SecondBrain.Core.Ingestion;
+using SecondBrain.Core.Retrieval;
 using SecondBrain.Infrastructure.Ingestion;
 using SecondBrain.Storage.Auth;
 using SecondBrain.Storage.Chat;
 using SecondBrain.Storage.Durability;
 using SecondBrain.Storage.Ingestion;
+using SecondBrain.Storage.Retrieval;
 using Xunit;
 
 namespace SecondBrain.Storage.Tests;
@@ -20,6 +22,21 @@ public sealed class ChatApprovalTests
     private static readonly AuthenticatedCredential Browser = Actor("browser", "session");
     private static readonly AuthenticatedCredential Key = Actor("key", "api_key");
     private static readonly ChatTurnPolicy Policy = new("local", "test-model");
+
+    [Fact]
+    public async Task NextTurnReceivesTheConfirmedApprovalOutcome()
+    {
+        using var root = new MigrationTestDataRoot(); await using var fixture = await Fixture.CreateAsync(root.Path);
+        var turn = (await fixture.Chat.StartAsync(new("Save"), Policy, Browser)).Turn;
+        var proposal = await fixture.Chat.ProposeAsync(turn.Id, "create_document", JsonSerializer.SerializeToElement(new { title = "Note", content = "Saved" }), Browser);
+        await fixture.Chat.FinishAsync(turn.Id, "complete", new("Waiting for approval.", []));
+        await fixture.Chat.ApproveAsync(proposal.Id, Browser);
+        var next = (await fixture.Chat.StartAsync(new("Was that saved?", turn.ConversationId), Policy, Browser)).Turn;
+        var history = await fixture.Chat.HistoryAsync(next.Id, Browser);
+        var receipt = Assert.Single(history, message => message.Text.Contains("Recorded operation status", StringComparison.Ordinal));
+        Assert.Contains("executed", receipt.Text);
+        Assert.Contains(proposal.Plan!.DocumentId, receipt.DocumentReferences);
+    }
 
     [Fact]
     public async Task ConcurrentApprovalsCreateOneNoteAndOneExecution()
@@ -190,6 +207,9 @@ public sealed class ChatApprovalTests
         Assert.Equal("executed", (await fixture.Chat.ApproveAsync(proposal.Id, Browser)).Status);
         Assert.Contains("[[" + second.Id + "]]", await File.ReadAllTextAsync(first.Path!));
         Assert.Equal(second.Id, await MigrationTestSql.ScalarAsync(fixture.Stores.Index, "SELECT to_document_id FROM links"));
+        var retrieval = new SqliteRetrievalRepository(fixture.Stores.Index, new UnusedProtection(), state: fixture.Stores.State);
+        Assert.Equal(second.Id, Assert.Single(await retrieval.RelatedAsync(first.Id, Authority(Browser))).Id);
+        Assert.Equal(first.Id, Assert.Single(await retrieval.RelatedAsync(second.Id, Authority(Browser))).Id);
     }
 
     [Fact]
@@ -284,4 +304,9 @@ public sealed class ChatApprovalTests
         }
     }
     private sealed class InjectedFailure : Exception;
+    private sealed class UnusedProtection : IPayloadProtection
+    {
+        public string Protect(string purpose, string plaintext) => throw new NotSupportedException();
+        public string Unprotect(string purpose, string protectedText) => throw new NotSupportedException();
+    }
 }

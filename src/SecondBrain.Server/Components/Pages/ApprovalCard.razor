@@ -4,7 +4,7 @@
 @inject IChatProposalRepository Approvals
 
 <section class="approval-card" aria-label="Proposed change">
-    <header><strong>@(Proposal.Plan?.Operation == "create" ? "Suggested note" : "Suggested update")</strong><span>@Proposal.Status.Replace('_', ' ')</span></header>
+    <header><strong>@(Proposal.Plan is null ? "Proposed change" : Proposal.Plan.Operation == "create" ? "Suggested note" : "Suggested update")</strong><span>@StatusLabel(Proposal.Status)</span></header>
     @if (Proposal.Plan is { } plan)
     {
         <h4>@plan.Payload.GetProperty("title").GetString()</h4>
@@ -41,6 +41,12 @@
     private bool busy, editing;
     private string title = "", content = "";
     private string? error;
+    private static string StatusLabel(string status) => status switch
+    {
+        "pending" => "Waiting for approval", "executing" => "Applying", "executed" => "Saved",
+        "superseded" => "Replaced by an edit", "discarded" => "Discarded", "failed" => "Could not apply",
+        _ => status.Replace('_', ' ')
+    };
 
     private void Edit()
     {
@@ -70,6 +76,7 @@
         catch (AuthorityChangedException) { error = "Your session or write permission changed. Sign in again."; }
         catch (Exception exception) when (exception is ChatConflictException or ArgumentException or ChatNotFoundException)
         { error = exception.Message; }
+        catch (Exception) { error = "The result could not be confirmed. Reload this conversation to check its status."; }
         finally { busy = false; }
     }
 }

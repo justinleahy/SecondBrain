@@ -52,6 +52,8 @@ public interface IRetrievalRepository
 {
     ValueTask<SearchResponse> SearchAsync(SearchRequest request, float[]? queryVector = null, string? spaceId = null, CancellationToken cancellationToken = default);
     ValueTask<QueryPage> QueryAsync(QueryRequest request, IngestionAuthority authority, CancellationToken cancellationToken = default);
+    ValueTask<IReadOnlyList<DocumentRecord>> RelatedAsync(string documentId, IngestionAuthority authority, int limit = 8, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException("Related-document lookup is unavailable.");
     ValueTask<IReadOnlyList<ContextPassage>> ExpandAsync(IReadOnlyList<SearchHit> selected, int tokenBudget, CancellationToken cancellationToken = default);
     ValueTask RecordTraceAsync(SearchRequest request, SearchResponse response, CancellationToken cancellationToken = default);
 }

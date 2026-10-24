@@ -11,6 +11,8 @@
     "GET /auth/antiforgery",
     "GET /auth/me",
     "GET /auth/sessions",
+    "GET /conversations",
+    "GET /conversations/{id}",
     "GET /diagnostics",
     "GET /documents/{id}",
     "GET /files/{id}",
@@ -18,49 +20,69 @@
     "GET /jobs",
     "GET /jobs/{id}",
     "GET /keys",
+    "GET /pending",
     "GET /providers",
     "GET /ready",
     "GET /sources",
+    "GET /turns/{id}",
+    "GET /turns/{id}/events",
+    "GET /turns/{id}/manifest",
     "GET /v1/auth/antiforgery",
     "GET /v1/auth/me",
     "GET /v1/auth/sessions",
+    "GET /v1/conversations",
+    "GET /v1/conversations/{id}",
     "GET /v1/diagnostics",
     "GET /v1/documents/{id}",
     "GET /v1/files/{id}",
     "GET /v1/jobs",
     "GET /v1/jobs/{id}",
     "GET /v1/keys",
+    "GET /v1/pending",
     "GET /v1/providers",
     "GET /v1/sources",
+    "GET /v1/turns/{id}",
+    "GET /v1/turns/{id}/events",
+    "GET /v1/turns/{id}/manifest",
     "PATCH /documents/{id}",
     "PATCH /sources/{id}",
     "PATCH /v1/documents/{id}",
     "PATCH /v1/sources/{id}",
+    "POST /ask",
     "POST /auth/login",
     "POST /auth/logout",
     "POST /auth/logout-all",
     "POST /auth/step-up",
+    "POST /chat",
     "POST /documents",
     "POST /documents/{id}/purge",
     "POST /documents/{id}/restore",
     "POST /jobs/{id}/retry",
     "POST /keys",
     "POST /maintenance/rebuild",
+    "POST /pending/{id}/approve",
+    "POST /pending/{id}/discard",
+    "POST /pending/{id}/edit",
     "POST /providers/test",
     "POST /query",
     "POST /search",
     "POST /sources",
     "POST /sources/{id}/scan",
+    "POST /v1/ask",
     "POST /v1/auth/login",
     "POST /v1/auth/logout",
     "POST /v1/auth/logout-all",
     "POST /v1/auth/step-up",
+    "POST /v1/chat",
     "POST /v1/documents",
     "POST /v1/documents/{id}/purge",
     "POST /v1/documents/{id}/restore",
     "POST /v1/jobs/{id}/retry",
     "POST /v1/keys",
     "POST /v1/maintenance/rebuild",
+    "POST /v1/pending/{id}/approve",
+    "POST /v1/pending/{id}/discard",
+    "POST /v1/pending/{id}/edit",
     "POST /v1/providers/test",
     "POST /v1/query",
     "POST /v1/search",
@@ -196,6 +218,542 @@
       "required": [
         "document",
         "job"
+      ],
+      "type": "object"
+    },
+    "ChatAnswer": {
+      "properties": {
+        "citations": {
+          "items": {
+            "$ref": "#/components/schemas/ChatCitation"
+          },
+          "type": "array"
+        },
+        "invalidCitationCount": {
+          "default": 0,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "text",
+        "citations"
+      ],
+      "type": "object"
+    },
+    "ChatCitation": {
+      "properties": {
+        "source": {
+          "$ref": "#/components/schemas/ChatSource"
+        },
+        "state": {
+          "default": "current",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
+    "ChatConversation": {
+      "properties": {
+        "activeTurnId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "updatedAt",
+        "activeTurnId"
+      ],
+      "type": "object"
+    },
+    "ChatEgressDocument": {
+      "properties": {
+        "documentId": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "documentId",
+        "revision",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "ChatEgressManifest": {
+      "properties": {
+        "chargedTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "documents": {
+          "items": {
+            "$ref": "#/components/schemas/ChatEgressDocument"
+          },
+          "type": "array"
+        },
+        "historyCompacted": {
+          "type": "boolean"
+        },
+        "historyIncluded": {
+          "type": "boolean"
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "toolResultBytes": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "provider",
+        "model",
+        "documents",
+        "historyIncluded",
+        "historyCompacted",
+        "toolResultBytes",
+        "chargedTokens"
+      ],
+      "type": "object"
+    },
+    "ChatProposal": {
+      "properties": {
+        "createdAt": {
+          "type": "string"
+        },
+        "executionId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "expiresAt": {
+          "type": "string"
+        },
+        "failureCode": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "plan": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ChatWritePlan"
+            }
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "turnId",
+        "tool",
+        "status",
+        "plan",
+        "createdAt",
+        "expiresAt"
+      ],
+      "type": "object"
+    },
+    "ChatRequest": {
+      "properties": {
+        "conversationId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "mode": {
+          "default": "chat",
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "prompt"
+      ],
+      "type": "object"
+    },
+    "ChatSource": {
+      "properties": {
+        "chunkId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "excerpt": {
+          "type": "string"
+        },
+        "generation": {
+          "type": "string"
+        },
+        "number": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "ordinal": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "page": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number",
+        "documentId",
+        "revision",
+        "generation",
+        "chunkId",
+        "ordinal",
+        "page",
+        "title",
+        "excerpt",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "ChatStart": {
+      "properties": {
+        "created": {
+          "type": "boolean"
+        },
+        "turn": {
+          "$ref": "#/components/schemas/ChatTurn"
+        }
+      },
+      "required": [
+        "turn",
+        "created"
+      ],
+      "type": "object"
+    },
+    "ChatTurn": {
+      "properties": {
+        "answer": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ChatAnswer"
+            }
+          ]
+        },
+        "conversationId": {
+          "type": "string"
+        },
+        "endedAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "failureCode": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "ordinal": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "policy": {
+          "$ref": "#/components/schemas/ChatTurnPolicy"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "redacted": {
+          "default": false,
+          "type": "boolean"
+        },
+        "startedAt": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "conversationId",
+        "ordinal",
+        "status",
+        "mode",
+        "prompt",
+        "policy",
+        "startedAt",
+        "endedAt",
+        "failureCode",
+        "answer"
+      ],
+      "type": "object"
+    },
+    "ChatTurnPolicy": {
+      "properties": {
+        "autoApproveNotes": {
+          "default": false,
+          "type": "boolean"
+        },
+        "dailyTokens": {
+          "default": 2000000,
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "hourlyTokens": {
+          "default": 200000,
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxHistoryBytes": {
+          "default": 12000,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxHistoryMessages": {
+          "default": 20,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxMetadataRecords": {
+          "default": 200,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxOutputTokens": {
+          "default": 2048,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxReadBytes": {
+          "default": 200000,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxReadDocuments": {
+          "default": 12,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxToolCalls": {
+          "default": 8,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "model"
+      ],
+      "type": "object"
+    },
+    "ChatWritePlan": {
+      "properties": {
+        "appendOnly": {
+          "default": false,
+          "type": "boolean"
+        },
+        "destination": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "mutationId": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/components/schemas/JsonElement"
+        },
+        "relatedDocumentIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "documentId",
+        "revision",
+        "destination",
+        "payload",
+        "mutationId"
       ],
       "type": "object"
     },

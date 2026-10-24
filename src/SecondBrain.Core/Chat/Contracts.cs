@@ -10,7 +10,7 @@ public sealed record ChatTurnPolicy(
     string Provider, string Model, int MaxToolCalls = 8, int MaxReadDocuments = 12,
     int MaxReadBytes = 200_000, int MaxMetadataRecords = 200, int MaxOutputTokens = 2048,
     int MaxHistoryMessages = 20, long HourlyTokens = 200_000, long DailyTokens = 2_000_000,
-    bool AutoApproveNotes = false);
+    bool AutoApproveNotes = false, int MaxHistoryBytes = 12_000);
 
 public sealed record ChatConversation(string Id, string Title, string UpdatedAt, string? ActiveTurnId);
 public sealed record ChatTurn(string Id, string ConversationId, int Ordinal, string Status, string Mode,

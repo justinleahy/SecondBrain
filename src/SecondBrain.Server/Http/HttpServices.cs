@@ -90,6 +90,7 @@ public sealed class LaneDStartupFilter : IStartupFilter
             AuthEndpoints.Map(endpoints);
             SourceEndpoints.Map(endpoints);
             KnowledgeEndpoints.Map(endpoints);
+            ChatEndpoints.Map(endpoints);
             AdministrationEndpoints.Map(endpoints);
             endpoints.MapGet("/ready", ReadinessService.RespondAsync).WithName("readiness");
             endpoints.MapOpenApi("/v1/openapi.json");

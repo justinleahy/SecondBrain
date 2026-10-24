@@ -11,6 +11,7 @@
 @inject IAuthRepository Auth
 @inject IChatRepository Repository
 @inject IChatProposalRepository Approvals
+@inject IChatExecutionRepository Executions
 @inject ChatService Assistant
 
 <PageTitle>Chat · SecondBrain</PageTitle>
@@ -58,12 +59,14 @@ else
                         <div class="user-message"><span class="message-label">YOU</span><p>@turn.Prompt</p></div>
                         <div class="assistant-message"><span class="message-label">SECOND BRAIN <small>@turn.Policy.Model</small></span>
                             @if (turn.Redacted) { <p class="notice">This answer was removed because a source was purged.</p> }
-                            else if (turn.Answer is not null) { <p class="answer">@turn.Answer.Text</p> }
-                            else if (drafts.TryGetValue(turn.Id, out var draft) && draft.Length > 0) { <p class="answer">@draft</p> }
+                            else if (turn.Answer is not null) { <ChatText Text="@turn.Answer.Text" /> }
+                            else if (drafts.TryGetValue(turn.Id, out var draft) && draft.Length > 0) { <ChatText Text="@draft" /> }
                             else if (turn.Status == "running") { <p class="thinking"><span></span> Searching your knowledge…</p> }
                             @if (turn.Status == "running") { <small class="notice">Generating · citations will be checked when the answer is complete</small> }
                             @if (turn.FailureCode is not null) { <p class="notice">This turn stopped: @FriendlyReason(turn.FailureCode). You can send another message.</p> }
                             @if (turn.Answer?.Warnings?.Contains("no_verified_sources") == true) { <p class="notice">This response has no verified sources.</p> }
+                            @foreach (var warning in turn.Answer?.Warnings?.Where(value => value != "no_verified_sources") ?? [])
+                            { <p class="notice">@WarningText(warning)</p> }
                             @if (turn.Answer?.Citations.Count > 0)
                             {
                                 <div class="sources"><h3>Sources</h3>
@@ -77,8 +80,11 @@ else
                             {
                                 <details class="activity"><summary>Activity · @entries.Count actions</summary><ul>@foreach (var entry in entries) { <li>@entry</li> }</ul></details>
                             }
+                            else if (turn.Status != "running")
+                            { <button class="activity-link" @onclick="() => LoadActivityAsync(turn.Id)">View tool activity</button> }
                             @foreach (var proposal in proposals.Where(item => item.TurnId == turn.Id))
                             { <ApprovalCard @key="proposal.Id" Proposal="proposal" Actor="actor" Changed="ReloadProposalsAsync" /> }
+                            <EgressManifest TurnId="@turn.Id" Actor="actor" />
                         </div>
                     </article>
                 }
@@ -126,7 +132,7 @@ else
 
     private void NewConversation()
     {
-        observation?.Cancel(); selected = null; turns = []; error = null; showAllApprovals = false;
+        observation?.Cancel(); selected = null; turns = []; error = null; showAllApprovals = false; askOnly = false;
     }
 
     private async Task SelectAsync(string id)
@@ -135,6 +141,7 @@ else
         try
         {
             turns = await Repository.GetConversationAsync(id, actor!, lifetime.Token);
+            askOnly = turns.LastOrDefault()?.Mode == "ask";
             await ReloadProposalsAsync();
             if (turns.LastOrDefault()?.Status == "running") Observe(turns[^1].Id);
         }
@@ -204,7 +211,20 @@ else
     }
 
     private static string FriendlyReason(string code) => code.Replace('_', ' ');
+    private static string WarningText(string code) => code switch
+    {
+        "keyword_fallback" => "Semantic retrieval was unavailable; keyword results were used.",
+        "history_compacted" => "Earlier conversation was condensed into excerpts; some details may be omitted.",
+        "invalid_citations_removed" => "Unsupported source references were removed from this answer.",
+        "metadata_truncated" => "Only part of the matching records was examined.",
+        _ => "Retrieval notice: " + code.Replace('_', ' ').Replace('-', ' ')
+    };
     private async Task ReloadProposalsAsync() => proposals = await Approvals.ListAsync(null, actor!, lifetime.Token);
+    private async Task LoadActivityAsync(string turnId)
+    {
+        try { activity[turnId] = (await Executions.ActivityAsync(turnId, actor!, lifetime.Token)).Select(item => item.Name + " · " + item.Status.Replace('_', ' ')).ToList(); }
+        catch (AuthorityChangedException) { error = "Your session changed. Sign in again."; }
+    }
     private async Task ShowApprovalsAsync() { await ReloadProposalsAsync(); showAllApprovals = true; }
     public async ValueTask DisposeAsync()
     {

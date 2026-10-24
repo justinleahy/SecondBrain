@@ -14,7 +14,7 @@ namespace SecondBrain.Storage.Chat;
 /// <summary>State transactions serialize admission, event numbering, exposure, and token reservations.</summary>
 public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider clock,
     IDocumentRepository? documents = null, IManagedDocumentFiles? files = null,
-    Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null) : IChatRepository, IChatProposalRepository
+    Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null) : IChatRepository, IChatProposalRepository, IChatExecutionRepository
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private const string TurnSelect = """
@@ -79,8 +79,8 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
                 UPDATE conversations SET updated_at=@now WHERE id=@conversationId;
                 """, new { id, conversationId, ordinal, actor = actor.Id, generation = actor.Generation, epoch = actor.AccountEpoch,
                 tools = JsonSerializer.Serialize(request.Mode == "ask" || !credential.GrantedScopes.Contains(Scope.Write)
-                    ? new[] { "search", "read_document", "query_records", "list_recent" }
-                    : new[] { "search", "read_document", "query_records", "list_recent", "create_document", "update_document", "tag_document", "link_documents" }, Json),
+                    ? new[] { "search", "read_document", "query_records", "list_recent", "get_related" }
+                    : new[] { "search", "read_document", "query_records", "list_recent", "get_related", "create_document", "update_document", "tag_document", "link_documents" }, Json),
                 provider = policy.Provider, model = policy.Model, now, requestId, hash, mode = request.Mode,
                 policy = JsonSerializer.Serialize(policy, Json), payload }, transaction, token));
             await EventAsync(connection, transaction, id, "started", new { turnId = id, conversationId, ordinal }, [], token);
@@ -125,23 +125,8 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
             return turn;
         }, cancellationToken);
 
-    public ValueTask<IReadOnlyList<ChatHistoryMessage>> HistoryAsync(string turnId, AuthenticatedCredential actor, CancellationToken cancellationToken = default) => ReadAsync<IReadOnlyList<ChatHistoryMessage>>(async (connection, transaction, token) =>
-    {
-        var current = await RunningAsync(connection, transaction, turnId, actor, token);
-        var limit = Policy(current).MaxHistoryMessages / 2;
-        var rows = (await connection.QueryAsync<TurnRow>(Sql(TurnSelect + " WHERE t.conversation_id=@id AND t.ordinal<@ordinal ORDER BY t.ordinal DESC LIMIT @limit",
-            new { id = current.ConversationId, ordinal = current.Ordinal, limit }, transaction, token))).Reverse();
-        List<ChatHistoryMessage> messages = [];
-        foreach (var row in rows)
-        {
-            var turn = ToTurn(row);
-            if (row.PromptRedacted is null) messages.Add(new("user", turn.Prompt, []));
-            if (turn.Answer is null || row.AnswerRedacted is not null) continue;
-            var refs = await ReferencesAsync(connection, transaction, row.Id, token);
-            messages.Add(new("assistant", turn.Answer.Text, refs));
-        }
-        return messages;
-    }, cancellationToken);
+    public ValueTask<IReadOnlyList<ChatHistoryMessage>> HistoryAsync(string turnId, AuthenticatedCredential actor, CancellationToken cancellationToken = default) =>
+        CompactHistoryAsync(turnId, actor, cancellationToken);
 
     public ValueTask<IReadOnlyList<ChatEvent>> EventsAsync(string turnId, long after, AuthenticatedCredential actor, CancellationToken cancellationToken = default) => ReadAsync<IReadOnlyList<ChatEvent>>(async (connection, transaction, token) =>
     {
@@ -161,7 +146,7 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
     public ValueTask<long> AppendAsync(string turnId, string kind, JsonElement data, IReadOnlyList<string> documentReferences,
         AuthenticatedCredential actor, CancellationToken cancellationToken = default) => state.QueueWriteAsync(async (connection, transaction, token) =>
     {
-        if (kind is not ("delta" or "tool" or "sources" or "proposal" or "warning")) throw new ArgumentException("Invalid event kind.", nameof(kind));
+        if (kind is not ("delta" or "tool" or "sources" or "proposal" or "warning" or "history" or "compaction")) throw new ArgumentException("Invalid event kind.", nameof(kind));
         var bytes = JsonSerializer.SerializeToUtf8Bytes(data, Json).Length;
         if (bytes > 1_000_000 || kind == "delta" && bytes > 65_536) throw new ChatLimitException("The event exceeds its byte limit.");
         var turn = await RunningAsync(connection, transaction, turnId, actor, token);
@@ -237,6 +222,8 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
                 UPDATE turns SET status='partial',ended_at=@now WHERE id=@id;
                 UPDATE chat_turn_details SET failure_code='interrupted',answer_payload_id=@payload WHERE turn_id=@id;
                 UPDATE chat_model_calls SET status='settled' WHERE turn_id=@id AND status='reserved';
+                UPDATE tool_executions SET status='interrupted' WHERE turn_id=@id AND status='running'
+                  AND NOT EXISTS(SELECT 1 FROM pending_operations p WHERE p.execution_id=tool_executions.id);
                 """, new { id, now = Now(), payload }, transaction, token));
             await EventAsync(connection, transaction, id, "finished", new { status = "partial", failureCode = "interrupted", answer }, refs, token);
         }
@@ -347,7 +334,7 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
     {
         if (string.IsNullOrWhiteSpace(policy.Provider) || string.IsNullOrWhiteSpace(policy.Model) || policy.MaxToolCalls is < 1 or > 32 ||
             policy.MaxReadDocuments is < 1 or > 100 || policy.MaxReadBytes is < 1 or > 1_000_000 || policy.MaxMetadataRecords is < 1 or > 1000 ||
-            policy.MaxOutputTokens is < 1 or > 32768 || policy.MaxHistoryMessages is < 0 or > 100 || policy.HourlyTokens < 1 || policy.DailyTokens < 1)
+            policy.MaxOutputTokens is < 1 or > 32768 || policy.MaxHistoryMessages is < 0 or > 100 || policy.MaxHistoryBytes is < 2048 or > 65536 || policy.HourlyTokens < 1 || policy.DailyTokens < 1)
             throw new ArgumentException("Invalid chat policy.", nameof(policy));
     }
 

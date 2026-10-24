@@ -20,6 +20,80 @@ public sealed class ChatRepositoryTests
     private static readonly ChatTurnPolicy Policy = new("local", "test-model");
 
     [Fact]
+    public async Task ToolResultsAreDurableAndTheManifestIncludesUncitedSources()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores); var documents = Documents(stores);
+        var document = (await documents.CaptureAsync(new("Blue Otter", "Note"), Authority(Browser))).Document;
+        var turn = (await chat.StartAsync(new("Question"), Policy, Browser)).Turn;
+        var execution = await chat.BeginToolAsync(turn.Id, "search", JsonSerializer.SerializeToElement(new { query = "codename" }), 1, Browser);
+        await chat.ExposeAsync(turn.Id, [new(document.Id, 1, document.Chunks![0].Id)], Browser);
+        await chat.CompleteToolAsync(execution, JsonSerializer.SerializeToElement(new { answer = "Blue Otter" }), [document.Id], Browser);
+        await Assert.ThrowsAsync<ChatConflictException>(() => chat.CompleteToolAsync(execution, JsonSerializer.SerializeToElement(new { answer = "duplicate" }), [], Browser).AsTask());
+        await chat.ReserveTokensAsync(turn.Id, "call", 100, Browser); await chat.SettleTokensAsync(turn.Id, "call", 25);
+        var manifest = await chat.ManifestAsync(turn.Id, Browser);
+        Assert.Equal(document.Id, Assert.Single(manifest.Documents).DocumentId);
+        Assert.Equal(25, manifest.ChargedTokens); Assert.True(manifest.ToolResultBytes > 0);
+        Assert.Equal("committed", await MigrationTestSql.ScalarAsync(stores.State, "SELECT status FROM tool_executions"));
+        var activity = Assert.Single(await chat.ActivityAsync(turn.Id, Browser));
+        Assert.Equal(execution, activity.Id); Assert.Equal("committed", activity.Status);
+        var tool = Assert.Single(await chat.EventsAsync(turn.Id, 0, Browser), item => item.Kind == "tool");
+        Assert.Equal(execution, tool.Data!.Value.GetProperty("executionId").GetString());
+    }
+
+    [Fact]
+    public async Task ToolLedgerEnforcesFrozenNamesAndCumulativeLimits()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores);
+        var turn = (await chat.StartAsync(new("Read", Mode: "ask"), Policy with { MaxToolCalls = 1 }, Browser)).Turn;
+        await Assert.ThrowsAsync<ChatToolNotAllowedException>(() => chat.BeginToolAsync(turn.Id, "create_document", JsonSerializer.SerializeToElement(new { }), 0, Browser).AsTask());
+        var execution = await chat.BeginToolAsync(turn.Id, "search", JsonSerializer.SerializeToElement(new { query = "x" }), 1, Browser);
+        await chat.FailToolAsync(execution, "failed");
+        await Assert.ThrowsAsync<ChatLimitException>(() => chat.BeginToolAsync(turn.Id, "search", JsonSerializer.SerializeToElement(new { query = "x" }), 1, Browser).AsTask());
+        Assert.Equal(1L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM tool_executions"));
+    }
+
+    [Fact]
+    public async Task HistoryCompactionPreservesLineageAndPurgeRedactsTheSummary()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores); var documents = Documents(stores);
+        var document = (await documents.CaptureAsync(new("Blue Otter", "Note"), Authority(Browser))).Document;
+        var policy = Policy with { MaxHistoryMessages = 2, MaxHistoryBytes = 2048 };
+        var first = (await chat.StartAsync(new("Find the codename"), policy, Browser)).Turn;
+        var source = Assert.Single(await chat.ExposeAsync(first.Id, [new(document.Id, 1, document.Chunks![0].Id)], Browser));
+        await chat.FinishAsync(first.Id, "complete", CitationVerifier.Verify("Blue Otter [1]", [source]));
+        var second = (await chat.StartAsync(new("Continue", first.ConversationId), policy, Browser)).Turn;
+        await chat.FinishAsync(second.Id, "complete", new("Next topic.", []));
+        var third = (await chat.StartAsync(new("What next?", first.ConversationId), policy, Browser)).Turn;
+        var history = await chat.HistoryAsync(third.Id, Browser);
+        var summary = Assert.Single(history, item => item.Role == "system");
+        Assert.Contains("Blue Otter", summary.Text); Assert.Contains(document.Id, summary.DocumentReferences);
+        Assert.InRange(System.Text.Encoding.UTF8.GetByteCount(string.Concat(history.Select(item => item.Text))), 1, policy.MaxHistoryBytes);
+        await chat.FinishAsync(third.Id, "complete", new("Continue.", []));
+        await documents.MutateAsync(document.Id, 1, "purge", JsonSerializer.SerializeToElement(new { }), Authority(Browser));
+        var fourth = (await chat.StartAsync(new("Again", first.ConversationId), policy, Browser)).Turn;
+        var purged = await chat.HistoryAsync(fourth.Id, Browser);
+        Assert.DoesNotContain(purged, item => item.Text.Contains("Blue Otter", StringComparison.Ordinal));
+        Assert.DoesNotContain(purged.SelectMany(item => item.DocumentReferences), id => id == document.Id);
+    }
+
+    [Fact]
+    public async Task OversizedRecentHistoryIsCompactedRatherThanSilentlyOmitted()
+    {
+        using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);
+        var chat = await SeedAsync(stores); var policy = Policy with { MaxHistoryBytes = 2048 };
+        var first = (await chat.StartAsync(new(new string('x', 6000)), policy, Browser)).Turn;
+        await chat.FinishAsync(first.Id, "complete", new(new string('y', 6000), []));
+        var second = (await chat.StartAsync(new("Continue", first.ConversationId), policy, Browser)).Turn;
+        var history = await chat.HistoryAsync(second.Id, Browser);
+        Assert.Equal("system", Assert.Single(history).Role);
+        Assert.Contains("omitted", history[0].Text);
+        Assert.True(System.Text.Encoding.UTF8.GetByteCount(history[0].Text) <= 2048);
+    }
+
+    [Fact]
     public async Task RequestReplayIsIdempotentAndConcurrentConversationAdmissionIsSerialized()
     {
         using var root = new MigrationTestDataRoot(); await using var stores = new MigrationTestStores(root.Path);

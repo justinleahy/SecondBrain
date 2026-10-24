@@ -66,5 +66,12 @@ internal static class M2Schema
           approver_epoch INTEGER,
           failure_code TEXT
         );
+        CREATE TABLE IF NOT EXISTS chat_summaries (
+          conversation_id TEXT PRIMARY KEY REFERENCES conversations(id) ON DELETE CASCADE,
+          through_ordinal INTEGER NOT NULL,
+          payload_id TEXT NOT NULL REFERENCES payloads(id),
+          created_by_turn TEXT NOT NULL REFERENCES turns(id),
+          updated_at TEXT NOT NULL
+        );
         """;
 }

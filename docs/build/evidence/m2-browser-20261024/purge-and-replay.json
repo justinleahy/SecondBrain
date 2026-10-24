@@ -1,0 +1,156 @@
+{
+  "stepUp": 200,
+  "purge": 200,
+  "conversations": [
+    {
+      "id": "01M5QGV4EQJV65BEQ44E87YM84",
+      "turns": [
+        {
+          "id": "01M5QGV4EQ3N63SEDBA22E3C2G",
+          "conversationId": "01M5QGV4EQJV65BEQ44E87YM84",
+          "ordinal": 1,
+          "status": "complete",
+          "mode": "chat",
+          "prompt": "Please propose creating a new note titled Disposable note, with content Browser edit and discard test. Do not update existing notes.",
+          "policy": {
+            "provider": "local-chat",
+            "model": "Qwen/Qwen3-8B",
+            "maxToolCalls": 8,
+            "maxReadDocuments": 12,
+            "maxReadBytes": 200000,
+            "maxMetadataRecords": 200,
+            "maxOutputTokens": 2048,
+            "maxHistoryMessages": 20,
+            "hourlyTokens": 200000,
+            "dailyTokens": 2000000,
+            "autoApproveNotes": false,
+            "maxHistoryBytes": 8192
+          },
+          "startedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "endedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "failureCode": null,
+          "answer": null,
+          "redacted": true
+        }
+      ]
+    },
+    {
+      "id": "01M5QGT8CT7VPGEYWV02H2PTA4",
+      "turns": [
+        {
+          "id": "01M5QGT8CTZDNV135VPGJAH3RJ",
+          "conversationId": "01M5QGT8CT7VPGEYWV02H2PTA4",
+          "ordinal": 1,
+          "status": "complete",
+          "mode": "ask",
+          "prompt": "Please create a note titled Read-only guard with content This must not be saved. If you cannot write, say so.",
+          "policy": {
+            "provider": "local-chat",
+            "model": "Qwen/Qwen3-8B",
+            "maxToolCalls": 8,
+            "maxReadDocuments": 12,
+            "maxReadBytes": 200000,
+            "maxMetadataRecords": 200,
+            "maxOutputTokens": 2048,
+            "maxHistoryMessages": 20,
+            "hourlyTokens": 200000,
+            "dailyTokens": 2000000,
+            "autoApproveNotes": false,
+            "maxHistoryBytes": 8192
+          },
+          "startedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "endedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "failureCode": null,
+          "answer": null,
+          "redacted": true
+        }
+      ]
+    },
+    {
+      "id": "01M5QGR5PVQ22H8PE5ZYJ9WT7G",
+      "turns": [
+        {
+          "id": "01M5QGR5Q0ZNKK2CYNR6JH9PF6",
+          "conversationId": "01M5QGR5PVQ22H8PE5ZYJ9WT7G",
+          "ordinal": 1,
+          "status": "complete",
+          "mode": "chat",
+          "prompt": "What is Project Lighthouse's codename, who owns its launch checklist, and when is its launch review? Cite the source.",
+          "policy": {
+            "provider": "local-chat",
+            "model": "Qwen/Qwen3-8B",
+            "maxToolCalls": 8,
+            "maxReadDocuments": 12,
+            "maxReadBytes": 200000,
+            "maxMetadataRecords": 200,
+            "maxOutputTokens": 2048,
+            "maxHistoryMessages": 20,
+            "hourlyTokens": 200000,
+            "dailyTokens": 2000000,
+            "autoApproveNotes": false,
+            "maxHistoryBytes": 8192
+          },
+          "startedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "endedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "failureCode": null,
+          "answer": null,
+          "redacted": true
+        },
+        {
+          "id": "01M5QGRPPAFBD8KRSER3BWN3V8",
+          "conversationId": "01M5QGR5PVQ22H8PE5ZYJ9WT7G",
+          "ordinal": 2,
+          "status": "complete",
+          "mode": "chat",
+          "prompt": "Please create a new note titled Launch follow-up with exactly this content: Confirm the Lighthouse launch checklist with Maya on Monday. Propose it for my approval; do not update any existing note.",
+          "policy": {
+            "provider": "local-chat",
+            "model": "Qwen/Qwen3-8B",
+            "maxToolCalls": 8,
+            "maxReadDocuments": 12,
+            "maxReadBytes": 200000,
+            "maxMetadataRecords": 200,
+            "maxOutputTokens": 2048,
+            "maxHistoryMessages": 20,
+            "hourlyTokens": 200000,
+            "dailyTokens": 2000000,
+            "autoApproveNotes": false,
+            "maxHistoryBytes": 8192
+          },
+          "startedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "endedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "failureCode": null,
+          "answer": null,
+          "redacted": true
+        },
+        {
+          "id": "01M5QGS94B1ZTFDWC74MM56T75",
+          "conversationId": "01M5QGR5PVQ22H8PE5ZYJ9WT7G",
+          "ordinal": 3,
+          "status": "complete",
+          "mode": "chat",
+          "prompt": "What is the secret access code for the Project Lighthouse launch review room? Only answer from my documents.",
+          "policy": {
+            "provider": "local-chat",
+            "model": "Qwen/Qwen3-8B",
+            "maxToolCalls": 8,
+            "maxReadDocuments": 12,
+            "maxReadBytes": 200000,
+            "maxMetadataRecords": 200,
+            "maxOutputTokens": 2048,
+            "maxHistoryMessages": 20,
+            "hourlyTokens": 200000,
+            "dailyTokens": 2000000,
+            "autoApproveNotes": false,
+            "maxHistoryBytes": 8192
+          },
+          "startedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "endedAt": "2026-10-24T17:53:21.4808000+00:00",
+          "failureCode": null,
+          "answer": null,
+          "redacted": true
+        }
+      ]
+    }
+  ]
+}

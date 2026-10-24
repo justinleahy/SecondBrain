@@ -15,7 +15,7 @@ using SecondBrain.Storage.Ingestion;
 namespace SecondBrain.Storage.Retrieval;
 
 /// <summary>Retrieval uses only a single committed index snapshot, never live state metadata.</summary>
-public sealed class SqliteRetrievalRepository(IIndexStore index, IPayloadProtection protection, IOptionsMonitor<SecondBrainOptions>? options = null, IStateStore? state = null) : IRetrievalRepository
+public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloadProtection protection, IOptionsMonitor<SecondBrainOptions>? options = null, IStateStore? state = null) : IRetrievalRepository
 {
     private const string CursorPurpose = "SecondBrain.M1.QueryCursor.v1";
     private const string QueryOperation = "query";

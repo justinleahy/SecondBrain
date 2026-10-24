@@ -1,0 +1,3 @@
+@using SecondBrain.Server.Chat
+<div class="answer-text">@((MarkupString)ChatTextRenderer.Render(Text))</div>
+@code { [Parameter] public string Text { get; set; } = ""; }

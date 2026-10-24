@@ -11,6 +11,8 @@ public sealed class M0ScopePolicy : IScopePolicy
         ["documents.create"] = [Scope.Write], ["documents.mutate"] = [Scope.Write],
         ["documents.read"] = [Scope.Read], ["jobs.read"] = [Scope.Read], ["jobs.retry"] = [Scope.Write],
         ["search"] = [Scope.Read], ["query"] = [Scope.Read],
+        ["chat.start"] = [Scope.Read, Scope.Infer], ["chat.read"] = [Scope.Read],
+        ["approvals.read"] = [Scope.Read], ["approvals.resolve"] = [Scope.Read, Scope.Write],
         ["maintenance.rebuild"] = [Scope.Admin], ["documents.purge"] = [Scope.Admin],
         ["keys.list"] = [Scope.Admin], ["keys.create"] = [Scope.Admin], ["keys.revoke"] = [Scope.Admin],
         ["sources.mutate"] = [Scope.Admin], ["sources.scan"] = [Scope.Admin], ["sources.list"] = [Scope.Admin], ["sources.create"] = [Scope.Admin],

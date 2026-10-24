@@ -33,6 +33,7 @@ Singleton IDocumentRepository -> SqliteDocumentRepository
 Singleton SqliteChatRepository -> SqliteChatRepository
 Singleton IChatRepository -> factory
 Singleton IChatProposalRepository -> factory
+Singleton IChatExecutionRepository -> factory
 Singleton IRetrievalRepository -> factory
 Singleton StorageStartupService -> StorageStartupService
 Singleton IStorageStatus -> factory

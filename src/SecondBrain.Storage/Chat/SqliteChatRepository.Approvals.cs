@@ -38,8 +38,7 @@ public sealed partial class SqliteChatRepository
     {
         await AuthorizeAsync(connection, transaction, actor, false, token);
         if (conversationId is not null) await OwnConversationAsync(connection, transaction, conversationId, actor, token);
-        else if (actor.Kind != "session") throw new AuthorityChangedException();
-        var rows = await connection.QueryAsync<ProposalRow>(Sql(ProposalSelect + " WHERE t.account_epoch=@epoch AND (@conversationId IS NULL OR t.conversation_id=@conversationId) ORDER BY CASE WHEN p.status IN ('pending','executing') THEN 0 ELSE 1 END,p.created_at DESC,p.id DESC LIMIT 200", new { conversationId, epoch = actor.AccountEpoch }, transaction, token));
+        var rows = await connection.QueryAsync<ProposalRow>(Sql(ProposalSelect + " WHERE t.account_epoch=@epoch AND (@kind='session' OR p.creator_credential_id=@actor) AND (@conversationId IS NULL OR t.conversation_id=@conversationId) ORDER BY CASE WHEN p.status IN ('pending','executing') THEN 0 ELSE 1 END,p.created_at DESC,p.id DESC LIMIT 200", new { conversationId, epoch = actor.AccountEpoch, kind = actor.Kind, actor = actor.Id }, transaction, token));
         return rows.Select(ToProposal).ToArray();
     }, cancellationToken);
 

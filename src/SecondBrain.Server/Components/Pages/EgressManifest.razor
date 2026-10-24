@@ -1,0 +1,31 @@
+@using SecondBrain.Core.Auth
+@using SecondBrain.Core.Chat
+@inject IChatExecutionRepository Executions
+
+<div class="manifest">
+    <button @onclick="LoadAsync">@(manifest is null ? "Show data sent to the model" : "Refresh data manifest")</button>
+    @if (manifest is not null)
+    {
+        <p>Provider: <strong>@manifest.Provider</strong> · Model: @manifest.Model</p>
+        <p>Conversation history: @(manifest.HistoryIncluded ? manifest.HistoryCompacted ? "included, with earlier excerpts compacted" : "included" : "not included")<br />Tool results: @manifest.ToolResultBytes.ToString("N0") bytes · Accounted tokens: @manifest.ChargedTokens.ToString("N0")</p>
+        @if (manifest.Documents.Count == 0) { <p>No document content was included.</p> }
+        else
+        {
+            <ul>@foreach (var document in manifest.Documents) { <li>@document.DocumentId @if (document.Revision is not null) { <span>· revision @document.Revision</span> } · @document.Origin</li> }</ul>
+        }
+    }
+    @if (error is not null) { <p role="alert">@error</p> }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string TurnId { get; set; } = "";
+    [Parameter, EditorRequired] public AuthenticatedCredential Actor { get; set; } = default!;
+    private ChatEgressManifest? manifest;
+    private string? error;
+    private async Task LoadAsync()
+    {
+        try { manifest = await Executions.ManifestAsync(TurnId, Actor); error = null; }
+        catch (AuthorityChangedException) { manifest = null; error = "Your session changed. Sign in again."; }
+        catch (ChatNotFoundException) { manifest = null; error = "This conversation is no longer available."; }
+    }
+}

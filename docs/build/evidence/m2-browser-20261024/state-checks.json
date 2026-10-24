@@ -1,0 +1,42 @@
+{
+  "models": [
+    "Qwen/Qwen3-8B",
+    "Qwen/Qwen3-Embedding-0.6B"
+  ],
+  "turns": [
+    [
+      "complete",
+      5
+    ]
+  ],
+  "proposals": [
+    [
+      "discarded",
+      1
+    ],
+    [
+      "executed",
+      1
+    ],
+    [
+      "superseded",
+      1
+    ]
+  ],
+  "documents": [
+    [
+      "Garden routine",
+      "indexed"
+    ],
+    [
+      "Launch follow-up",
+      "indexed"
+    ],
+    [
+      "[purged]",
+      "purged"
+    ]
+  ],
+  "readOnlyNoteAbsent": true,
+  "discardedFilesAbsent": true
+}
