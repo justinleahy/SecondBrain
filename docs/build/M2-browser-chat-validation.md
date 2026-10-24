@@ -1,6 +1,6 @@
 # Browser chat validation — 2026-10-24
 
-This record covers the browser chat implementation on top of M1. It does not close the paired CLI/MCP milestone or claim that the new build is installed in the production systemd service.
+This record covers the browser chat implementation on top of M1. The build was subsequently [installed and independently verified](M2-browser-chat-deployment.md) in the production systemd service. This does not close the paired CLI/MCP milestone.
 
 ## Live browser checks
 

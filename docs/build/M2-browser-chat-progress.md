@@ -1,6 +1,6 @@
 # Browser chat implementation progress
 
-This work implements the browser chat goal on top of the deployed M1 service. It does not close the full M2 milestone or change the installed service yet.
+The browser chat goal is implemented, validated, and installed in the main systemd service as of 2026-10-24. The [deployment record](M2-browser-chat-deployment.md) includes the installed release and verification evidence. This does not close the full M2 milestone.
 
 The working implementation has:
 
@@ -15,14 +15,12 @@ The working implementation has:
 - The full assistant tool set, durable per-call execution records, linked-document lookup, and a per-turn exposure manifest. Conversation history is compacted into bounded, portable excerpts with source lineage and explicit omission notices; confirmed approval outcomes are included when a conversation resumes.
 - Authenticated chat/ask, conversation, approval, event-replay, and manifest HTTP endpoints. Browser output uses CSP-compatible static styles and formatting that encodes model HTML instead of executing it.
 
-The self-contained `linux-x64` release is ready in `artifacts/m2-release-20261024/merged`. Its 427 files match the recorded SHA-256 manifest; the CLI starts from the merged bundle. All 11 upgrade safeguard tests pass. The [deployment handoff](M2-browser-chat-deployment.md) records the exact installation command and verification gates.
+The self-contained `linux-x64` release is in `artifacts/m2-release-20261024/merged`. All 427 installed files match the recorded SHA-256 manifest; the CLI starts from the merged bundle. All 11 upgrade safeguard tests pass. The upgrade verified readiness, chat schema, authenticated endpoints, page/assets, preserved account/configuration/key material, and the existing document. Independent checks passed on loopback and the LAN listener; the production sign-in page rendered in a browser with no console errors.
 
-The following remain before the browser chat goal can be accepted:
-
-- The password-authorized installation and verification against the main service. The host requires interactive sudo; the prepared command has been sent to the operator.
+No implementation or deployment steps remain for the browser chat goal.
 
 Full M2 also includes the paired CLI/MCP work in specification §§7.4, 10, and 12, which this progress record does not claim as complete.
 
 Validation on 2026-10-24: the Release build and all **1,800 deterministic tests** passed with warnings treated as errors. Tests cover conversation ownership, idempotent/concurrent admission, per-call accounting and limits, revocation, restart replay, source hash validation, current/deleted citation state, purge races, and a hosted read-only turn surviving caller cancellation. Approval tests cover simultaneous approval, three create-crash boundaries, update recovery, immutable edits, discard, key rejection, stale targets, changed policy, expired/purged proposals, automatic-approval restrictions, byte-preserving tags, stable-ID links, and approval receipts in subsequent turns. HTTP tests cover SSE replay, inference scope, ownership, key rejection, and browser antiforgery. The [live browser validation](M2-browser-chat-validation.md) passed against the existing local vLLM providers, including source-grounded answers, abstention, approval/edit/discard, read-only mode, reload persistence, source purge, mobile layout, and a clean browser console.
 
-The deployed M1 installation remains the authoritative live service until a tested chat bundle is installed.
+The live service now serves browser chat at `http://10.66.10.20:7171/` using the existing account and LAN policy.

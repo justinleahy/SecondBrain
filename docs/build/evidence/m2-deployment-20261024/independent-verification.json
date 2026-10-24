@@ -1,0 +1,182 @@
+{
+  "verified_at_utc": "2026-10-24T18:08:13.938457+00:00",
+  "installed_files_match_release": true,
+  "installed_file_count": 427,
+  "http_checks": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200,
+      "readiness": {
+        "ready": true,
+        "components": {
+          "stores": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": null
+          },
+          "migrations": {
+            "ready": true,
+            "detail": "Migrations and durability recovery completed.",
+            "checkedAt": null
+          },
+          "lock": {
+            "ready": true,
+            "detail": "Exclusive data-root lock.",
+            "checkedAt": null
+          },
+          "canary": {
+            "ready": true,
+            "detail": "Egress canary: Blocked. Egress canary state is current.",
+            "checkedAt": "2026-10-24T18:07:29.9638437+00:00"
+          },
+          "extractor": {
+            "ready": true,
+            "detail": "Extractor answered ping.",
+            "checkedAt": null
+          },
+          "provider:chat": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": "2026-10-24T18:07:32.4144204+00:00"
+          },
+          "provider:enrich": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": "2026-10-24T18:07:32.4160926+00:00"
+          },
+          "provider:embed": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": "2026-10-24T18:07:32.4173576+00:00"
+          },
+          "provider:rerank": {
+            "ready": true,
+            "detail": "Optional rerank role is not configured.",
+            "checkedAt": "2026-10-24T18:08:13.9302295+00:00"
+          }
+        }
+      }
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/",
+      "status": 200,
+      "chat_page": true,
+      "content_security_policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/app.css",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/favicon.svg",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/conversations",
+      "status": 401
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/pending",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200,
+      "readiness": {
+        "ready": true,
+        "components": {
+          "stores": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": null
+          },
+          "migrations": {
+            "ready": true,
+            "detail": "Migrations and durability recovery completed.",
+            "checkedAt": null
+          },
+          "lock": {
+            "ready": true,
+            "detail": "Exclusive data-root lock.",
+            "checkedAt": null
+          },
+          "canary": {
+            "ready": true,
+            "detail": "Egress canary: Blocked. Egress canary state is current.",
+            "checkedAt": "2026-10-24T18:07:29.9638437+00:00"
+          },
+          "extractor": {
+            "ready": true,
+            "detail": "Extractor answered ping.",
+            "checkedAt": null
+          },
+          "provider:chat": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": "2026-10-24T18:07:32.4144204+00:00"
+          },
+          "provider:enrich": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": "2026-10-24T18:07:32.4160926+00:00"
+          },
+          "provider:embed": {
+            "ready": true,
+            "detail": null,
+            "checkedAt": "2026-10-24T18:07:32.4173576+00:00"
+          },
+          "provider:rerank": {
+            "ready": true,
+            "detail": "Optional rerank role is not configured.",
+            "checkedAt": "2026-10-24T18:08:13.9351891+00:00"
+          }
+        }
+      }
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/",
+      "status": 200,
+      "chat_page": true,
+      "content_security_policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/app.css",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/favicon.svg",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/conversations",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/pending",
+      "status": 401
+    }
+  ],
+  "browser_scope": "Signed-out production page over loopback; authenticated chat flows were qualified with temporary stores and the live local providers before deployment."
+}

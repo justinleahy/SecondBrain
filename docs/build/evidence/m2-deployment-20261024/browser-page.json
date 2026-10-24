@@ -1,0 +1,28 @@
+{
+  "title": "Chat · SecondBrain",
+  "text": "SecondBrain\n\nSign in to chat with your knowledge.\n\nSign in",
+  "styles": [
+    "http://127.0.0.1:7171/SecondBrain.Server.styles.css",
+    "http://127.0.0.1:7171/app.css"
+  ],
+  "width": 1280,
+  "viewport": 1280,
+  "resources": [
+    {
+      "name": "http://127.0.0.1:7171/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "name": "http://127.0.0.1:7171/_framework/blazor.web.js",
+      "status": 200
+    },
+    {
+      "name": "http://127.0.0.1:7171/app.css",
+      "status": 200
+    },
+    {
+      "name": "http://127.0.0.1:7171/favicon.svg",
+      "status": 200
+    }
+  ]
+}
