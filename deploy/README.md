@@ -172,6 +172,34 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now secondbrain-extractor.socket secondbrain.service
 ```
 
+### Upgrading the reference installation to M1
+
+The qualified M1 bundle can replace an existing reference systemd installation
+with `deploy/systemd/upgrade-m1.py`. The script verifies the complete bundle,
+stops the installed services, holds the data-root lock while backing up, and
+retains the previous binaries and a private data/configuration snapshot under
+`/var/backups/secondbrain`. It preserves the existing configuration, credentials,
+key ring and host drop-ins, installs the M1 base units, repairs inbox ownership,
+and verifies migration, readiness, binary hashes and authentication enforcement.
+If a step fails after stopping services, it restores the previous installation
+and retains the failed M1 data separately rather than discarding new writes.
+
+From the repository root, using the bundle qualified on 2026-10-24:
+
+```sh
+sudo python3 deploy/systemd/upgrade-m1.py \
+  artifacts/m1-qualification/operator-publish-20261024-poll-deadline/merged \
+  artifacts/m1-qualification/operator-publish-20261024-poll-deadline/sha256-manifest.json \
+  --evidence-dir artifacts/m1-deployment-20261024
+```
+
+The command requires the installed reference paths and identities, a loopback
+HTTP listener on port 7171, Python with PyYAML, and the existing SELinux apphost
+label rules. It prints the private backup location and writes sanitized results
+to `deployment-result.json` in the selected evidence directory. Detailed command
+output stays in the root-only backup. Unprivileged safeguard tests run with
+`python3 -m unittest discover -s deploy/tests -p test_systemd_upgrade.py -v`.
+
 ### Linux egress spike
 
 macOS cannot execute the cgroup-BPF systemd rule. On the target Linux host,
