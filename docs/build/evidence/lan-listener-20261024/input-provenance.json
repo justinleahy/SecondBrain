@@ -1,0 +1,8 @@
+{
+  "at_utc": "2026-10-24T17:27:08.396600+00:00",
+  "commit": "0a16e37",
+  "sha256": {
+    "deploy/systemd/configure-lan.py": "a0c65ef470a8d1dfe37a7b71b5836873782824cbea24d81b0481571a57b83cac",
+    "deploy/tests/test_lan_configuration.py": "4ee753655b83af0581e829d158a574fca68e7d7e549bf9da7096812f5e73da6a"
+  }
+}

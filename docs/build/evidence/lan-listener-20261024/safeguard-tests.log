@@ -1,0 +1,11 @@
+test_additional_client_subnet_has_ingress_and_outbound_rules (test_lan_configuration.LanConfigurationTests.test_additional_client_subnet_has_ingress_and_outbound_rules) ... ok
+test_atomic_configuration_keeps_owner_and_private_mode (test_lan_configuration.LanConfigurationTests.test_atomic_configuration_keeps_owner_and_private_mode) ... ok
+test_configuration_is_idempotent (test_lan_configuration.LanConfigurationTests.test_configuration_is_idempotent) ... ok
+test_firewall_keeps_replies_but_drops_new_daemon_connections (test_lan_configuration.LanConfigurationTests.test_firewall_keeps_replies_but_drops_new_daemon_connections) ... ok
+test_only_adds_lan_listener_host_and_origin (test_lan_configuration.LanConfigurationTests.test_only_adds_lan_listener_host_and_origin) ... ok
+test_public_loopback_and_overbroad_networks_are_rejected (test_lan_configuration.LanConfigurationTests.test_public_loopback_and_overbroad_networks_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK

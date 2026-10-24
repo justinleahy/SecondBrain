@@ -1,0 +1,162 @@
+{
+  "status": "configured",
+  "origin": "http://10.66.10.20:7171",
+  "network": "10.66.10.0/24",
+  "allowed_networks": [
+    "10.66.10.0/24",
+    "10.66.20.0/24"
+  ],
+  "zone": "FedoraWorkstation",
+  "backup": "/var/backups/secondbrain/lan-20261024T172616Z",
+  "loopback_ready": {
+    "ready": true,
+    "components": {
+      "stores": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": null
+      },
+      "migrations": {
+        "ready": true,
+        "detail": "Migrations and durability recovery completed.",
+        "checkedAt": null
+      },
+      "lock": {
+        "ready": true,
+        "detail": "Exclusive data-root lock.",
+        "checkedAt": null
+      },
+      "canary": {
+        "ready": true,
+        "detail": "Egress canary: Blocked. Egress canary state is current.",
+        "checkedAt": "2026-10-24T17:26:23.5926006+00:00"
+      },
+      "extractor": {
+        "ready": true,
+        "detail": "Extractor answered ping.",
+        "checkedAt": null
+      },
+      "provider:chat": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:26:24.0601301+00:00"
+      },
+      "provider:enrich": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:26:24.0617322+00:00"
+      },
+      "provider:embed": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:26:24.0629045+00:00"
+      },
+      "provider:rerank": {
+        "ready": true,
+        "detail": "Optional rerank role is not configured.",
+        "checkedAt": "2026-10-24T17:26:24.0648404+00:00"
+      }
+    }
+  },
+  "lan_ready": {
+    "ready": true,
+    "components": {
+      "stores": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": null
+      },
+      "migrations": {
+        "ready": true,
+        "detail": "Migrations and durability recovery completed.",
+        "checkedAt": null
+      },
+      "lock": {
+        "ready": true,
+        "detail": "Exclusive data-root lock.",
+        "checkedAt": null
+      },
+      "canary": {
+        "ready": true,
+        "detail": "Egress canary: Blocked. Egress canary state is current.",
+        "checkedAt": "2026-10-24T17:26:23.5926006+00:00"
+      },
+      "extractor": {
+        "ready": true,
+        "detail": "Extractor answered ping.",
+        "checkedAt": null
+      },
+      "provider:chat": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:26:24.0601301+00:00"
+      },
+      "provider:enrich": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:26:24.0617322+00:00"
+      },
+      "provider:embed": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-24T17:26:24.0629045+00:00"
+      },
+      "provider:rerank": {
+        "ready": true,
+        "detail": "Optional rerank role is not configured.",
+        "checkedAt": "2026-10-24T17:26:39.0826851+00:00"
+      }
+    }
+  },
+  "login_status": 200,
+  "unauthenticated_jobs_status": 401,
+  "daemon_uid_new_lan_connections": "blocked by observed host firewall test",
+  "rich_rules": [
+    "rule family=\"ipv4\" priority=\"-20\" source address=\"10.66.10.0/24\" destination address=\"10.66.10.20\" port port=\"7171\" protocol=\"tcp\" accept",
+    "rule family=\"ipv4\" priority=\"-20\" source address=\"10.66.20.0/24\" destination address=\"10.66.10.20\" port port=\"7171\" protocol=\"tcp\" accept",
+    "rule family=\"ipv4\" priority=\"-10\" destination address=\"10.66.10.20\" port port=\"7171\" protocol=\"tcp\" reject"
+  ],
+  "direct_rules": [
+    [
+      "ipv4",
+      "filter",
+      "OUTPUT",
+      "0",
+      "-m",
+      "owner",
+      "--uid-owner",
+      "1654",
+      "-d",
+      "10.66.10.0/24",
+      "-m",
+      "conntrack",
+      "--ctstate",
+      "NEW,INVALID,UNTRACKED",
+      "-j",
+      "DROP"
+    ],
+    [
+      "ipv4",
+      "filter",
+      "OUTPUT",
+      "0",
+      "-m",
+      "owner",
+      "--uid-owner",
+      "1654",
+      "-d",
+      "10.66.20.0/24",
+      "-m",
+      "conntrack",
+      "--ctstate",
+      "NEW,INVALID,UNTRACKED",
+      "-j",
+      "DROP"
+    ]
+  ],
+  "configuration_preserved_except": [
+    "server.listeners",
+    "server.hosts",
+    "server.origins"
+  ]
+}

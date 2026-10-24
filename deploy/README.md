@@ -202,6 +202,13 @@ output stays in the root-only backup. Unprivileged safeguard tests run with
 
 ### LAN listener on the reference workstation
 
+Configured on 2026-10-24: open **http://10.66.10.20:7171** from
+`10.66.10.0/24` or `10.66.20.0/24` and use the existing SecondBrain password.
+Runtime and permanent rules, LAN/loopback readiness, the login page, API
+authentication and the daemon UID outbound block were verified in the
+[deployment evidence](../docs/build/evidence/lan-listener-20261024/independent-verification.json).
+A client on another subnet was not used for the recorded test.
+
 To add `http://10.66.10.20:7171` for clients on `10.66.10.0/24` and
 `10.66.20.0/24`:
 

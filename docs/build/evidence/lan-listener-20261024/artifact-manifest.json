@@ -1,0 +1,10 @@
+{
+  "status": "LAN listener configured for both requested subnets",
+  "sha256": {
+    "independent-verification.json": "fdf4ba7ea86c057b69bf9b08137e4e6967e5ca233e10b307e284c4414bcde333",
+    "input-provenance.json": "e64bef64863b5c6ca464b20d303d0d23c45504682447d9109f77e16e63dc729b",
+    "lan-result.json": "85b5abae3fa0bc1deeaaaceddff1d5fced61fbd792dc1bc6401d5776d059934e",
+    "safeguard-tests.json": "541cd49bfc08a1c3b19f32162e0618d5ab3c9cac17f169ff3319b31656dfe787",
+    "safeguard-tests.log": "e3b65ce3f4e0489e049c4fadc8dec05b740e95b6ad39545adbe680acc90ad995"
+  }
+}

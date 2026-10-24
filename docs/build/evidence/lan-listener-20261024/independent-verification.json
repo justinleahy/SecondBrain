@@ -1,0 +1,117 @@
+{
+  "checked_utc": "2026-10-24T17:27:01.611010+00:00",
+  "origin": "http://10.66.10.20:7171",
+  "allowed_networks": [
+    "10.66.10.0/24",
+    "10.66.20.0/24"
+  ],
+  "readiness": {
+    "http://127.0.0.1:7171": {
+      "ready": true,
+      "components": {
+        "stores": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": null
+        },
+        "migrations": {
+          "ready": true,
+          "detail": "Migrations and durability recovery completed.",
+          "checkedAt": null
+        },
+        "lock": {
+          "ready": true,
+          "detail": "Exclusive data-root lock.",
+          "checkedAt": null
+        },
+        "canary": {
+          "ready": true,
+          "detail": "Egress canary: Blocked. Egress canary state is current.",
+          "checkedAt": "2026-10-24T17:26:23.5926006+00:00"
+        },
+        "extractor": {
+          "ready": true,
+          "detail": "Extractor answered ping.",
+          "checkedAt": null
+        },
+        "provider:chat": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T17:26:24.0601301+00:00"
+        },
+        "provider:enrich": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T17:26:24.0617322+00:00"
+        },
+        "provider:embed": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T17:26:24.0629045+00:00"
+        },
+        "provider:rerank": {
+          "ready": true,
+          "detail": "Optional rerank role is not configured.",
+          "checkedAt": "2026-10-24T17:26:59.0761155+00:00"
+        }
+      }
+    },
+    "http://10.66.10.20:7171": {
+      "ready": true,
+      "components": {
+        "stores": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": null
+        },
+        "migrations": {
+          "ready": true,
+          "detail": "Migrations and durability recovery completed.",
+          "checkedAt": null
+        },
+        "lock": {
+          "ready": true,
+          "detail": "Exclusive data-root lock.",
+          "checkedAt": null
+        },
+        "canary": {
+          "ready": true,
+          "detail": "Egress canary: Blocked. Egress canary state is current.",
+          "checkedAt": "2026-10-24T17:26:23.5926006+00:00"
+        },
+        "extractor": {
+          "ready": true,
+          "detail": "Extractor answered ping.",
+          "checkedAt": null
+        },
+        "provider:chat": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T17:26:24.0601301+00:00"
+        },
+        "provider:enrich": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T17:26:24.0617322+00:00"
+        },
+        "provider:embed": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-24T17:26:24.0629045+00:00"
+        },
+        "provider:rerank": {
+          "ready": true,
+          "detail": "Optional rerank role is not configured.",
+          "checkedAt": "2026-10-24T17:26:59.0772847+00:00"
+        }
+      }
+    }
+  },
+  "login_page": {
+    "status": 200,
+    "html": true
+  },
+  "unauthenticated_api_status": 401,
+  "runtime_and_permanent_rules_verified": true,
+  "remote_client_test": "Not performed; verified via the host LAN address and installed source restrictions."
+}

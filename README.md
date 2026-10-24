@@ -6,6 +6,8 @@ A personal knowledge daemon built on .NET 10 and Blazor Interactive Server. M1 a
 
 **M0 is closed for the reference Fedora x86_64 / Tailscale deployment as of 2026-10-09.** The local mock and hardened Docker gates pass in CI, and the live vLLM qualification passed against the two-server [deploy/vllm](deploy/vllm/README.md) Compose project on the RTX 5090 host. Target-host evidence covers systemd socket activation, blocked canary with reachable vLLM roles, tailnet HTTPS from a real peer, `brain doctor`, and Linux Secret Service. The [closure record](docs/build/M0-convergence-report.md#m0-closure-2026-10-09) states the accepted scope and links the remaining Cloudflare, macOS Keychain, Linux arm64, certificate lifecycle and remote-runner follow-ups. [M1 — Ingest and search](docs/build/M1-ingest-and-search.md) has completed its accepted scope; M2 — Ask and MCP is next.
 
+The reference host’s LAN web UI is **http://10.66.10.20:7171**, allowed from `10.66.10.0/24` and `10.66.20.0/24`. See [LAN access](deploy/README.md#lan-listener-on-the-reference-workstation).
+
 ## Build and test
 
 Install .NET SDK **10.0.105** (`global.json` permits the latest patch in its feature band). Run from this checkout:
