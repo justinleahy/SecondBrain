@@ -1,0 +1,9 @@
+.source-note { margin-top:12px; }
+.open-note { border:1px solid #bfd2c5; border-radius:6px; padding:7px 11px; background:#f5faf6; color:#24553e; font:inherit; cursor:pointer; }
+.open-note:disabled { opacity:.6; cursor:wait; }
+.note-content { margin-top:12px; padding:18px; background:#f8fbf9; border:1px solid #d7e4da; border-radius:8px; min-width:0; overflow-wrap:anywhere; }
+.note-content header { border-bottom:1px solid #d7e4da; padding-bottom:12px; margin-bottom:14px; }
+.note-content h4 { margin:0 0 6px; font-size:17px; }
+.note-content header span,.tags { font-size:12px; color:#5c7464; }
+.revision-notice { padding:10px; background:#fff8e9; color:#725619; }
+.note-content>a { display:inline-block; margin-top:12px; color:#24553e; }

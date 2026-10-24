@@ -25,8 +25,9 @@ document.addEventListener("click", (event) => {
 
     event.preventDefault();
     source.open = true;
-    source.querySelector("summary")?.focus({ preventScroll: true });
-    source.scrollIntoView({
+    const summary = source.querySelector("summary");
+    summary?.focus({ preventScroll: true });
+    (summary ?? source).scrollIntoView({
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
         block: "center"
     });

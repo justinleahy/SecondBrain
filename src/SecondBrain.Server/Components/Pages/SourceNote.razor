@@ -1,0 +1,53 @@
+@using SecondBrain.Core.Auth
+@using SecondBrain.Core.Chat
+@using SecondBrain.Core.Ingestion
+@using SecondBrain.Server.Chat
+@implements IAsyncDisposable
+@inject IAuthRepository Auth
+@inject IDocumentRepository Documents
+
+<div class="source-note">
+    <button class="open-note" @onclick="ToggleAsync" disabled="@loading" aria-expanded="@open" aria-controls="@panelId">@(loading ? "Opening note…" : open ? "Close full note" : "Open full note")</button>
+    @if (open)
+    {
+        <section id="@panelId" class="note-content" aria-label="Full note">
+            @if (error is not null) { <p role="alert">@error</p> }
+            else if (document is not null)
+            {
+                <header><h4>@document.Title</h4><span>Revision @document.Revision</span></header>
+                @if (document.Revision != CitedRevision)
+                { <p class="revision-notice">Showing revision @document.Revision; this answer cited revision @CitedRevision. The source excerpt above preserves the passage used in the answer.</p> }
+                @if (document.Tags is { Length: > 0 }) { <p class="tags">@string.Join(" · ", document.Tags)</p> }
+                @if (!string.IsNullOrEmpty(document.Text)) { <ChatText Text="@document.Text" /> }
+                else { <p>No extracted text is available for this document.</p> }
+                @if (document.Path is not null) { <a href="@("/files/" + Uri.EscapeDataString(document.Id))" data-enhance-nav="false" download>Download original</a> }
+            }
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string DocumentId { get; set; } = "";
+    [Parameter] public long CitedRevision { get; set; }
+    [Parameter, EditorRequired] public AuthenticatedCredential Actor { get; set; } = default!;
+    private readonly string panelId = "full-note-" + Guid.NewGuid().ToString("N");
+    private readonly CancellationTokenSource lifetime = new();
+    private DocumentRecord? document;
+    private string? error;
+    private bool open, loading;
+
+    private async Task ToggleAsync()
+    {
+        if (loading) return;
+        if (open) { open = false; document = null; error = null; return; }
+        loading = true; error = null;
+        try { document = await SourceNoteReader.LoadAsync(DocumentId, Actor, Auth, Documents, lifetime.Token); open = true; }
+        catch (AuthorityChangedException) { error = "Your session or read permission changed. Sign in again."; open = true; }
+        catch (ChatNotFoundException) { error = "This note is no longer available. The source card may contain an earlier excerpt."; open = true; }
+        catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+        catch (Exception) { error = "The full note could not be loaded. Close this panel and try again."; open = true; }
+        finally { loading = false; }
+    }
+
+    public async ValueTask DisposeAsync() { await lifetime.CancelAsync(); document = null; lifetime.Dispose(); }
+}

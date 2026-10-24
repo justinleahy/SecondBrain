@@ -44,7 +44,11 @@ public sealed class ChatBrowserQualification
         var key = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Write, Scope.Infer });
         var documents = factory.Services.GetRequiredService<IDocumentRepository>();
         var authority = new IngestionAuthority(key.Record.Id, key.Record.Generation, key.Record.AccountEpoch, key.Record.Name, "api_key");
-        var note = await documents.CaptureAsync(new("The Project Lighthouse codename is Blue Otter. Its launch review is on 2026-11-06. Maya Chen owns the launch checklist.", "Project Lighthouse launch", Tags: ["lighthouse"]), authority);
+        var noteText = "The Project Lighthouse codename is Blue Otter. Its launch review is on 2026-11-06. Maya Chen owns the launch checklist.";
+        if (Environment.GetEnvironmentVariable("SECONDBRAIN_CHAT_FULL_NOTE_FIXTURE") == "1")
+            noteText += string.Concat(Enumerable.Range(1, 50).Select(index => $"\n\n## Context {index}\n\nThe launch team reviews the checklist and records its decisions before the next meeting."))
+                + "\n\n## Final detail\n\nFull-note-only detail: the follow-up owner is Rowan Ellis.";
+        var note = await documents.CaptureAsync(new(noteText, "Project Lighthouse launch", Tags: ["lighthouse"]), authority);
         var other = await documents.CaptureAsync(new("The garden needs watering on Sundays. The shed key is on the kitchen hook.", "Garden routine"), authority);
         string? formattingConversation = null;
         if (Environment.GetEnvironmentVariable("SECONDBRAIN_CHAT_FORMATTING_FIXTURE") == "1")
