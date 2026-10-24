@@ -1,0 +1,11 @@
+{
+  "source_base_commit": "98432e49669ee69c633aaa88b6a8809fe1348658",
+  "runtime_change": "src/SecondBrain.Server/Program.cs",
+  "runtime_source_sha256": "28e5f88c98aa7a02e158730d2afa7041cf507683eb5a5a500c382d6768632521",
+  "bundle_manifest_sha256": "b02eb1de3edbd0a4a576771d41a0634cbbaf48cc21900bec880c94e202d1e936",
+  "configuration": "Release",
+  "runtime_identifier": "linux-x64",
+  "self_contained": true,
+  "server_tests_passed": 245,
+  "deployment_and_setup_tests_passed": 18
+}

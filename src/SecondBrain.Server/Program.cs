@@ -1,6 +1,12 @@
 using SecondBrain.Server.Composition;
 
-var builder = WebApplication.CreateBuilder(args);
+// Services can start in the vault directory. Published web assets belong to the
+// installed application, never to the caller's working directory.
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory
+});
 
 builder.Services.AddConfiguration();
 builder.Services.AddKeyRing();

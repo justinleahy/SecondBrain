@@ -171,6 +171,15 @@ public sealed class HttpTests
     }
 
     [Fact]
+    public void ApplicationContentRootIsTheApplicationDirectory()
+    {
+        using var factory = new LaneDWebFactory();
+        var environment = factory.Services.GetRequiredService<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
+        Assert.Equal(Path.TrimEndingDirectorySeparator(AppContext.BaseDirectory),
+            Path.TrimEndingDirectorySeparator(environment.ContentRootPath));
+    }
+
+    [Fact]
     public async Task BlazorFrameworkAssetIsMounted()
     {
         await using var factory = new LaneDWebFactory();

@@ -206,6 +206,10 @@ authenticated chat routes, home page, and static assets. See the
 [browser chat deployment record](../docs/build/M2-browser-chat-deployment.md)
 for the prepared command and release provenance.
 
+For repeated deployments without password prompts, the reference host supports
+an optional [fixed-purpose deployment service](systemd/managed-deployment.md).
+Its one-time setup grants only permission to start that service.
+
 ### LAN listener on the reference workstation
 
 Configured on 2026-10-24: open **http://10.66.10.20:7171** from

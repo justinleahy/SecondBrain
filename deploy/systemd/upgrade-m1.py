@@ -54,6 +54,7 @@ def file_hashes(root):
 def verify_bundle(root, expected):
     require(root.is_dir() and not root.is_symlink(), 'Bundle directory is missing or is a symlink.')
     require(all(not p.is_symlink() for p in root.rglob('*')), 'Bundle contains a symlink.')
+    require(all(p.is_dir() or stat.S_ISREG(p.lstat().st_mode) for p in root.rglob('*')), 'Bundle contains a special file.')
     require(all(not pathlib.PurePosixPath(p).is_absolute() and '..' not in pathlib.PurePosixPath(p).parts for p in expected), 'Invalid bundle manifest path.')
     actual = file_hashes(root)
     require(actual == expected, 'Bundle does not exactly match its qualification manifest.')
@@ -116,9 +117,13 @@ def verify_chat_endpoints():
         html = response.read(1024 * 1024).decode('utf-8')
         require('Sign in to chat with your knowledge.' in html, 'The installed home page is not the chat application.')
         require("style-src 'self'" in response.headers.get('Content-Security-Policy', ''), 'The chat page is missing its content security policy.')
-    for path in ('/app.css', '/SecondBrain.Server.styles.css', '/favicon.svg'):
-        with urllib.request.urlopen(ORIGIN + path, timeout=10) as response:
-            require(response.status == 200, 'A browser-chat static asset is not served.')
+    for path in ('/app.css', '/SecondBrain.Server.styles.css', '/favicon.svg', '/_framework/blazor.web.js'):
+        asset_request = urllib.request.Request(ORIGIN + path, headers={'Accept-Encoding': 'identity'})
+        with urllib.request.urlopen(asset_request, timeout=10) as response:
+            body = response.read(2 * 1024 * 1024)
+            require(response.status == 200 and body, 'A browser-chat static asset is not served or is empty.')
+            require(body == (INSTALL / 'wwwroot' / path.lstrip('/')).read_bytes(),
+                    'A served browser-chat static asset differs from the installed file.')
 
 
 def request(path):
@@ -148,13 +153,16 @@ def wait_ready(seconds=120):
 class Upgrade:
     release_name = 'm1'
     label = 'M1'
+    managed = False
 
-    def __init__(self, repo, evidence, release='m1'):
+    def __init__(self, repo, evidence, release='m1', managed=False, report_identity=None):
         require(release in ('m1', 'chat'), 'Unsupported release profile.')
         self.release_name = release
         self.label = 'M1' if release == 'm1' else 'Browser chat'
         self.repo = repo
         self.evidence = evidence
+        self.managed = managed
+        self.report_identity = report_identity
         self.tag = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
         parent = BACKUP_BASE
         require(not parent.is_symlink(), 'Backup root must not be a symlink.')
@@ -164,7 +172,8 @@ class Upgrade:
         self.backup = parent / (self.release_name + '-' + self.tag)
         self.backup.mkdir(mode=0o700)
         self.previous = INSTALL.with_name('secondbrain.pre-' + self.release_name + '-' + self.tag)
-        self.staged = INSTALL.with_name('.secondbrain.' + self.release_name + '-' + self.tag)
+        self.staging_container = INSTALL.with_name('.secondbrain-stage-' + self.tag)
+        self.staged = self.staging_container / ('.secondbrain.' + self.release_name + '-' + self.tag)
         self.stopped = False
         self.snapshotted = False
         self.swapped = False
@@ -182,6 +191,9 @@ class Upgrade:
 
     def write(self, name, result, public=False):
         path = (self.evidence if public else self.backup) / name
+        if public and self.managed:
+            write_user_report(path, result, *self.report_identity)
+            return
         path.write_text(json.dumps(result, indent=2) + '\n')
         path.chmod(0o644 if public else 0o600)
 
@@ -217,9 +229,15 @@ class Upgrade:
                 require(':bin_t:' in policy, 'Persistent SELinux apphost labels are missing.')
         needed = sum(p.stat().st_size for p in DATA.rglob('*') if p.is_file())
         require(shutil.disk_usage(self.backup).free > needed * 2 + 64 * 1024 * 1024, 'Insufficient free backup space.')
+        # Keep copied, still user-owned entries inaccessible until ownership and
+        # permissions are normalized. This also closes source-copy race windows.
+        self.staging_container.mkdir(mode=0o700)
         self.run(['cp', '-a', str(bundle), str(self.staged)])
         self.run(['chown', '-R', 'root:root', str(self.staged)])
-        self.run(['chmod', '-R', 'a+rX', str(self.staged)])
+        # User-supplied bundles must never install setuid/setgid or writable root files.
+        for path in [self.staged, *self.staged.rglob('*')]:
+            require(not path.is_symlink(), 'Staged bundle contains a symlink.')
+            path.chmod(0o755 if path.is_dir() or path.name in APPHOSTS else 0o644)
         verify_bundle(self.staged, expected)
         print('Preflight passed: verified ' + self.label + ' bundle, reference paths, identities, listener, and security labels.', flush=True)
 
@@ -247,13 +265,7 @@ class Upgrade:
         INSTALL.rename(self.previous)
         self.swapped = True
         self.staged.rename(INSTALL)
-        self.run(['restorecon', '-RF', str(INSTALL)])
-        self.run([INSTALL / 'brain', 'init', '--provision', '--deployment', 'systemd', '--templates', self.repo / 'deploy', '--daemon-uid', '1654', '--daemon-gid', '1654', '--extractor-uid', '1655', '--sync-uid', '1656', '--skip-users', '--json'])
-        # Provisioning preserves existing files, so explicitly upgrade only the three base units.
-        # Host drop-ins (including the Tailscale peer allowance) are retained.
-        for name in UNIT_NAMES:
-            self.run(['install', '-o', 'root', '-g', 'root', '-m', '0644', self.repo / 'deploy/systemd' / name, UNITS / name])
-        self.run(['restorecon', '-RF', str(CONFIG), str(DATA), str(INCOMING), *[str(UNITS / n) for n in UNIT_NAMES]])
+        self.configure_installation()
         self.run(['systemd-analyze', 'verify', *[str(UNITS / n) for n in UNIT_NAMES]])
         self.run(['systemctl', 'daemon-reload'])
         self.run(['systemctl', 'reset-failed', *UNIT_NAMES])
@@ -297,6 +309,17 @@ class Upgrade:
         print(self.label + ' deployed and ready. Existing account, credentials, configuration, key ring, and document identities verified.', flush=True)
         print('Private rollback backup: ' + str(self.backup), flush=True)
 
+    def configure_installation(self):
+        self.run(['restorecon', '-RF', str(INSTALL)])
+        if self.managed:
+            # This fixed-purpose service may install binaries, but must never run
+            # workspace code as root or replace root-owned service definitions.
+            return
+        self.run([INSTALL / 'brain', 'init', '--provision', '--deployment', 'systemd', '--templates', self.repo / 'deploy', '--daemon-uid', '1654', '--daemon-gid', '1654', '--extractor-uid', '1655', '--sync-uid', '1656', '--skip-users', '--json'])
+        for name in UNIT_NAMES:
+            self.run(['install', '-o', 'root', '-g', 'root', '-m', '0644', self.repo / 'deploy/systemd' / name, UNITS / name])
+        self.run(['restorecon', '-RF', str(CONFIG), str(DATA), str(INCOMING), *[str(UNITS / n) for n in UNIT_NAMES]])
+
     def rollback(self):
         if not self.stopped or self.done:
             return
@@ -329,22 +352,52 @@ class Upgrade:
         print('Previous installation restarted. Private recovery files: ' + str(self.backup), flush=True)
 
 
+def write_user_report(path, result, uid, gid):
+    """Write workspace evidence after dropping privileges, including for symlinked parents."""
+    pid = os.fork()
+    if pid == 0:
+        try:
+            if os.geteuid() != uid:
+                os.setgroups([])
+                os.setgid(gid)
+                os.setuid(uid)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(result, indent=2) + '\n')
+            path.chmod(0o644)
+            os._exit(0)
+        except BaseException:
+            os._exit(1)
+    _, status = os.waitpid(pid, 0)
+    require(os.waitstatus_to_exitcode(status) == 0, 'Cannot write the unprivileged deployment report.')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('bundle', type=pathlib.Path)
     parser.add_argument('manifest', type=pathlib.Path)
     parser.add_argument('--evidence-dir', type=pathlib.Path, required=True)
     parser.add_argument('--release', choices=('m1', 'chat'), default='m1')
+    parser.add_argument('--managed', action='store_true')
+    parser.add_argument('--workspace', type=pathlib.Path)
+    parser.add_argument('--report-uid', type=int)
+    parser.add_argument('--report-gid', type=int)
     args = parser.parse_args()
     require(os.geteuid() == 0, 'Root is required for the installed systemd upgrade.')
-    repo = pathlib.Path(__file__).resolve().parents[2]
+    repo = (args.workspace if args.managed and args.workspace else pathlib.Path(__file__).resolve().parents[2]).resolve()
+    if args.managed:
+        require(args.release == 'chat' and args.workspace is not None and args.report_uid is not None and args.report_uid > 0 and args.report_gid is not None and args.report_gid > 0,
+                'Managed deployment requires a fixed workspace and non-root report identity.')
+        require(args.bundle.resolve().is_relative_to(repo / 'artifacts') and args.manifest.resolve().is_relative_to(repo / 'artifacts'), 'Managed input must be within workspace artifacts.')
+        os.environ['PATH'] = '/usr/sbin:/usr/bin:/sbin:/bin'
+        os.chdir('/')
     evidence = args.evidence_dir.resolve()
     require(evidence.is_relative_to(repo / 'artifacts'), 'Sanitized evidence must be inside this repository\'s artifacts directory.')
-    evidence.mkdir(parents=True, exist_ok=True)
+    if not args.managed:
+        evidence.mkdir(parents=True, exist_ok=True)
     os.umask(0o077)
     with open('/run/lock/secondbrain-upgrade.lock', 'w') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        upgrade = Upgrade(repo, evidence, args.release)
+        upgrade = Upgrade(repo, evidence, args.release, args.managed, (args.report_uid, args.report_gid))
         try:
             expected = json.loads(args.manifest.resolve().read_text())
             upgrade.deploy(args.bundle.resolve(), expected)
@@ -366,6 +419,8 @@ def main():
             return 1
         finally:
             upgrade.log.close()
+            if upgrade.staging_container.exists():
+                shutil.rmtree(upgrade.staging_container)
     return 0
 
 

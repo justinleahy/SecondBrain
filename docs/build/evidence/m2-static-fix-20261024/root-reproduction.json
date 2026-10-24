@@ -1,0 +1,14 @@
+[
+  {
+    "profile": "wrong-working-directory",
+    "status": 200,
+    "bytes": 0,
+    "blazor_script": false
+  },
+  {
+    "profile": "application-directory",
+    "status": 200,
+    "bytes": 200645,
+    "blazor_script": true
+  }
+]

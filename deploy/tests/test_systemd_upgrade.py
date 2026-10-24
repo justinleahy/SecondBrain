@@ -61,6 +61,29 @@ class UpgradeTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'manifest path'):
             upgrade.verify_bundle(root, hashes)
 
+    def test_bundle_rejects_special_files(self):
+        import os
+        root, hashes = self.bundle()
+        os.mkfifo(root / 'unexpected-pipe')
+        with self.assertRaisesRegex(RuntimeError, 'special file'):
+            upgrade.verify_bundle(root, hashes)
+
+    def test_managed_deployment_never_provisions_from_workspace_as_root(self):
+        runner = upgrade.Upgrade.__new__(upgrade.Upgrade)
+        runner.managed = True
+        runner.run = mock.Mock()
+        runner.configure_installation()
+        self.assertEqual(runner.run.call_args_list, [mock.call(['restorecon', '-RF', str(upgrade.INSTALL)])])
+
+    def test_managed_public_report_uses_the_operator_identity(self):
+        runner = upgrade.Upgrade.__new__(upgrade.Upgrade)
+        runner.managed = True
+        runner.report_identity = (1000, 1000)
+        runner.evidence = self.root / 'evidence'
+        with mock.patch.object(upgrade, 'write_user_report') as write:
+            runner.write('deployment-result.json', {'status': 'deployed'}, public=True)
+        write.assert_called_once_with(runner.evidence / 'deployment-result.json', {'status': 'deployed'}, 1000, 1000)
+
     def test_authentication_probe_uses_get_without_request_body(self):
         def unauthenticated(request, timeout):
             self.assertEqual(request.get_method(), 'GET')
@@ -111,7 +134,13 @@ class UpgradeTests(unittest.TestCase):
         page.read.return_value = b'Sign in to chat with your knowledge.'
         page.headers = {'Content-Security-Policy': "default-src 'self'; style-src 'self'"}
         page.status = 200
-        with mock.patch.object(upgrade, 'request', return_value=(401, None)) as request, \
+        install = self.root / 'install'
+        for path in ['app.css', 'SecondBrain.Server.styles.css', 'favicon.svg', '_framework/blazor.web.js']:
+            file = install / 'wwwroot' / path
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_bytes(page.read.return_value)
+        with mock.patch.object(upgrade, 'INSTALL', install), \
+                mock.patch.object(upgrade, 'request', return_value=(401, None)) as request, \
                 mock.patch.object(upgrade.urllib.request, 'urlopen', return_value=page):
             upgrade.verify_chat_endpoints()
             self.assertEqual(request.call_count, 3)
@@ -130,6 +159,27 @@ class UpgradeTests(unittest.TestCase):
             page.status = 404
             with self.assertRaisesRegex(RuntimeError, 'static asset'):
                 upgrade.verify_chat_endpoints()
+
+    def test_chat_http_gate_rejects_empty_and_incorrect_asset_bodies(self):
+        page = mock.MagicMock()
+        page.__enter__.return_value = page
+        page.read.return_value = b'Sign in to chat with your knowledge.'
+        page.headers = {'Content-Security-Policy': "style-src 'self'"}
+        page.status = 200
+        asset = mock.MagicMock()
+        asset.__enter__.return_value = asset
+        asset.status = 200
+        install = self.root / 'install'
+        (install / 'wwwroot').mkdir(parents=True)
+        (install / 'wwwroot/app.css').write_bytes(b'body {}')
+        with mock.patch.object(upgrade, 'INSTALL', install), \
+                mock.patch.object(upgrade, 'request', return_value=(401, None)), \
+                mock.patch.object(upgrade.urllib.request, 'urlopen') as open_url:
+            for body, message in [(b'', 'empty'), (b'wrong body', 'differs')]:
+                asset.read.return_value = body
+                open_url.side_effect = [page, asset]
+                with self.assertRaisesRegex(RuntimeError, message):
+                    upgrade.verify_chat_endpoints()
 
     def test_identity_allows_new_documents_but_preserves_account_keys_and_existing_documents(self):
         data = self.root / 'data'
