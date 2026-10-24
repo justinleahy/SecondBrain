@@ -1,0 +1,20 @@
+{
+  "url": "http://10.66.10.20:7171/",
+  "blazor": "object",
+  "scripts": [
+    "http://10.66.10.20:7171/_framework/blazor.web.js",
+    "http://10.66.10.20:7171/chat.js"
+  ],
+  "resources": [
+    {
+      "name": "http://10.66.10.20:7171/_framework/blazor.web.js",
+      "status": 200,
+      "bytes": 0
+    },
+    {
+      "name": "http://10.66.10.20:7171/chat.js",
+      "status": 200,
+      "bytes": 0
+    }
+  ]
+}

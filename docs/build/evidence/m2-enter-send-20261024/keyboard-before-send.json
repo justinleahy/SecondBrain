@@ -1,0 +1,18 @@
+{
+  "value": "What is the project codename?\n",
+  "turns": 0,
+  "ignored": [
+    {
+      "name": "composition",
+      "prevented": false
+    },
+    {
+      "name": "legacy-composition",
+      "prevented": false
+    },
+    {
+      "name": "held-enter",
+      "prevented": true
+    }
+  ]
+}

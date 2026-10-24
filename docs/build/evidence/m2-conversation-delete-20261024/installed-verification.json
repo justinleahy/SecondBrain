@@ -1,0 +1,52 @@
+{
+  "at_utc": "2026-10-24T18:23:51.807308+00:00",
+  "installed_files_match": true,
+  "checks": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200,
+      "bytes": 895
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/chat.js",
+      "status": 200,
+      "bytes": 768
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/openapi.json",
+      "status": 200,
+      "bytes": 102954
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "method": "DELETE",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200,
+      "bytes": 895
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/chat.js",
+      "status": 200,
+      "bytes": 768
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/openapi.json",
+      "status": 200,
+      "bytes": 102956
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "method": "DELETE",
+      "status": 401
+    }
+  ]
+}
