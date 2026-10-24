@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
+using SecondBrain.Core.Chat;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Ingestion;
 using SecondBrain.Server.Tests.Support;
@@ -45,10 +46,25 @@ public sealed class ChatBrowserQualification
         var authority = new IngestionAuthority(key.Record.Id, key.Record.Generation, key.Record.AccountEpoch, key.Record.Name, "api_key");
         var note = await documents.CaptureAsync(new("The Project Lighthouse codename is Blue Otter. Its launch review is on 2026-11-06. Maya Chen owns the launch checklist.", "Project Lighthouse launch", Tags: ["lighthouse"]), authority);
         var other = await documents.CaptureAsync(new("The garden needs watering on Sundays. The shed key is on the kitchen hook.", "Garden routine"), authority);
+        string? formattingConversation = null;
+        if (Environment.GetEnvironmentVariable("SECONDBRAIN_CHAT_FORMATTING_FIXTURE") == "1")
+        {
+            var third = await documents.CaptureAsync(new("The deployment is on the local workstation.", "Deployment details"), authority);
+            var auth = factory.Services.GetRequiredService<IAuthRepository>();
+            var session = factory.Services.GetRequiredService<CredentialFactory>().CreateSession("formatting fixture", false, await auth.GetEpochAsync(), 1, 1);
+            await auth.AddAsync(session.Record);
+            var actor = new AuthenticatedCredential(session.Record.Id, "session", session.Record.Generation, session.Record.AccountEpoch, session.Record.GrantedScopes, null);
+            var chat = factory.Services.GetRequiredService<IChatRepository>();
+            var turn = (await chat.StartAsync(new("Formatting regression example"), new("local-chat", "Qwen/Qwen3-8B"), actor)).Turn;
+            await chat.ExposeAsync(turn.Id,
+                [new(note.Document.Id, 1, note.Document.Chunks![0].Id), new(other.Document.Id, 1, other.Document.Chunks![0].Id), new(third.Document.Id, 1, third.Document.Chunks![0].Id)], actor);
+            await chat.FinishAsync(turn.Id, "complete", new("1. **Functionality:** Project Lighthouse uses Blue Otter [1].\n\n2. **Interaction:** The deployment is local [3].\n\n3. **Operations:** The project has a launch checklist [1].\n\n4. **Design:** The workstation hosts the deployment [3].", []));
+            formattingConversation = turn.ConversationId;
+        }
         await File.WriteAllTextAsync(Path.Combine(output, "ready.json"), JsonSerializer.Serialize(new
         {
             origin, dataRoot = factory.Options.CurrentValue.DataRoot, projectDocument = note.Document.Id,
-            unrelatedDocument = other.Document.Id, temporaryTestAccount = true
+            unrelatedDocument = other.Document.Id, temporaryTestAccount = true, formattingConversation
         }));
         using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(30));
         while (!File.Exists(Path.Combine(output, "stop"))) await Task.Delay(500, deadline.Token);

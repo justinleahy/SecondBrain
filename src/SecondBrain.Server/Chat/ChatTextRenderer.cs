@@ -19,7 +19,9 @@ public static partial class ChatTextRenderer
                 CloseList(); html.Append(code ? "</code></pre>" : "<pre><code>"); code = !code; continue;
             }
             if (code) { html.Append(WebUtility.HtmlEncode(line)).Append('\n'); continue; }
-            if (string.IsNullOrWhiteSpace(line)) { CloseList(); continue; }
+            // Markdown permits blank lines between items of the same list.
+            // The next non-list block, rather than the blank line, closes it.
+            if (string.IsNullOrWhiteSpace(line)) continue;
             var bullet = Bullet().Match(line);
             if (bullet.Success)
             {

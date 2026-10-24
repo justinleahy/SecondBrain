@@ -66,11 +66,12 @@ else
                 }
                 @foreach (var turn in showAllApprovals ? Array.Empty<ChatTurn>() : turns)
                 {
+                    var displayedAnswer = turn.Answer is null ? null : ChatAnswerPresentation.ForDisplay(turn.Answer);
                     <article class="turn" @key="turn.Id">
                         <div class="user-message"><span class="message-label">YOU</span><p>@turn.Prompt</p></div>
                         <div class="assistant-message"><span class="message-label">SECOND BRAIN <small>@turn.Policy.Model</small></span>
                             @if (turn.Redacted) { <p class="notice">This answer was removed because a source was purged.</p> }
-                            else if (turn.Answer is not null) { <ChatText Text="@turn.Answer.Text" /> }
+                            else if (displayedAnswer is not null) { <ChatText Text="@displayedAnswer.Text" /> }
                             else if (drafts.TryGetValue(turn.Id, out var draft) && draft.Length > 0) { <ChatText Text="@draft" /> }
                             else if (turn.Status == "running") { <p class="thinking"><span></span> Searching your knowledge…</p> }
                             @if (turn.Status == "running") { <small class="notice">Generating · citations will be checked when the answer is complete</small> }
@@ -78,10 +79,10 @@ else
                             @if (turn.Answer?.Warnings?.Contains("no_verified_sources") == true) { <p class="notice">This response has no verified sources.</p> }
                             @foreach (var warning in turn.Answer?.Warnings?.Where(value => value != "no_verified_sources") ?? [])
                             { <p class="notice">@WarningText(warning)</p> }
-                            @if (turn.Answer?.Citations.Count > 0)
+                            @if (displayedAnswer?.Citations.Count > 0)
                             {
                                 <div class="sources"><h3>Sources</h3>
-                                    @foreach (var citation in turn.Answer.Citations)
+                                    @foreach (var citation in displayedAnswer.Citations)
                                     {
                                         <details><summary><span class="source-number">[@citation.Source.Number]</span> @citation.Source.Title <small>revision @citation.Source.Revision · @citation.State</small></summary><blockquote>@citation.Source.Excerpt</blockquote><small>Document @citation.Source.DocumentId · passage @(citation.Source.Ordinal + 1) @if (citation.Source.Page is not null) { <span>· page @citation.Source.Page</span> }</small></details>
                                     }

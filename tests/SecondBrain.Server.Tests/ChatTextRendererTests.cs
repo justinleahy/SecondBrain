@@ -5,6 +5,21 @@ namespace SecondBrain.Server.Tests;
 
 public sealed class ChatTextRendererTests
 {
+    [Theory]
+    [InlineData("1. First\n\n2. Second\n\n3. Third")]
+    [InlineData("1. First\n\n1. Second\n\n1. Third")]
+    public void BlankLinesDoNotRestartANumberedList(string markdown)
+    {
+        Assert.Equal("<ol><li>First</li><li>Second</li><li>Third</li></ol>", ChatTextRenderer.Render(markdown));
+    }
+
+    [Fact]
+    public void AParagraphOrDifferentListKindClosesThePreviousList()
+    {
+        Assert.Equal("<ol><li>First</li><li>Second</li></ol><p>After.</p><ul><li>Bullet</li></ul><ol><li>New list</li></ol>",
+            ChatTextRenderer.Render("1. First\n\n2. Second\n\nAfter.\n\n- Bullet\n\n1. New list"));
+    }
+
     [Fact]
     public void FormatsListsEmphasisAndCodeWithoutTrustingModelHtml()
     {
