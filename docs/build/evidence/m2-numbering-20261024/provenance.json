@@ -1,0 +1,8 @@
+{
+  "source_commit": "2eff881a871f27274989c3f32aa4313838146ed3",
+  "file_count": 430,
+  "runtime_identifier": "linux-x64",
+  "self_contained": true,
+  "server_tests_passed": 252,
+  "manifest_sha256": "6e37be69350661ab2f50c89df353640af2de107e3abe03998304486db375c36b"
+}

@@ -1,0 +1,17 @@
+{
+  "orderedLists": 1,
+  "items": [
+    "Functionality: Project Lighthouse uses Blue Otter [1].",
+    "Interaction: The deployment is local [2].",
+    "Operations: The project has a launch checklist [1].",
+    "Design: The workstation hosts the deployment [2]."
+  ],
+  "sourceNumbers": [
+    "[1]",
+    "[2]"
+  ],
+  "sourceTitles": [
+    "[1] Project Lighthouse launch revision 1 · current",
+    "[2] Deployment details revision 1 · current"
+  ]
+}

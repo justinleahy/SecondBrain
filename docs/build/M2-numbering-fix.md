@@ -1,0 +1,9 @@
+# Chat list and citation numbering
+
+The browser previously closed a numbered list on every blank line, rendering each item as a new list beginning at 1. The renderer now keeps same-kind list items together across blank lines and still closes the list before a paragraph, heading, code block, or different list kind.
+
+The citation registry numbers all retrieved sources, while an answer can cite only some of them. Displaying those original numbers produced gaps such as [1] and [3]. A presentation-only conversion now numbers cited sources consecutively and rewrites the matching in-text markers together. Stored answers, source identities, excerpts, verification hashes, and API responses retain their original registry references. Existing conversations receive the display correction when reopened.
+
+Validation: all 252 server tests passed. A browser fixture used four numbered items separated by blank lines and an answer citing registry sources 1 and 3 out of three retrieved sources. It rendered one list numbered 1–4 and two source cards numbered [1] and [2], with matching answer markers. The persisted answer still cited registry sources 1 and 3. The browser console had no errors. Evidence is under `docs/build/evidence/m2-numbering-20261024/`; the screenshot is in `artifacts/m2-numbering-20261024/corrected-numbering.png`.
+
+Deployed and verified on 2026-10-24 at 18:30 UTC. The [deployment report](evidence/m2-numbering-20261024/deployment-result.json) confirms preserved account/document state and healthy services. All 430 installed files match the release manifest; loopback and LAN readiness passed. Refresh and reopen an existing conversation to apply the display corrections.
