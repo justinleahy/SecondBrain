@@ -41,6 +41,8 @@ jobs:
         run: dotnet test SecondBrain.slnx --configuration Release --no-build --no-restore --filter 'Category!=Qualification' --logger trx --results-directory TestResults
       - name: Check systemd upgrade safeguards
         run: python3 -m unittest discover -s deploy/tests -p test_systemd_upgrade.py -v
+      - name: Check LAN listener safeguards
+        run: python3 -m unittest discover -s deploy/tests -p test_lan_configuration.py -v
       - name: Qualify staging with distinct daemon and sync identities
         run: sudo bash deploy/tests/distinct-identity-staging.sh
       - name: Check lock files remain unchanged

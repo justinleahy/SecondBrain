@@ -200,6 +200,30 @@ to `deployment-result.json` in the selected evidence directory. Detailed command
 output stays in the root-only backup. Unprivileged safeguard tests run with
 `python3 -m unittest discover -s deploy/tests -p test_systemd_upgrade.py -v`.
 
+### LAN listener on the reference workstation
+
+To add `http://10.66.10.20:7171` for clients on `10.66.10.0/24`:
+
+```sh
+sudo python3 deploy/systemd/configure-lan.py \
+  --evidence-dir artifacts/lan-listener-20261024
+```
+
+This backs up the private configuration, adds the exact listener/Host/Origin,
+and preserves existing listeners and provider settings. Firewalld rich rules
+limit the LAN endpoint to the selected subnet, including when the workstation
+zone already allows high ports. A UID-specific OUTPUT drop rule prevents new
+daemon connections to that subnet while allowing established replies. The
+systemd LAN allowance depends on firewalld so those restrictions load first.
+The script validates readiness, the login page, anonymous API rejection and
+an actual denied connection from UID1654. Failures restore the configuration
+and remove only firewall rules added by this invocation.
+
+Firewalld's [direct interface](https://firewalld.org/documentation/man-pages/firewalld.direct.html)
+is used only for the owner/connection-state condition unavailable in rich rules;
+ordinary ingress uses [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html).
+Both runtime and permanent rules are updated without reloading unrelated rules.
+
 ### Linux egress spike
 
 macOS cannot execute the cgroup-BPF systemd rule. On the target Linux host,
