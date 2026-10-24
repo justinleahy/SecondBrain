@@ -1,2 +1,3 @@
 .manifest { margin-top: 14px; font-size: 11px; color: #687c6d; overflow-wrap: anywhere; }
 button { background: transparent; border: 0; padding: 0; color: inherit; cursor: pointer; text-decoration: underline; }
+@media(max-width:760px) { button { min-height:44px; padding:12px 0; font-size:12px; } }

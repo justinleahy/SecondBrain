@@ -22,9 +22,14 @@
 else
 {
     <div class="chat-shell">
-        <aside class="sidebar">
+        <div class="mobile-toolbar" @onkeydown="NavigationKeyDownAsync">
             <a class="brand" href="/">◈ <span>SecondBrain</span></a>
-            <button class="new-chat" disabled="@deleting" @onclick="NewConversation">＋ New conversation</button>
+            <button class="mobile-menu" @ref="mobileMenu" aria-label="Conversations" aria-controls="chat-navigation" aria-expanded="@(navigationOpen ? "true" : "false")" @onclick="() => navigationOpen = !navigationOpen">☰ <span>Chats</span></button>
+            <button class="mobile-new" aria-label="New conversation" title="New conversation" disabled="@deleting" @onclick="NewConversation">＋</button>
+        </div>
+        <aside id="chat-navigation" class="sidebar @(navigationOpen ? "is-open" : "")" @onkeydown="NavigationKeyDownAsync">
+            <a class="brand" href="/">◈ <span>SecondBrain</span></a>
+            <button class="new-chat new-conversation" disabled="@deleting" @onclick="NewConversation">＋ New conversation</button>
             <button class="new-chat" @onclick="ShowApprovalsAsync">Approvals @if (proposals.Count(item => item.Status is "pending" or "executing") is var count && count > 0) { <span>(@count)</span> }</button>
             <h2>Conversations</h2>
             <nav aria-label="Conversations">
@@ -50,8 +55,8 @@ else
             <p class="sidebar-note">Your knowledge, with sources.<br />Changes require your approval.</p>
         </aside>
         <main class="workspace">
-            <header><div><span class="eyebrow">YOUR KNOWLEDGE ASSISTANT</span><h1>@(showAllApprovals ? "Approvals" : "Chat")</h1></div><a href="/">SecondBrain</a></header>
-            <section class="messages" aria-label="Conversation" aria-live="polite" aria-busy="@active">
+            <header class="workspace-header"><div><span class="eyebrow">YOUR KNOWLEDGE ASSISTANT</span><h1>@(showAllApprovals ? "Approvals" : "Chat")</h1></div><a href="/">SecondBrain</a></header>
+            <section class="messages" aria-label="Conversation" aria-live="polite" aria-busy="@(active ? "true" : "false")">
                 @if (showAllApprovals)
                 {
                     <h2>Review proposed changes</h2>
@@ -129,7 +134,8 @@ else
     private Task? observing;
     private string? selected, error, confirmingDelete;
     private string prompt = "";
-    private bool sending, askOnly, showAllApprovals, deleting;
+    private bool sending, askOnly, showAllApprovals, deleting, navigationOpen;
+    private ElementReference mobileMenu;
     private bool active => turns.Any(turn => turn.Status == "running");
     private void UseExample() => prompt = "What is the project codename?";
 
@@ -145,13 +151,27 @@ else
         catch (AuthorityChangedException) { actor = null; }
     }
 
-    private void NewConversation()
+    private async Task CloseNavigationAsync()
     {
+        if (!navigationOpen) return;
+        navigationOpen = false;
+        await mobileMenu.FocusAsync(preventScroll: true);
+    }
+
+    private async Task NavigationKeyDownAsync(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape") await CloseNavigationAsync();
+    }
+
+    private async Task NewConversation()
+    {
+        await CloseNavigationAsync();
         observation?.Cancel(); selected = null; turns = []; error = null; confirmingDelete = null; showAllApprovals = false; askOnly = false;
     }
 
     private async Task SelectAsync(string id)
     {
+        await CloseNavigationAsync();
         observation?.Cancel(); selected = id; error = null; confirmingDelete = null; showAllApprovals = false;
         try
         {
@@ -193,7 +213,7 @@ else
             if (selected == id)
             {
                 foreach (var turn in turns) { drafts.Remove(turn.Id); activity.Remove(turn.Id); }
-                NewConversation();
+                await NewConversation();
             }
             confirmingDelete = null;
             conversations = await Repository.ListAsync(actor, lifetime.Token);
@@ -262,7 +282,7 @@ else
         try { activity[turnId] = (await Executions.ActivityAsync(turnId, actor!, lifetime.Token)).Select(item => item.Name + " · " + item.Status.Replace('_', ' ')).ToList(); }
         catch (AuthorityChangedException) { error = "Your session changed. Sign in again."; }
     }
-    private async Task ShowApprovalsAsync() { await ReloadProposalsAsync(); showAllApprovals = true; }
+    private async Task ShowApprovalsAsync() { await CloseNavigationAsync(); await ReloadProposalsAsync(); showAllApprovals = true; }
     public async ValueTask DisposeAsync()
     {
         await lifetime.CancelAsync(); observation?.Cancel();

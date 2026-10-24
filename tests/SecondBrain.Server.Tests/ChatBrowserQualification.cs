@@ -64,6 +64,14 @@ public sealed class ChatBrowserQualification
                 [new(note.Document.Id, 1, note.Document.Chunks![0].Id), new(other.Document.Id, 1, other.Document.Chunks![0].Id), new(third.Document.Id, 1, third.Document.Chunks![0].Id)], actor);
             await chat.FinishAsync(turn.Id, "complete", new("1. **Functionality:** Project Lighthouse uses Blue Otter [1].\n\n2. **Interaction:** The deployment is local [3].\n\n3. **Operations:** The project has a launch checklist [1].\n\n4. **Design:** The workstation hosts the deployment [3].", []));
             formattingConversation = turn.ConversationId;
+            if (Environment.GetEnvironmentVariable("SECONDBRAIN_CHAT_MOBILE_FIXTURE") == "1")
+            {
+                for (var index = 1; index <= 24; index++)
+                {
+                    var extra = (await chat.StartAsync(new($"Mobile layout conversation {index}: a long title to check truncation and touch controls"), new("local-chat", "Qwen/Qwen3-8B"), actor)).Turn;
+                    await chat.FinishAsync(extra.Id, "complete", new("A saved conversation for mobile navigation checks.", []));
+                }
+            }
             if (Environment.GetEnvironmentVariable("SECONDBRAIN_CHAT_CITATION_LINK_FIXTURE") == "1")
             {
                 var followup = (await chat.StartAsync(new("Follow-up source link", turn.ConversationId), new("local-chat", "Qwen/Qwen3-8B"), actor)).Turn;

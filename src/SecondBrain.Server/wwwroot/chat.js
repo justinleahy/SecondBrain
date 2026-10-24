@@ -32,3 +32,23 @@ document.addEventListener("click", (event) => {
         block: "center"
     });
 });
+
+// Mobile browsers can leave layout-viewport units unchanged while their
+// keyboard is open. Keep the chat within the visible area, without changing
+// the layout during pinch zoom or forcing the user's scroll position.
+if (window.visualViewport) {
+    let viewportFrame;
+    const fitChatToViewport = () => {
+        cancelAnimationFrame(viewportFrame);
+        viewportFrame = requestAnimationFrame(() => {
+            const viewport = window.visualViewport;
+            if (viewport.scale === 1) {
+                document.documentElement.style.setProperty("--chat-viewport-height", `${viewport.height}px`);
+            } else {
+                document.documentElement.style.removeProperty("--chat-viewport-height");
+            }
+        });
+    };
+    window.visualViewport.addEventListener("resize", fitChatToViewport);
+    fitChatToViewport();
+}

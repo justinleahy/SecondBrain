@@ -1,2 +1,8 @@
 body { margin: 0; }
 :focus-visible { outline: 2px solid #3c8760; outline-offset: 3px; }
+.sign-in form { display:flex; flex-direction:column; gap:12px; max-width:360px; }
+.sign-in input, .sign-in button { box-sizing:border-box; width:100%; min-height:44px; padding:10px 12px; font:inherit; font-size:16px; border:1px solid #c5d5ca; border-radius:8px; }
+.sign-in button { background:#285d40; color:#fff; cursor:pointer; }
+
+.sign-in { font-family:system-ui; box-sizing:border-box; max-width:600px; margin:12vh auto; padding:30px; color:#20332c; }
+.sign-in a { color:#286b47; }

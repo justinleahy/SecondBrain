@@ -7,7 +7,7 @@
 @inject IDocumentRepository Documents
 
 <div class="source-note">
-    <button class="open-note" @onclick="ToggleAsync" disabled="@loading" aria-expanded="@open" aria-controls="@panelId">@(loading ? "Opening note…" : open ? "Close full note" : "Open full note")</button>
+    <button class="open-note" @onclick="ToggleAsync" disabled="@loading" aria-expanded="@(open ? "true" : "false")" aria-controls="@panelId">@(loading ? "Opening note…" : open ? "Close full note" : "Open full note")</button>
     @if (open)
     {
         <section id="@panelId" class="note-content" aria-label="Full note">
