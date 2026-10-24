@@ -31,6 +31,15 @@ class UpgradeTests(unittest.TestCase):
         (root / 'wwwroot').mkdir()
         return root, upgrade.file_hashes(root)
 
+    def test_backup_creation_handles_missing_parent_directory(self):
+        base = self.root / 'missing-parent' / 'secondbrain'
+        with mock.patch.object(upgrade, 'BACKUP_BASE', base):
+            runner = upgrade.Upgrade(self.root, self.root)
+        self.addCleanup(runner.log.close)
+        self.assertTrue(runner.backup.is_dir())
+        self.assertEqual(base.stat().st_mode & 0o777, 0o700)
+        self.assertEqual((runner.backup / 'deployment.log').stat().st_mode & 0o777, 0o600)
+
     def test_bundle_rejects_modified_extra_and_symlinked_content(self):
         root, hashes = self.bundle()
         upgrade.verify_bundle(root, hashes)
@@ -51,6 +60,14 @@ class UpgradeTests(unittest.TestCase):
         hashes['../outside'] = 'unexpected'
         with self.assertRaisesRegex(RuntimeError, 'manifest path'):
             upgrade.verify_bundle(root, hashes)
+
+    def test_authentication_probe_uses_get_without_request_body(self):
+        def unauthenticated(request, timeout):
+            self.assertEqual(request.get_method(), 'GET')
+            self.assertIsNone(request.data)
+            raise upgrade.urllib.error.HTTPError(request.full_url, 401, 'Authentication required', {}, None)
+        with mock.patch.object(upgrade.urllib.request, 'urlopen', side_effect=unauthenticated):
+            self.assertEqual(upgrade.request('/v1/jobs'), (401, None))
 
     def test_identity_allows_new_documents_but_preserves_account_keys_and_existing_documents(self):
         data = self.root / 'data'

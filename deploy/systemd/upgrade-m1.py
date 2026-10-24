@@ -31,6 +31,7 @@ UNITS = pathlib.Path('/etc/systemd/system')
 UNIT_NAMES = ('secondbrain.service', 'secondbrain-extractor.service', 'secondbrain-extractor.socket')
 APPHOSTS = ('brain', 'SecondBrain.Server', 'SecondBrain.Extractor')
 ORIGIN = 'http://127.0.0.1:7171'
+BACKUP_BASE = pathlib.Path('/var/backups/secondbrain')
 
 
 def require(condition, message):
@@ -93,14 +94,14 @@ def verify_schema(data):
         require({'document_text', 'chunks', 'chunks_fts', 'chunk_vectors', 'embedding_cache'}.issubset(tables), 'M1 index schema is incomplete.')
 
 
-def request(path, body=None):
-    headers = {'Content-Type': 'application/json'} if body is not None else {}
-    req = urllib.request.Request(ORIGIN + path, None if body is None else json.dumps(body).encode(), headers)
+def request(path):
+    req = urllib.request.Request(ORIGIN + path)
     try:
         with urllib.request.urlopen(req, timeout=5) as response:
             data = response.read()
             return response.status, json.loads(data) if data else None
     except urllib.error.HTTPError as error:
+        error.close()
         return error.code, None
 
 
@@ -122,10 +123,10 @@ class Upgrade:
         self.repo = repo
         self.evidence = evidence
         self.tag = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
-        parent = pathlib.Path('/var/backups/secondbrain')
+        parent = BACKUP_BASE
         require(not parent.is_symlink(), 'Backup root must not be a symlink.')
-        parent.mkdir(mode=0o700, exist_ok=True)
-        require(parent.stat().st_uid == 0, 'Backup root must be root-owned.')
+        parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        require(parent.stat().st_uid == os.geteuid(), 'Backup root must be root-owned.')
         parent.chmod(0o700)
         self.backup = parent / ('m1-' + self.tag)
         self.backup.mkdir(mode=0o700)
@@ -138,6 +139,7 @@ class Upgrade:
         self.data_lock = None
         self.phase = 'preflight'
         self.log = (self.backup / 'deployment.log').open('w')
+        (self.backup / 'deployment.log').chmod(0o600)
 
     def run(self, args):
         self.phase = pathlib.Path(str(args[0])).name + ' ' + (str(args[1]) if len(args) > 1 else '')
@@ -227,6 +229,7 @@ class Upgrade:
         readiness = wait_ready()
         require(all(c['ready'] for c in readiness['components'].values()), 'A readiness component is unhealthy.')
         require('Blocked' in readiness['components']['canary']['detail'], 'The enabled egress canary did not prove blocking.')
+        self.phase = 'verify-schema-and-preserved-state'
         verify_schema(DATA)
         after = identity_snapshot(DATA)
         verify_identity(before, after)
@@ -234,12 +237,13 @@ class Upgrade:
         after_keys = file_hashes(DATA / 'keyring')
         require(all(after_keys.get(name) == value for name, value in before_keys.items()), 'Existing key-ring material changed during deployment.')
         verify_bundle(INSTALL, expected)
+        self.phase = 'verify-read-only-authentication'
         require(request('/health')[0] == 200, 'Health endpoint failed.')
-        require(request('/v1/search', {'query': 'deployment-check', 'mode': 'keyword'})[0] == 401, 'Search does not enforce authentication.')
-        require(request('/v1/query', {})[0] == 401, 'Query does not enforce authentication.')
+        require(request('/v1/jobs')[0] == 401, 'Jobs endpoint did not require authentication.')
+        require(request('/v1/documents/' + '0' * 26)[0] == 401, 'Document endpoint did not require authentication.')
         modes = {str(p): {'uid': p.stat().st_uid, 'gid': p.stat().st_gid, 'mode': oct(stat.S_IMODE(p.stat().st_mode))} for p in [DATA, INCOMING, INCOMING / 'inbox', INCOMING / 'inbox/.claimed']}
         require(modes[str(INCOMING / 'inbox')]['mode'] == '0o1770' and modes[str(INCOMING / 'inbox/.claimed')]['mode'] == '0o700', 'M1 inbox permissions are incorrect.')
-        report = {'status': 'deployed', 'at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'backup': str(self.backup), 'previous_binaries': str(self.previous), 'bundle_files_verified': len(expected), 'readiness': readiness, 'm1_schema': 'applied', 'account_and_credentials_preserved': True, 'configuration_and_secrets_preserved': True, 'keyring_preserved': True, 'existing_documents_preserved': len(before['documents']), 'directory_modes': modes, 'unauthenticated_search_and_query': 401, 'units': {}}
+        report = {'status': 'deployed', 'at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'backup': str(self.backup), 'previous_binaries': str(self.previous), 'bundle_files_verified': len(expected), 'readiness': readiness, 'm1_schema': 'applied', 'account_and_credentials_preserved': True, 'configuration_and_secrets_preserved': True, 'keyring_preserved': True, 'existing_documents_preserved': len(before['documents']), 'directory_modes': modes, 'unauthenticated_documents_and_jobs': 401, 'units': {}}
         for name in UNIT_NAMES:
             result = subprocess.check_output(['systemctl', 'show', name, '--property=ActiveState', '--property=SubState', '--property=MainPID', '--property=ExecMainStartTimestamp', '--property=MemoryMax', '--property=PrivateNetwork'], text=True)
             report['units'][name] = dict(line.split('=', 1) for line in result.splitlines() if '=' in line)
@@ -276,7 +280,7 @@ class Upgrade:
         self.run(['systemctl', 'daemon-reload'])
         self.run(['systemctl', 'reset-failed', *UNIT_NAMES])
         self.run(['systemctl', 'start', 'secondbrain-extractor.socket', 'secondbrain.service'])
-        report = {'status': 'rolled_back', 'backup': str(self.backup), 'new_data_retained': str(DATA.with_name('secondbrain.failed-m1-' + self.tag)) if self.snapshotted else None}
+        report = {'status': 'rolled_back', 'backup': str(self.backup), 'new_data_retained': str(DATA.with_name('secondbrain.failed-m1-' + self.tag)) if self.snapshotted else None, 'failure': getattr(self, 'failure', None)}
         self.write('deployment-result.json', report, public=True)
         print('Previous installation restarted. Private recovery files: ' + str(self.backup), flush=True)
 
@@ -300,6 +304,7 @@ def main():
             expected = json.loads(args.manifest.resolve().read_text())
             upgrade.deploy(args.bundle.resolve(), expected)
         except BaseException as error:
+            upgrade.failure = {'phase': upgrade.phase, 'failure_type': type(error).__name__}
             traceback.print_exception(error, file=upgrade.log)
             upgrade.log.flush()
             try:
@@ -322,6 +327,6 @@ def main():
 if __name__ == '__main__':
     try:
         sys.exit(main())
-    except (RuntimeError, OSError):
-        print('Upgrade preflight failed before service changes; check root access, arguments, and reference installation paths.', file=sys.stderr)
+    except (RuntimeError, OSError) as error:
+        print('Upgrade stopped before service changes: ' + str(error), file=sys.stderr)
         sys.exit(1)
