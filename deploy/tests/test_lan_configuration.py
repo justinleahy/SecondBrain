@@ -38,14 +38,24 @@ class LanConfigurationTests(unittest.TestCase):
                 lan.configuration(self.fixture(), address, network, 7171)
 
     def test_firewall_keeps_replies_but_drops_new_daemon_connections(self):
-        _, _, direct, rich = lan.configuration(self.fixture(), '10.66.10.20', '10.66.10.0/24', 7171)
+        _, _, rules, rich = lan.configuration(self.fixture(), '10.66.10.20', '10.66.10.0/24', 7171)
+        direct = rules[0]
         self.assertIn('--uid-owner', direct)
         self.assertEqual(direct[direct.index('--uid-owner') + 1], '1654')
         self.assertEqual(direct[direct.index('--ctstate') + 1], 'NEW,INVALID,UNTRACKED')
         self.assertNotIn('ESTABLISHED', direct[direct.index('--ctstate') + 1])
         self.assertEqual(direct[-1], 'DROP')
-        self.assertIn('source not address="10.66.10.0/24"', rich[1])
+        self.assertNotIn('source ', rich[1])
         self.assertIn('priority="-10"', rich[1])
+
+    def test_additional_client_subnet_has_ingress_and_outbound_rules(self):
+        _, _, direct, rich = lan.configuration(self.fixture(), '10.66.10.20', '10.66.10.0/24', 7171, ['10.66.20.0/24'])
+        self.assertEqual([r[r.index('-d') + 1] for r in direct], ['10.66.10.0/24', '10.66.20.0/24'])
+        self.assertEqual(len(rich), 3)
+        self.assertIn('source address="10.66.20.0/24"', rich[1])
+        self.assertTrue(rich[-1].endswith('reject'))
+        with self.assertRaises(RuntimeError):
+            lan.configuration(self.fixture(), '10.66.10.20', '10.66.10.0/24', 7171, ['0.0.0.0/0'])
 
     def test_atomic_configuration_keeps_owner_and_private_mode(self):
         with tempfile.TemporaryDirectory() as directory:

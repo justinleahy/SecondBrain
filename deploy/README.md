@@ -202,10 +202,12 @@ output stays in the root-only backup. Unprivileged safeguard tests run with
 
 ### LAN listener on the reference workstation
 
-To add `http://10.66.10.20:7171` for clients on `10.66.10.0/24`:
+To add `http://10.66.10.20:7171` for clients on `10.66.10.0/24` and
+`10.66.20.0/24`:
 
 ```sh
 sudo python3 deploy/systemd/configure-lan.py \
+  --allow-network 10.66.20.0/24 \
   --evidence-dir artifacts/lan-listener-20261024
 ```
 
