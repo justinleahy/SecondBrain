@@ -399,7 +399,7 @@ button:disabled {
     .messages { padding:24px; }
     .composer-area { padding:10px 24px 20px; }
 }
-@media(max-width:760px) {
+@media(max-width:760px), (max-width:1000px) and (max-height:500px) {
     .chat-shell { flex-direction:column; }
     .mobile-toolbar {
         display:flex;
@@ -479,7 +479,7 @@ button:disabled {
     .privacy-note { margin-top:6px; }
     .composer-area:focus-within .privacy-note { display:none; }
 }
-@media(max-width:760px) and (max-height:500px) {
+@media(max-width:1000px) and (max-height:500px) {
     .mobile-toolbar { padding-top:env(safe-area-inset-top); padding-bottom:0; }
     .composer textarea { height:44px; }
     .privacy-note { display:none; }
