@@ -1,0 +1,31 @@
+{
+  "url": "http://10.66.10.20:7171/",
+  "blazor": "object",
+  "resources": [
+    {
+      "name": "http://10.66.10.20:7171/SecondBrain.Server.styles.css",
+      "status": 200,
+      "bytes": 11532
+    },
+    {
+      "name": "http://10.66.10.20:7171/app.css",
+      "status": 200,
+      "bytes": 88
+    },
+    {
+      "name": "http://10.66.10.20:7171/_framework/blazor.web.js",
+      "status": 200,
+      "bytes": 200645
+    },
+    {
+      "name": "http://10.66.10.20:7171/_blazor/initializers",
+      "status": 200,
+      "bytes": 2
+    },
+    {
+      "name": "http://10.66.10.20:7171/_blazor/negotiate?negotiateVersion=1",
+      "status": 200,
+      "bytes": 316
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "at_utc": "2026-10-24T18:14:42.663492+00:00",
+  "installed_file_count": 427,
+  "installed_files_match": true,
+  "lan_assets": [
+    {
+      "path": "/_framework/blazor.web.js",
+      "status": 200,
+      "bytes": 200645,
+      "sha256": "532c5c1aa70b38ddf9463747817d6dafc42b8cf2e02f43f511a5d2454a249a4a"
+    },
+    {
+      "path": "/app.css",
+      "status": 200,
+      "bytes": 88,
+      "sha256": "d81a5132aa1bc80d2d845e83f3bc9593c17a17e200f57d0c526901461a3267f4"
+    },
+    {
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200,
+      "bytes": 11532,
+      "sha256": "2af804c05784ab851e3b49576de94203c0a6a92cabdbb0b3b8ebea2076ba416c"
+    },
+    {
+      "path": "/favicon.svg",
+      "status": 200,
+      "bytes": 240,
+      "sha256": "f77c1623bcc1501bccf771d943b85117d07343ef2d8ac337cea4e6d7f2d2417d"
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 
 The optional `secondbrain-deploy.service` lets the workspace owner install staged SecondBrain releases without granting passwordless access to arbitrary root commands. It applies only to an already-provisioned reference systemd installation.
 
+Enabled on the reference host on 2026-10-24. The first unattended deployment installed the [chat submission fix](../../docs/build/M2-static-assets-fix.md) and passed verification.
+
 Run the one-time setup from the repository as the normal account:
 
 ```sh
