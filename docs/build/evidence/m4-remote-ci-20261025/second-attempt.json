@@ -1,0 +1,16 @@
+{
+  "status": "failed_after_application_tests_passed",
+  "runId": 40161161707,
+  "url": "https://github.com/justinleahy/SecondBrain/actions/runs/40161161707",
+  "tag": "v0.4.0-rc.2",
+  "commit": "65daf466405786ec637620b611f5cc189ff4c191",
+  "cause": "Distinct-UID staging fixture inherited the original runner user runtime directory; dotnet NuGet migration mutex could not traverse /run/user/1001/.dotnet as UID 1654.",
+  "applicationRegression": "passed",
+  "releaseInventorySafeguards": "passed",
+  "editorAudit": "passed",
+  "parserMutations": "passed",
+  "sustainedEditDaemonRestore": "passed",
+  "backupHandoffSafeguards": "passed",
+  "fix": "Give UID 1654 a private fixture-owned XDG_RUNTIME_DIR in the distinct-identity script.",
+  "productRuntimeChanged": false
+}

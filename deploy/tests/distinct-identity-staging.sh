@@ -10,12 +10,12 @@ cleanup() {
 }
 trap cleanup EXIT
 chmod 0755 "$qualification_root"
-mkdir "$qualification_root"/{incoming,stage,daemon-home,results,control}
+mkdir "$qualification_root"/{incoming,stage,daemon-home,daemon-runtime,results,control}
 mkdir -p "$qualification_root/incoming/inbox/.claimed"
 chown 1656:1654 "$qualification_root/incoming"
 chmod 0750 "$qualification_root/incoming"
-chown 1654:1654 "$qualification_root/"{stage,daemon-home,results}
-chmod 0700 "$qualification_root/stage"
+chown 1654:1654 "$qualification_root/"{stage,daemon-home,daemon-runtime,results}
+chmod 0700 "$qualification_root/"{stage,daemon-home,daemon-runtime}
 chown 1654:1654 "$qualification_root/incoming/inbox" "$qualification_root/incoming/inbox/.claimed" "$qualification_root/control"
 chmod 1770 "$qualification_root/incoming/inbox"
 chmod 0700 "$qualification_root/incoming/inbox/.claimed"
@@ -51,6 +51,7 @@ sleep .1
 # outside the registered root; a multi-link inode must never be admitted.
 setpriv --reuid 1654 --regid 1654 --clear-groups --no-new-privs env \
     DOTNET_CLI_HOME="$qualification_root/daemon-home" \
+    XDG_RUNTIME_DIR="$qualification_root/daemon-runtime" \
     SECONDBRAIN_STAGING_QUALIFICATION_ROOT="$qualification_root" \
     dotnet vstest "${1:-tests/SecondBrain.Extractor.Tests/bin/Release/net10.0/SecondBrain.Extractor.Tests.dll}" \
     --TestCaseFilter:FullyQualifiedName~DistinctIdentityStagingTests --logger:console\;verbosity=normal \

@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "fixture": "DistinctIdentityStagingTests.ConcurrentSyncIdentityCannotRedirectStagingOrReadPrivateStage",
+  "daemonUid": 1654,
+  "syncUid": 1656,
+  "hostUsersChanged": false,
+  "containerRootOnly": true,
+  "inheritedXdgRuntimeDirectory": "deliberately inaccessible /root/ci-runtime",
+  "replacementRuntimeDirectory": "private fixture directory owned by daemon UID with mode 0700",
+  "runtime": "10.0.12 in digest-pinned SDK image",
+  "logSha256": "6dad018fb4b317312c57099b247ad4eb873b07a31ed7c4604f919bdbcd05372e"
+}
