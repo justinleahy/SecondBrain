@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-24",
+  "scope": "Native OpenAI enrichment batches and durable recovery; not full M4 acceptance",
+  "configuration": "Debug",
+  "applicationSchemaVersion": 8,
+  "lockedRestore": "passed",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 2487,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 202,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 818,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 123,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 225,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 487,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 396,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "newChecks": {
+    "nativeProtocol": 14,
+    "storageLifecycleAndMigration": 12
+  },
+  "browserEvidence": "browser.json",
+  "browserFixtureStopped": true,
+  "liveCloudCalls": false,
+  "productionChanged": false,
+  "checks": [
+    "Native OpenAI chat/embedding binding adds the pinned SDK batch lifecycle; explicit model batch capability and shared privacy transport remain required.",
+    "At most sixteen automatic enrichment jobs form one active batch. Manual enrichment stays interactive. Shared budget reservation and job ownership commit atomically before upload.",
+    "Upload and submission intents, remote ids, result payloads and item progress persist separately. Ambiguous responses reconcile without blind resubmission.",
+    "Startup preserves active batch leases and unsettled reservations. Existing non-batch recovery behavior is retained.",
+    "Publication checks the current document, source, credential, configuration and lease; cancellation and purge cannot publish stale results.",
+    "Known per-item usage settles once; missing or invalid totals retain the reservation. Partial, unordered and missing results have explicit outcomes.",
+    "Native response sizes, JSONL lines, line lengths, item counts and ids are bounded. Redirects, raw errors, unsafe paths and unsupported declarations fail closed.",
+    "Collected results recover after publication interruption. Terminal batches release local payload references for retention; remote input/output deletion follows collection or cancellation.",
+    "The schema-seven to schema-eight transition requires a complete encrypted pre-upgrade backup. Portable export includes non-content batch metadata.",
+    "Desktop and phone settings checks save and reload the backfill preference without overflow; screenshots were reviewed."
+  ],
+  "logHashes": {
+    "restore": "3ea5b77b7b2438c75326d677c5d89fb21774bad5ff7c3ac952a75d38fa6fdcb2",
+    "build": "e676b293c771d5430f71aa127407b12c32577bb46dca39fe26ad0aa4cba0357b",
+    "tests": "357d3aabc2d7e3dd612fae117b142e026f99eb1d5514df15bda03c01fc2ba084",
+    "browser": "82ab577eebf167711d234fa3d71c126b7374ff84c11c7dbac543da19a2440133",
+    "advisories": "3196172f5c5e8c3bfb2271c612b4f2aced3a24fbc7b37ab6efb8109086d41168"
+  },
+  "packageAdvisories": "NuGet listed no known vulnerabilities for this restored graph at this check",
+  "limitations": [
+    "Native Anthropic batching and verified span-level citation integration remain unfinished.",
+    "No live OpenAI account or cloud model was called; protocol checks use controlled HTTP responses and storage tests use a controlled batch provider.",
+    "Unconfirmed uploads/submissions are not retried blindly. After bounded reconciliation windows the job fails conservatively and retains audit metadata.",
+    "Changed provider endpoints or refused remote deletion retain ids and a cleanup-pending reason for operator follow-up; the application does not send saved ids to a different endpoint.",
+    "Full sustained-write daemon restore, mounted/large-corpus, hardened deployment, signed-release and remaining real-export acceptance are open."
+  ]
+}

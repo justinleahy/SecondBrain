@@ -1,0 +1,130 @@
+@page "/library/{Id}/edit"
+@page "/capture"
+@inherits BrowserPage
+@using System.Text.Json
+@using SecondBrain.Core.Ingestion
+@inject NavigationManager Navigation
+@inject Microsoft.JSInterop.IJSRuntime JavaScript
+@using Microsoft.JSInterop
+
+<PageTitle>@(Id is null ? "Capture" : "Edit") · SecondBrain</PageTitle>
+<KnowledgeNav />
+<NavigationLock ConfirmExternalNavigation="dirty" OnBeforeInternalNavigation="BeforeNavigateAsync" />
+<main class="knowledge-page document-page">
+    <h1>@(Id is null ? "Capture a note" : "Edit document")</h1>
+    <p>@(Id is null ? "Save directly to your knowledge. No model is involved." : $"Editing revision {revision}. Saving creates a new revision.")</p>
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (fileConflict is not null)
+    {
+        <section class="knowledge-notice" aria-label="File conflict"><h2>File changed on disk</h2>
+            <p>Your draft is still in the editor and was preserved as @fileConflict.Name. The external file was kept.</p>
+            <p><a href="@("/documents/" + Uri.EscapeDataString(Id!) + "/conflicts/" + Uri.EscapeDataString(fileConflict.Id))" data-enhance-nav="false" download>Download preserved draft</a></p>
+            <div class="knowledge-actions"><button disabled="@Busy" @onclick="LoadExternalAsync">Replace draft with external revision</button><button disabled="@Busy" @onclick="SaveCopyAsync">Save draft as a new note</button></div>
+        </section>
+    }
+    @if (conflict is not null)
+    {
+        <section class="knowledge-notice" aria-label="Revision conflict"><h2>Latest saved revision: @conflict.Revision</h2><p>Your draft remains in the form below. Copy anything you want to retain before loading the latest revision.</p><details open><summary>Latest saved text</summary><pre class="document-text">@conflict.Text</pre></details><button disabled="@Busy" @onclick="UseLatest">Replace draft with latest revision</button></section>
+    }
+    @if (Loaded && (Id is null || document is not null))
+    {
+        @if (metadata is not null) { <dl class="document-metadata"><dt>ID</dt><dd>@Id</dd><dt>Source</dt><dd>@metadata.SourceName</dd><dt>Created</dt><dd>@metadata.CreatedAt</dd><dt>Updated</dt><dd>@metadata.UpdatedAt</dd></dl> }
+        <form class="knowledge-editor" @oninput="MarkDirty" @onsubmit="SaveAsync" @onsubmit:preventDefault>
+            <fieldset disabled="@Busy">
+            <legend>Frontmatter</legend>
+            <label>Title<input @bind="title" required maxlength="200" /></label>
+            <label>Type<select @bind="type"><option value="note">Note</option><option value="article">Article</option><option value="transcript">Transcript</option>@if (Id is not null) { <option value="calendar_event">Calendar event</option> }<option value="file">File</option></select></label>
+            <div class="catalog-field"><CatalogTokens Label="Tags" Kind="tag" @bind-Value="tags" Placeholder="Comma-separated tags" /></div>
+            <label>Aliases<input @bind="aliases" placeholder="Comma-separated aliases" /></label>
+            <label>Source URL<input type="url" @bind="sourceUrl" maxlength="4096" /></label>
+            <label>Properties (JSON object)<textarea @bind="props" rows="4" spellcheck="false"></textarea></label>
+            </fieldset>
+            @if (canEditText) { <NoteEditor @ref="editor" Value="@content" Version="contentVersion" Changed="MarkDirty" ReadOnly="Busy" /> }
+            else { <p>The original file's text cannot be edited here. You can update its title, tags and properties.</p> }
+            <div class="knowledge-actions"><button disabled="@(Busy || conflict is not null || fileConflict is not null)" type="submit">@(Id is null ? "Save note" : "Save new revision")</button><a href="@(Id is null ? "/library" : "/library/" + Uri.EscapeDataString(Id))">Cancel</a></div>
+        </form>
+    }
+</main>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    private DocumentRecord? document, conflict;
+    private DocumentDetails? metadata, conflictMetadata;
+    private FileConflict? fileConflict;
+    private sealed record FileConflict(string Id, string Name);
+    private NoteEditor? editor;
+    private long revision;
+    private long contentVersion;
+    private string title = "", type = "note", tags = "", aliases = "", sourceUrl = "", props = "{}", content = "";
+    private bool dirty;
+    private bool canEditText = true;
+    private string requestId = Guid.NewGuid().ToString("N");
+    protected override async Task LoadAsync()
+    {
+        if (Id is null) return;
+        document = await Api.SendAsync<DocumentRecord>("/documents/" + Uri.EscapeDataString(Id) + "?include=text");
+        metadata = await Api.SendAsync<DocumentDetails>("/documents/" + Uri.EscapeDataString(Id) + "/metadata?revision=" + document.Revision);
+        Fill(document);
+    }
+    private void Fill(DocumentRecord value)
+    {
+        revision = value.Revision; title = value.Title; type = value.Type; tags = string.Join(", ", value.Tags ?? []); props = value.PropsJson; content = value.Text ?? "";
+        aliases = string.Join(", ", metadata?.Aliases ?? []); sourceUrl = metadata?.SourceUrl ?? ""; contentVersion++; dirty = false;
+        canEditText = value.Path is null || Path.GetExtension(value.Path).ToLowerInvariant() is ".md" or ".markdown" or ".txt";
+    }
+    private void UseLatest() { if (conflict is null) return; document = conflict; metadata = conflictMetadata; Fill(conflict); conflict = null; conflictMetadata = null; Error = null; }
+    private void MarkDirty() => dirty = true;
+    private Task LoadExternalAsync() => RunAsync(async () =>
+    {
+        var latest = await Api.SendAsync<DocumentRecord>("/documents/" + Uri.EscapeDataString(Id!) + "?include=text");
+        if (latest.Revision <= revision) { Error = "No indexed external revision is available. Keep or download your draft, or save it as a separate note."; return; }
+        if (latest.Status is "queued" or "processing" or "pending") { Error = "The external revision is still being indexed. Try again shortly; your draft has been kept."; return; }
+        if (latest.Status is "failed" or "skipped" or "needs_ocr" || latest.Text is null) { Error = "The external revision has no editable text. Your draft has been kept; check its processing job or save a separate note."; return; }
+        metadata = await Api.SendAsync<DocumentDetails>("/documents/" + Uri.EscapeDataString(Id!) + "/metadata?revision=" + latest.Revision);
+        document = latest; Fill(latest); fileConflict = null; conflict = null;
+    });
+    private Task SaveCopyAsync() => RunAsync(async () =>
+    {
+        var draft = editor is null ? content : await editor.GetValueAsync();
+        var result = await Api.SendAsync<CaptureResult>("/documents", "POST", new CaptureRequest(draft, title + " (conflict copy)", "note",
+            Tags: tags.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)), requestId: requestId);
+        dirty = false; Navigation.NavigateTo("/library/" + Uri.EscapeDataString(result.Document.Id));
+    });
+    private async Task BeforeNavigateAsync(Microsoft.AspNetCore.Components.Routing.LocationChangingContext context)
+    {
+        if (dirty && !await JavaScript.InvokeAsync<bool>("confirm", "Discard your unsaved changes?")) context.PreventNavigation();
+    }
+    private Task SaveAsync() => RunAsync(async () =>
+    {
+        if (canEditText && editor is not null) content = await editor.GetValueAsync();
+        JsonElement properties;
+        try { properties = JsonSerializer.Deserialize<JsonElement>(props); }
+        catch (JsonException) { Error = "Properties must be a valid JSON object."; return; }
+        if (properties.ValueKind != JsonValueKind.Object) { Error = "Properties must be a JSON object."; return; }
+        var tagValues = tags.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Distinct(StringComparer.Ordinal).ToArray();
+        var aliasValues = aliases.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Distinct(StringComparer.Ordinal).ToArray();
+        try
+        {
+            CaptureResult result;
+            if (Id is null) result = await Api.SendAsync<CaptureResult>("/documents", "POST", new CaptureRequest(content, title, type, properties, tagValues, string.IsNullOrWhiteSpace(sourceUrl) ? null : sourceUrl, aliasValues), requestId: requestId);
+            else
+            {
+                var patch = new Dictionary<string, object?> { ["title"] = title, ["type"] = type, ["tags"] = tagValues, ["aliases"] = aliasValues, ["source_url"] = string.IsNullOrWhiteSpace(sourceUrl) ? null : sourceUrl, ["props"] = properties };
+                if (canEditText) patch["content"] = content;
+                result = await Api.SendAsync<CaptureResult>("/documents/" + Uri.EscapeDataString(Id), "PATCH", patch, revision);
+            }
+            dirty = false; Navigation.NavigateTo("/library/" + Uri.EscapeDataString(result.Document.Id));
+        }
+        catch (BrowserApiException exception) when (exception.Status == 409 && exception.ProblemType?.EndsWith("/file-conflict", StringComparison.Ordinal) == true && Id is not null)
+        {
+            fileConflict = new(exception.Detail("conflict_id") ?? "", exception.Detail("conflict_file") ?? "a conflict file");
+            Error = null;
+        }
+        catch (BrowserApiException exception) when (exception.Status == 412 && Id is not null)
+        {
+            Error = exception.Message;
+            conflict = await Api.SendAsync<DocumentRecord>("/documents/" + Uri.EscapeDataString(Id) + "?include=text");
+            conflictMetadata = await Api.SendAsync<DocumentDetails>("/documents/" + Uri.EscapeDataString(Id) + "/metadata?revision=" + conflict.Revision);
+        }
+    });
+}

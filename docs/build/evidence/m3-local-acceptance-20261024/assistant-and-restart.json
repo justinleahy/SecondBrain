@@ -1,0 +1,495 @@
+{
+  "scope": "Isolated account and synthetic documents with the running local Qwen chat/embedding models. VPN and Cloudflare checks waived by the user.",
+  "cases": {
+    "U6_desktop": {
+      "status": "passed",
+      "width": 1280,
+      "turn": {
+        "id": "01M5QYS759W8AH1HZJ3QER1YV7",
+        "conversationId": "01M5QYS7595P6J05DBHHPK7CPE",
+        "ordinal": 1,
+        "status": "complete",
+        "mode": "chat",
+        "prompt": "Summarize everything I have read about retrieval evaluation, with footnotes to the exact supporting passages.",
+        "policy": {
+          "provider": "local-chat",
+          "model": "Qwen/Qwen3-8B",
+          "maxToolCalls": 8,
+          "maxReadDocuments": 12,
+          "maxReadBytes": 200000,
+          "maxMetadataRecords": 200,
+          "maxOutputTokens": 4096,
+          "maxHistoryMessages": 20,
+          "hourlyTokens": 200000,
+          "dailyTokens": 2000000,
+          "autoApproveNotes": false,
+          "maxHistoryBytes": 8192,
+          "maxSearches": 32,
+          "filters": null,
+          "maxContextTokens": 32768,
+          "providerEndpoint": "http://127.0.0.1:8000/v1",
+          "reasoning": null
+        },
+        "startedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "endedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "failureCode": null,
+        "answer": {
+          "text": "Retrieval evaluation involves assessing the effectiveness of search systems by measuring how well they retrieve relevant information. The evaluation combines context precision and context recall, which are key metrics in this process. Context precision measures how much of the retrieved context is relevant, while context recall measures how much of the needed evidence was retrieved. This dual approach helps in comprehensively evaluating the performance of retrieval systems [1].\n\nThe evaluation process involves maintaining a human-labelled gold set of 40 queries. Using this set, the system reports recall@5 and precision@5, which are metrics that indicate the system's ability to retrieve relevant documents within the top 5 results. The evaluation also compares different search approaches, such as keyword, semantic, and hybrid search, using the same filters to ensure consistency in the evaluation [3].\n\nIn addition to these metrics, the evaluation includes inspecting missed relevant documents every week. This inspection helps in identifying any gaps in the retrieval process and ensures that the system is continuously improving. It is important to note that similarity scores alone do not establish relevance, and thus, human inspection is crucial for accurate evaluation [3].\n\nThe Project Orion benchmark is used to compare keyword and hybrid retrieval methods on a human-labelled evaluation set. This benchmark helps in identifying failure cases and provides insights into the strengths and weaknesses of different retrieval approaches [4]. \n\nOverall, the retrieval evaluation process is a comprehensive and iterative approach that combines quantitative metrics with qualitative inspections to ensure the effectiveness of search systems.",
+          "citations": [
+            {
+              "source": {
+                "number": 1,
+                "documentId": "01M5QYM8CCTZC0XPSY6BG8FAX7",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CCTZC0XPSY6BG8FAX7:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "Retrieval evaluation reading",
+                "excerpt": "# Retrieval evaluation reading\n\nThe reading distinguishes context precision from context recall. Context precision measures how much retrieved context is relevant; context recall measures how much of the needed evidence was retrieved. Our evaluation combines these measurements with inspection of missed queries.",
+                "sha256": "FF0866E5FEA68BE3A382FE2447AF18A784AE4B34ED751A9D5F22AA5935522269"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 3,
+                "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM882PG4NVBDGK7V8B8YG:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "Retrieval evaluation approach",
+                "excerpt": "# Retrieval evaluation approach\n\nWe maintain a human-labelled gold set of 40 queries. We report recall@5 and precision@5. We compare keyword, semantic, and hybrid search using the same filters. We inspect missed relevant documents every week. Similarity scores alone do not establish relevance.",
+                "sha256": "FB28B55F30423CF017B2A1675462652AB79B3E5E1BF2BFFD91DD5DF0314811F8"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 4,
+                "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CQYR4CY27CAMNN27SH:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "This week's Project Orion benchmark",
+                "excerpt": "This week I built the Project Orion retrieval benchmark and reviewed its failure cases. The benchmark compares keyword and hybrid retrieval on a human-labelled evaluation set.",
+                "sha256": "FBD24991810E933D4DB7BCA5DAC530DDB175D22EA2759559538E482F551A17EF"
+              },
+              "state": "current"
+            }
+          ],
+          "invalidCitationCount": 0,
+          "warnings": [
+            "reasoning_ignored"
+          ]
+        },
+        "redacted": false
+      },
+      "checks": [
+        {
+          "number": 1,
+          "displayNumber": 1,
+          "documentId": "01M5QYM8CCTZC0XPSY6BG8FAX7",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 3,
+          "displayNumber": 2,
+          "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 4,
+          "displayNumber": 3,
+          "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+          "exactPassage": true,
+          "hashVerified": true
+        }
+      ],
+      "noOverflow": true
+    },
+    "U7_desktop": {
+      "status": "passed",
+      "width": 1280,
+      "turn": {
+        "id": "01M5QYRSV8MS6AJTHT8E7BWDEY",
+        "conversationId": "01M5QYRSV87PWEXSJ995S5VSCH",
+        "ordinal": 1,
+        "status": "complete",
+        "mode": "chat",
+        "prompt": "What have I been working on this week?",
+        "policy": {
+          "provider": "local-chat",
+          "model": "Qwen/Qwen3-8B",
+          "maxToolCalls": 8,
+          "maxReadDocuments": 12,
+          "maxReadBytes": 200000,
+          "maxMetadataRecords": 200,
+          "maxOutputTokens": 4096,
+          "maxHistoryMessages": 20,
+          "hourlyTokens": 200000,
+          "dailyTokens": 2000000,
+          "autoApproveNotes": false,
+          "maxHistoryBytes": 8192,
+          "maxSearches": 32,
+          "filters": null,
+          "maxContextTokens": 32768,
+          "providerEndpoint": "http://127.0.0.1:8000/v1",
+          "reasoning": null
+        },
+        "startedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "endedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "failureCode": null,
+        "answer": {
+          "text": "This week, you have been working on the following tasks:\n\n1. Reviewed the Project Orion benchmark with Maya Chen and wrote an evaluation checklist. The next step is to expand the query set [1].\n2. Built the Project Orion retrieval benchmark and reviewed its failure cases. The benchmark compares keyword and hybrid retrieval on a human-labelled evaluation set [2].\n3. Inspected missed relevant documents every week as part of the retrieval evaluation approach [4].",
+          "citations": [
+            {
+              "source": {
+                "number": 1,
+                "documentId": "01M5QYM8CWBZX3BVDW1QBPA5KZ",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CWBZX3BVDW1QBPA5KZ:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "This week's evaluation review",
+                "excerpt": "This week I reviewed the Project Orion benchmark with Maya Chen and wrote an evaluation checklist. The next step is to expand the query set.",
+                "sha256": "AABFEF763ED5CDCFD10D9130AC72DD61BA4D163663DDE710AB26E4B3CF5F38DE"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 2,
+                "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CQYR4CY27CAMNN27SH:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "This week's Project Orion benchmark",
+                "excerpt": "This week I built the Project Orion retrieval benchmark and reviewed its failure cases. The benchmark compares keyword and hybrid retrieval on a human-labelled evaluation set.",
+                "sha256": "FBD24991810E933D4DB7BCA5DAC530DDB175D22EA2759559538E482F551A17EF"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 4,
+                "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM882PG4NVBDGK7V8B8YG:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "Retrieval evaluation approach",
+                "excerpt": "# Retrieval evaluation approach\n\nWe maintain a human-labelled gold set of 40 queries. We report recall@5 and precision@5. We compare keyword, semantic, and hybrid search using the same filters. We inspect missed relevant documents every week. Similarity scores alone do not establish relevance.",
+                "sha256": "FB28B55F30423CF017B2A1675462652AB79B3E5E1BF2BFFD91DD5DF0314811F8"
+              },
+              "state": "current"
+            }
+          ],
+          "invalidCitationCount": 0,
+          "warnings": [
+            "reasoning_ignored"
+          ]
+        },
+        "redacted": false
+      },
+      "checks": [
+        {
+          "number": 1,
+          "displayNumber": 1,
+          "documentId": "01M5QYM8CWBZX3BVDW1QBPA5KZ",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 2,
+          "displayNumber": 2,
+          "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 4,
+          "displayNumber": 3,
+          "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+          "exactPassage": true,
+          "hashVerified": true
+        }
+      ],
+      "noOverflow": true
+    },
+    "U6_phone": {
+      "status": "passed",
+      "width": 390,
+      "turn": {
+        "id": "01M5QYP95MWEPWV1JFXNYNNXQ5",
+        "conversationId": "01M5QYP95MH1FWBBWP1R227C73",
+        "ordinal": 1,
+        "status": "complete",
+        "mode": "chat",
+        "prompt": "Summarize everything I have read about retrieval evaluation, with footnotes to the exact supporting passages.",
+        "policy": {
+          "provider": "local-chat",
+          "model": "Qwen/Qwen3-8B",
+          "maxToolCalls": 8,
+          "maxReadDocuments": 12,
+          "maxReadBytes": 200000,
+          "maxMetadataRecords": 200,
+          "maxOutputTokens": 4096,
+          "maxHistoryMessages": 20,
+          "hourlyTokens": 200000,
+          "dailyTokens": 2000000,
+          "autoApproveNotes": false,
+          "maxHistoryBytes": 8192,
+          "maxSearches": 32,
+          "filters": null,
+          "maxContextTokens": 32768,
+          "providerEndpoint": "http://127.0.0.1:8000/v1",
+          "reasoning": null
+        },
+        "startedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "endedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "failureCode": null,
+        "answer": {
+          "text": "Retrieval evaluation involves assessing the effectiveness of information retrieval systems through metrics such as context precision and context recall. Context precision measures the relevance of retrieved context, while context recall measures how much of the needed evidence was retrieved. The evaluation combines these measurements with an inspection of missed queries [1].\n\nThe evaluation process includes maintaining a human-labelled gold set of 40 queries and reporting recall@5 and precision@5. The system compares keyword, semantic, and hybrid search methods using the same filters. Additionally, missed relevant documents are inspected every week, and similarity scores alone are not considered sufficient to establish relevance [3].\n\nThis week, the Project Orion benchmark was built and reviewed for failure cases, comparing keyword and hybrid retrieval on a human-labelled evaluation set [4]. The next step is to expand the query set after reviewing the Project Orion benchmark with Maya Chen and writing an evaluation checklist [2].",
+          "citations": [
+            {
+              "source": {
+                "number": 1,
+                "documentId": "01M5QYM8CCTZC0XPSY6BG8FAX7",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CCTZC0XPSY6BG8FAX7:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "Retrieval evaluation reading",
+                "excerpt": "# Retrieval evaluation reading\n\nThe reading distinguishes context precision from context recall. Context precision measures how much retrieved context is relevant; context recall measures how much of the needed evidence was retrieved. Our evaluation combines these measurements with inspection of missed queries.",
+                "sha256": "FF0866E5FEA68BE3A382FE2447AF18A784AE4B34ED751A9D5F22AA5935522269"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 2,
+                "documentId": "01M5QYM8CWBZX3BVDW1QBPA5KZ",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CWBZX3BVDW1QBPA5KZ:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "This week's evaluation review",
+                "excerpt": "This week I reviewed the Project Orion benchmark with Maya Chen and wrote an evaluation checklist. The next step is to expand the query set.",
+                "sha256": "AABFEF763ED5CDCFD10D9130AC72DD61BA4D163663DDE710AB26E4B3CF5F38DE"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 3,
+                "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM882PG4NVBDGK7V8B8YG:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "Retrieval evaluation approach",
+                "excerpt": "# Retrieval evaluation approach\n\nWe maintain a human-labelled gold set of 40 queries. We report recall@5 and precision@5. We compare keyword, semantic, and hybrid search using the same filters. We inspect missed relevant documents every week. Similarity scores alone do not establish relevance.",
+                "sha256": "FB28B55F30423CF017B2A1675462652AB79B3E5E1BF2BFFD91DD5DF0314811F8"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 4,
+                "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CQYR4CY27CAMNN27SH:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "This week's Project Orion benchmark",
+                "excerpt": "This week I built the Project Orion retrieval benchmark and reviewed its failure cases. The benchmark compares keyword and hybrid retrieval on a human-labelled evaluation set.",
+                "sha256": "FBD24991810E933D4DB7BCA5DAC530DDB175D22EA2759559538E482F551A17EF"
+              },
+              "state": "current"
+            }
+          ],
+          "invalidCitationCount": 0,
+          "warnings": [
+            "reasoning_ignored"
+          ]
+        },
+        "redacted": false
+      },
+      "checks": [
+        {
+          "number": 1,
+          "documentId": "01M5QYM8CCTZC0XPSY6BG8FAX7",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 2,
+          "documentId": "01M5QYM8CWBZX3BVDW1QBPA5KZ",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 3,
+          "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 4,
+          "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+          "exactPassage": true,
+          "hashVerified": true
+        }
+      ],
+      "noOverflow": true
+    },
+    "U7_phone": {
+      "status": "passed",
+      "width": 390,
+      "turn": {
+        "id": "01M5QYPTP0D71158JN7QQKBBND",
+        "conversationId": "01M5QYPTP09Z7ZPP72FGE42T5Z",
+        "ordinal": 1,
+        "status": "complete",
+        "mode": "chat",
+        "prompt": "What have I been working on this week?",
+        "policy": {
+          "provider": "local-chat",
+          "model": "Qwen/Qwen3-8B",
+          "maxToolCalls": 8,
+          "maxReadDocuments": 12,
+          "maxReadBytes": 200000,
+          "maxMetadataRecords": 200,
+          "maxOutputTokens": 4096,
+          "maxHistoryMessages": 20,
+          "hourlyTokens": 200000,
+          "dailyTokens": 2000000,
+          "autoApproveNotes": false,
+          "maxHistoryBytes": 8192,
+          "maxSearches": 32,
+          "filters": null,
+          "maxContextTokens": 32768,
+          "providerEndpoint": "http://127.0.0.1:8000/v1",
+          "reasoning": null
+        },
+        "startedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "endedAt": "2026-10-24T21:56:16.3860808+00:00",
+        "failureCode": null,
+        "answer": {
+          "text": "This week, you have been working on the following tasks:\n\n1. Reviewed the Project Orion benchmark with Maya Chen and wrote an evaluation checklist. The next step is to expand the query set [1].\n2. Built the Project Orion retrieval benchmark and reviewed its failure cases. The benchmark compares keyword and hybrid retrieval on a human-labelled evaluation set [2].\n3. Inspected missed relevant documents every week as part of the retrieval evaluation approach [4].",
+          "citations": [
+            {
+              "source": {
+                "number": 1,
+                "documentId": "01M5QYM8CWBZX3BVDW1QBPA5KZ",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CWBZX3BVDW1QBPA5KZ:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "This week's evaluation review",
+                "excerpt": "This week I reviewed the Project Orion benchmark with Maya Chen and wrote an evaluation checklist. The next step is to expand the query set.",
+                "sha256": "AABFEF763ED5CDCFD10D9130AC72DD61BA4D163663DDE710AB26E4B3CF5F38DE"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 2,
+                "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM8CQYR4CY27CAMNN27SH:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "This week's Project Orion benchmark",
+                "excerpt": "This week I built the Project Orion retrieval benchmark and reviewed its failure cases. The benchmark compares keyword and hybrid retrieval on a human-labelled evaluation set.",
+                "sha256": "FBD24991810E933D4DB7BCA5DAC530DDB175D22EA2759559538E482F551A17EF"
+              },
+              "state": "current"
+            },
+            {
+              "source": {
+                "number": 4,
+                "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+                "revision": 1,
+                "generation": "{\"chunker\":1,\"extractor\":1,\"normalization\":1}",
+                "chunkId": "01M5QYM882PG4NVBDGK7V8B8YG:0",
+                "ordinal": 0,
+                "page": null,
+                "title": "Retrieval evaluation approach",
+                "excerpt": "# Retrieval evaluation approach\n\nWe maintain a human-labelled gold set of 40 queries. We report recall@5 and precision@5. We compare keyword, semantic, and hybrid search using the same filters. We inspect missed relevant documents every week. Similarity scores alone do not establish relevance.",
+                "sha256": "FB28B55F30423CF017B2A1675462652AB79B3E5E1BF2BFFD91DD5DF0314811F8"
+              },
+              "state": "current"
+            }
+          ],
+          "invalidCitationCount": 0,
+          "warnings": [
+            "reasoning_ignored"
+          ]
+        },
+        "redacted": false
+      },
+      "checks": [
+        {
+          "number": 1,
+          "displayNumber": 1,
+          "documentId": "01M5QYM8CWBZX3BVDW1QBPA5KZ",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 2,
+          "displayNumber": 2,
+          "documentId": "01M5QYM8CQYR4CY27CAMNN27SH",
+          "exactPassage": true,
+          "hashVerified": true
+        },
+        {
+          "number": 4,
+          "displayNumber": 3,
+          "documentId": "01M5QYM882PG4NVBDGK7V8B8YG",
+          "exactPassage": true,
+          "hashVerified": true
+        }
+      ],
+      "noOverflow": true
+    }
+  },
+  "restart": {
+    "status": "passed",
+    "freshServerRestart": true,
+    "draftRetainedBeforeReload": true,
+    "explicitReload": true,
+    "storedNoteUnchanged": true,
+    "sameSession": true,
+    "conversationsRetained": true,
+    "conversationCount": 6
+  },
+  "login": {
+    "phoneLogin": true,
+    "overflow": false,
+    "session": 200
+  },
+  "limitations": [
+    "Small synthetic corpus; this does not establish universal model accuracy.",
+    "The catalog binding reported the requested reasoning preference as ignored.",
+    "Restart recreated the server instance over retained state and signing keys; the deployed daemon process restart is separately recorded in deployment evidence."
+  ]
+}

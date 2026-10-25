@@ -68,6 +68,15 @@ public sealed class CliAssistantTests
     }
 
     [Fact]
+    public async Task NativeCitationsPrintTheirExactQuotesInsteadOfTheWholePassage()
+    {
+        var turn=Turn();var source=turn.Answer!.Citations[0].Source;
+        using var handler=new AssistantHandler {Final=turn with {Answer=turn.Answer with {Citations=[new(source,Spans:[new(10,20,"Blue Otter","hash")])]}}};
+        var output=new StringWriter();Assert.Equal(0,await Cli.Program.RunAsync(["ask","question"],Services(handler),output,new StringWriter()));
+        Assert.Contains("Blue Otter",output.ToString());Assert.DoesNotContain("Codename:",output.ToString());
+    }
+
+    [Fact]
     public async Task ChatReplaysWithoutRepeatingDeltasAndContinuesThenStartsNewConversation()
     {
         using var handler = new AssistantHandler { Reconnect = true };

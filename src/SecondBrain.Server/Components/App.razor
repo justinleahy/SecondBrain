@@ -4,14 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <base href="/" />
+  <meta name="secondbrain-style-nonce" content="@(HttpContext?.Items[SecondBrain.Server.Http.RequestPolicyMiddleware.StyleNonceItem])" />
   <link rel="stylesheet" href="SecondBrain.Server.styles.css" />
   <link rel="stylesheet" href="app.css" />
+  <link rel="stylesheet" href="editor/editor.css" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 <body>
   <Routes @rendermode="InteractiveServer" />
-  <script src="_framework/blazor.web.js"></script>
+  <ReconnectModal />
+  <script src="reconnect.js"></script>
   <script src="chat.js"></script>
+  <script src="browser-api.js"></script>
+  <script src="_framework/blazor.web.js"></script>
 </body>
 </html>
+@code {
+    [CascadingParameter] public HttpContext? HttpContext { get; set; }
+}

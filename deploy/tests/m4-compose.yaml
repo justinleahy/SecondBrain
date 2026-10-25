@@ -1,0 +1,12 @@
+# Separate tags keep M4 qualification from replacing images used by other stacks.
+services:
+  daemon:
+    image: secondbrain:m4
+  provision:
+    image: secondbrain:m4
+  extractor:
+    image: secondbrain-extractor:m4
+  egress:
+    image: secondbrain-egress:m4
+  mock-provider:
+    image: secondbrain-mock-provider:m4

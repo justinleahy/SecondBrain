@@ -1,0 +1,107 @@
+{
+  "configuration": "Release",
+  "scope": "Isolated loopback fixture; not VPN/Cloudflare acceptance",
+  "results": {
+    "chunking": {
+      "status": "passed",
+      "chunking": [
+        {
+          "width": 1280,
+          "settingsPersisted": true,
+          "oldChunks": 14,
+          "newChunks": 107,
+          "authoredContentRetained": true,
+          "revisionRetained": true,
+          "semanticSearchRecovered": true,
+          "invalidBoundsRejected": true
+        },
+        {
+          "width": 390,
+          "settingsPersisted": true,
+          "oldChunks": 107,
+          "newChunks": 54,
+          "authoredContentRetained": true,
+          "revisionRetained": true,
+          "semanticSearchRecovered": true,
+          "invalidBoundsRejected": true
+        }
+      ],
+      "restoredDefaultProfile": true
+    },
+    "editor_pdf_csp": {
+      "status": "passed",
+      "editor": [
+        {
+          "width": 1280,
+          "monaco": true,
+          "linkCompletion": true,
+          "tagCompletion": true,
+          "peopleCompletion": true,
+          "plainTextRoundTrip": true,
+          "draftGuard": true,
+          "aliases": true,
+          "history": true,
+          "revisionSave": true
+        },
+        {
+          "width": 390,
+          "monaco": true,
+          "linkCompletion": true,
+          "tagCompletion": true,
+          "peopleCompletion": true,
+          "plainTextRoundTrip": true,
+          "draftGuard": true,
+          "aliases": true,
+          "history": true,
+          "revisionSave": true
+        }
+      ],
+      "pdfPageSelection": true,
+      "pdfMarkupEscaped": true,
+      "inlineScriptBlocked": true,
+      "remoteImageBlocked": true
+    },
+    "reconnect": {
+      "status": "passed",
+      "reconnect": [
+        {
+          "width": 1280,
+          "transportInterrupted": true,
+          "rejoined": true,
+          "draftRetainedAndSaved": true,
+          "rejectedStateControls": true,
+          "actualDaemonRestartTested": false
+        },
+        {
+          "width": 390,
+          "transportInterrupted": true,
+          "rejoined": true,
+          "draftRetainedAndSaved": true,
+          "rejectedStateControls": true,
+          "actualDaemonRestartTested": false
+        }
+      ]
+    },
+    "existing_workflows": {
+      "highlighted": [
+        "Retrieval",
+        "retrieval"
+      ],
+      "passage": true,
+      "scriptBlocked": true,
+      "conflictPreserved": true,
+      "mergedSave": true,
+      "mobileCapture": true,
+      "mobileNoOverflow": true,
+      "settingsAndJobs": true,
+      "stepUpReload": true,
+      "signOut": true
+    },
+    "session_lifecycle": {
+      "directLoads": 9,
+      "revokedIdleCircuitClosedMilliseconds": 1912,
+      "independentSessionPreserved": true,
+      "revokedCredentialRejected": true
+    }
+  }
+}

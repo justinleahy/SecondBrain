@@ -16,7 +16,14 @@ public sealed class DescriptorExtractorClient(string socketPath) : IExtractorCli
         return new ValueTask<ExtractionResult>(Task.Run(() => Extract(file, formatHint, cancellationToken), cancellationToken));
     }
 
-    private ExtractionResult Extract(FileStream file, string hint, CancellationToken token)
+    public ValueTask<ExtractionResult> ExtractCalendarAsync(Stream stagedInput, CalendarWindow window, CancellationToken cancellationToken = default)
+    {
+        window.Validate();
+        if (stagedInput is not FileStream file) throw new ArgumentException("Extraction requires a staged file descriptor.", nameof(stagedInput));
+        return new ValueTask<ExtractionResult>(Task.Run(() => Extract(file, ".ics", cancellationToken, window), cancellationToken));
+    }
+
+    private ExtractionResult Extract(FileStream file, string hint, CancellationToken token, CalendarWindow? calendarWindow = null)
     {
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
         deadline.CancelAfter(TimeSpan.FromSeconds(120));
@@ -26,7 +33,8 @@ public sealed class DescriptorExtractorClient(string socketPath) : IExtractorCli
             UnixDescriptorTransport.RequireReadOnlyRegularFile(file.SafeFileHandle);
             socket.ConnectAsync(new UnixDomainSocketEndPoint(socketPath), deadline.Token).AsTask().GetAwaiter().GetResult();
             var id = Guid.NewGuid().ToString("N");
-            UnixDescriptorTransport.Send(socket, ExtractorProtocol.Serialize(new ExtractorRequest(id, "extract_v2", FormatHint: hint)), file.SafeFileHandle, deadline.Token);
+            UnixDescriptorTransport.Send(socket, ExtractorProtocol.Serialize(new ExtractorRequest(id, "extract_v2", FormatHint: hint,
+                CalendarFrom: calendarWindow?.From, CalendarTo: calendarWindow?.To, CalendarTimeZone: calendarWindow?.TimeZone, CalendarMaxOccurrences: calendarWindow?.MaxOccurrences)), file.SafeFileHandle, deadline.Token);
             using var output = new MemoryStream();
             for (var sequence = 0; sequence < 1024; sequence++)
             {
@@ -41,7 +49,14 @@ public sealed class DescriptorExtractorClient(string socketPath) : IExtractorCli
                 var result = JsonSerializer.Deserialize<ExtractionResult>(output.GetBuffer().AsSpan(0, checked((int)output.Length)), ExtractorProtocol.ResultJsonOptions) ?? throw new InvalidDataException();
                 if (result.LosslessText is null || Encoding.UTF8.GetByteCount(result.LosslessText) > 10 * 1024 * 1024 || (result.Tags?.Count ?? 0) + (result.Aliases?.Count ?? 0) > 200 || result.Links?.Count > 200 || result.Pages?.Count > 2000) return Failure("output_bounds");
                 if (result.DeclaredCreatedAt?.Length > 128 || result.DeclaredUpdatedAt?.Length > 128 || result.Aliases?.Any(value => value is null || value.Length > 4096) == true || result.Title?.Length > 4096 || result.DeclaredType?.Length > 128 || result.Tags?.Any(value => value is null || value.Length > 4096) == true || result.Links?.Any(value => value is null || value.Length > 4096) == true || result.Properties is not null && JsonSerializer.SerializeToUtf8Bytes(result.Properties).Length > 65536) return Failure("metadata_bytes");
-                if (result.PhysicalFormat is not ("markdown" or "text" or "pdf" or "html" or "docx" or "unknown") || result.MimeType is null || result.MimeType.Length > 128) throw new InvalidDataException();
+                if (result.PhysicalFormat is not ("markdown" or "text" or "pdf" or "html" or "docx" or "vtt" or "srt" or "calendar" or "unknown") || result.MimeType is null || result.MimeType.Length > 128) throw new InvalidDataException();
+                if (result.Calendar is { } calendar)
+                {
+                    calendar.Validate();
+                    if (calendarWindow is null || calendar.Window.Validate() != calendarWindow.Validate() || calendar.Window.MaxOccurrences != calendarWindow.MaxOccurrences) throw new InvalidDataException();
+                }
+                if (calendarWindow is not null && result.Status == "extracted" && result.Calendar is null) throw new InvalidDataException();
+                if (!TranscriptSegments.IsValid(result.LosslessText, result.Segments)) throw new InvalidDataException();
                 if (result.Status is not ("extracted" or "needs_ocr" or "failed" or "skipped")) throw new InvalidDataException();
                 if (result.Pages is not null && result.Pages.Any(page => page.Number < 1 || page.Start < 0 || page.Length < 0 || (long)page.Start + page.Length > result.LosslessText.Length)) throw new InvalidDataException();
                 return result;
@@ -49,7 +64,7 @@ public sealed class DescriptorExtractorClient(string socketPath) : IExtractorCli
             return Failure("output_chunks");
         }
         catch (OperationCanceledException) when (!token.IsCancellationRequested) { return new("skipped", "unknown", "application/octet-stream", "", Error: "bound_exceeded", Bound: "extraction_deadline"); }
-        catch (Exception exception) when (exception is IOException or InvalidDataException or SocketException or JsonException or FormatException or InvalidOperationException)
+        catch (Exception exception) when (exception is IOException or InvalidDataException or SocketException or JsonException or FormatException or InvalidOperationException or ArgumentException or TimeZoneNotFoundException or InvalidTimeZoneException)
         { return new("failed", "unknown", "application/octet-stream", "", Error: "extractor_protocol_failed"); }
     }
     private static ExtractionResult Failure(string bound) => new("skipped", "unknown", "application/octet-stream", "", Error: "bound_exceeded", Bound: bound);

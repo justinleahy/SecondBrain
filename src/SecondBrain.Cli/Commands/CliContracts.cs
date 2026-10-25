@@ -103,9 +103,23 @@ public sealed class DaemonCommandException(CliResult result) : Exception(result.
 /// <summary>M1 capture and retrieval through the daemon's HTTP API with a stored key.</summary>
 public interface IKnowledgeCommands
 {
+    Task<CliResult> EnrichAsync(string id, CancellationToken token) => throw new NotSupportedException("Enrichment is unavailable.");
+    Task<CliResult> ReadUsageAsync(DateTimeOffset? from, DateTimeOffset? to, CancellationToken token) => throw new NotSupportedException("Usage reporting is unavailable.");
+    Task<CliResult> BackupAsync(string? destination, CancellationToken token) => throw new NotSupportedException("Backup maintenance is unavailable.");
+    Task<CliResult> ExportAsync(string? destination, CancellationToken token) => throw new NotSupportedException("Export maintenance is unavailable.");
+    Task<CliResult> RunRetentionAsync(CancellationToken token) => throw new NotSupportedException("Retention maintenance is unavailable.");
     Task<CliResult> AddAsync(string path, CaptureRequest metadata, int wait, string? idempotencyKey, TextReader input, CancellationToken cancellationToken);
     Task<CliResult> SearchAsync(SearchRequest request, CancellationToken cancellationToken);
     Task<CliResult> QueryAsync(QueryRequest request, CancellationToken cancellationToken);
+}
+
+public interface ISourceCommands
+{
+    Task<CliResult> AddCalendarAsync(string name, string url, int interval, bool enabled, CancellationToken token);
+    Task<CliResult> ListSourcesAsync(CancellationToken token);
+    Task<CliResult> ScanSourceAsync(string id, bool deep, CancellationToken token);
+    Task<CliResult> SetSourceEnabledAsync(string id, bool enabled, CancellationToken token);
+    Task<CliResult> RemoveSourceAsync(string id, CancellationToken token, bool purge = false);
 }
 
 public interface IAssistantCommands

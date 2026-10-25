@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-24",
+  "scope": "Initial standalone calendar parser; not connected to ingestion, storage, queries or subscriptions",
+  "package": "Ical.Net 5.2.3",
+  "lockedRestore": true,
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "tests": [
+    {
+      "result": "_DESKTOP-8NJSRF2_2026-10-24_19_13_56.trx",
+      "counts": {
+        "total": "800",
+        "executed": "800",
+        "passed": "800",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "a5da75e6258383c7bf1eb1aec0d85bf618035a9f29a321862bee085b21c2928a"
+    }
+  ],
+  "pending": [
+    "Complete exception inheritance and custom time-zone fidelity",
+    "Wire coverage/time-zone request through the descriptor protocol",
+    "Container reconciliation and recovery",
+    "Calendar occurrence queries and coverage",
+    "Protected source subscriptions and live qualification"
+  ],
+  "sourceSha256": {
+    "Directory.Packages.props": "ecf7646394093c0c96a456f3dd5c74aa0eaf0634b78ed704aa7346f99e60ca86",
+    "src/SecondBrain.Extractor/SecondBrain.Extractor.csproj": "1dcffeb773057ce3458942b2837bcdc2531f6f57cfd4b1e91d0c687eeca18862",
+    "src/SecondBrain.Extractor/packages.lock.json": "92f1a3444950e99ab5544ec8f6f950b771999c45df4b14e8e872a1a2a730ae67",
+    "src/SecondBrain.Extraction.Contracts/CalendarSnapshot.cs": "486b794f3643b8e1ae3859f13b0c8ed9fe9cf04f782783292bb59dd6adf99b3c",
+    "src/SecondBrain.Extractor/CalendarParser.cs": "c4c926c34240397f2673478b24529708b9c6ea94913abbb265ba0a7f8f9ad299",
+    "tests/SecondBrain.Extractor.Tests/CalendarParserTests.cs": "1597f3a01c5ba96aeadf4c7d90d087117a72e39377c24e4fba47442a48a8aaae"
+  },
+  "architectureTests": {
+    "passed": 63,
+    "failed": 0
+  }
+}

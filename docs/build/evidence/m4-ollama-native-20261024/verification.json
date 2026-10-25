@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-24",
+  "scope": "Native Ollama adapter checkpoint; not full M4 acceptance",
+  "configuration": "Debug",
+  "lockedRestore": "passed",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 2441,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 202,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 818,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 89,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 225,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 475,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 396,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "newAdapterTests": 16,
+  "liveQualification": "live-ollama.json",
+  "liveServiceVersion": "0.33.3",
+  "packageAdvisories": "No known vulnerabilities listed by NuGet for the restored dependency graph at this check",
+  "logHashes": {
+    "restore": "3e2723025be8bf52493f06c070d15b26bc305bc3ebb8f9592cfa2a4cfbe9d3a6",
+    "build": "65d925cf406a75610df069f52678f6a4289d5bb207e20f2d1dc28f510d77961b",
+    "tests": "25299c5f0f9fdcad7fd7ec7fa28fdf4966d2cc663b23e372687236edc4170648",
+    "advisories": "3196172f5c5e8c3bfb2271c612b4f2aced3a24fbc7b37ab6efb8109086d41168"
+  },
+  "productionChanged": false,
+  "limitations": [
+    "Native embedding HTTP contracts were checked against controlled responses; no real native embedding model was installed or tested.",
+    "OpenAI native batch, Anthropic, operational release and remaining real-export acceptance are open."
+  ]
+}

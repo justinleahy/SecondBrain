@@ -18,4 +18,14 @@
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="YamlDotNet" />
   </ItemGroup>
+  <!-- A plain SDK project copies the referenced server binaries, but not its Web SDK
+       publish assets. Publish the server into the same bundle so brain serve has
+       the exact web assets and endpoints manifest produced for that server. -->
+  <Target Name="PublishBundledServer" AfterTargets="Publish">
+    <PropertyGroup>
+      <BundledServerPublishDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(PublishDir)'))</BundledServerPublishDir>
+    </PropertyGroup>
+    <MSBuild Projects="../SecondBrain.Server/SecondBrain.Server.csproj" Targets="Publish"
+             Properties="PublishDir=$(BundledServerPublishDir);Configuration=$(Configuration);RuntimeIdentifier=$(RuntimeIdentifier);SelfContained=$(SelfContained)" />
+  </Target>
 </Project>

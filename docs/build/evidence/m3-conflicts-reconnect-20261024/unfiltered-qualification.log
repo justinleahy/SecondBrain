@@ -1,0 +1,154 @@
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Debug/net10.0/SecondBrain.Server.dll
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/bin/Debug/net10.0/brain.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Debug/net10.0/SecondBrain.Extractor.dll
+  SecondBrain.MockProvider -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/bin/Debug/net10.0/SecondBrain.MockProvider.dll
+  SecondBrain.Architecture.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_28_06.trx
+
+Passed!  - Failed:     0, Passed:    63, Skipped:     0, Total:    63, Duration: 75 ms - SecondBrain.Architecture.Tests.dll (net10.0)
+  SecondBrain.Core.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_28_09.trx
+
+Passed!  - Failed:     0, Passed:   166, Skipped:     0, Total:   166, Duration: 6 s - SecondBrain.Core.Tests.dll (net10.0)
+  SecondBrain.Deploy.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_28_19.trx
+
+Passed!  - Failed:     0, Passed:   161, Skipped:     0, Total:   161, Duration: 9 s - SecondBrain.Deploy.Tests.dll (net10.0)
+  SecondBrain.Extractor.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.47]     SecondBrain.Extractor.Tests.DistinctIdentityStagingTests.ConcurrentSyncIdentityCannotRedirectStagingOrReadPrivateStage [FAIL]
+  Failed SecondBrain.Extractor.Tests.DistinctIdentityStagingTests.ConcurrentSyncIdentityCannotRedirectStagingOrReadPrivateStage [8 ms]
+  Error Message:
+   System.InvalidOperationException : Run deploy/tests/distinct-identity-staging.sh.
+  Stack Trace:
+     at SecondBrain.Extractor.Tests.DistinctIdentityStagingTests.ConcurrentSyncIdentityCannotRedirectStagingOrReadPrivateStage() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/DistinctIdentityStagingTests.cs:line 13
+--- End of stack trace from previous location ---
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_28_32.trx
+
+Failed!  - Failed:     1, Passed:   780, Skipped:     0, Total:   781, Duration: 1 s - SecondBrain.Extractor.Tests.dll (net10.0)
+  SecondBrain.Infrastructure.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_28_36.trx
+
+Passed!  - Failed:     0, Passed:    83, Skipped:     0, Total:    83, Duration: 687 ms - SecondBrain.Infrastructure.Tests.dll (net10.0)
+  SecondBrain.Providers.OpenAICompatible.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_28_40.trx
+
+Passed!  - Failed:     0, Passed:    72, Skipped:     0, Total:    72, Duration: 2 s - SecondBrain.Providers.OpenAICompatible.Tests.dll (net10.0)
+  SecondBrain.Server.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.32]     SecondBrain.Server.Tests.ChatQualityEvaluationTests.RecordLocalProvider [FAIL]
+  Failed SecondBrain.Server.Tests.ChatQualityEvaluationTests.RecordLocalProvider [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "1"
+Actual:   null
+  Stack Trace:
+     at SecondBrain.Server.Tests.ChatQualityEvaluationTests.RecordLocalProvider() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/ChatQualityEvaluationTests.cs:line 29
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:04.17]     SecondBrain.Server.Tests.KnowledgeBrowserQualification.BrowserWorkflows [FAIL]
+[xUnit.net 00:00:04.17]     SecondBrain.Server.Tests.ChatBrowserQualification.LocalBrowserAndProvider [FAIL]
+  Failed SecondBrain.Server.Tests.KnowledgeBrowserQualification.BrowserWorkflows [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "1"
+Actual:   null
+  Stack Trace:
+     at SecondBrain.Server.Tests.KnowledgeBrowserQualification.BrowserWorkflows() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/KnowledgeBrowserQualification.cs:line 23
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Server.Tests.ChatBrowserQualification.LocalBrowserAndProvider [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "1"
+Actual:   null
+  Stack Trace:
+     at SecondBrain.Server.Tests.ChatBrowserQualification.LocalBrowserAndProvider() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/ChatBrowserQualification.cs:line 20
+--- End of stack trace from previous location ---
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_28_46.trx
+
+Failed!  - Failed:     3, Passed:   343, Skipped:     0, Total:   346, Duration: 44 s - SecondBrain.Server.Tests.dll (net10.0)
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:32.62]     SecondBrain.Storage.Tests.RetrievalScaleQualification.SyntheticMillionChunkRetrievalReportsWarmLatency [FAIL]
+  Failed SecondBrain.Storage.Tests.RetrievalScaleQualification.SyntheticMillionChunkRetrievalReportsWarmLatency [32 s]
+  Error Message:
+   System.ObjectDisposedException : Cannot access a disposed object.
+Object name: 'SecondBrain.Storage.Connections.BoundedConnection'.
+  Stack Trace:
+     at SecondBrain.Storage.Connections.BoundedConnection.Run[T](Func`1 action, CancellationToken cancellationToken, Boolean startStatement, Nullable`1 statementDeadline) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Connections/BoundedConnection.cs:line 43
+   at SecondBrain.Storage.Connections.BoundedConnection.CreateDbCommand() in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Connections/BoundedConnection.cs:line 115
+   at SecondBrain.Storage.Retrieval.VectorSnapshotRegistry.AcquireAsync(DbConnection connection, DbTransaction transaction, String spaceId, Int32 dimensions, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/VectorSnapshotRegistry.cs:line 108
+   at SecondBrain.Storage.Retrieval.SqliteRetrievalRepository.SearchAsync(SearchRequest request, Single[] queryVector, String spaceId, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs:line 148
+   at SecondBrain.Storage.Retrieval.SqliteRetrievalRepository.SearchAsync(SearchRequest request, Single[] queryVector, String spaceId, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs:line 221
+   at SecondBrain.Storage.Retrieval.SqliteRetrievalRepository.SearchAsync(SearchRequest request, Single[] queryVector, String spaceId, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs:line 221
+   at SecondBrain.Storage.Tests.RetrievalScaleQualification.RunAsync(Boolean representative) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/RetrievalScaleQualification.cs:line 116
+   at SecondBrain.Storage.Tests.RetrievalScaleQualification.RunAsync(Boolean representative) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/RetrievalScaleQualification.cs:line 146
+--- End of stack trace from previous location ---
+  Standard Output Messages:
+ seed_seconds=16.306; 100000 documents; 1000000 chunks; 1024 dimensions; profile=broad_allterm; palette=256; projected generations/text/offsets/sources; temporary filesystem=/tmp/secondbrain-migrations-df57451319e64a1bb4163ff4112ff3fe
+
+
+[xUnit.net 00:01:10.86]     SecondBrain.Storage.Tests.RetrievalScaleQualification.RecordedSeedMillionChunkRetrievalReportsWarmLatency [FAIL]
+  Failed SecondBrain.Storage.Tests.RetrievalScaleQualification.RecordedSeedMillionChunkRetrievalReportsWarmLatency [38 s]
+  Error Message:
+   System.ObjectDisposedException : Cannot access a disposed object.
+Object name: 'SecondBrain.Storage.Connections.BoundedConnection'.
+  Stack Trace:
+     at SecondBrain.Storage.Connections.BoundedConnection.Run[T](Func`1 action, CancellationToken cancellationToken, Boolean startStatement, Nullable`1 statementDeadline) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Connections/BoundedConnection.cs:line 43
+   at SecondBrain.Storage.Connections.BoundedConnection.CreateDbCommand() in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Connections/BoundedConnection.cs:line 115
+   at SecondBrain.Storage.Retrieval.VectorSnapshotRegistry.AcquireAsync(DbConnection connection, DbTransaction transaction, String spaceId, Int32 dimensions, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/VectorSnapshotRegistry.cs:line 108
+   at SecondBrain.Storage.Retrieval.SqliteRetrievalRepository.SearchAsync(SearchRequest request, Single[] queryVector, String spaceId, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs:line 148
+   at SecondBrain.Storage.Retrieval.SqliteRetrievalRepository.SearchAsync(SearchRequest request, Single[] queryVector, String spaceId, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs:line 221
+   at SecondBrain.Storage.Retrieval.SqliteRetrievalRepository.SearchAsync(SearchRequest request, Single[] queryVector, String spaceId, CancellationToken cancellationToken) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs:line 221
+   at SecondBrain.Storage.Tests.RetrievalScaleQualification.RunAsync(Boolean representative) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/RetrievalScaleQualification.cs:line 116
+   at SecondBrain.Storage.Tests.RetrievalScaleQualification.RunAsync(Boolean representative) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/RetrievalScaleQualification.cs:line 146
+--- End of stack trace from previous location ---
+  Standard Output Messages:
+ seed_seconds=22.557; 100000 documents; 1000000 chunks; 1024 dimensions; profile=recorded_seed; palette=32; projected generations/text/offsets/sources; temporary filesystem=/tmp/secondbrain-migrations-d5b5888deff24737b47d673151e47e72
+
+
+Results File: /tmp/m3-conflicts-regression/_DESKTOP-8NJSRF2_2026-10-24_17_29_32.trx
+
+Failed!  - Failed:     2, Passed:   277, Skipped:     0, Total:   279, Duration: 1 m 10 s - SecondBrain.Storage.Tests.dll (net10.0)

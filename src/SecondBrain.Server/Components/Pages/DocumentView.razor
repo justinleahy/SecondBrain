@@ -1,0 +1,187 @@
+@page "/library/{Id}"
+@inherits BrowserPage
+@using SecondBrain.Core.Ingestion
+@inject NavigationManager Navigation
+@inject Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions> Options
+
+<PageTitle>@(document?.Title ?? "Document") · SecondBrain</PageTitle>
+<KnowledgeNav />
+<main class="knowledge-page document-page">
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (document is not null)
+    {
+        <header class="knowledge-heading"><div><span class="knowledge-eyebrow">@document.Type · @document.Status</span><h1>@document.Title</h1><p>Revision @document.Revision · updated @document.UpdatedAt</p></div><a href="@("/library/" + Uri.EscapeDataString(Id) + "/edit")">Edit</a></header>
+        @if (Revision is not null && Revision != document.Revision) { <p class="knowledge-notice">This document has changed. Showing revision @document.Revision; the linked passage was from revision @Revision.</p> }
+        <p class="knowledge-tags">@string.Join(" · ", document.Tags ?? [])</p>
+        @if (confirmDelete)
+        {
+            <p class="knowledge-notice">Move this document to trash? It will be hidden from search and automatic reimport until restored.</p>
+            @if (document.Type == "file" && metadata?.Mime == "text/calendar") { <p class="knowledge-notice">Its calendar events will also be hidden. Any subscription will pause until you restore the calendar and resume it in Sources.</p> }
+            <button disabled="@Busy" @onclick="DeleteAsync">Confirm move to trash</button><button @onclick="() => confirmDelete = false">Cancel</button>
+        }
+        else { <button disabled="@Busy" @onclick="() => confirmDelete = true">Move to trash</button> }
+        <button disabled="@(Busy || !Options.CurrentValue.Enrichment.Enabled)" @onclick="EnrichAsync">Enrich document</button>
+        @if (enrichmentNotice is not null) { <p role="status">@enrichmentNotice <button disabled="@Busy" @onclick="() => RunAsync(LoadAsync)">Refresh document</button></p> }
+        @if (metadata?.Enrichment is { } enrichment)
+        {
+            <section class="knowledge-card" aria-label="Model suggestions">
+                <h2>Model suggestions</h2><p>@enrichment.Summary</p>
+                @if (enrichment.WrittenBack) { <p>Summary and suggested tags saved in this file.</p> }
+                @if (enrichment.Tags.Length > 0) { <p>Suggested tags: @string.Join(" · ", enrichment.Tags)</p> }
+                @if (enrichment.Mentions.Length > 0)
+                { <h3>Mentions</h3><ul>@foreach (var mention in enrichment.Mentions) { <li>@mention.Text <small>(@mention.Kind)</small></li> }</ul> }
+                @if (enrichment.SuggestedLinks.Length > 0)
+                { <h3>Suggested links</h3><ul>@foreach (var link in enrichment.SuggestedLinks) { <li><a href="@("/library?q=" + Uri.EscapeDataString(link.Target))">@link.Target</a> — @link.Reason</li> }</ul> }
+            </section>
+        }
+        <details><summary>Properties and provenance</summary><pre>@document.PropsJson</pre><p>@document.Provenance</p></details>
+        @if (metadata is not null)
+        {
+            <dl class="document-metadata"><dt>Source</dt><dd>@metadata.SourceName</dd><dt>Type origin</dt><dd>@(metadata.TypeOrigin == "llm" ? "Model" : metadata.TypeOrigin)</dd><dt>Format</dt><dd>@metadata.Mime</dd><dt>Created</dt><dd>@metadata.CreatedAt</dd>
+            @if (metadata.OccurredAt is not null) { <dt>Occurred</dt><dd>@metadata.OccurredAt · @metadata.OccurredBasis · @metadata.OccurredPrecision</dd> }
+            @if (metadata.Aliases.Count > 0) { <dt>Aliases</dt><dd>@string.Join(" · ", metadata.Aliases)</dd> }
+            @if (metadata.TypeConfidence is { } confidence) { <dt>Classification confidence</dt><dd>@((confidence * 100).ToString("0.#"))%</dd> }
+            </dl>
+            <ul class="document-tags" aria-label="Tags with origins">@foreach (var tag in metadata.Tags) { <li>@tag.Tag <small>(@tag.Origin)</small></li> }</ul>
+            @if (metadata.SourceUrl is not null) { <p>Source: @if (SafeUrl(metadata.SourceUrl)) { <a href="@metadata.SourceUrl" target="_blank" rel="noopener noreferrer" data-enhance-nav="false">@metadata.SourceUrl</a> } else { @metadata.SourceUrl }</p> }
+            @if (metadata.PropsOriginalJson != document.PropsJson) { <details><summary>Original properties</summary><pre>@metadata.PropsOriginalJson</pre></details> }
+        }
+        @if (document.Path is not null) { <p><a href="@("/files/" + Uri.EscapeDataString(Id))" data-enhance-nav="false" download>Download original</a></p> }
+        <label class="knowledge-toggle"><input type="checkbox" @bind="lossless" /> Show lossless text</label>
+        @if (lossless) { <pre class="document-text">@document.Text</pre> }
+        else if (document.Type == "calendar_event")
+        {
+            var properties = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(document.PropsJson);
+            <section class="document-passage" aria-label="Calendar event">
+                <h2>@(CalendarProperty(properties, "status") == "cancelled" ? "Cancelled event" : "Event details")</h2>
+                @if (properties.TryGetProperty("all_day", out var allDay) && allDay.ValueKind == System.Text.Json.JsonValueKind.True) { <p>All-day event</p> }
+                <p><strong>@CalendarDate(CalendarProperty(properties, "starts_at"))</strong> – @CalendarDate(CalendarProperty(properties, "ends_at"))</p>
+                @if (CalendarProperty(properties, "location") is { } location) { <p>Location: @location</p> }
+                @if (CalendarProperty(properties, "organizer") is { } organizer) { <p>Organizer: @organizer</p> }
+                @if (properties.TryGetProperty("attendees", out var attendees) && attendees.ValueKind == System.Text.Json.JsonValueKind.Array) { <p>Attendees: @string.Join(", ", attendees.EnumerateArray().Select(value => value.GetString()))</p> }
+                <p class="document-text">@document.Text</p>
+                @if (metadata?.Calendar is { } calendar)
+                {
+                    <p>Imported occurrences cover @CalendarDate(calendar.From) through @CalendarDate(calendar.To).</p>
+                    @if (calendar.DuplicateCalendars > 0) { <p class="knowledge-notice">This event also appears in @calendar.DuplicateCalendars other imported calendar(s).</p> }
+                    @if (calendar.Occurrences.Count > 1 || properties.TryGetProperty("rrule", out _))
+                    {
+                        <h3>Repeating event</h3>
+                        <ul>@foreach (var occurrence in calendar.Occurrences) { <li>@CalendarDate(occurrence.StartsAt) – @CalendarDate(occurrence.EndsAt) · @occurrence.Status</li> }</ul>
+                        @if (calendar.Truncated) { <p>More occurrences are available through calendar queries.</p> }
+                    }
+                }
+            </section>
+        }
+        else if (document.Type == "transcript" && document.Segments is { Count: > 0 } && document.Text is not null)
+        {
+            @foreach (var segment in document.Segments)
+            {
+                var selected = document.Chunks?.FirstOrDefault(item => item.Id == Chunk)?.Transcript;
+                <section id="@("segment-" + segment.Ordinal)" class="document-passage @(selected is not null && segment.Ordinal >= selected.From && segment.Ordinal <= selected.To && (Revision is null || Revision == document.Revision) ? "selected-passage" : "")">
+                    <h2><a href="@(Navigation.Uri.Split('#')[0] + "#segment-" + segment.Ordinal)">@TranscriptTextProcessor.Timestamp(segment.StartMs)</a> · @(segment.Speaker ?? "Unknown speaker")</h2>
+                    <p class="document-text">@document.Text.Substring(segment.Start, segment.Length)</p>
+                </section>
+            }
+        }
+        else if (metadata?.Pages.Count > 0 && document.Text is not null)
+        {
+            @foreach (var page in metadata.Pages)
+            {
+                var ranges = PageHighlight(page);
+                <section id="@("pdf-page-" + page.Number)" class="document-passage @(ranges.Count > 0 ? "selected-passage" : "")">
+                    <h2>Page @(page.Number)</h2>
+                    <p class="document-text"><HighlightedText Text="@PageText(page)" Ranges="ranges" /></p>
+                </section>
+            }
+        }
+        else if (document.Chunks is { Count: > 0 } && (Chunk is not null || document.Chunks.Any(item => item.Page is not null)))
+        {
+            @foreach (var chunk in document.Chunks)
+            {
+                <section id="@("passage-" + chunk.Id)" class="document-passage @(chunk.Id == Chunk && (Revision is null || Revision == document.Revision) ? "selected-passage" : "")">
+                    @if (chunk.Page is not null) { <h2>Page @chunk.Page · passage @(chunk.Ordinal + 1)</h2> }
+                    else { <h2>Passage @(chunk.Ordinal + 1)</h2> }
+                    <ChatText Text="@chunk.Text" />
+                </section>
+            }
+        }
+        else if (!string.IsNullOrEmpty(document.Text)) { <ChatText Text="@ReadingText()" /> }
+        else { <p>No extracted text is available yet.</p> }
+        @if (metadata?.Links.Count > 0)
+        {
+            <section aria-label="Document links"><h2>Links</h2><ul>
+                @foreach (var link in metadata.Links)
+                { <li>@if (link.DocumentId is not null) { <a href="@("/library/" + Uri.EscapeDataString(link.DocumentId))">@(link.Title ?? link.Target)</a> } else if (SafeUrl(link.Target)) { <a href="@link.Target" target="_blank" rel="noopener noreferrer" data-enhance-nav="false">@link.Target</a> } else { <span>@link.Target · unresolved</span> }</li> }
+            </ul></section>
+        }
+        <section aria-label="Related documents"><h2>Related documents</h2>
+            @foreach (var item in related) { <p><a href="@("/library/" + Uri.EscapeDataString(item.Id))">@item.Title</a></p> }
+            @if (related.Count == 0) { <p>No linked documents.</p> }
+        </section>
+        <section aria-label="Revision history"><h2>Revision history</h2><ol>
+            @foreach (var entry in history) { <li>Revision @entry.Revision · @entry.Cause · @entry.CreatedAt</li> }
+        </ol>@if (nextRevision is not null) { <button disabled="@Busy" @onclick="MoreHistoryAsync">More history</button> }</section>
+    }
+</main>
+
+@code {
+    [Parameter] public string Id { get; set; } = "";
+    [SupplyParameterFromQuery] public string? Chunk { get; set; }
+    [SupplyParameterFromQuery] public long? Revision { get; set; }
+    private DocumentRecord? document;
+    private IReadOnlyList<DocumentRecord> related = [];
+    private DocumentDetails? metadata;
+    private readonly List<DocumentRevisionEntry> history = [];
+    private string? nextRevision;
+    private bool lossless, confirmDelete;
+    private string? enrichmentNotice;
+    private string ReadingText()
+    {
+        var text = document?.Text ?? "";
+        if (document?.Enrichment is not { WrittenBack: true } value) return text;
+        var block = SecondBrain.Extraction.Contracts.FrontmatterLayout.StartMarker + SecondBrain.Extraction.Contracts.FrontmatterLayout.Key + ": "
+            + System.Text.Json.JsonSerializer.Serialize(new { summary = value.Summary, tags = value.Tags }) + "\n" + SecondBrain.Extraction.Contracts.FrontmatterLayout.EndMarker;
+        text = text.Replace(block, "", StringComparison.Ordinal);
+        return text.StartsWith("---\n---\n", StringComparison.Ordinal) ? text[8..] : text;
+    }
+    private Task EnrichAsync() => RunAsync(async () =>
+    {
+        var job = await Api.SendAsync<EnrichmentJob>("/documents/" + Uri.EscapeDataString(Id) + "/enrich", "POST", new { });
+        enrichmentNotice = job.Status == "completed" ? "Enrichment is up to date." : "Enrichment is queued. Refresh this document when it finishes.";
+        if (job.Status == "completed") await LoadAsync();
+    });
+    protected override async Task LoadAsync()
+    {
+        document = await Api.SendAsync<DocumentRecord>("/documents/" + Uri.EscapeDataString(Id) + "?include=text,chunks");
+        metadata = await Api.SendAsync<DocumentDetails>("/documents/" + Uri.EscapeDataString(Id) + "/metadata?revision=" + document.Revision);
+        var revisions = await Api.SendAsync<CatalogPage<DocumentRevisionEntry>>("/documents/" + Uri.EscapeDataString(Id) + "/revisions");
+        history.Clear(); history.AddRange(revisions.Items); nextRevision = revisions.NextCursor;
+        related = await Api.SendAsync<DocumentRecord[]>("/documents/" + Uri.EscapeDataString(Id) + "/related");
+    }
+    private static bool SafeUrl(string value) => Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" && uri.UserInfo.Length == 0;
+    private static string? CalendarProperty(System.Text.Json.JsonElement value, string key) => value.TryGetProperty(key, out var result) && result.ValueKind == System.Text.Json.JsonValueKind.String ? result.GetString() : null;
+    private string CalendarDate(string? value) => DateTimeOffset.TryParse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var time)
+        ? TimeZoneInfo.ConvertTime(time, TimeZoneInfo.FindSystemTimeZoneById(Options.CurrentValue.Time.Zone)).ToString("f", System.Globalization.CultureInfo.CurrentCulture) : value ?? "Not specified";
+    private string PageText(DocumentPage page) => page.Start >= 0 && page.Length >= 0 && (long)page.Start + page.Length <= document!.Text!.Length ? document.Text.Substring(page.Start, page.Length) : "Page text is unavailable.";
+    private IReadOnlyList<SecondBrain.Core.Retrieval.HighlightRange> PageHighlight(DocumentPage page)
+    {
+        if (Revision is not null && Revision != document!.Revision) return [];
+        var chunk = document!.Chunks?.FirstOrDefault(item => item.Id == Chunk);
+        if (chunk is null) return [];
+        var start = Math.Max(chunk.StartOffset, page.Start);
+        var end = Math.Min(chunk.EndOffset, page.Start + page.Length);
+        return end > start ? [new(start - page.Start, end - page.Start)] : [];
+    }
+    private Task MoreHistoryAsync() => RunAsync(async () =>
+    {
+        if (nextRevision is null) return;
+        var page = await Api.SendAsync<CatalogPage<DocumentRevisionEntry>>("/documents/" + Uri.EscapeDataString(Id) + "/revisions?cursor=" + Uri.EscapeDataString(nextRevision));
+        history.AddRange(page.Items); nextRevision = page.NextCursor;
+    });
+    private Task DeleteAsync() => RunAsync(async () =>
+    {
+        await Api.SendAsync<CaptureResult>("/documents/" + Uri.EscapeDataString(Id), "DELETE", revision: document!.Revision);
+        Navigation.NavigateTo("/manage/trash");
+    });
+}

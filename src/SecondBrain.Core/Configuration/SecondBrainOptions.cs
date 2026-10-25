@@ -8,6 +8,16 @@ namespace SecondBrain.Core.Configuration;
 /// </summary>
 public sealed class SecondBrainOptions
 {
+    [YamlMember(Alias = "enrichment")]
+    public EnrichmentOptions Enrichment { get; set; } = new();
+    [YamlMember(Alias = "classification")]
+    public ClassificationOptions Classification { get; set; } = new();
+    [YamlMember(Alias = "backup")]
+    public BackupOptions Backup { get; set; } = new();
+    [YamlMember(Alias = "calendar")]
+    public CalendarOptions Calendar { get; set; } = new();
+    [YamlMember(Alias = "retention")]
+    public RetentionOptions Retention { get; set; } = new();
     /// <summary>The private data root containing the vault, stores and writable key ring (§6).</summary>
     [YamlMember(Alias = "data_root")]
     public string DataRoot { get; set; } = "/srv/secondbrain";
@@ -59,6 +69,9 @@ public sealed class SecondBrainOptions
     [YamlMember(Alias = "ingest")]
     public IngestOptions Ingest { get; set; } = new();
 
+    [YamlMember(Alias = "chunking")]
+    public ChunkingOptions Chunking { get; set; } = new();
+
     [YamlMember(Alias = "retrieval")]
     public RetrievalOptions Retrieval { get; set; } = new();
 
@@ -96,6 +109,16 @@ public sealed class IngestOptions
     /// <summary>The local wall-clock time (<c>HH:mm</c>, in <c>time.zone</c>) of the nightly deep rescan (FLD-2).</summary>
     [YamlMember(Alias = "deep_rescan_at")]
     public string DeepRescanAt { get; set; } = "03:00";
+}
+
+public sealed class ChunkingOptions
+{
+    [YamlMember(Alias = "target_tokens")]
+    public int TargetTokens { get; set; } = 512;
+    [YamlMember(Alias = "max_tokens")]
+    public int MaxTokens { get; set; } = 1024;
+    [YamlMember(Alias = "overlap_tokens")]
+    public int OverlapTokens { get; set; } = 64;
 }
 
 public sealed class ExtractorOptions

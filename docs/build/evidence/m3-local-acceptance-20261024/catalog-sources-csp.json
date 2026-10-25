@@ -1,0 +1,75 @@
+{
+  "configuration": "Release",
+  "origin_scope": "Local loopback; VPN and Cloudflare expressly waived by the user",
+  "source_jobs": [
+    {
+      "width": 1280,
+      "sourceId": "01M5QYW23YGBECRS41BAN8W1XG",
+      "created": true,
+      "scan": true,
+      "fileFailureReason": true,
+      "transientRetryCompleted": true,
+      "deterministicRetryRefused": true,
+      "counts": true,
+      "pauseResume": true,
+      "removed": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "sourceId": "01M5QYWBPZX48DPBVBWX81NNDV",
+      "created": true,
+      "scan": true,
+      "fileFailureReason": true,
+      "transientRetryCompleted": true,
+      "deterministicRetryRefused": true,
+      "counts": true,
+      "pauseResume": true,
+      "removed": true,
+      "noOverflow": true
+    }
+  ],
+  "catalog": [
+    {
+      "width": 1280,
+      "facets": true,
+      "filterHistory": true,
+      "timeline": true,
+      "peopleFilter": true,
+      "trashMetadataOnly": true,
+      "liftSuppression": true,
+      "restore": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "facets": true,
+      "filterHistory": true,
+      "timeline": true,
+      "peopleFilter": true,
+      "trashMetadataOnly": true,
+      "liftSuppression": true,
+      "restore": true,
+      "noOverflow": true
+    }
+  ],
+  "hostile_metadata": {
+    "status": "passed",
+    "checks": [
+      {
+        "width": 1280,
+        "titleAndAliasesEscaped": true,
+        "noExecutableMarkup": true,
+        "noRemoteImage": true,
+        "noOverflow": true
+      },
+      {
+        "width": 390,
+        "titleAndAliasesEscaped": true,
+        "noExecutableMarkup": true,
+        "noRemoteImage": true,
+        "noOverflow": true
+      }
+    ]
+  }
+}

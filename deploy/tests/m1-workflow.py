@@ -74,12 +74,18 @@ def upload(data, filename, wait_seconds=5):
     body=('--'+boundary+'\r\nContent-Disposition: form-data; name="file"; filename="'+filename+'"\r\nContent-Type: application/octet-stream\r\n\r\n').encode()+data+('\r\n--'+boundary+'--\r\n').encode()
     return request('POST','/v1/documents?wait='+str(wait_seconds),headers={'Content-Type':'multipart/form-data; boundary='+boundary},raw=body)
 
+def compose_command():
+    result=['docker','compose','--project-name',args.compose_project,'-f','deploy/compose.yaml','-f','deploy/tests/compose-smoke.yaml']
+    if os.environ.get('SECONDBRAIN_SMOKE_OVERRIDE'):
+        result += ['-f',os.environ['SECONDBRAIN_SMOKE_OVERRIDE']]
+    return result
+
 def sync(operation, name, value='', inbox=False, folder=None):
     path = args.incoming + ('/inbox/' if inbox else '/' + (folder or prefix) + '/') + name
     destination = args.incoming+'/'+prefix+'/'+value if operation=='move' else ''
     payload = value if isinstance(value,bytes) else value.encode()
     if args.compose_project:
-        command = ['docker','compose','--project-name',args.compose_project,'-f','deploy/compose.yaml','-f','deploy/tests/compose-smoke.yaml',
+        command = compose_command()+[
                    '--profile','provision','run','--rm','--no-deps','-T','--user','1656:1654','--volume',tools.name+':/tools:ro','--entrypoint','sh','provision','-c']
         script = {'write':'umask 0027; mkdir -p "$(dirname "$1")"; cat > /tmp/rsync-input; chmod 0640 /tmp/rsync-input; /tools/'+loader+' --library-path /tools /tools/rsync --delay-updates --times /tmp/rsync-input "$1"', 'move':'mv "$1" "$2"', 'remove':'rm "$1"'}[operation]
         subprocess.run(command + [script,'sync-fixture',path,destination], input=payload if operation=='write' else None, check=True, stdout=subprocess.DEVNULL, timeout=30)
@@ -91,7 +97,7 @@ def sync(operation, name, value='', inbox=False, folder=None):
 
 def restart():
     if args.compose_project:
-        subprocess.run(['docker','compose','--project-name',args.compose_project,'-f','deploy/compose.yaml','-f','deploy/tests/compose-smoke.yaml','restart','daemon'], check=True, stdout=subprocess.DEVNULL, timeout=45)
+        subprocess.run(compose_command()+['restart','daemon'], check=True, stdout=subprocess.DEVNULL, timeout=45)
     else:
         subprocess.run(['systemctl','restart',os.environ['SECONDBRAIN_QUALIFICATION_UNIT']], check=True, timeout=45)
     def healthy():

@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "syntheticData": true,
+  "realTlsCertificateVerification": true,
+  "hardenedCompose": true,
+  "localOnlyModelsReady": true,
+  "forbiddenReachablePeerBlockedByFirewall": true,
+  "unlistedOriginRejected": true,
+  "conditional304PreservedRevision": true,
+  "changed200KeptMemberIdentity": true,
+  "invalidHtmlPreservedAcceptedEvents": true,
+  "pauseBlockedFetch": true,
+  "recoveryClearedStaleState": true,
+  "encryptedRestoreResumedProtectedSubscription": true,
+  "sourceContainerIdentityPreserved": true,
+  "tokenAbsentFromSourceResponseAndContainerLogs": true,
+  "backupBytes": 26094860,
+  "backupSha256": "f31a8115360c6537075a37cbd4383c6cc1dba4ed001a6492dc184f54c37da0e3",
+  "productionChanged": false,
+  "limitations": [
+    "Controlled public-address aliases exist only in the isolated Docker network; no public calendar service called.",
+    "Systemd and production deployment are separate acceptance gates."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "status": "operator_confirmed",
+  "preparation": "operator reports helper completed",
+  "offServerCustody": "operator reports recovery copy stored off-server",
+  "authority": "direct human response to combined preparation and off-server custody request",
+  "localHandoffMetadataVerified": {
+    "bytes": 32,
+    "mode": "0600",
+    "directoryMode": "0700",
+    "ownedByOperator": true,
+    "singleLink": true
+  },
+  "keyBytesReadOrLogged": false,
+  "productionBackupStillRequiresMigrationQualification": true,
+  "limitations": [
+    "Off-server custody is operator-attested; remote destination was intentionally not supplied.",
+    "Server-side readability and complete pre-upgrade archive remain deployment checks."
+  ]
+}

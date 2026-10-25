@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-24",
+  "status": "partial",
+  "productionChanged": false,
+  "remoteCiExecuted": false,
+  "githubOidcSigningQualified": false,
+  "packages": [
+    {
+      "name": "Cli",
+      "vulnerabilityMatches": 0,
+      "archiveSha256": "3db2e616f9aef35081f96ab6f54fc6599e861072fa2a475812f3d77f615877eb",
+      "gitCommit": "53b8dab07d5120c330aa5520a2058c547c9cdf54",
+      "workingTreeDirty": true,
+      "dotnetSdk": "10.0.111",
+      "repository": null,
+      "workflowRef": null,
+      "workflowRun": null,
+      "workflowAttempt": null,
+      "nativeSqliteVersions": [
+        "3.53.4"
+      ],
+      "fileCount": 450,
+      "componentCount": 462,
+      "editorBundles": 1
+    },
+    {
+      "name": "Server",
+      "vulnerabilityMatches": 0,
+      "archiveSha256": "5993e05823a849a9c9252cd5ff8104520c0892eb15fade6d4467c6b05845a1e2",
+      "gitCommit": "53b8dab07d5120c330aa5520a2058c547c9cdf54",
+      "workingTreeDirty": true,
+      "dotnetSdk": "10.0.111",
+      "repository": null,
+      "workflowRef": null,
+      "workflowRun": null,
+      "workflowAttempt": null,
+      "nativeSqliteVersions": [
+        "3.53.4"
+      ],
+      "fileCount": 431,
+      "componentCount": 401,
+      "editorBundles": 1
+    },
+    {
+      "name": "Extractor",
+      "vulnerabilityMatches": 0,
+      "archiveSha256": "5969496bff1796d52b96e96766ef5bdd94fab002981e9ca3b4296686a10fb95a",
+      "gitCommit": "53b8dab07d5120c330aa5520a2058c547c9cdf54",
+      "workingTreeDirty": true,
+      "dotnetSdk": "10.0.111",
+      "repository": null,
+      "workflowRef": null,
+      "workflowRun": null,
+      "workflowAttempt": null,
+      "nativeSqliteVersions": [],
+      "fileCount": 236,
+      "componentCount": 250,
+      "editorBundles": 0
+    }
+  ],
+  "localArtifacts": "artifacts/m4-release-operations-20261024",
+  "imageScans": [
+    {
+      "image": "secondbrain:m4",
+      "imageId": "sha256:1ff523bb4f04ad7702514ec54189920e22b8e060d21e3e6d27ad85692d3f27aa",
+      "exitCode": 2,
+      "uniquePackageAdvisoryPairs": 74,
+      "severity": {
+        "Medium": 64,
+        "Low": 8,
+        "Negligible": 2
+      }
+    },
+    {
+      "image": "secondbrain-extractor:m4",
+      "imageId": "sha256:4635691c0fa4dedb0ca6882cde52344f4f151a938838ea5c28430f1d55570e45",
+      "exitCode": 2,
+      "uniquePackageAdvisoryPairs": 74,
+      "severity": {
+        "Medium": 64,
+        "Low": 8,
+        "Negligible": 2
+      }
+    },
+    {
+      "image": "secondbrain-egress:m4",
+      "imageId": "sha256:bb9df49e6eb44fabfaead881c31334f833eda54aac455dd6c536bcbb4ea996c5",
+      "exitCode": 2,
+      "uniquePackageAdvisoryPairs": 3,
+      "severity": {
+        "Medium": 3
+      }
+    }
+  ],
+  "limitations": [
+    "All three application-package scans are clean. All three current deployment images still fail the unchanged low-severity threshold.",
+    "These local archives are unsigned qualification artifacts, not an accepted release."
+  ]
+}

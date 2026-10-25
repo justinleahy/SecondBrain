@@ -20,7 +20,7 @@ namespace SecondBrain.Server.Tests;
 public sealed class DocumentsApiTests
 {
     [Theory]
-    [InlineData("{\"type\":\"calendar_event\"}")]
+    [InlineData("{\"type\":\"unknown\"}")]
     [InlineData("{\"predicates\":[{\"field\":\"title\",\"op\":\"wat\",\"value\":\"x\"}]}")]
     [InlineData("{\"predicates\":[{\"field\":\"props.secret\",\"op\":\"eq\",\"value\":\"x\"}]}")]
     [InlineData("{\"predicates\":[{\"field\":\"title\",\"op\":\"in\",\"value\":\"x\"}]}")]
@@ -213,7 +213,7 @@ public sealed class DocumentsApiTests
     [InlineData("/v1/documents", "{\"content\":\"text\",\"source\":\"spoof\"}")]
     [InlineData("/v1/search", "{\"query\":\"topic\",\"mode\":\"bad\"}")]
     [InlineData("/v1/query", "{\"limit\":201}")]
-    [InlineData("/v1/query", "{\"type\":\"calendar_event\"}")]
+    [InlineData("/v1/query", "{\"type\":\"unknown\"}")]
     [InlineData("/v1/query", "{\"occurred\":{\"from\":\"not-a-date\"}}")]
     [InlineData("/v1/query", "{\"updated\":{\"to\":\"2026-99-99\"}}")]
     [InlineData("/v1/query", "{\"people\":[null]}")]

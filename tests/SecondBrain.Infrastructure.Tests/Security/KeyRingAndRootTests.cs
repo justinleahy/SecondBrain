@@ -93,6 +93,16 @@ public sealed class KeyRingAndRootTests : IDisposable
     }
 
     [Fact]
+    public void PendingRestoreBlocksNormalStartupButAllowsExclusiveRecovery()
+    {
+        File.WriteAllText(Path.Combine(Data, SecondBrain.Core.Operations.RestoreState.PendingFileName), "{}");
+        Assert.Throws<IOException>(() => DataRootLock.Acquire(Data));
+        using var recovery = DataRootLock.Acquire(Data, allowPendingRestore: true);
+        Assert.True(recovery.IsHeld);
+        Assert.Throws<DataRootLockedException>(() => DataRootLock.Acquire(Data, allowPendingRestore: true));
+    }
+
+    [Fact]
     public void LockRejectsSymlink()
     {
         var target = Path.Combine(root, "outside");

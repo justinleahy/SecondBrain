@@ -4,6 +4,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="../../src/SecondBrain.Storage/SecondBrain.Storage.csproj" />
     <ProjectReference Include="../../src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj" />
   </ItemGroup>

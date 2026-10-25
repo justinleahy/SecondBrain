@@ -10,6 +10,9 @@ internal static class KnowledgeCommandRegistration
     public static void Add(RootCommand root, CliServices services, Action<Command, Func<ParseResult, CancellationToken, Task<CliResult>>> bind)
     {
         IKnowledgeCommands Adapter() => services.Knowledge ?? throw new CliPreconditionException("The knowledge HTTP adapter is unavailable.");
+        var enrich = new Command("enrich", "Request a model summary and suggestions for a document.");
+        var enrichId = new Argument<string>("id"); enrich.Arguments.Add(enrichId);
+        bind(enrich, (parse, token) => Adapter().EnrichAsync(parse.GetValue(enrichId)!, token)); root.Subcommands.Add(enrich);
         var add = new Command("add", "Capture standard input or upload a file to the daemon.");
         var path = new Argument<string>("path");
         var title = new Option<string?>("--title");
@@ -59,7 +62,8 @@ internal static class KnowledgeCommandRegistration
         var direction = new Option<string>("--direction") { DefaultValueFactory = _ => "desc" };
         var queryLimit = new Option<int>("--limit") { DefaultValueFactory = _ => 50 };
         var cursor = new Option<string?>("--cursor");
-        foreach (var option in new Option[] { queryType, from, to, queryPerson, where, sort, direction, queryLimit, cursor }) query.Options.Add(option);
+        var cancelled = new Option<bool>("--include-cancelled");
+        foreach (var option in new Option[] { queryType, from, to, queryPerson, where, sort, direction, queryLimit, cursor, cancelled }) query.Options.Add(option);
         bind(query, (parse, token) =>
         {
             var selectedSort = parse.GetValue(sort)!;
@@ -72,12 +76,12 @@ internal static class KnowledgeCommandRegistration
             var predicates = (parse.GetValue(where) ?? []).Select(Predicate).ToArray();
             return Adapter().QueryAsync(new QueryRequest(Type: ValidType(parse.GetValue(queryType)), Predicates: predicates,
                 People: People(parse.GetValue(queryPerson)), Occurred: start is null && end is null ? null : new TimeWindow(start, end),
-                Sort: selectedSort, Direction: selectedDirection, Limit: BoundedLimit(parse.GetValue(queryLimit)), Cursor: parse.GetValue(cursor)), token);
+                Sort: selectedSort, Direction: selectedDirection, Limit: BoundedLimit(parse.GetValue(queryLimit)), Cursor: parse.GetValue(cursor), IncludeCancelled: parse.GetValue(cancelled)), token);
         });
         root.Subcommands.Add(query);
     }
 
-    private static string? ValidType(string? type) => type is null or "note" or "article" or "file" ? type : throw new CliUsageException("M1 supports note, article and file types.");
+    private static string? ValidType(string? type) => type is null or "note" or "article" or "transcript" or "calendar_event" or "file" ? type : throw new CliUsageException("Supported types are note, article, transcript, calendar_event and file.");
     private static string[]? Tags(string? tags) => tags?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
     private static PersonFilter[]? People(string? value) => value is null ? null : [new PersonFilter(value)];
     private static int BoundedLimit(int value) => value is >= 1 and <= 200 ? value : throw new CliUsageException("--limit must be between 1 and 200.");

@@ -1,0 +1,55 @@
+{
+  "status": "running",
+  "syntheticData": true,
+  "productionChanged": false,
+  "sourceMountedReadOnly": true,
+  "project": "secondbrain-m4-scale-qualification",
+  "phases": {
+    "fixturePreparation": {
+      "copiedBackupRootsPrivate": true,
+      "sourcePermissionsUnchanged": true
+    },
+    "migration": {
+      "secondsToReady": 134.0004996038042,
+      "documents": 100000,
+      "chunks": 1000000,
+      "vectors": 1000000,
+      "documentStateHash": "968319570abd917c568699bc8e8163c91b9039ba9179d89d06a1f7baefca87a6",
+      "migrations": [
+        [
+          8,
+          "applied",
+          "backup-20261025T0316461570014Z-7d30e9b48bbf4f71b2130a5ba7b84141.sbk"
+        ]
+      ]
+    },
+    "backup": {
+      "seconds": 74.4116813079454,
+      "concurrentEdits": 137,
+      "totalEdits": 141,
+      "startedAt": 1792898333.660099,
+      "completedAt": 1792898408.0717804,
+      "editP95Seconds": 2.7463716166093946,
+      "maximumEditSeconds": 8.25221363408491,
+      "archiveBytes": 2183609245,
+      "archiveSha256": "9b9849ef90c374118954a6c5ca9362ac5b6b815ed478cb696bd6d1a911b7c615",
+      "result": {
+        "archive": {
+          "name": "backup-20261025T0318576341510Z-fef4ca9cb71e41599527c0f61599b1bb.sbk",
+          "bytes": 2183609245,
+          "createdAt": "2026-10-25T03:18:57.634151+00:00",
+          "partial": false
+        },
+        "files": 100006,
+        "completeFiles": 100006,
+        "partialFiles": 0,
+        "retention": {
+          "deleted": 0,
+          "retained": 2,
+          "moreWork": false,
+          "deferred": 0
+        }
+      }
+    }
+  }
+}

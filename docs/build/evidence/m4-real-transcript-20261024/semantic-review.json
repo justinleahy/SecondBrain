@@ -1,0 +1,40 @@
+{
+  "status": "passed_for_bounded_speaker_topic_answer",
+  "reviewer": "Codex agent manual inspection",
+  "humanReview": false,
+  "inputSha256": "1f19e9d59f21b03e77448bbdbce62dc107a70f796721d2f8d92dc46ea1a269f9",
+  "freshQualification": {
+    "inputSha256": "1f19e9d59f21b03e77448bbdbce62dc107a70f796721d2f8d92dc46ea1a269f9",
+    "inputBytes": 31508,
+    "cues": 224,
+    "speakerCount": 3,
+    "multipartImport": true,
+    "repeatedImportSameIdentity": true,
+    "speakerFilteredSearch": true,
+    "freshLocalModels": true,
+    "chatModel": "Qwen/Qwen3-8B",
+    "embeddingModel": "Qwen/Qwen3-Embedding-0.6B",
+    "answerComplete": true,
+    "timestampedCitations": 1,
+    "privateContentInEvidence": false,
+    "usesDisposableStore": true,
+    "metadataStartTimeSuppliedByTest": true,
+    "pricingVocabularyPresent": false
+  },
+  "reviewedAnswerSha256": "c02deae49293568d7b0192ac3aeaefde1ae1b81e74e63c62d07e7e1f3e44d4fb",
+  "checked": {
+    "requestedSpeakerMatchesCitation": true,
+    "answerTopicSupportedByCitedPassage": true,
+    "quotedTextMatchesCitedExcerpt": true,
+    "selectedSegmentWithinCitationTimeRange": true,
+    "invalidCitations": 0
+  },
+  "privateReviewFileMode": "0600",
+  "privateReviewDirectoryMode": "0700",
+  "privateContentInCommittedEvidence": false,
+  "limitations": [
+    "Single fresh local-model answer; not a broad semantic evaluation.",
+    "The answer includes an exclusivity statement; this review validates the cited speaker/topic passage, not exhaustive absence of every other possible reference.",
+    "Pricing-specific example remains waived by explicit user instruction."
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-24",
+  "scope": "Optional LLM classification, precedence, confidence metadata and controls; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2380,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 190,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_11.trx",
+        "sha256": "a33f08a25da53555c7afec803d2b092c156793a3b0c2531510547a6f028f8aa1"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_11[1].trx",
+        "sha256": "02d2d857ddf4412885b336e527ec6e0a04870226b65c49db1b12ac82899230e5"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_12.trx",
+        "sha256": "e6de66ad8ad988c32fd0c342756f4b0bb0bd52ac72d07dfdd4e7abcbae8cf2dd"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_12[1].trx",
+        "sha256": "ddd963114512b99a3eb8030c11a28313d6a2709c0e35b1487f767131fe5616db"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 455,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_12[2].trx",
+        "sha256": "20d9e4952bedf6a442693fb214bc3ebc379bb18bbf33aad69f5d9797aac652af"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_15.trx",
+        "sha256": "60bcd922c4353ccdb39683a50389cd3493524eaba7ec93fc31abc4469ca8866b"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 224,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_15[1].trx",
+        "sha256": "5194c1c9355bc22769f3eb1be83933914a34dec401632f2315d29f09d749858a"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 393,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_34_17.trx",
+        "sha256": "412352a7cd157afb0de88a5063725375e8dd7da0905d1f5d8b603b369de3f557"
+      }
+    ]
+  },
+  "newChecks": {
+    "coreClassification": 16,
+    "durableCacheAndFences": 3,
+    "apiAndSettings": 4
+  },
+  "checks": [
+    "One ING-8 type precedence rule is shared between classification and publication. Overrides, door/frontmatter declarations, unambiguous transcript formats, and source rules skip model calls.",
+    "Classification uses the configured enrich role with a bounded UTF-8 excerpt, at most 512 output tokens, a 30-second deadline, no tools, structured JSON where supported and bounded tolerant parsing.",
+    "Low-confidence, malformed, budget-limited, unavailable and timed-out results fall through to the format default. Shutdown cancellation propagates, and actual/unknown usage settles through the shared ledger.",
+    "Results are cached as bounded metadata in extraction jobs. Store restart preserves the cache. Changes to the document/source/configuration fence stale results before publication.",
+    "Winning origin and confidence are persisted with effective properties; original properties are preserved. Document metadata and the viewer expose model confidence.",
+    "Validated classification settings are editable with session step-up and reload without restart. They apply to subsequent processing.",
+    "Expected YAML aliases, service registrations and OpenAPI schema additions were reviewed. No schema migration or package change was required."
+  ],
+  "browserEvidence": "browser.json",
+  "liveModelEvidence": "live-classification.json",
+  "browserApiUnitTests": 1,
+  "productionChanged": false,
+  "limitations": [
+    "Enrichment summaries/tags/mentions/link suggestions, batch backfill and frontmatter write-back remain unimplemented.",
+    "Already processed documents are not automatically reclassified solely because the settings change.",
+    "The local classification qualification uses a synthetic article; the separate real VTT check exercised import and speaker citations.",
+    "Hardened deployment, sustained-write daemon restore, external mount-point and large-corpus qualification, remaining provider adapters and release operations remain open."
+  ]
+}

@@ -9,7 +9,7 @@ using SecondBrain.Core.Sources;
 namespace SecondBrain.Infrastructure.Ingestion;
 
 /// <summary>Bounded descriptor-rooted scans; stager rechecks containment before any content is consumed.</summary>
-public sealed class FolderSourceFiles(IInputStager stager, IExtractorClient? extractor = null) : IFolderSourceFiles
+public sealed class FolderSourceFiles(IInputStager stager, IExtractorClient? extractor = null, bool purgeScan = false) : IFolderSourceFiles
 {
     public async IAsyncEnumerable<string> WatchAsync(FolderSourceConfiguration configuration, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -34,7 +34,7 @@ public sealed class FolderSourceFiles(IInputStager stager, IExtractorClient? ext
         var pending = new Queue<string>(); pending.Enqueue(""); var entries = 0;
         // The source root is pinned by InputStager before scans begin.
         using var root = stager is InputStager concrete ? Duplicate(concrete.RetainRoot(configuration.Path)) : Open(configuration.Path);
-        var ignore = await LoadIgnoreAsync(configuration.Path, cancellationToken);
+        var ignore = purgeScan ? [] : await LoadIgnoreAsync(configuration.Path, cancellationToken);
         var include = configuration.Include.Select(SourceGlob.Compile).ToArray();
         var exclude = configuration.Exclude.Select(SourceGlob.Compile).ToArray();
         while (pending.TryDequeue(out var relative))
@@ -48,12 +48,17 @@ public sealed class FolderSourceFiles(IInputStager stager, IExtractorClient? ext
                 cancellationToken.ThrowIfCancellationRequested();
                 if (++entries > 500000) throw new InvalidDataException("source_files");
                 var name = Path.GetFileName(candidate);
-                if (name is ".claimed" or ".brainignore" || name.StartsWith(".sb-", StringComparison.Ordinal)) continue;
+                if (!purgeScan && (name is ".claimed" or ".brainignore" || name.StartsWith(".sb-", StringComparison.Ordinal))) continue;
                 var child = relative.Length == 0 ? name : relative + "/" + name;
                 SafeFileHandle? opened;
                 // A vanished entry (ENOENT) or a symlink (ELOOP) is not present; any other open failure is unreadable.
                 try { opened = OpenRelative(handle, name, directory: false); }
-                catch (IOException exception) when (exception.InnerException is System.ComponentModel.Win32Exception { NativeErrorCode: 2 or 40 }) { continue; }
+                catch (IOException exception) when (exception.InnerException is System.ComponentModel.Win32Exception { NativeErrorCode: 2 }) { continue; }
+                catch (IOException exception) when (exception.InnerException is System.ComponentModel.Win32Exception { NativeErrorCode: 40 })
+                {
+                    if (!purgeScan || !Matches(child, include, exclude)) continue;
+                    opened = null;
+                }
                 catch (IOException) { opened = null; }
                 if (opened is null)
                 {
@@ -71,22 +76,40 @@ public sealed class FolderSourceFiles(IInputStager stager, IExtractorClient? ext
                         {
                             var arm = RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
                             var mode = unchecked((uint)Marshal.ReadInt32(buffer, arm ? 16 : 24)) & 0xf000;
-                            if (mode == 0x4000) { if (configuration.Recursive && child.Count(c => c == '/') < 64) pending.Enqueue(child); continue; }
-                            if (mode != 0x8000 || !Matches(child, include, exclude) || IsIgnored(child, ignore)) continue;
-                            var length = RandomAccess.GetLength(opened);
-                            var modified = InputStager.StatModifiedAt(buffer);
-                            string? hash = null;
-                            try
+                            if (mode == 0x4000)
                             {
-                                // The staging policy is judged from this descriptor's stat alone, so shallow scans name it too.
-                                InputStager.RequireRegularSingleLink(opened);
-                                if (InputStager.NameRejection(child) is { } invalid) throw new InvalidDataException(invalid);
-                                if (deep) { await using var stage = await stager.OpenSourceAsync(configuration.Path, child, cancellationToken); hash = stage.Sha256; }
-                                result = new(child, length, modified, hash);
+                                if (purgeScan && Matches(child, include, exclude))
+                                { result = SourceFileEntry.UnreadableEntry(child); }
+                                else
+                                {
+                                if (purgeScan && child.Count(c => c == '/') >= 64) throw new InvalidDataException("purge_directory_depth");
+                                if (configuration.Recursive && child.Count(c => c == '/') < 64) pending.Enqueue(child);
+                                continue;
+                                }
                             }
-                            catch (IOException) { result = SourceFileEntry.UnreadableEntry(child); }
-                            // A staging policy rejection (size, links, type) concerns this entry only and keeps its named reason.
-                            catch (InvalidDataException exception) { result = new(child, length, modified, null, Rejection: SourceEntryPolicy.ReasonOf(exception)); }
+                            if (!Matches(child, include, exclude) || IsIgnored(child, ignore)) continue;
+                            if (mode != 0x8000)
+                            {
+                                if (purgeScan) result = SourceFileEntry.UnreadableEntry(child);
+                                else continue;
+                            }
+                            if (mode == 0x8000)
+                            {
+                                var length = RandomAccess.GetLength(opened);
+                                var modified = InputStager.StatModifiedAt(buffer);
+                                string? hash = null;
+                                try
+                                {
+                                    // The staging policy is judged from this descriptor's stat alone, so shallow scans name it too.
+                                    InputStager.RequireRegularSingleLink(opened);
+                                    if (InputStager.NameRejection(child) is { } invalid) throw new InvalidDataException(invalid);
+                                    if (deep) { await using var stage = await stager.OpenSourceAsync(configuration.Path, child, cancellationToken); hash = stage.Sha256; }
+                                    result = new(child, length, modified, hash);
+                                }
+                                catch (IOException) { result = SourceFileEntry.UnreadableEntry(child); }
+                                // A staging policy rejection (size, links, type) concerns this entry only and keeps its named reason.
+                                catch (InvalidDataException exception) { result = new(child, length, modified, null, Rejection: SourceEntryPolicy.ReasonOf(exception)); }
+                            }
                         }
                     }
                     finally { Marshal.FreeHGlobal(buffer); }

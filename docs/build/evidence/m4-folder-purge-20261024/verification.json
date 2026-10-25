@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-24",
+  "scope": "Recoverable explicit folder-source purge through REST, CLI and browser; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2214,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_11.trx",
+        "sha256": "e938f8ddf1702a76c90f68ea10468f1c173c94fa770f5e29004c062b6a3ca76d"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 163,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_11[1].trx",
+        "sha256": "8f6c623797efc8959138c9ae632f4e84c425ed8119af4b31364725f3b9d00c77"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 358,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_11[2].trx",
+        "sha256": "efc837bf10d23923972af12dfee59b223fbc1b88dc013fb71212b6a6605fccdd"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_12.trx",
+        "sha256": "b86e4c987e9d9ec5db4e9d8a0c21b43b672d2479d8d727c3ff10a6bc3114c079"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_12[1].trx",
+        "sha256": "0a6d857c5900778719608c911b84e0bdebc5c100619d1b2805c034b7f9b81ebd"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_17.trx",
+        "sha256": "5222bf2431c3e54f0dfa415e24ac49b86f84d40212f6b61fd9a1a64bf05e17be"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 210,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_17[1].trx",
+        "sha256": "cf6e1c50b16e27fa6f5f0c4252b9c8fe2cf8bf93439c9a0a327dc60834b7c35b"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 367,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_30_17[2].trx",
+        "sha256": "a4f2d7becc91ca69e270daa1c0860406818b6bfffc8344f370a7d5b6d51ec54d"
+      }
+    ]
+  },
+  "focusedStorageTests": [
+    {
+      "project": "SecondBrain.Storage.Tests",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "result": "folder.trx",
+      "sha256": "5de9d631f1438e8ef8c4f1ebfed0043a255b0c2f06391a7fede740a85a2d7caf"
+    }
+  ],
+  "focusedApiTests": [
+    {
+      "project": "SecondBrain.Server.Tests",
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "result": "api.trx",
+      "sha256": "62c65cdc92f486320f759d8f19da12464352241d3a61bae7f66ce877ca80dea4"
+    }
+  ],
+  "browser": "browser.json",
+  "verifiedBehavior": [
+    "Persisted intent stops source admissions, clears pending scans and cancels processing before file removal.",
+    "Source admission and purge share a per-source gate; an in-flight import completes before its retained bytes are purged.",
+    "Late processing publication and document mutation are fenced while a source purge is pending.",
+    "Owned originals, historical copies and trash are removed in bounded journal batches while external originals remain.",
+    "An older interrupted document mutation is settled before sweeping its files.",
+    "Injected file-removal and index-publication interruptions recover after the initiating credential is revoked, without duplicate purge revisions.",
+    "Purge supports sources already removed and sources with no documents. The built-in inbox remains protected.",
+    "A fixture with 1100 historical files plus a current original is purged while an unrelated file remains.",
+    "Unsafe owned links leave a sanitized pending failure; other roots are purged and repair permits recovery.",
+    "Calendar roots, members, occurrence coverage and payload lineage are purged with their folder source.",
+    "Both API route prefixes require an admin session and recent password confirmation; API-key requests are rejected.",
+    "Desktop and phone workflows cover cancellation, explicit confirmation, retained tombstone counts and unavailable content. Fixture shutdown verifies external originals still exist."
+  ],
+  "notes": [
+    "Initial builds caught local-variable and test-property naming errors before functional tests ran.",
+    "The first API fixture stopped the folder worker during startup and exposed unhandled cancellation that shut down the host. Cancellation across startup and the loop is now handled; both API tests and the full server regression passed afterward.",
+    "The initial browser fixture required embedding completion even though extraction was already complete and searchable. Its readiness check now verifies extracted text and accepts the documented indexed_partial state. Only the qualification fixture changed after the full regression; its final run passed.",
+    "All four final screenshots were visually reviewed. Browser errors and warnings were zero, and the fixture stopped successfully.",
+    "No golden snapshots or model evaluation recordings needed updates for this checkpoint."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Core/Sources/IFolderDocumentRepository.cs": "8bb7127d383db84a03b448f3086fd0466f41ad0f19b5c56bd091fb51bdd25b03",
+    "src/SecondBrain.Core/Ingestion/IManagedDocumentFiles.cs": "58c8e084778e2d9ad6cdcc80e79ba301d388957b1650a500d3af259709e7cc16",
+    "src/SecondBrain.Core/Durability/IMutationJournal.cs": "d1a145e7007a7ebf71efc6f32680f502b2239be099fe70efb5faf8935476eedc",
+    "src/SecondBrain.Storage/Sources/SqliteFolderDocumentRepository.cs": "4663e5f949fa6d6a005b68dc66bbaa84cdfe5105a4b48d63a537bf5fcc1b10b1",
+    "src/SecondBrain.Storage/Sources/SqliteFolderDocumentRepository.Purge.cs": "3c4ac6e2f95c9ccdfe592b53675bb03d5c09ec1bb6572a79717bebbc3e9f9199",
+    "src/SecondBrain.Storage/Durability/MutationJournal.cs": "5b264153b565a65d0186bc27c360cbc1cc8d8f155a2d57250bb660b1cbfac2ec",
+    "src/SecondBrain.Storage/Durability/PublicationCoordinator.cs": "0f52e52db490bc1e17e550c09689488d8ab1324af439f28faa1030e5e5faaefc",
+    "src/SecondBrain.Storage/Migrations/M4Schema.cs": "80b9f78b589e56f11705ca47a4a122d7ed8cc2b73c4cbf62afc49375a2951763",
+    "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs": "bacb3cae8d32dd52a9f0df710a83d2057919d50142d1f308cea0985a21f3c5a2",
+    "src/SecondBrain.Infrastructure/Ingestion/ManagedDocumentFiles.cs": "6f869e39797e078bd8ede589738e82beb1bc9fa9ecea2cac75bf42e3045300e6",
+    "src/SecondBrain.Server/Sources/SourceEndpoints.cs": "977fd40d928b82c700f9b3054117a2985891512c13152dd2a31c44151d4b9bbf",
+    "src/SecondBrain.Server/Sources/FolderProcessingOrchestrator.cs": "e0f47d0e656eb4a69059a0358f4be0abfc6a4fad2f6596d04acb5ec67cddbab1",
+    "src/SecondBrain.Server/Components/Pages/SourcesAndJobs.razor": "8c7c8f41a5aa114fe8ed3dc1645c00da5bf829d50f151a4af4635a0655c10855",
+    "src/SecondBrain.Cli/Commands/SourceCommands.cs": "b2df11c930331d39aaba81318adf9bfdacd69906b3e265fcc800d4eab0597fb2",
+    "src/SecondBrain.Cli/Commands/SourceCommandRegistration.cs": "aa0111e69f5efed54e795dc5a2145ce7ee435bf74d7aeba94986081afb048247",
+    "tests/SecondBrain.Storage.Tests/FolderSourcePurgeTests.cs": "bad22da25bb05dc48a2c82b891e9dbc70f2323504285ab4f8302d01eb58669ca",
+    "tests/SecondBrain.Server.Tests/FolderSourcePurgeApiTests.cs": "1cd6c04208e74a5b11b30e77a4d2c2a3e7aebf7ecf3d7d4d35a1f8a8d3ce6a7f",
+    "tests/SecondBrain.Server.Tests/M4FolderPurgeQualification.cs": "df7a50d4705da03ce51ce900a200ad4824b19a67285b277c744ba6404303580f",
+    "tests/browser/m4-folder-purge.js": "70d2d86fe251b3ea4790bfa08e32c716f87d91cbd1d81e08464fdeaa9ec4b36c"
+  },
+  "limitations": [
+    "Large-corpus end-to-end latency has not been qualified. Work uses bounded document pages and file batches; that alone is not a performance guarantee.",
+    "Unreadable, linked or conflicting owned files leave a durable pending purge until repaired.",
+    "Direct standalone container-document purge retains the earlier 1000-removal/64-KiB journal bounds; source-wide purges use bounded file batches.",
+    "Debug-log cleanup, backup rotation, encrypted backup/restore/export, enrichment/provider/budget, release and real-export acceptance remain open.",
+    "Versioned M4 migrations and hardened production deployment remain open. No production service, data or configuration changed."
+  ]
+}

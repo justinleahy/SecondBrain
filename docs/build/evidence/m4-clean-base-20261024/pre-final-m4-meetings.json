@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "syntheticData": true,
+  "hardenedDaemonHttp": true,
+  "transcriptId": "01M5RHT0M2G3KH6J7MM3KB45NH",
+  "transcriptSegments": 3,
+  "speakerAndTimestampFilters": true,
+  "idempotentTranscriptImport": true,
+  "srtImported": true,
+  "calendarContainers": 2,
+  "confirmedOccurrences": 4,
+  "cancelledException": true,
+  "separateContainerIdentity": true,
+  "partialCoverageReported": true,
+  "malformedCalendarPreservedAcceptedEvents": true,
+  "realExportAcceptance": false,
+  "liveCalendarSubscription": false
+}

@@ -1,0 +1,100 @@
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.MockProvider -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/bin/Debug/net10.0/SecondBrain.MockProvider.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Debug/net10.0/SecondBrain.Extractor.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Debug/net10.0/SecondBrain.Server.dll
+  SecondBrain.Infrastructure.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll
+  SecondBrain.Extractor.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll (.NETCoreApp,Version=v10.0)
+  SecondBrain.Core.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+
+  SecondBrain.Providers.OpenAICompatible.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/bin/Debug/net10.0/brain.dll
+VSTest version 18.0.2 (x64)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll (.NETCoreApp,Version=v10.0)
+
+Starting test execution, please wait...
+Starting test execution, please wait...
+VSTest version 18.0.2 (x64)
+
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+  SecondBrain.Server.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+  SecondBrain.Deploy.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll
+A total of 1 test files matched the specified pattern.
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+Starting test execution, please wait...
+VSTest version 18.0.2 (x64)
+
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  SecondBrain.Architecture.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_02.trx
+
+Passed!  - Failed:     0, Passed:   171, Skipped:     0, Total:   171, Duration: 619 ms - SecondBrain.Core.Tests.dll (net10.0)
+[xUnit.net 00:00:01.01]     SecondBrain.Server.Tests.CompositionSnapshotTests.CompositionMatchesGolden [FAIL]
+  Failed SecondBrain.Server.Tests.CompositionSnapshotTests.CompositionMatchesGolden [240 ms]
+  Error Message:
+   Golden/composition.txt differs from the current output, which was written to /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/Golden/composition.txt.actual.
+  Stack Trace:
+     at SecondBrain.Server.Tests.Support.GoldenFile.AssertMatches(String name, String actual) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/Support/GoldenFile.cs:line 15
+   at SecondBrain.Server.Tests.CompositionSnapshotTests.CompositionMatchesGolden() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/CompositionSnapshotTests.cs:line 45
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_02[1].trx
+
+Passed!  - Failed:     0, Passed:   152, Skipped:     0, Total:   152, Duration: 1 s - SecondBrain.Infrastructure.Tests.dll (net10.0)
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_04.trx
+
+Passed!  - Failed:     0, Passed:    63, Skipped:     0, Total:    63, Duration: 159 ms - SecondBrain.Architecture.Tests.dll (net10.0)
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_03.trx
+
+Passed!  - Failed:     0, Passed:    73, Skipped:     0, Total:    73, Duration: 3 s - SecondBrain.Providers.OpenAICompatible.Tests.dll (net10.0)
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_03[1].trx
+
+Passed!  - Failed:     0, Passed:   809, Skipped:     0, Total:   809, Duration: 3 s - SecondBrain.Extractor.Tests.dll (net10.0)
+[xUnit.net 00:00:05.88]     SecondBrain.Server.Tests.OpenApiSnapshotTests.OpenApiMatchesGolden [FAIL]
+  Failed SecondBrain.Server.Tests.OpenApiSnapshotTests.OpenApiMatchesGolden [5 s]
+  Error Message:
+   Golden/openapi.json differs from the current output, which was written to /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/Golden/openapi.json.actual.
+  Stack Trace:
+     at SecondBrain.Server.Tests.Support.GoldenFile.AssertMatches(String name, String actual) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/Support/GoldenFile.cs:line 15
+   at SecondBrain.Server.Tests.OpenApiSnapshotTests.OpenApiMatchesGolden() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/OpenApiSnapshotTests.cs:line 40
+   at SecondBrain.Server.Tests.OpenApiSnapshotTests.OpenApiMatchesGolden() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/OpenApiSnapshotTests.cs:line 40
+--- End of stack trace from previous location ---
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_03[2].trx
+
+Passed!  - Failed:     0, Passed:   304, Skipped:     0, Total:   304, Duration: 7 s - SecondBrain.Storage.Tests.dll (net10.0)
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_03[3].trx
+
+Passed!  - Failed:     0, Passed:   174, Skipped:     0, Total:   174, Duration: 12 s - SecondBrain.Deploy.Tests.dll (net10.0)
+Results File: /tmp/m4-controls-regression/_DESKTOP-8NJSRF2_2026-10-24_19_46_03[4].trx
+
+Failed!  - Failed:     2, Passed:   357, Skipped:     0, Total:   359, Duration: 49 s - SecondBrain.Server.Tests.dll (net10.0)

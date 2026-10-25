@@ -1,0 +1,121 @@
+{
+  "status": "passed",
+  "imageId": "sha256:1a079c8ce373030447ef4db6314ff872cb50a891df00a670b8895960e5547d94",
+  "script": "deploy/docker/egress-entrypoint.sh",
+  "baselineListenersReachable": true,
+  "localOnly": true,
+  "networkNoneWithNestedNamespace": true,
+  "publicAliasesInsideContainersOnly": true,
+  "checks": [
+    {
+      "uid": 1654,
+      "destination": "allowed_ipv4",
+      "connected": true,
+      "expected": true
+    },
+    {
+      "uid": 1654,
+      "destination": "other_port",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1654,
+      "destination": "other_ipv4",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1654,
+      "destination": "canary",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1654,
+      "destination": "allowed_ipv6",
+      "connected": true,
+      "expected": true
+    },
+    {
+      "uid": 1654,
+      "destination": "other_ipv6",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 65532,
+      "destination": "allowed_ipv4",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 65532,
+      "destination": "other_port",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 65532,
+      "destination": "other_ipv4",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 65532,
+      "destination": "canary",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 65532,
+      "destination": "allowed_ipv6",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 65532,
+      "destination": "other_ipv6",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1655,
+      "destination": "allowed_ipv4",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1655,
+      "destination": "other_port",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1655,
+      "destination": "other_ipv4",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1655,
+      "destination": "canary",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1655,
+      "destination": "allowed_ipv6",
+      "connected": false,
+      "expected": false
+    },
+    {
+      "uid": 1655,
+      "destination": "other_ipv6",
+      "connected": false,
+      "expected": false
+    }
+  ],
+  "extractorNetworkNoneBlocked": true,
+  "seconds": 21.22
+}

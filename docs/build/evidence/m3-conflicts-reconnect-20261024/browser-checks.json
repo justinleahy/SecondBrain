@@ -1,0 +1,66 @@
+{
+  "scope": "Isolated loopback fixture; development evidence, not VPN/Cloudflare acceptance",
+  "results": {
+    "file_conflicts": {
+      "status": "passed",
+      "fileConflicts": [
+        {
+          "width": 1280,
+          "draftPreserved": true,
+          "downloadVerified": true,
+          "externalRevisionIndexed": true,
+          "outcome": "reconciled"
+        },
+        {
+          "width": 390,
+          "draftPreserved": true,
+          "downloadVerified": true,
+          "externalRevisionIndexed": true,
+          "outcome": "new note"
+        }
+      ]
+    },
+    "reconnect": {
+      "status": "passed",
+      "reconnect": [
+        {
+          "width": 1280,
+          "transportInterrupted": true,
+          "rejoined": true,
+          "draftRetainedAndSaved": true,
+          "rejectedStateControls": true,
+          "actualDaemonRestartTested": false
+        },
+        {
+          "width": 390,
+          "transportInterrupted": true,
+          "rejoined": true,
+          "draftRetainedAndSaved": true,
+          "rejectedStateControls": true,
+          "actualDaemonRestartTested": false
+        }
+      ]
+    },
+    "existing_workflows": {
+      "highlighted": [
+        "Retrieval",
+        "retrieval"
+      ],
+      "passage": true,
+      "scriptBlocked": true,
+      "conflictPreserved": true,
+      "mergedSave": true,
+      "mobileCapture": true,
+      "mobileNoOverflow": true,
+      "settingsAndJobs": true,
+      "stepUpReload": true,
+      "signOut": true
+    },
+    "session_lifecycle": {
+      "directLoads": 9,
+      "revokedIdleCircuitClosedMilliseconds": 1905,
+      "independentSessionPreserved": true,
+      "revokedCredentialRejected": true
+    }
+  }
+}

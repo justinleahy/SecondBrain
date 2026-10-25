@@ -4,6 +4,9 @@ namespace SecondBrain.Server.Sources;
 
 public sealed record CreateSourceRequest
 {
+    public string Kind { get; init; } = "folder";
+    public string? Url { get; init; }
+    public bool? Enabled { get; init; }
     public string? Name { get; init; }
     public string Path { get; init; } = "";
     public IReadOnlyList<string> Include { get; init; } = [];
@@ -21,5 +24,6 @@ public sealed record CreateSourceRequest
     public string Watch { get; init; } = "events";
 
     [JsonPropertyName("poll_interval_s")]
-    public int PollIntervalSeconds { get; init; } = 600;
+    public int? PollIntervalSeconds { get; init; }
+    public override string ToString() => $"Create {Kind} source";
 }

@@ -31,7 +31,7 @@ public sealed record ChatSlashCommand(string Name, string Argument, QueryRequest
                 if (separator >= 0)
                 {
                     using var json = JsonDocument.Parse(argument[(separator + 1)..]);
-                    string[] allowed = ["tags", "people", "predicates", "occurred", "updated", "sort", "direction", "limit", "cursor", "source", "path_prefix", "mime"];
+                    string[] allowed = ["tags", "people", "predicates", "occurred", "updated", "sort", "direction", "limit", "cursor", "source", "path_prefix", "mime", "include_cancelled"];
                     if (json.RootElement.ValueKind != JsonValueKind.Object || json.RootElement.EnumerateObject().Any(property => !allowed.Contains(property.Name, StringComparer.Ordinal)))
                         throw new ArgumentException("Unknown query filter. Use tags, people, predicates, occurred, updated, sort, direction, limit, cursor, source, path_prefix or mime.");
                     query = json.RootElement.Deserialize<QueryRequest>(new JsonSerializerOptions(JsonSerializerDefaults.Web))! with { Type = type };

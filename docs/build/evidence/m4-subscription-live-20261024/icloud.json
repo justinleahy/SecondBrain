@@ -1,0 +1,52 @@
+{
+  "initialSucceeded": true,
+  "error": null,
+  "members": 63,
+  "occurrences": 28,
+  "conditionalSucceeded": true,
+  "conditionalError": null,
+  "bytesChanged": false,
+  "unchangedRevisions": true,
+  "transport": [
+    {
+      "Status": "modified",
+      "Error": null,
+      "conditional": false,
+      "acceptedETag": true,
+      "acceptedLastModified": false
+    },
+    {
+      "Status": "modified",
+      "Error": null,
+      "conditional": true,
+      "acceptedETag": true,
+      "acceptedLastModified": false
+    }
+  ],
+  "realTransport": true,
+  "realExtractor": true,
+  "isolatedTemporaryStore": true,
+  "hardenedDeployment": false,
+  "localOnly": true,
+  "feed": "icloud",
+  "testCounts": {
+    "total": "1",
+    "executed": "1",
+    "passed": "1",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "trxSha256": "4a3a7c416fa89a7034302839d14bb975ee276cecea91c1730c418142a822d1d4",
+  "urlAndEventBodiesOmitted": true
+}

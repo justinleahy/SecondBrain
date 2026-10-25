@@ -1,0 +1,26 @@
+[
+  {
+    "width": 1280,
+    "file": "retry-me.md",
+    "bytes_preserved": true,
+    "sha256": "531b79239aa510b66560e4c5c7879abcb30c3ee76e80d78c448979fc7603ff64"
+  },
+  {
+    "width": 1280,
+    "file": "broken.pdf",
+    "bytes_preserved": true,
+    "sha256": "00f186afefb1b7077558d3842320ab92e8fa4b1bb06423c4ea0a4a399a1f811a"
+  },
+  {
+    "width": 390,
+    "file": "retry-me.md",
+    "bytes_preserved": true,
+    "sha256": "369442043564e2df31394965f3d0c428b0f42de544ee39f8271a1d82d925a6b1"
+  },
+  {
+    "width": 390,
+    "file": "broken.pdf",
+    "bytes_preserved": true,
+    "sha256": "00f186afefb1b7077558d3842320ab92e8fa4b1bb06423c4ea0a4a399a1f811a"
+  }
+]

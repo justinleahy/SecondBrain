@@ -1,0 +1,29 @@
+{
+  "fixture": "M4UsageQualification",
+  "syntheticData": true,
+  "results": [
+    {
+      "width": 1280,
+      "dailyTokens": 160,
+      "dailyLimit": 3000
+    },
+    {
+      "width": 390,
+      "dailyTokens": 160,
+      "dailyLimit": 2500
+    }
+  ],
+  "numericBudgetEdited": true,
+  "dailyTotalsAndPurposesDisplayed": true,
+  "usageRefreshed": true,
+  "noHorizontalOverflow": true,
+  "pageErrors": 0,
+  "workflowConsoleErrors": 0,
+  "workflowConsoleWarnings": 0,
+  "screenshotsInspected": [
+    "usage-1280.png",
+    "usage-390.png"
+  ],
+  "fixtureStopped": true,
+  "note": "An initial navigation preceded fixture readiness; the completed workflow then passed at both widths."
+}

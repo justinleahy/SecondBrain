@@ -36,6 +36,9 @@ public sealed class ModelCatalog
                 (declaredCapabilities.Tools is { } tools && tools != capabilities.Tools ||
                  declaredCapabilities.Streaming is { } streaming && streaming != capabilities.Streaming ||
                  declaredCapabilities.StructuredOutput is { } structured && structured != capabilities.StructuredOutput ||
+                 declaredCapabilities.PromptCaching is { } caching && caching != capabilities.PromptCaching ||
+                 declaredCapabilities.Batch is { } batch && batch != capabilities.Batch ||
+                 declaredCapabilities.NativeCitations is { } citations && citations != capabilities.NativeCitations ||
                  declaredCapabilities.ReasoningControl is { } reasoning && reasoning != capabilities.ReasoningControl))
                 throw new InvalidOperationException("Configured model capabilities contradict the reviewed catalog declaration.");
         }
@@ -47,6 +50,9 @@ public sealed class ModelCatalog
                 Streaming = declaredCapabilities?.Streaming ?? false,
                 StructuredOutput = declaredCapabilities?.StructuredOutput ?? false,
                 ReasoningControl = declaredCapabilities?.ReasoningControl ?? false,
+                PromptCaching = declaredCapabilities?.PromptCaching ?? false,
+                Batch = declaredCapabilities?.Batch ?? false,
+                NativeCitations = declaredCapabilities?.NativeCitations ?? false,
             };
             limits = new ModelLimits();
         }

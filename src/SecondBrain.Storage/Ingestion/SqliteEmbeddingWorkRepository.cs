@@ -13,8 +13,8 @@ public sealed class SqliteEmbeddingWorkRepository(IStateStore state, IIndexStore
         return await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
             await using var insert = Command(connection, transaction,
-                "INSERT OR IGNORE INTO embedding_spaces(id,fingerprint,provider,model,dimensions,chunk_generation,status,created_at) VALUES($id,$fingerprint,$provider,$model,$dimensions,1,'building',$now)",
-                ("$id", Ulid.NewUlid().ToString()), ("$fingerprint", fingerprint), ("$provider", provider), ("$model", model), ("$dimensions", dimensions), ("$now", Now()));
+                "INSERT OR IGNORE INTO embedding_spaces(id,fingerprint,provider,model,dimensions,chunk_generation,status,created_at) VALUES($id,$fingerprint,$provider,$model,$dimensions,$generation,'building',$now)",
+                ("$id", Ulid.NewUlid().ToString()), ("$fingerprint", fingerprint), ("$provider", provider), ("$model", model), ("$dimensions", dimensions), ("$generation", EmbeddingFingerprint.ChunkGeneration(fingerprint)), ("$now", Now()));
             await insert.ExecuteNonQueryAsync(token);
             await using var revive = Command(connection, transaction, "UPDATE embedding_spaces SET status='building',retired_at=NULL WHERE fingerprint=$fingerprint AND status='retired'", ("$fingerprint", fingerprint));
             await revive.ExecuteNonQueryAsync(token);
@@ -163,6 +163,10 @@ public sealed class SqliteEmbeddingWorkRepository(IStateStore state, IIndexStore
             return true;
         }
         using var admissionGate = await PublicationCoordinator.AcquirePublicationGateAsync(state, cancellationToken);
+        ChunkingProfile profile;
+        await using (var lease = await state.OpenReadConnectionAsync(cancellationToken))
+        await using (var fingerprint = Command(lease.Connection, null, "SELECT fingerprint FROM embedding_spaces WHERE id=$id", ("$id", spaceId)))
+            profile = EmbeddingFingerprint.Profile(await fingerprint.ExecuteScalarAsync(cancellationToken) as string ?? throw new InvalidOperationException("Embedding space missing."));
         var registry = SecondBrain.Storage.Retrieval.VectorSnapshotRegistry.For(index);
         using var vectorGate = await registry.EnterAsync(cancellationToken);
         var activated = await index.QueueWriteAsync(async (connection, transaction, token) =>
@@ -173,11 +177,12 @@ public sealed class SqliteEmbeddingWorkRepository(IStateStore state, IIndexStore
                 if (await reserved.ExecuteScalarAsync(token) is not null) return false;
             await using (var lease = await state.OpenReadConnectionAsync(token))
             await using (var read = Command(lease.Connection, null,
-                $"SELECT d.id,d.revision,f.generation_json,d.publish_state,d.status FROM documents d JOIN publication_fences f ON f.document_id=d.id WHERE d.status NOT IN ({DocumentStatusSql.Unavailable},'failed','skipped','needs_ocr')"))
+                $"SELECT d.id,d.revision,f.generation_json,d.publish_state,d.status FROM documents d JOIN publication_fences f ON f.document_id=d.id WHERE d.status NOT IN ({DocumentStatusSql.Unavailable},'failed','skipped','needs_ocr') AND NOT EXISTS(SELECT 1 FROM calendar_batches calendar WHERE calendar.container_id=d.id)"))
             await using (var reader = await read.ExecuteReaderAsync(token))
                 while (await reader.ReadAsync(token))
                 {
                     if (reader.GetString(3) != "published" || reader.GetString(4) is "queued" or "processing") return false;
+                    if (ChunkingProfile.FromGeneration(reader.GetString(2)) != profile) return false;
                     authoritative.Add((reader.GetString(0), reader.GetInt64(1), reader.GetString(2)));
                 }
             foreach (var document in authoritative)

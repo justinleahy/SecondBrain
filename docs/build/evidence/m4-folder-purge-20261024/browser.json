@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "evidence": [
+    {
+      "width": 1280,
+      "cancellationPreservesSource": true,
+      "confirmationExplainsExternalFiles": true,
+      "sourceRemoved": true,
+      "retainedDocumentsPurged": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "cancellationPreservesSource": true,
+      "confirmationExplainsExternalFiles": true,
+      "sourceRemoved": true,
+      "retainedDocumentsPurged": true,
+      "noOverflow": true
+    }
+  ],
+  "console": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "hostStopped": true,
+  "externalOriginalsVerifiedAtFixtureShutdown": true,
+  "screenshotsVisuallyReviewed": true,
+  "realExtractor": true,
+  "syntheticData": true
+}

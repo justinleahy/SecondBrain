@@ -3,13 +3,24 @@
 set -euo pipefail
 umask 077
 export SECONDBRAIN_PRIVATE_ADDRESS="${SECONDBRAIN_PRIVATE_ADDRESS:-127.0.0.1}"
-export SECONDBRAIN_HOST_ROOT="${SECONDBRAIN_HOST_ROOT:-$(mktemp -d /tmp/secondbrain-compose.XXXXXX)}"
+smoke_prefix=/tmp/secondbrain-compose.XXXXXX
+smoke_default_project=secondbrain-smoke-$$
+if [ "${SECONDBRAIN_M4_QUALIFY:-0}" = 1 ]; then
+    smoke_prefix=/tmp/secondbrain-m4-compose.XXXXXX
+    smoke_default_project=secondbrain-m4-smoke-$$
+    export SECONDBRAIN_SMOKE_OVERRIDE="${SECONDBRAIN_SMOKE_OVERRIDE:-deploy/tests/m4-compose.yaml}"
+fi
+export SECONDBRAIN_HOST_ROOT="${SECONDBRAIN_HOST_ROOT:-$(mktemp -d "$smoke_prefix")}"
 export SECONDBRAIN_DNS_IP="${SECONDBRAIN_DNS_IP:-10.8.0.1}"
 export SECONDBRAIN_PROVIDER_ALLOWLIST="${SECONDBRAIN_PROVIDER_ALLOWLIST:-}"
 export SECONDBRAIN_ACCESS_ALLOWLIST="${SECONDBRAIN_ACCESS_ALLOWLIST:-}"
-smoke_project="${SECONDBRAIN_SMOKE_PROJECT:-secondbrain-smoke-$$}"
+smoke_project="${SECONDBRAIN_SMOKE_PROJECT:-$smoke_default_project}"
 smoke_client_root=$(mktemp -d /tmp/secondbrain-compose-client.XXXXXX)
 compose=(docker compose --project-name "$smoke_project" -f deploy/compose.yaml -f deploy/tests/compose-smoke.yaml)
+if [ -n "${SECONDBRAIN_SMOKE_OVERRIDE:-}" ]; then
+    test -f "$SECONDBRAIN_SMOKE_OVERRIDE"
+    compose+=(-f "$SECONDBRAIN_SMOKE_OVERRIDE")
+fi
 cleanup() {
     result=$?
     if [ "$result" -eq 0 ] && [ "${SECONDBRAIN_SMOKE_KEEP:-0}" = 1 ]; then
@@ -104,7 +115,8 @@ curl --fail --silent --show-error --cookie "$smoke_client_root/cookies" \
     "$smoke_origin/" > "$smoke_client_root/signed-in.html"
 python3 - "$smoke_client_root/signed-in.html" <<'PY'
 import sys
-assert 'You are signed in.' in open(sys.argv[1]).read(), 'The signed-in Razor shell was not rendered.'
+page = open(sys.argv[1]).read()
+assert 'Your knowledge, with sources.' in page and 'New conversation' in page, 'The authenticated chat shell was not rendered.'
 PY
 browser_session_id=$(curl --fail --silent --show-error --cookie "$smoke_client_root/cookies" \
     "$smoke_origin/auth/me" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
@@ -132,6 +144,14 @@ smoke_brain doctor --extractor-socket /run/secondbrain/extractor.sock
 
 SECONDBRAIN_QUALIFICATION_PASSWORD=compose-smoke-password python3 deploy/tests/m1-workflow.py \
     --origin "$smoke_origin" --compose-project "$smoke_project"
+
+if [ "${SECONDBRAIN_M4_QUALIFY:-0}" = 1 ]; then
+    smoke_results="${SECONDBRAIN_SMOKE_RESULTS:-TestResults}"
+    mkdir -p "$smoke_results"
+    python3 deploy/tests/m4-mounted-backup.py --origin "$smoke_origin" --project "$smoke_project" \
+        --host-root "$SECONDBRAIN_HOST_ROOT" --output "$smoke_results/m4-mounted-backup.json"
+    python3 deploy/tests/m4-meetings.py --origin "$smoke_origin" --output "$smoke_results/m4-meetings.json"
+fi
 
 "${compose[@]}" exec -T daemon sh -c 'test "$(awk '\''/CapEff/ {print $2}'\'' /proc/self/status)" = 0000000000000000'
 "${compose[@]}" exec -T daemon sh -c 'if touch /app/secondbrain-readonly-test 2>/dev/null; then exit 1; fi'

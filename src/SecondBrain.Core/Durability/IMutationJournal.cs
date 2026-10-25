@@ -8,12 +8,25 @@ public interface IMutationJournal
     ValueTask<MutationRecord> FinalizeAsync(string mutationId, CancellationToken cancellationToken = default);
     ValueTask<MutationRecord> ExecuteAsync(MutationWriteRequest request, CancellationToken cancellationToken = default);
     ValueTask<MutationRecoveryReport> RecoverAsync(CancellationToken cancellationToken = default);
+    /// <summary>Settles interrupted snapshot writes after source authority has been removed and before owned-file purge.</summary>
+    ValueTask<MutationRecoveryReport> RecoverCalendarSnapshotsAsync(string containerId, CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(new MutationRecoveryReport(0, 0, 0, 0));
+    /// <summary>Settles file batches and the final container mutation belonging to one accepted source purge.</summary>
+    ValueTask<MutationRecoveryReport> RecoverCalendarPurgeAsync(string operationId, CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(new MutationRecoveryReport(0, 0, 0, 0));
+    /// <summary>Settles older writes to a document after its source has durably stopped accepting writes.</summary>
+    ValueTask<MutationRecoveryReport> RecoverDocumentAsync(string documentId, CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(new MutationRecoveryReport(0, 0, 0, 0));
+    ValueTask<MutationRecoveryReport> RecoverRetentionPurgesAsync(CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult(new MutationRecoveryReport(0, 0, 0, 0));
     /// <summary>
-    /// Undoes a finalized import whose document was never published (admission rejected after the write):
+    /// Undoes a finalized import whose document was never published, or a calendar snapshot never accepted:
     /// removes the destination only while it still holds the imported bytes, then forgets the journal entry.
     /// Returns false when no such unpublished import exists.
     /// </summary>
     ValueTask<bool> DiscardUnpublishedImportAsync(string destination, CancellationToken cancellationToken = default);
+    /// <summary>Removes bounded batches of detached, never-accepted calendar snapshots while preserving live work and accepted history.</summary>
+    ValueTask<int> CleanupUnpublishedCalendarSnapshotsAsync(int limit = 64, CancellationToken cancellationToken = default) => ValueTask.FromResult(0);
 }
 
 /// <summary>The caller authorizes a write before prepare; the journal does not grant write authority.</summary>
@@ -37,6 +50,8 @@ public sealed record MutationWriteRequest
 /// <summary>Durable metadata applied atomically with the mutation's finalized transition.</summary>
 public sealed record MutationFinalization
 {
+    public EnrichmentWritebackAuthorization? EnrichmentWriteback { get; init; }
+    public SecondBrain.Core.Ingestion.RetentionExpiry? Expiry { get; init; }
     /// <summary>Stable identity for a previously authorized assistant write; ordinary writes generate a fresh identity.</summary>
     public string? MutationIdentity { get; init; }
     public bool AssistantNote { get; init; }
@@ -54,6 +69,8 @@ public sealed record MutationFinalization
     public string? ToolExecutionId { get; init; }
     public MutationIdempotency? Idempotency { get; init; }
 }
+
+public sealed record EnrichmentWritebackAuthorization(string JobId, string Lease, string Fingerprint, string SourceStamp);
 
 public sealed record MutationRemovalTarget(string Path, string ExpectedHash);
 

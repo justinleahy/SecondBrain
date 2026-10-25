@@ -57,7 +57,7 @@ public sealed class AuthTests(ITestOutputHelper output)
                 var granted = policy.IsAllowed(endpointPolicy.Operation, new HashSet<Scope> { Scope.Read }) && !endpointPolicy.SessionOnly;
                 var expected = granted
                     ? method == "GET" && endpoint.RoutePattern.RawText!.Contains("{id}", StringComparison.Ordinal) ? HttpStatusCode.NotFound
-                    : endpointPolicy.Operation is "search" or "query" ? HttpStatusCode.BadRequest : HttpStatusCode.OK
+                    : endpointPolicy.Operation is "search" or "query" or "search.facets" or "catalog.complete" ? HttpStatusCode.BadRequest : HttpStatusCode.OK
                     : HttpStatusCode.Forbidden;
                 Assert.True(response.StatusCode == expected, $"{method} {path}: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
             }

@@ -1,0 +1,52 @@
+{
+  "initialSucceeded": true,
+  "error": null,
+  "members": 83,
+  "occurrences": 16,
+  "conditionalSucceeded": true,
+  "conditionalError": null,
+  "bytesChanged": true,
+  "unchangedRevisions": false,
+  "transport": [
+    {
+      "Status": "modified",
+      "Error": null,
+      "conditional": false,
+      "acceptedETag": true,
+      "acceptedLastModified": false
+    },
+    {
+      "Status": "modified",
+      "Error": null,
+      "conditional": true,
+      "acceptedETag": true,
+      "acceptedLastModified": false
+    }
+  ],
+  "realTransport": true,
+  "realExtractor": true,
+  "isolatedTemporaryStore": true,
+  "hardenedDeployment": false,
+  "localOnly": true,
+  "feed": "generic_https",
+  "testCounts": {
+    "total": "1",
+    "executed": "1",
+    "passed": "1",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "trxSha256": "88e633e0a9750e36b921caf91ff7f518cef00fbdf9d91b3b0f9f964e5aa04901",
+  "urlAndEventBodiesOmitted": true
+}

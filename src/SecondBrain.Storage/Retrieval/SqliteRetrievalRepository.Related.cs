@@ -15,9 +15,10 @@ public sealed partial class SqliteRetrievalRepository
         await using (var authTransaction = await authLease.Connection.BeginTransactionAsync(cancellationToken))
             await IngestionAuthorityValidator.ValidateAsync(authLease.Connection, authTransaction, authority, Scope.Read, DateTimeOffset.UtcNow, cancellationToken: cancellationToken);
         await using var lease = await index.OpenReadConnectionAsync(cancellationToken);
-        await using var command = SqliteDocumentRepository.Command(lease.Connection, null, """
+        await using var command = SqliteDocumentRepository.Command(lease.Connection, null, $"""
             SELECT d.document_id,d.revision,d.type,d.title,d.status,d.props_json,d.updated_at
-            FROM indexed_documents d WHERE d.document_id!=@id AND d.status NOT IN ('deleted','purged','missing','failed')
+            FROM indexed_documents d WHERE d.document_id!=@id AND d.status NOT IN ({DocumentStatusSql.Unavailable}) AND d.status!='failed'
+              AND NOT EXISTS(SELECT 1 FROM indexed_calendar_members cm WHERE cm.document_id=d.document_id AND NOT EXISTS(SELECT 1 FROM indexed_documents root WHERE root.document_id=cm.container_id))
               AND d.document_id IN (
                 SELECT to_document_id FROM links WHERE from_document_id=@id AND to_document_id IS NOT NULL
                 UNION SELECT from_document_id FROM links WHERE to_document_id=@id

@@ -259,9 +259,10 @@ public sealed class ConfiguredModelCapabilities : IDisposable
         var chat = Chat("mock-chat", "{ tools: true }");
         Assert.Throws<InvalidOperationException>(() => ProviderRegistry.ValidateConfiguration(
             Load(context.Endpoint, chat, "{ provider: vllm, model: served-embed, capabilities: { tools: true } }"), context.Catalog));
-        ProviderRegistry.ValidateConfiguration(Load(context.Endpoint, chat,
-            "{ provider: vllm, model: served-embed, limits: { embed_dimensions: 4, embed_max_input_tokens: 512, embed_batch_max: 8 }, capabilities: { tools: true } }"),
-            context.Catalog);
+        var declared = Load(context.Endpoint, chat,
+            "{ provider: vllm, model: served-embed, limits: { embed_dimensions: 4, embed_max_input_tokens: 512, embed_batch_max: 8 }, capabilities: { tools: true } }");
+        declared.Chunking = new() { TargetTokens = 256, MaxTokens = 512 };
+        ProviderRegistry.ValidateConfiguration(declared, context.Catalog);
         Assert.Throws<InvalidOperationException>(() => ProviderRegistry.ValidateConfiguration(
             Load(context.Endpoint, chat, "{ provider: vllm, model: text-embedding-3-small, capabilities: { tools: true } }"), context.Catalog));
     }

@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-24",
+  "scope": "Calendar source removal revisions and recoverable source-wide purge with REST, CLI and browser controls; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2181,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_38.trx",
+        "sha256": "8673138d6e60791f96767f80d2e067239e60b616e8181995b0c7c90b746524a1"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 162,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_38[1].trx",
+        "sha256": "2a2789d216c83fc7903e65a29fb41815b88a1008a6fad916a1abd4aea4900a87"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 332,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_38[2].trx",
+        "sha256": "1f5aafa3d478b658ff98e77998a4fa5cb0bd603da3730b092ed960e83b54f519"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_39.trx",
+        "sha256": "571f543feb7e55b300500e0fd0cf09d056a472b33348b017607a160c76e383b5"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_39[1].trx",
+        "sha256": "3666ceff3634316d9969ebcb22a9f04a5a5e3f66f1e6cb1e3b7109178be5eb17"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_43.trx",
+        "sha256": "4c3e5947d1271f293e0c8e7b27aeeb0dd1550160f65ab42e1693287629eb02c8"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 362,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_43[1].trx",
+        "sha256": "99ec9a2e5fcbbc8d5e5f9ac1209eae1b94d87c656a675c4f057269e8af69c526"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 209,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_11_44.trx",
+        "sha256": "099e81565174366954b36f69b16f881b66c8fe696519ac21dab63e1800e09f47"
+      }
+    ]
+  },
+  "focusedLifecycleTests": {
+    "passed": 18,
+    "failed": 0
+  },
+  "browser": {
+    "status": "passed",
+    "widths": [
+      1280,
+      390
+    ],
+    "details": "browser.json",
+    "fixtureStopped": true,
+    "screenshotsReviewed": true
+  },
+  "verifiedBehavior": [
+    "Ordinary calendar source removal publishes new root/member revisions as one group and repeat removal does not revise documents again.",
+    "An authorized purge intent persists before file removal and continues after request interruption or revocation of the requesting credential.",
+    "Source purge erases the protected link, root and member payload lineage, projections and owned snapshots, including a never-imported source with only a candidate snapshot.",
+    "File removal uses bounded journal batches and successfully removes 1100 retained snapshots plus the accepted snapshot and a hidden trash original while preserving an unrelated file.",
+    "Recovery handles source-removal publication interruption, file quarantine, batch finalization, root finalization and never-accepted snapshot writes.",
+    "Strict purge scans ignore ingestion ignore files and reserved-directory skips, reject an owned symlink without following it, and keep the source purge pending until repaired.",
+    "Pending purge failures retain a sanitized error code and attempt time; recovery rotates attempts and continues other selected sources.",
+    "REST/CLI require an explicit purge selection and recent-password session; browser cancellation preserves events and confirmed purge removes their search results."
+  ],
+  "notes": [
+    "A regression test found that normal folder scans omit symlinks, which could leave an owned file path behind during purge. Added a strict purge scanning mode while preserving the ingestion default.",
+    "A focused follow-up found InvalidDataException was not included in purge failure recording. The failure is now recorded and recoverable; the final full regression passed.",
+    "The first browser run passed before these scanner fixes. Final browser qualification was repeated on the final build, with all screenshots reviewed.",
+    "One expected browser console 404 came from deliberately checking that the purged source no longer exists. The page was closed before stopping the final fixture."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Core/Sources/CalendarSubscriptions.cs": "91308212bf3295132452f446ee7160579bd6bb4c28fbc410901ffc0e41c42448",
+    "src/SecondBrain.Core/Durability/IMutationJournal.cs": "73a25cd064fc38e998ef9f1d363d473efa444c6806ab180fe155f84abd08c0a5",
+    "src/SecondBrain.Core/Ingestion/IManagedDocumentFiles.cs": "7f3dc24ad4119d374cdd310e20e1bd9e317b125110d1f574374152a6fd57d4bb",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.Purge.cs": "46e05763f79585a1e8b005a76c97906a984e5ef577223a2c5180c82b0a25efae",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.Lifecycle.cs": "60123b27b115665b5ed8f0e905446fdb7dfa729669a4134aaaaf6fe85b56c7b5",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.Configuration.cs": "5bc7e69809e1895b57deab00c59b6864d6d30abf7e4318392be31ef551949e4f",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.cs": "46963e934c0e83284c2d6b33fa281a3ec5ace96c5e25b0ef650537e55589ab72",
+    "src/SecondBrain.Storage/Durability/CalendarLifecycle.cs": "cdbf0f86dcf97032a3660c086b416653326baa9e980cf193e5c5bd98624f55d3",
+    "src/SecondBrain.Storage/Durability/PublicationCoordinator.Calendar.cs": "79097b5fd8ce7fe0304c09b9a8f3902dea7491c51f3266eb7d2aafcc01cec1be",
+    "src/SecondBrain.Storage/Durability/MutationJournal.cs": "74d41e03632dc915eb4738f7d29d5b6140ac5a7ccab1486dba6ebc5c71ad0396",
+    "src/SecondBrain.Storage/Migrations/M4Schema.cs": "e3a7b5a869119371a2aa743cd5f8c56ce7aa023890812cd74013efb82be4706f",
+    "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs": "e70f5700c2ab74140d31096938291ec7cc0658eab0cb9d105c887b606497cc3e",
+    "src/SecondBrain.Infrastructure/Ingestion/ManagedDocumentFiles.cs": "8cd7ea5b8692f8a1de874eb25b16336547d289863c8cb33bac57deccb594d5d9",
+    "src/SecondBrain.Infrastructure/Ingestion/FolderSourceFiles.cs": "48f51cf421723ee59a51e0fd1767e01f08f40be6c3e9252678185043726d8f41",
+    "src/SecondBrain.Server/Sources/SourceEndpoints.cs": "fce3dff6d297eb44ec5410f6003d7a5971f0f92fdb07891f41012d5a1573ab5a",
+    "src/SecondBrain.Server/Sources/CalendarSubscriptionOrchestrator.cs": "287244ca1ecb94baedfa2d3602d409e37a771b05cb7e7073260b392971331ca2",
+    "src/SecondBrain.Server/Components/Pages/SourcesAndJobs.razor": "8d11f8f2ba9cf2c239ad44ae180b02d8986bca005657e9dec37b6e4412d035e9",
+    "src/SecondBrain.Cli/Commands/SourceCommandRegistration.cs": "00baa85a1d5a8f80f2bdfbf7fdc577a8b50e9fd7456c0f9919eac22b09398d8e",
+    "src/SecondBrain.Cli/Commands/SourceCommands.cs": "c2b332af74d3d7fb4a3f3161bda3373f162f9a24c9dc8244d552dfb3920e6d23",
+    "tests/SecondBrain.Storage.Tests/CalendarLifecycleTests.cs": "f37393aa9856d774127937f83ab701757018f83cb443268fbf0fc81630fd4366",
+    "tests/SecondBrain.Server.Tests/CalendarSourceApiTests.cs": "47c84c50884e3c5eb6faf18f29c18a7b3c1dce96ffa875649e10e13aeaabf57b",
+    "tests/SecondBrain.Deploy.Tests/CliSourceTests.cs": "8197a7c09b89f3c1e22199416c4ce5c494fc54513a53d9317ceb79c4c93001bc",
+    "tests/browser/m4-calendar-source-purge.js": "a671aea15a9363b32aa8ad39938210dc9291d54501ccc1017d24ce6463d5e2cc"
+  },
+  "limitations": [
+    "Folder-source purge is not implemented; purge requests for folder sources explicitly reject instead of silently performing ordinary removal.",
+    "The older direct container-document purge still has its original per-mutation file-count/metadata bounds; the calendar source purge workflow uses batches to handle larger snapshot histories.",
+    "General retention, removed identity expiry, encrypted backup/restore/export, remaining enrichment/provider/budget work and release supply-chain controls remain pending.",
+    "M4 production migration and final hardened deployment/live-feed/backup acceptance remain unqualified.",
+    "No production service, configuration, source or user data was changed."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "syntheticData": true,
+  "hardenedCompose": true,
+  "widths": [
+    1280,
+    390
+  ],
+  "checks": [
+    "speaker display",
+    "lossless transcript text",
+    "timestamp navigation",
+    "recurrence display",
+    "separate-calendar duplicate notice",
+    "no horizontal overflow"
+  ],
+  "screenshotsInspected": true,
+  "consoleErrors": 0,
+  "consoleWarnings": 0,
+  "browserLeftAt": "about:blank"
+}

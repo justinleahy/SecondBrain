@@ -24,7 +24,7 @@ PrivateTmp=yes
 PrivateDevices=yes
 CapabilityBoundingSet=
 AmbientCapabilities=
-ReadWritePaths=/srv/secondbrain /srv/secondbrain-incoming/inbox /run/secondbrain
+ReadWritePaths=/srv/secondbrain /srv/secondbrain-incoming/inbox /run/secondbrain -/etc/secondbrain/settings
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 RestrictSUIDSGID=yes
 LockPersonality=yes
@@ -47,6 +47,8 @@ IPAddressAllow=10.8.0.5
 # address deliberately grants no public service until an operator pins its IPs.
 IPAddressAllow=10.8.0.1
 IPAddressAllow=192.0.2.1
+# Optional source-only public calendar pins belong in 40-calendar-egress.conf.
+# Generate that drop-in with brain maintenance calendar-egress; default is none.
 
 [Install]
 WantedBy=multi-user.target

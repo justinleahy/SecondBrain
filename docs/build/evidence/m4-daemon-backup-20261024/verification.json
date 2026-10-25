@@ -1,0 +1,53 @@
+{
+  "syntheticData": true,
+  "controlledLocalProvider": true,
+  "realExtractorProtocol": true,
+  "fullDaemonComposition": true,
+  "sameUserFixture": true,
+  "hardenedDeploymentQualified": false,
+  "productionChanged": false,
+  "totalHttpEdits": 34,
+  "archives": [
+    {
+      "Files": 22,
+      "Complete": 22,
+      "ConcurrentEdits": 15,
+      "capturedRevision": 7,
+      "manifestVerified": true,
+      "sqliteIntegrity": "ok",
+      "trashIncluded": true
+    },
+    {
+      "Files": 22,
+      "Complete": 22,
+      "ConcurrentEdits": 9,
+      "capturedRevision": 23,
+      "manifestVerified": true,
+      "sqliteIntegrity": "ok",
+      "trashIncluded": true
+    }
+  ],
+  "offlineCliRestore": true,
+  "daemonRestarted": true,
+  "capturedRevisionRestored": true,
+  "rebuiltSearchVerified": true,
+  "oldCredentialRejected": true,
+  "trashRestoredAfterRestart": true,
+  "limitations": [
+    "Disposable same-user Kestrel host, not systemd/Compose isolation.",
+    "Small synthetic corpus; mounted roots and large-corpus resource limits remain separate gates.",
+    "No external calendar service or cloud model used."
+  ],
+  "date": "2026-10-24",
+  "scope": "Full daemon sustained-edit backup, offline CLI restore and restart; not hardened-deployment or full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "qualificationsPassed": 1,
+  "deterministicDeployTestsPassed": 226,
+  "latestFullDeterministicBaseline": 2535,
+  "logHashes": {
+    "build": "01194fca2edfaada3551365514503864e0f6aef706c3238c61675cb29a005f57",
+    "qualification": "730fad3352b6a34986182994fa2c9e0b3faedd66cdbb27a2996246487955e759",
+    "deployRegression": "a343efe164ad94dd06fa283cfa683627e1777844409d44435377aef48312360d"
+  }
+}

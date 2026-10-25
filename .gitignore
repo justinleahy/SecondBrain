@@ -1,11 +1,15 @@
 **/bin/
 **/obj/
+**/node_modules/
 .worktrees/
 *.user
 .vs/
 .idea/
 **/TestResults/
 artifacts/
+/reports/
+/release/
+/dist/
 .playwright-mcp/
 .DS_Store
 

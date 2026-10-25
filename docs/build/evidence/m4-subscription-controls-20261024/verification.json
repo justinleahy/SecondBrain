@@ -1,0 +1,262 @@
+{
+  "date": "2026-10-24",
+  "scope": "Calendar subscription polling, recoverable publication, REST/CLI/browser controls and query freshness; not full CAL or M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2105,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "counts": {
+          "total": "171",
+          "executed": "171",
+          "passed": "171",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_46_02.trx",
+        "sha256": "3927b5967df7b5069d912342cf3a127cd72286ead5a56fc554212b1d481a48d0",
+        "run": "initial"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "counts": {
+          "total": "152",
+          "executed": "152",
+          "passed": "152",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_46_02[1].trx",
+        "sha256": "9de3107315ae8c069dfd7ccbaff6374eb8c7b59095cde0a5851012a6612d30aa",
+        "run": "initial"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "counts": {
+          "total": "73",
+          "executed": "73",
+          "passed": "73",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_46_03.trx",
+        "sha256": "bb9b40b74bce2006f0b4ce3f6981fb31a794d889e68a4a6e1cd03216215722f3",
+        "run": "initial"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "counts": {
+          "total": "809",
+          "executed": "809",
+          "passed": "809",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_46_03[1].trx",
+        "sha256": "5b39e67d488abdf225ec138d43ab193a7476ccce35574ff06422928cabf8035b",
+        "run": "initial"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "counts": {
+          "total": "304",
+          "executed": "304",
+          "passed": "304",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_46_03[2].trx",
+        "sha256": "ab345b208b6f3ecc156c7df2b0fc9014e6e38053a07226c7f401e3c7773beb47",
+        "run": "initial"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "counts": {
+          "total": "174",
+          "executed": "174",
+          "passed": "174",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_46_03[3].trx",
+        "sha256": "24cd900a7f652ec84c15bc558d39857738de9cdacfaa226eff5a2931eb4e01fd",
+        "run": "initial"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "counts": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_46_04.trx",
+        "sha256": "b79df5a61d8d32db3c0cfca94f782ab4d8713f77e03d010966167f37baa25b84",
+        "run": "initial"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "counts": {
+          "total": "359",
+          "executed": "359",
+          "passed": "359",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "server-final.trx",
+        "sha256": "30aed1019b83c01e750ca90418fea5c725f6ce2ad9be7ad671a4c451a589d829",
+        "run": "final after reviewed golden updates"
+      }
+    ]
+  },
+  "browser": {
+    "status": "passed",
+    "fixture": "M4SubscriptionQualification.BrowserWorkflow",
+    "realExtractor": true,
+    "controlledTransport": true,
+    "liveFeed": false,
+    "stopped": true,
+    "evidence": [
+      {
+        "width": 1280,
+        "hiddenRegistration": true,
+        "initialImport": true,
+        "sanitizedFailure": true,
+        "emptyQueryFreshness": true,
+        "retry": true,
+        "pause": true,
+        "edit": true,
+        "resume": true,
+        "removal": true,
+        "noOverflow": true,
+        "screenshot": "sources-1280.png"
+      },
+      {
+        "width": 390,
+        "hiddenRegistration": true,
+        "initialImport": true,
+        "sanitizedFailure": true,
+        "emptyQueryFreshness": true,
+        "retry": true,
+        "pause": true,
+        "edit": true,
+        "resume": true,
+        "removal": true,
+        "noOverflow": true,
+        "screenshot": "sources-390.png"
+      }
+    ]
+  },
+  "reviewedContractChanges": [
+    "Calendar polling hosted service registration",
+    "Redacted source response union and GET-by-id endpoint",
+    "Calendar registration and update fields"
+  ],
+  "correctedDuringQualification": [
+    "The first focused API fixture used an incompatible database parameter helper and was corrected before execution.",
+    "Idle worker cancellation originally faulted its background task and could stop the host; graceful cancellation now exits the wait loop.",
+    "The initial full regression had only the two expected API/composition golden mismatches; reviewed files were updated and all 359 server tests rerun successfully."
+  ],
+  "limitations": [
+    "No production M4 migration or deployment.",
+    "Supplied private iCloud link not fetched; generic live HTTPS qualification pending.",
+    "Configured secret references and systemd/Compose source-egress allowances pending.",
+    "Full source purge, container-original lineage, detached snapshot cleanup and encrypted restore acceptance pending.",
+    "Enrichment/provider, budget/usage, backup/export/retention and supply-chain milestone work remains.",
+    "Historical M2 recorded provider evaluation does not establish M4 model quality."
+  ]
+}

@@ -34,7 +34,8 @@ public sealed partial class SqliteChatRepository
             await connection.ExecuteAsync(Sql("""
                 INSERT INTO chat_usage_history(credential_id,charged_tokens,created_at)
                   SELECT c.credential_id,c.charged_tokens,c.created_at FROM chat_model_calls c
-                  JOIN turns t ON t.id=c.turn_id WHERE t.conversation_id=@id;
+                  JOIN turns t ON t.id=c.turn_id WHERE t.conversation_id=@id
+                    AND NOT EXISTS(SELECT 1 FROM usage_calls u WHERE u.call_id='chat/'||c.turn_id||'/'||c.call_id);
                 INSERT INTO chat_deleted_requests(credential_id,request_id,deleted_at)
                   SELECT d.credential_id,d.request_id,@now FROM chat_turn_details d
                   JOIN turns t ON t.id=d.turn_id WHERE t.conversation_id=@id;

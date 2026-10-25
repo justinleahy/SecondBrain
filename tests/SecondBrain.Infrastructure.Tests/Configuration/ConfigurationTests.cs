@@ -38,6 +38,109 @@ public sealed class ConfigurationTests : IDisposable
 
     private YamlConfigurationLoader Loader(Func<string, string?>? environment = null) => new(Secrets, environment ?? (_ => null));
 
+    [Fact]
+    public void BackupConfigurationLoadsValidatesAndOnlyReloadsRetentionCount()
+    {
+        var path=Path.Combine(root,"config.yaml");
+        var initial=Valid+"\nbackup: {keep: 14, key_file: "+Path.Combine(Secrets,"backup.key")+", external_roots: ["+Incoming+"]}\n";
+        File.WriteAllText(path,initial);using var reload=new ReloadingConfiguration(path,Loader(),watch:false);
+        Assert.Equal(14,reload.CurrentValue.Backup.Keep);Assert.Single(reload.CurrentValue.Backup.ExternalRoots);
+        File.WriteAllText(path,initial.Replace("keep: 14","keep: 7",StringComparison.Ordinal));Assert.True(reload.TryReload());Assert.Equal(7,reload.CurrentValue.Backup.Keep);
+        File.WriteAllText(path,initial.Replace("backup.key","other.key",StringComparison.Ordinal));Assert.False(reload.TryReload());
+        Assert.Throws<ConfigurationException>(()=>Loader().LoadText(Valid+"\nbackup: {key_file: "+Path.Combine(Data,"backup.key")+"}\n"));
+        Assert.Throws<ConfigurationException>(()=>Loader().LoadText(Valid+"\nbackup: {keep: 0}\n"));
+        Assert.Throws<ConfigurationException>(()=>Loader().LoadText(Valid+"\nbackup: {segment_mib: 2}\n"));
+        Assert.Throws<ConfigurationException>(()=>Loader().LoadText(Valid+"\nbackup: {include_trash: false}\n"));
+        Assert.Throws<ConfigurationException>(()=>Loader().LoadText(Valid+"\nbackup: {external_roots: ["+Secrets+"]}\n"));
+    }
+
+    [Fact]
+    public void RetentionConfigurationIsLoadedAndValidated()
+    {
+        var policy = Loader().LoadText(Valid + "\nretention:\n  trash_days: 45\n  payload_days: 10\n  idempotency_hours: 12\n").Retention;
+        Assert.Equal(45, policy.TrashDays); Assert.Equal(10, policy.PayloadDays); Assert.Equal(12, policy.IdempotencyHours);
+        Assert.Throws<ConfigurationException>(() => Loader().LoadText(Valid + "\nretention: {payload_days: 0}\n"));
+        Assert.Throws<ConfigurationException>(() => Loader().LoadText(Valid + "\nretention: null\n"));
+    }
+
+    [Fact]
+    public void CalendarConfigurationRetainsOnlyTheReferenceAndResolvesFromASecretFile()
+    {
+        File.WriteAllText(Path.Combine(Secrets, "CALENDAR_LINK"), "webcal://feed.test/published/2/private-fixture\n");
+        var settings = Loader().LoadText(CalendarYaml("'${CALENDAR_LINK}'"));
+        var calendar = Assert.Single(settings.Sources.CalendarSubscriptions);
+        Assert.Equal("${CALENDAR_LINK}", calendar.UrlReference);
+        Assert.DoesNotContain("private-fixture", System.Text.Json.JsonSerializer.Serialize(settings));
+        Assert.Equal(3600, calendar.PollIntervalSeconds); Assert.True(calendar.Enabled);
+        Assert.Empty(settings.Privacy.TrustedServices);
+    }
+
+    [Theory]
+    [InlineData("'https://feed.test/private-fixture'")]
+    [InlineData("'${CALENDAR_LINK}/extra'")]
+    [InlineData("''")]
+    [InlineData("null")]
+    public void CalendarConfigurationRejectsInlineOrPartialReferences(string value)
+    {
+        var error = Assert.Throws<ConfigurationException>(() => Loader(name => name == "CALENDAR_LINK" ? "https://feed.test/private-fixture" : null).LoadText(CalendarYaml(value)));
+        Assert.DoesNotContain("private-fixture", error.Message);
+    }
+
+    [Theory]
+    [InlineData("ftp://feed.test/private-fixture")]
+    [InlineData("https://other.test/private-fixture")]
+    [InlineData("https://person:private-fixture@feed.test")]
+    public void CalendarConfigurationValidatesResolvedLinksWithoutDisclosingThem(string resolved)
+    {
+        var error = Assert.Throws<ConfigurationException>(() => Loader(name => name == "CALENDAR_LINK" ? resolved : null).LoadText(CalendarYaml("'${CALENDAR_LINK}'")));
+        Assert.DoesNotContain("private-fixture", error.Message);
+    }
+
+    [Fact]
+    public void CalendarReferenceCannotBeAliasedIntoAnOrdinaryField()
+    {
+        var yaml = CalendarYaml("&private '${CALENDAR_LINK}'").Replace("name: Shared", "name: *private", StringComparison.Ordinal);
+        Assert.Throws<ConfigurationException>(() => Loader(name => name == "CALENDAR_LINK" ? "https://feed.test/private-fixture" : null).LoadText(yaml));
+    }
+
+    [Fact]
+    public void CalendarConfigurationRequiresUniqueIdsAndBounds()
+    {
+        foreach (var replacement in new[] { "id: ''", "id: 'path/not-id'", "name: ''", "poll_interval_s: 299" })
+        {
+            var yaml = CalendarYaml("'${CALENDAR_LINK}'");
+            yaml = replacement.StartsWith("name:", StringComparison.Ordinal) ? yaml.Replace("name: Shared", replacement, StringComparison.Ordinal) :
+                replacement.StartsWith("id:", StringComparison.Ordinal) ? yaml.Replace("id: shared", replacement, StringComparison.Ordinal) : yaml.Replace("      url: '${CALENDAR_LINK}'", "      url: '${CALENDAR_LINK}'\n      " + replacement, StringComparison.Ordinal);
+            Assert.Throws<ConfigurationException>(() => Loader(name => name == "CALENDAR_LINK" ? "https://feed.test/private-fixture" : null).LoadText(yaml));
+        }
+        var duplicate = CalendarYaml("'${CALENDAR_LINK}'").Replace("  allowed_roots:", "    - { id: shared, name: Other, url: '${CALENDAR_LINK}' }\n  allowed_roots:", StringComparison.Ordinal);
+        Assert.Throws<ConfigurationException>(() => Loader(name => name == "CALENDAR_LINK" ? "https://feed.test/private-fixture" : null).LoadText(duplicate));
+    }
+
+    private string CalendarYaml(string value) => Valid.Replace("sources:", "sources:\n  calendar_allowed_origins: ['https://feed.test']\n  calendar_subscriptions:\n    - id: shared\n      name: Shared\n      url: " + value, StringComparison.Ordinal);
+
+    [Theory]
+    [InlineData("http://feed.test")]
+    [InlineData("webcal://feed.test")]
+    [InlineData("https://feed.test/path")]
+    [InlineData("https://feed.test?secret=private-value")]
+    [InlineData("https://user:private-value@feed.test")]
+    public void CalendarOriginPermissionsRejectPathsCredentialsAndOtherSchemes(string origin)
+    {
+        var yaml = Valid.Replace("sources:", "sources:\n  calendar_allowed_origins: ['" + origin + "']", StringComparison.Ordinal);
+        var error = Assert.Throws<ConfigurationException>(() => Loader().LoadText(yaml));
+        Assert.DoesNotContain("private-value", error.Message);
+    }
+
+    [Fact]
+    public void CalendarOriginPermissionIsSeparateFromProviderTrust()
+    {
+        var yaml = Valid.Replace("sources:", "sources:\n  calendar_allowed_origins: ['https://feed.test']", StringComparison.Ordinal);
+        var options = Loader().LoadText(yaml);
+        Assert.Equal(new[] { "https://feed.test" }, options.Sources.CalendarAllowedOrigins);
+        Assert.DoesNotContain("https://feed.test", options.Privacy.TrustedServices);
+    }
+
     [Theory]
     [InlineData("listeners: [{ scheme: http, bind: 127.0.0.1, port: 7171 }]", "listeners: []")]
     [InlineData("hosts: [localhost, 127.0.0.1]", "hosts: []")]
@@ -234,6 +337,58 @@ public sealed class ConfigurationTests : IDisposable
     [Fact]
     public void ConfigIncomingRootCannotContainTheDataRoot()
         => Assert.Throws<ConfigurationException>(() => Loader().LoadText(Valid.Replace($"incoming_root: {Incoming}", $"incoming_root: {root}", StringComparison.Ordinal)));
+
+    [Fact]
+    public void SettingsUpdatesRejectStaleInvalidAndUnauthorizedCandidatesWithoutChangingTheFile()
+    {
+        var path = Path.Combine(root, "settings.yaml");
+        File.WriteAllText(path, Valid);
+        using var configuration = new ReloadingConfiguration(path, Loader(), watch: false);
+        var first = configuration.ReadForEdit();
+        Assert.Throws<ConfigurationEditAuthorityException>(() => configuration.UpdateForEdit(first.Version, value => value.Replace("model: chat", "model: next", StringComparison.Ordinal), () => false));
+        Assert.Equal(Valid, File.ReadAllText(path)); Assert.Same(first.Options, configuration.CurrentValue);
+        Assert.Throws<ConfigurationException>(() => configuration.UpdateForEdit(first.Version, value => value.Replace("port: 7171", "port: 7222", StringComparison.Ordinal), () => true));
+        Assert.Equal(Valid, File.ReadAllText(path));
+        var updated = configuration.UpdateForEdit(first.Version, value => value.Replace("model: chat", "model: next", StringComparison.Ordinal), () => true);
+        Assert.Equal("next", updated.Options.Models.Chat!.Model); Assert.NotEqual(first.Version, updated.Version);
+        Assert.Throws<ConfigurationEditConflictException>(() => configuration.UpdateForEdit(first.Version, value => value, () => true));
+        Assert.Equal("next", Loader().Load(path).Models.Chat!.Model);
+    }
+
+    [Fact]
+    public void SettingsUpdateDetectsExternalEditsAndPreservesSymlinkAndPermissions()
+    {
+        var path = Path.Combine(root, "settings-target.yaml"); var link = Path.Combine(root, "settings-link.yaml");
+        File.WriteAllText(path, Valid); File.CreateSymbolicLink(link, path);
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        using var configuration = new ReloadingConfiguration(link, Loader(), watch: false);
+        var first = configuration.ReadForEdit();
+        File.WriteAllText(path, Valid + "\n# external edit\n");
+        Assert.Throws<ConfigurationEditConflictException>(() => configuration.UpdateForEdit(first.Version, value => value, () => true));
+        var latest = configuration.ReadForEdit();
+        configuration.UpdateForEdit(latest.Version, value => value.Replace("model: chat", "model: next", StringComparison.Ordinal), () => true);
+        Assert.NotNull(new FileInfo(link).LinkTarget);
+        Assert.Contains("model: next", File.ReadAllText(path));
+        if (!OperatingSystem.IsWindows()) Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite, File.GetUnixFileMode(path));
+        Assert.Empty(Directory.GetFiles(root, ".secondbrain-settings-*"));
+    }
+
+    [Fact]
+    public async Task WatcherFollowsConfigurationLinkWhenItsTargetIsAtomicallyReplaced()
+    {
+        var directory = Path.Combine(root, "writable-settings"); Directory.CreateDirectory(directory);
+        var target = Path.Combine(directory, "config.yaml"); var link = Path.Combine(root, "config-link.yaml");
+        File.WriteAllText(target, Valid); File.CreateSymbolicLink(link, target);
+        using var configuration = new ReloadingConfiguration(link, Loader());
+        var changed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        configuration.Changed += value => { if (value.Models.Chat!.Model == "updated") changed.TrySetResult(); };
+        var replacement = Path.Combine(directory, "replacement.yaml");
+        File.WriteAllText(replacement, Valid.Replace("model: chat", "model: updated", StringComparison.Ordinal));
+        File.Move(replacement, target, overwrite: true);
+        await changed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Equal("updated", configuration.CurrentValue.Models.Chat!.Model);
+        Assert.NotNull(new FileInfo(link).LinkTarget);
+    }
 
     [Fact]
     public void ConfigReentrantReloadDoesNotDeliverSupersededSnapshotLast()

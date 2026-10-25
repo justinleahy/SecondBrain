@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "evidence": [
+    {
+      "width": 1280,
+      "recurringInstances": true,
+      "displayNameFilter": true,
+      "eventDetails": true,
+      "duplicateNotice": true,
+      "inertMarkup": true,
+      "editorType": true,
+      "partialCoverage": true
+    },
+    {
+      "width": 390,
+      "recurringInstances": true,
+      "displayNameFilter": true,
+      "eventDetails": true,
+      "duplicateNotice": true,
+      "inertMarkup": true,
+      "editorType": true,
+      "partialCoverage": true
+    }
+  ]
+}

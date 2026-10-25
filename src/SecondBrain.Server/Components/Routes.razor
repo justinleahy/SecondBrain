@@ -1,5 +1,7 @@
+@inject NavigationManager Navigation
+<SessionWatch />
 <Router AppAssembly="typeof(App).Assembly">
   <Found Context="routeData">
-    <RouteView RouteData="routeData" />
+    <RouteView RouteData="routeData" @key="Navigation.Uri" />
   </Found>
 </Router>

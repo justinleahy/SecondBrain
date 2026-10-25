@@ -1,0 +1,24 @@
+{
+  "fixture": "M4RetentionQualification",
+  "syntheticData": true,
+  "viewports": [
+    {
+      "width": 1280,
+      "debugLogDays": 2
+    },
+    {
+      "width": 390,
+      "debugLogDays": 3
+    }
+  ],
+  "policySaveAndReload": true,
+  "cleanupConfirmationAndCancellation": true,
+  "manualCleanup": true,
+  "noHorizontalOverflow": true,
+  "screenshotsInspected": [
+    "retention-1280.png",
+    "retention-390.png"
+  ],
+  "fixtureStopped": true,
+  "console": "One expected pre-login 401. No observed workflow errors; stopping the host while its tab remained open subsequently produced reconnect errors. The tab was navigated away afterwards."
+}

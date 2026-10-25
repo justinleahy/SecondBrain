@@ -25,7 +25,12 @@ public sealed class FolderProcessingOrchestrator(ISourceRepository sources, IFol
         await scanGate.WaitAsync(token);
         try
         {
-            if (source.Id == "inbox") return await ScanInboxAsync(source, token);
+            if (source.Id == "inbox")
+            {
+                var imported = await ScanInboxAsync(source, token);
+                await sources.RecordScanErrorAsync(source.Id, null, clock.GetUtcNow(), token);
+                return imported;
+            }
             var admitted = await DrainPlanAsync(source, token);
             await documents.CompleteScanAsync(source.Id, token);
             var entries = new List<SourceFileEntry>();
@@ -54,7 +59,14 @@ public sealed class FolderProcessingOrchestrator(ISourceRepository sources, IFol
             admitted += await DrainPlanAsync(source, token);
             await documents.CompleteScanAsync(source.Id, token);
             processing.Notify();
+            await sources.RecordScanErrorAsync(source.Id, null, clock.GetUtcNow(), token);
             return admitted;
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or InvalidOperationException or InvalidDataException or IngestionConflictException)
+        {
+            var reason = ex is InvalidDataException or IngestionConflictException ? ex.Message : ex.GetType().Name;
+            await sources.RecordScanErrorAsync(source.Id, reason.Length > 1024 ? reason[..1024] : reason, clock.GetUtcNow(), token);
+            throw;
         }
         finally { scanGate.Release(); }
     }
@@ -137,13 +149,25 @@ public sealed class FolderProcessingOrchestrator(ISourceRepository sources, IFol
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        try { await RunAsync(stoppingToken); }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
+    }
+
+    private async Task RunAsync(CancellationToken stoppingToken)
+    {
         var inboxPath = await claims.EnsureAsync(options.CurrentValue.Sources.IncomingRoot, stoppingToken);
         await documents.EnsureInboxAsync(inboxPath, stoppingToken);
+        var nextPurgeRecovery = DateTimeOffset.MinValue;
         while (!stoppingToken.IsCancellationRequested)
         {
             var nextWakeAt = DateTimeOffset.MaxValue;
             try
             {
+                if (clock.GetUtcNow() >= nextPurgeRecovery)
+                {
+                    await documents.RecoverPurgesAsync(stoppingToken);
+                    nextPurgeRecovery = clock.GetUtcNow().AddMinutes(1);
+                }
                 foreach (var source in await sources.ListAsync(stoppingToken))
                 {
                     if (source.Status != "active" || source.Kind is not ("folder" or "inbox")) continue;

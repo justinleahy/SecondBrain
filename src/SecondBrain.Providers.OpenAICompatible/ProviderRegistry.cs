@@ -16,7 +16,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
     private readonly IDisposable? subscription;
     private readonly IDisposable privacyValidationSubscription;
     private readonly object sync = new();
-    private readonly List<OpenAICompatibleBinding> ownedBindings = [];
+    private readonly List<IDisposable> ownedBindings = [];
     private RegistrySnapshot snapshot;
     private readonly Dictionary<string, IProviderBinding> embeddingHistory = [];
 
@@ -54,19 +54,21 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
     {
         lock (sync)
         {
+            if (fingerprint is not null) fingerprint = SecondBrain.Core.Ingestion.EmbeddingFingerprint.BindingPart(fingerprint);
             if (fingerprint is not null && embeddingHistory.TryGetValue(fingerprint, out var retained)) return retained;
             if (!snapshot.Configuration.Providers.TryGetValue(name, out var configured))
                 throw new InvalidOperationException("Active embedding provider is no longer configured.");
-            var bindingFingerprint = SecondBrain.Core.Ingestion.EmbeddingFingerprint.Create(name, configured.Endpoint, model, dimensions);
-            if (fingerprint is not null && fingerprint != bindingFingerprint)
-                throw new InvalidOperationException("Active embedding endpoint changed; keyword fallback is required.");
-            if (embeddingHistory.TryGetValue(bindingFingerprint, out var existing)) return existing;
             var current = snapshot.Roles[ModelRole.Embed].Model.Limits;
             var limits = current with { EmbedDimensions = dimensions };
-            var binding = new OpenAICompatibleBinding(name, new Uri(configured.Endpoint!), ModelRole.Embed,
-                factory, privacy, catalog, credentials.Resolve(configured.ApiKeyReference), dimensions, timeProvider,
-                limits, model);
-            ownedBindings.Add(binding);
+            var binding = CreateBinding(name, configured, ModelRole.Embed, dimensions, limits, model, null);
+            var bindingFingerprint = SecondBrain.Core.Ingestion.EmbeddingFingerprint.Create(name, binding.EmbeddingIdentity, model, dimensions);
+            if (fingerprint is not null && fingerprint != bindingFingerprint)
+            {
+                ((IDisposable)binding).Dispose();
+                throw new InvalidOperationException("Active embedding endpoint or protocol changed; keyword fallback is required.");
+            }
+            if (embeddingHistory.TryGetValue(bindingFingerprint, out var existing)) { ((IDisposable)binding).Dispose(); return existing; }
+            ownedBindings.Add((IDisposable)binding);
             embeddingHistory.Add(bindingFingerprint, binding);
             return binding;
         }
@@ -124,14 +126,21 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
             if (!options.Providers.TryGetValue(binding.Provider, out var provider))
                 throw new InvalidOperationException("Model role names an unknown provider.");
             ValidateProvider(provider);
-            ModelCatalog.ValidateRole(role, catalog.Resolve(binding.Provider, binding.Model, EffectiveLimits(binding, role), binding.Capabilities));
+            var resolved = catalog.Resolve(binding.Provider, binding.Model, EffectiveLimits(binding, role), binding.Capabilities);
+            ModelCatalog.ValidateRole(role, resolved);
+            if (provider.Kind == "ollama" && role == ModelRole.Rerank) throw new InvalidOperationException("The native Ollama adapter does not provide reranking.");
+            if (provider.Kind == "anthropic" && role is ModelRole.Embed or ModelRole.Rerank) throw new InvalidOperationException("The Anthropic adapter provides chat and enrichment only.");
+            if (resolved.Capabilities.Batch && provider.Kind is not ("openai" or "anthropic")) throw new InvalidOperationException("This adapter does not provide native batches.");
+            if (resolved.Capabilities.NativeCitations && provider.Kind != "anthropic") throw new InvalidOperationException("This adapter does not provide verified native citations.");
+            if (role == ModelRole.Embed && resolved.Limits.EmbedMaxInputTokens < options.Chunking.MaxTokens)
+                throw new InvalidOperationException("The embedding input limit must cover chunking.max_tokens.");
             if (binding.Fallback is not null) Validate(binding.Fallback, role, visited);
         }
     }
 
     private static void ValidateProvider(ProviderOptions provider)
     {
-        if (provider.Kind is not ("openai_compatible" or "openai-compatible"))
+        if (provider.Kind is not ("openai_compatible" or "openai-compatible" or "ollama" or "anthropic" or "openai"))
             throw new InvalidOperationException("Configured provider adapter is unavailable.");
         if (!Uri.TryCreate(provider.Endpoint, UriKind.Absolute, out var endpoint) || endpoint.Scheme is not ("http" or "https") ||
             !string.IsNullOrEmpty(endpoint.UserInfo) || !string.IsNullOrEmpty(endpoint.Query) || !string.IsNullOrEmpty(endpoint.Fragment))
@@ -141,7 +150,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
     private RegistrySnapshot Build(SecondBrainOptions options)
     {
         ValidateConfiguration(options, catalog, credentials);
-        var created = new List<OpenAICompatibleBinding>();
+        var created = new List<IDisposable>();
         try
         {
             var roles = new Dictionary<ModelRole, ProviderRoleBinding>();
@@ -155,7 +164,7 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
             foreach (var (name, provider) in options.Providers)
             {
                 if (providers.ContainsKey(name)) continue;
-                if (provider.Kind is not ("openai_compatible" or "openai-compatible"))
+                if (provider.Kind is not ("openai_compatible" or "openai-compatible" or "ollama" or "anthropic" or "openai"))
                     throw new InvalidOperationException("Configured provider adapter is unavailable.");
                 var binding = NewBinding(name, provider, ModelRole.Enrich, null, null, null, null);
                 providers.Add(name, binding);
@@ -175,12 +184,11 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
                 return new(role, binding, resolved, bindingOptions.Fallback is null ? null : Create(bindingOptions.Fallback, role), bindingOptions.Reasoning);
             }
 
-            OpenAICompatibleBinding NewBinding(string name, ProviderOptions provider, ModelRole role, int? dimensions, ModelLimits? limits,
+            IProviderBinding NewBinding(string name, ProviderOptions provider, ModelRole role, int? dimensions, ModelLimits? limits,
                 string? model, ModelCapabilityOptions? capabilities)
             {
-                var binding = new OpenAICompatibleBinding(name, new Uri(provider.Endpoint ?? throw new InvalidOperationException("Provider endpoint is missing.")),
-                    role, factory, privacy, catalog, credentials.Resolve(provider.ApiKeyReference), dimensions, timeProvider, limits, model, capabilities);
-                created.Add(binding);
+                var binding = CreateBinding(name, provider, role, dimensions, limits, model, capabilities);
+                created.Add((IDisposable)binding);
                 return binding;
             }
         }
@@ -191,10 +199,22 @@ public sealed class ProviderRegistry : IProviderRegistry, IDisposable
         }
     }
 
+    private IProviderBinding CreateBinding(string name, ProviderOptions provider, ModelRole role, int? dimensions,
+        ModelLimits? limits, string? model, ModelCapabilityOptions? capabilities)
+    {
+        var endpoint = new Uri(provider.Endpoint ?? throw new InvalidOperationException("Provider endpoint is missing."));
+        var key = credentials.Resolve(provider.ApiKeyReference);
+        if (provider.Kind == "anthropic")
+            return new AnthropicBinding(name, endpoint, role, factory, privacy, catalog, key, timeProvider, limits, model, capabilities);
+        return provider.Kind == "ollama"
+            ? new OllamaBinding(name, endpoint, role, factory, privacy, catalog, key, dimensions, timeProvider, limits, model, capabilities)
+            : new OpenAICompatibleBinding(name, endpoint, role, factory, privacy, catalog, key, dimensions, timeProvider, limits, model, capabilities, provider.Kind == "openai");
+    }
+
     private void RememberEmbedding(ProviderRoleBinding role)
     {
         if (role.Model.Limits.EmbedDimensions is { } dimensions)
-            embeddingHistory[SecondBrain.Core.Ingestion.EmbeddingFingerprint.Create(role.Provider.ProviderName, role.Provider.Endpoint?.AbsoluteUri, role.Model.Model, dimensions)] = role.Provider;
+            embeddingHistory[SecondBrain.Core.Ingestion.EmbeddingFingerprint.Create(role.Provider.ProviderName, role.Provider.EmbeddingIdentity, role.Model.Model, dimensions)] = role.Provider;
         if (role.Fallback is not null) RememberEmbedding(role.Fallback);
     }
 

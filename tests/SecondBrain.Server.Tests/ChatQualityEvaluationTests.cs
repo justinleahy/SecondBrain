@@ -107,6 +107,13 @@ public sealed class ChatQualityEvaluationTests(ITestOutputHelper output)
             options.Models.Embed.Limits = options.Models.Embed.Limits with { EmbedDimensions = 1024 };
             options.Limits.PerCredential.ModelTokensPerHour = 2_000_000;
             options.Budgets.DailyTokens = 5_000_000;
+        }, services =>
+        {
+            // This is the immutable M2 recording's environment. New M4 types require
+            // fresh live-model qualification; they must not rewrite these recorded calls.
+            Microsoft.Extensions.DependencyInjection.Extensions.ServiceCollectionDescriptorExtensions.Replace(services,
+                ServiceDescriptor.Singleton(new SecondBrain.Core.Domain.TypeRegistry(
+                    new SecondBrain.Core.Domain.TypeRegistry().Types.Where(type => type.Key is "note" or "article" or "file"))));
         });
         var key = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Write, Scope.Infer });
         var actor = new AuthenticatedCredential(key.Record.Id, "api_key", key.Record.Generation, key.Record.AccountEpoch, key.Record.GrantedScopes, null);
@@ -168,7 +175,7 @@ public sealed class ChatQualityEvaluationTests(ITestOutputHelper output)
                 {
                     Assert.True(callIndex < entry.Calls.Count, "The loop requested an additional provider call for " + question.Id);
                     var call = entry.Calls[callIndex];
-                    Assert.Equal(call.NormalizedRequest, normalizedRequest);
+                    Assert.Equal(call.NormalizedRequest, LegacyM2Request(normalizedRequest));
                     var response = call.NormalizedResponse;
                     foreach (var identity in identities) response = response.Replace(identity.Value, identity.Key, StringComparison.Ordinal);
                     context.Response.StatusCode = call.Status;
@@ -198,13 +205,47 @@ public sealed class ChatQualityEvaluationTests(ITestOutputHelper output)
             {
                 Assert.Equal(entry.Calls.Count, callIndex);
                 Assert.Equal(entry.Status, final.Status);
-                Assert.Equal(entry.Answer, normalizedAnswer);
+                Assert.Equal(entry.Answer, LegacyM2Answer(normalizedAnswer));
                 Assert.Equal(entry.SourceCount, sources.Count);
             }
         }
         Assert.Equal(questions.Length, saved.Cases.Count);
         Assert.Equal(saved.Embeddings.Count, embeddingIndex);
         Assert.Empty(await factory.Services.GetRequiredService<IChatProposalRepository>().ListAsync(null, actor));
+    }
+
+    // The immutable M2 recordings predate the optional calendar cancellation flag.
+    // Check its exact backwards-compatible default before omitting only that schema
+    // addition from historical request comparison. M4 model quality needs fresh runs.
+    private static string LegacyM2Request(string normalized)
+    {
+        var root = JsonNode.Parse(normalized)!;
+        foreach (var tool in root["tools"]?.AsArray() ?? [])
+        {
+            var function = tool?["function"];
+            if (function?["name"]?.GetValue<string>() != "query_records") continue;
+            var properties = function["parameters"]?["properties"]?["query"]?["properties"]?.AsObject();
+            if (properties?["include_cancelled"] is not { } flag) continue;
+            Assert.Equal(2, flag.AsObject().Count);
+            Assert.Equal("boolean", flag["type"]!.GetValue<string>());
+            Assert.False(flag["default"]!.GetValue<bool>());
+            properties.Remove("include_cancelled");
+        }
+        return Sort(root).ToJsonString();
+    }
+
+    // The immutable M2 answers predate explicit citation granularity. Verify the
+    // historical passage contract before removing only this additive field.
+    private static string LegacyM2Answer(string normalized)
+    {
+        var root = JsonNode.Parse(normalized)!;
+        foreach (var citation in root["citations"]?.AsArray() ?? [])
+        {
+            Assert.Equal("passage", citation!["granularity"]!.GetValue<string>());
+            Assert.False(citation.AsObject().ContainsKey("spans"));
+            citation.AsObject().Remove("granularity");
+        }
+        return Sort(root).ToJsonString();
     }
 
     private static string Normalize(string json, Dictionary<string, string> identities)

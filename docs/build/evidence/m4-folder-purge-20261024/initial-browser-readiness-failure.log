@@ -1,0 +1,19 @@
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.77]     SecondBrain.Server.Tests.M4FolderPurgeQualification.BrowserWorkflow [FAIL]
+  Failed SecondBrain.Server.Tests.M4FolderPurgeQualification.BrowserWorkflow [2 s]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+Expected: "indexed"
+Actual:   "indexed_partial"
+                  ↑ (pos 7)
+  Stack Trace:
+     at SecondBrain.Server.Tests.M4FolderPurgeQualification.BrowserWorkflow() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/M4FolderPurgeQualification.cs:line 44
+   at SecondBrain.Server.Tests.M4FolderPurgeQualification.BrowserWorkflow() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/M4FolderPurgeQualification.cs:line 48
+--- End of stack trace from previous location ---
+Results File: /tmp/m4-folder-purge-browser/browser.trx
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - SecondBrain.Server.Tests.dll (net10.0)

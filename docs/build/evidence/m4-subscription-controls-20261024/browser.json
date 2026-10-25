@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "fixture": "M4SubscriptionQualification.BrowserWorkflow",
+  "realExtractor": true,
+  "controlledTransport": true,
+  "liveFeed": false,
+  "stopped": true,
+  "evidence": [
+    {
+      "width": 1280,
+      "hiddenRegistration": true,
+      "initialImport": true,
+      "sanitizedFailure": true,
+      "emptyQueryFreshness": true,
+      "retry": true,
+      "pause": true,
+      "edit": true,
+      "resume": true,
+      "removal": true,
+      "noOverflow": true,
+      "screenshot": "sources-1280.png"
+    },
+    {
+      "width": 390,
+      "hiddenRegistration": true,
+      "initialImport": true,
+      "sanitizedFailure": true,
+      "emptyQueryFreshness": true,
+      "retry": true,
+      "pause": true,
+      "edit": true,
+      "resume": true,
+      "removal": true,
+      "noOverflow": true,
+      "screenshot": "sources-390.png"
+    }
+  ]
+}

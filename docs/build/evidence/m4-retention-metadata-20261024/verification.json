@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-24",
+  "scope": "Retention configuration and temporary-record cleanup only; document/file expiry and full M4 acceptance remain open",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2189,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_24.trx",
+        "sha256": "8ad177976adafb437f7dc3851bf680f2afa2c3bf642c77bc9941792ed5c30ad5"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 163,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_24[1].trx",
+        "sha256": "afcd66a1fe7a82213f4b85fd8be377d25fb91316d60ea2c077104a7b4cf0a599"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_24[2].trx",
+        "sha256": "0bfaab4813df410181357ae8fc6b7341846194272ce5593fb100c390a9eb5c17"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_24[3].trx",
+        "sha256": "2616dca9f0c2aaf53e503887b567795cb0ecba80d3d24f6746e473649590bef6"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_25.trx",
+        "sha256": "d5181bc2116f0e25a928d911015489c33af658ca442177fe361f4da7c553751e"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 337,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_25[1].trx",
+        "sha256": "2f956d6b0d8ba87fa836af5e1cd790f09760071a55fa1d029373a4d523b270d1"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 209,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_25[2].trx",
+        "sha256": "503ed76a5905efd4906a434033c16db64195f1eb0c56e85bba83ecd81f0df3cd"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 364,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_16_25[3].trx",
+        "sha256": "8c9d0662ef3bfead54b441e48b9754e7a8e4797019237ff57a1df26413a09a21"
+      }
+    ]
+  },
+  "apiAndSchedulerTests": {
+    "passed": 2,
+    "failed": 0,
+    "clockControlledHourlyCleanup": true
+  },
+  "verifiedBehavior": [
+    "Configured retention periods load from YAML, reject invalid values and update without restart.",
+    "Expired open proposals become expired and emit a retained conversation event; executing proposals are preserved.",
+    "Resolved proposal metadata is pruned after its configured lifetime, while saved conversation payloads remain live.",
+    "A released payload with no remaining owner is removed without an additional age delay; detached never-owned payloads have a configured grace period.",
+    "Generic payload refs, direct foreign keys and prepared/applied mutation plans protect referenced bodies, including unknown referrer kinds.",
+    "Expired API idempotency entries and old retrieval traces are pruned in bounded batches; fresh entries remain.",
+    "Metadata cleanup is available through an admin endpoint, requires step-up for sessions and revalidates actor authority in the writer.",
+    "The hourly background run was exercised with controlled time against real repositories and only removed the expired orphan."
+  ],
+  "api": "POST /v1/maintenance/retention/metadata",
+  "scheduler": "Starts after one hour, drains at most 16 bounded batches per cycle, retries backlog or transient database failures after one minute.",
+  "notes": [
+    "The first build exposed a store callback signature mismatch, corrected before functional tests.",
+    "The initial targeted API run passed the behavior check and found the expected composition/OpenAPI golden differences. The additions were reviewed and the snapshots updated.",
+    "The final regression includes the last-owner release rule and the scheduled-cleanup test."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Core/Configuration/RetentionOptions.cs": "eb4871ca240e06db8530fe6024a7fd9580322e0722c9b333769f3dfe2612d003",
+    "src/SecondBrain.Core/Configuration/SecondBrainOptions.cs": "281e960daf75490aed50f914f34fef223f87513167d1dfc6a33b47fc3e035a13",
+    "src/SecondBrain.Core/Configuration/ConfigurationValidator.cs": "5a13bc251e2408cab57d86c2ad504658b79b0e7860d30f99da920767f9643476",
+    "src/SecondBrain.Core/Ingestion/IMetadataRetention.cs": "53d489bcc583fa232a9956faadc66e7059796db49a17e49c2db7b176d541d603",
+    "src/SecondBrain.Core/Authorization/EndpointPolicy.cs": "c5405d88bc4433155517a28358774c8c3ca37928166c953858a3b3c1940f35af",
+    "src/SecondBrain.Infrastructure/Configuration/YamlConfigurationLoader.cs": "f5b406a00ef203ad0227e2b199691ef69e16c511946cf07152db56789e2dc7d3",
+    "src/SecondBrain.Storage/Ingestion/SqliteMetadataRetention.cs": "943177da9cb69a835c94a6dd2b437922c54a7491b99ca131a32559a760be6ab1",
+    "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs": "2d5656b2607fdf0a99d919204d7d3773554336d54327dd545a6abf5cfa6af06e",
+    "src/SecondBrain.Server/Ingestion/MetadataRetentionOrchestrator.cs": "52061947a888aa5ce668a7d3f584205fc1bc54c31f5de0b2cb0659bb078f2868",
+    "src/SecondBrain.Server/Http/HttpServices.cs": "1e7cbc35255754b1d9a63a243eb392ba99334b14c6e038204b2b061e03b270fb",
+    "src/SecondBrain.Server/Http/AdministrationEndpoints.cs": "fec0a0e2da4f86c2d2496790ecd82c07f2b8441a4e3c0b7529437803f38ec6b8",
+    "src/SecondBrain.Server/Http/SettingsEndpoints.cs": "c78d3bb213323e4fdc2862f557a5a3a7c745664752355d1301a92f763c906d4a",
+    "tests/SecondBrain.Storage.Tests/MetadataRetentionTests.cs": "7133ef1dd29d5e9bdf5ce0164551e6fd27eb821cb94b95b14bfa52cccdc7fc29",
+    "tests/SecondBrain.Server.Tests/MetadataRetentionApiTests.cs": "31bc72f07653c5f89ce456da55f51bc71574b1d2ed0585f61ae9ac66b077526a"
+  },
+  "limitations": [
+    "This endpoint and worker cover temporary records. Trash purge, removed-document/identity expiry, debug-log files, backup rotation and the aggregate maintenance operation are still required.",
+    "The retention configuration includes the eventual document/file policy fields; those fields do not yet drive document or file deletion.",
+    "No new retention browser UI or CLI command is claimed by this checkpoint.",
+    "Large-corpus retention latency has not been qualified. Row mutation batches are bounded, but that alone does not prove the latency bound.",
+    "Remaining enrichment/provider/budget, backup/restore/export, release supply-chain, production migration and hardened deployment gates remain open.",
+    "No production service or user data was changed."
+  ]
+}

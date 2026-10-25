@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Retrieval;
 
@@ -27,8 +28,13 @@ public sealed record ChatSourceRequest(string DocumentId, long Revision, string 
 
 /// <summary>Source bytes and their exact version, captured from the authoritative projection.</summary>
 public sealed record ChatSource(int Number, string DocumentId, long Revision, string Generation,
-    string ChunkId, int Ordinal, int? Page, string Title, string Excerpt, string Sha256);
-public sealed record ChatCitation(ChatSource Source, string State = "current");
+    string ChunkId, int Ordinal, int? Page, string Title, string Excerpt, string Sha256,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SecondBrain.Core.Ingestion.TranscriptLocator? Transcript = null);
+public sealed record ChatCitation(ChatSource Source, string State = "current",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ChatCitationSpan>? Spans = null)
+{
+    public string Granularity => Spans is {Count:>0} ? "span" : "passage";
+}
 public sealed record ChatAnswer(string Text, IReadOnlyList<ChatCitation> Citations,
     int InvalidCitationCount = 0, string[]? Warnings = null);
 
@@ -61,6 +67,8 @@ public interface IChatRepository
     ValueTask RecordProviderExposureAsync(string turnId, string callId, AuthenticatedCredential actor, CancellationToken cancellationToken = default, ChatProviderTarget? target = null)
         => ValueTask.CompletedTask;
     ValueTask SettleTokensAsync(string turnId, string callId, long? actualTokens, CancellationToken cancellationToken = default);
+    ValueTask SettleUsageAsync(string turnId, string callId, SecondBrain.Core.Providers.ModelUsageTotals? totals, CancellationToken cancellationToken = default)
+        => SettleTokensAsync(turnId, callId, totals?.TotalTokens, cancellationToken);
     ValueTask FinishAsync(string turnId, string status, ChatAnswer answer, string? failureCode = null, CancellationToken cancellationToken = default);
     ValueTask<int> RecoverInterruptedAsync(CancellationToken cancellationToken = default);
 }

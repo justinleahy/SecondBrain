@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "fixture": "Synthetic calendar using real sandboxed extractor; isolated store disposed after qualification",
+  "evidence": [
+    {
+      "width": 1280,
+      "containerTrash": true,
+      "childrenHidden": true,
+      "sourcePaused": true,
+      "prematureResumeRejected": true,
+      "restoredIdentity": true,
+      "explicitResume": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "containerTrash": true,
+      "childrenHidden": true,
+      "sourcePaused": true,
+      "prematureResumeRejected": true,
+      "restoredIdentity": true,
+      "explicitResume": true,
+      "noOverflow": true
+    }
+  ],
+  "screenshotsReviewed": [
+    "trash-1280.png",
+    "trash-390.png",
+    "restored-1280.png",
+    "restored-390.png"
+  ],
+  "notes": [
+    "Initial browser attempts used an asynchronous readiness callback that returned before publication. Replaced it with bounded polling on the actual query result, removed the failed synthetic source and reran both widths successfully.",
+    "The subsequent configured-restart pause fix changes storage behavior only and is covered by the final deterministic regression; browser qualification predates that final fix."
+  ]
+}

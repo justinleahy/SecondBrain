@@ -98,6 +98,31 @@ public sealed class SqliteStoresTests
     }
 
     [Fact]
+    public async Task StartupLeaseOutlivesQueryBudgetButStillEnforcesStatementsAndPoolCapacity()
+    {
+        using var root = new TempRoot();
+        await using var store = new SqliteIndexStore(root.Path, new SqliteStoreOptions
+        {
+            ReadPoolSize = 1, ReadLeaseTimeout = TimeSpan.FromMilliseconds(100),
+            TransactionTimeout = TimeSpan.FromMilliseconds(100), StatementTimeout = TimeSpan.FromMilliseconds(50)
+        });
+        await using (var startup = await store.OpenStartupReadConnectionAsync())
+        {
+            using var transaction = startup.Connection.BeginTransaction();
+            await Task.Delay(200);
+            Assert.Equal(1L, await ScalarAsync(startup.Connection, "SELECT 1;", transaction));
+            using var limit = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => store.OpenReadConnectionAsync(limit.Token).AsTask());
+            await Assert.ThrowsAsync<TimeoutException>(() => ScalarAsync(startup.Connection,
+                "WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<1000000000) SELECT sum(x) FROM n;", transaction));
+        }
+        await using var ordinary = await store.OpenReadConnectionAsync();
+        var connection = ordinary.Connection;
+        await Task.Delay(200);
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => ScalarAsync(connection, "SELECT 1;"));
+    }
+
+    [Fact]
     public async Task StatementBudgetInterruptsCpuBoundSql()
     {
         using var root = new TempRoot();

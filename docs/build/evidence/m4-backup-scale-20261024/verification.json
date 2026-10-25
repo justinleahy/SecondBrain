@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-24",
+  "status": "in_progress",
+  "scope": "Backup scalability fix and isolated 100k-document upgrade/backup/restore qualification",
+  "productionChanged": false,
+  "fullReleaseTests": {
+    "projects": 8,
+    "passed": 2549,
+    "failed": 0,
+    "skipped": 0
+  },
+  "focusedBackupRestoreMigrationTests": 96,
+  "warningsAsErrorsBuild": "passed",
+  "fullDaemonRegression": "daemon-regression.json",
+  "baseline": "baseline.json",
+  "changes": [
+    "Disk-backed exact path/hash revision lookup replaces per-file scans of all documents.",
+    "Disposable copy and manifest workspaces avoid per-file disk synchronization; the final encrypted archive and installed restore files retain durable publication.",
+    "Restore payload selection is materialized once in a disk-backed temporary table, avoiding repeated full-corpus scans.",
+    "A durable preparing-phase marker now records interrupted restore work before files are copied; graceful cleanup and rollback preserve the original roots."
+  ],
+  "largeCorpusQualification": "100,000-document migration and 100,006-file sustained-write backup passed. The corrected offline restore completed metadata preparation and is rebuilding the index; final manifest/state/search/memory checks remain pending.",
+  "logHashes": {
+    "m4-scale-fix-build.log": "4857c94d5ba1663417c0c9ef65b1e4ba0c24190b06dc44267410971cf65c3756",
+    "m4-scale-fix-tests.log": "83312ca12e64e4c29aac0754d11419af4d9225b2221bd3a1026a52137f447aee",
+    "m4-scale-fix-full-tests.log": "c337283a3d8fe98c665afdde5f058084ec795b22de5fb5192f94ecf42ff1dd07",
+    "m4-scale-fix-daemon.log": "d2a70ee00d80988323c51e9ec77c3a918f6e94b5772fdb01b45a789a51848a49",
+    "m4-scale-image-build.log": "7ab45707763e74960e33aeb14ee38b300a2e7dfe14bbea7799bf9919a76cc93e",
+    "m4-startup-lease-tests.log": "faf61946170e7b0768f7411ce167bd4108dd42e6c9d2cc1061a65f1d17bf5493",
+    "m4-startup-lease-build.log": "55c16abe2d34e37839abe010f0889c37cb3749dec1b13cd7fe703edd38e62c1f",
+    "m4-startup-lease-full-tests.log": "b1848e7a899a5fe6188b61d7bf667074ca335960893006ee9d90a100d30fa5ce",
+    "m4-startup-lease-image.log": "f9a5ea02da69b0d6504a1f897f7aae55aa0b5da1cc1ff4ba87cbee45a64ae84a"
+  },
+  "sourceHashes": {
+    "src/SecondBrain.Storage/Backup/BackupFilePins.cs": "054e98c012270069d628429978ef13a662789704bb9df095e40d3dd7c597438a",
+    "src/SecondBrain.Storage/Backup/BackupPackage.cs": "3c1bac6bae16b6ce0557fdeaa87677f4b5043af14fe2f173c1fb13e75b32af55",
+    "src/SecondBrain.Storage/Backup/BackupPackage.Revisions.cs": "2046538f6745ee2f2a2778f732a2fa2f2d8b8840314e7d104098e50a151eb023",
+    "src/SecondBrain.Storage/Backup/BackupPackage.Restore.cs": "d67be0a90c1edb9aec94fd3872b9399765d65da8911557b50b15032b73a90132",
+    "tests/SecondBrain.Storage.Tests/BackupPackageTests.cs": "c03d58257a1b426d93f121e8e0be134fb5f8079e992858bd429c4545880bf213",
+    "deploy/tests/m4-scale-backup.py": "4c643dad04dc8af6411781f616745678e015a23e038e1f14649aa303ae116735",
+    "src/SecondBrain.Storage/SqliteStore.cs": "df4faa8f92e18b3aad25693bf67b7c6976750713ce32010cc97692a86d5c3bce",
+    "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs": "19e948e7a1f033525bf57bbd758896e608e82e86a5e1176738e96172f29a7db6",
+    "tests/SecondBrain.Storage.Tests/SqliteStoresTests.cs": "bc1b406bace3ea5f7dc0c2aef995037652776e9bf723d2600283b915628835c3",
+    "src/SecondBrain.Storage/Backup/RestorePreparation.cs": "ac0148abc76c3e339fe6afc570e9787741c2777b333b4310081f8a0465f75f7d",
+    "src/SecondBrain.Storage/Backup/BackupInstaller.cs": "58f07a944902e8266207707f8053afa284c09d8f6af5c1b501cf8de0003dbf4b",
+    "tests/SecondBrain.Storage.Tests/BackupInstallerTests.cs": "9d1450695a6829e4f84825cfd78d4d7689cec60f8d4ba38ddad7ae054504c7ef"
+  },
+  "startupFinding": "The corrected five-minute startup preload lease passed initial million-vector startup without the old lease timeout. Final post-restore startup and memory checks remain pending.",
+  "keyCustody": {
+    "operatorWillStoreCopy": true,
+    "handoffConfirmed": true,
+    "offServerCustody": "operator-attested; see ../m4-key-custody-20261024/verification.json"
+  },
+  "restoreResource": "restore-resource.json",
+  "startupLeaseFocusedTests": 13,
+  "startupLeaseFullBuild": "passed",
+  "currentImageId": "sha256:9a6594ecf53243cbe8bdb8cfc8c81d352a00181f85e2289c50277c71af33ca43",
+  "currentRestoreImageId": "sha256:e9f7b16fe71d04038a885e94fc66715c04224db5a3988e854270ce4a4e221dba"
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "image": "secondbrain:comparison",
+    "imageId": "sha256:b32ff6c81bef62a2b37e9c1c775106fb39fb4ed8a4af943dab53d344aed07063",
+    "exitCode": 0,
+    "matches": 0,
+    "severity": {}
+  },
+  {
+    "image": "secondbrain-extractor:comparison",
+    "imageId": "sha256:24b3b2132dea9ef1d14b42d431630af209f84cf5decfd3fdddc7e83947d48de8",
+    "exitCode": 0,
+    "matches": 0,
+    "severity": {}
+  },
+  {
+    "image": "secondbrain-egress:comparison",
+    "imageId": "sha256:64bb4c40c711c9b30db04afdd3af8319ff4942777c1927cee6a06acbb9e8898d",
+    "exitCode": 0,
+    "matches": 0,
+    "severity": {}
+  }
+]

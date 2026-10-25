@@ -13,7 +13,7 @@ namespace SecondBrain.Infrastructure.Configuration;
 public sealed class YamlConfigurationLoader
 {
     private static readonly HashSet<string> DeferredSections = new(StringComparer.Ordinal)
-    { "chunking", "classification", "types", "calendar", "retrieval", "enrichment", "sandbox", "retention", "backup" };
+    { "types", "retrieval", "sandbox" };
     // Appendix B sections of which only some keys are modeled; the remaining keys stay deferred.
     private static readonly Dictionary<string, HashSet<string>> PartialSections = new(StringComparer.Ordinal)
     { ["ingest"] = new(StringComparer.Ordinal) { "sync_embed_deadline_ms", "deep_rescan_at" } };
@@ -86,6 +86,16 @@ public sealed class YamlConfigurationLoader
             if (options.Extractor is null) throw new ConfigurationException("extractor must not be null.");
             if (environment("SECONDBRAIN_EXTRACTOR_SOCKET") is { } socketOverride) options.Extractor.SocketPath = socketOverride;
             ConfigurationValidator.Validate(options, UnixHostPathInspector.Instance);
+            foreach (var calendar in options.Sources.CalendarSubscriptions)
+            {
+                try
+                {
+                    var link = SecondBrain.Core.Sources.CalendarLink.Parse(resolver.Resolve(calendar.UrlReference));
+                    if (!options.Sources.CalendarAllowedOrigins.Any(origin => SecondBrain.Core.Sources.CalendarLink.ValidateOrigin(origin) == link.Origin))
+                        throw new ConfigurationException("Configured calendar origin must appear in sources.calendar_allowed_origins.");
+                }
+                catch (SecondBrain.Core.Sources.CalendarSubscriptionException) { throw new ConfigurationException("Configured calendar URL is invalid."); }
+            }
             return new ConfigurationSnapshot(options, sandboxMetadata);
         }
         catch (YamlException) { throw new ConfigurationException("Configuration YAML or schema is invalid; inspect field names and types."); }
@@ -93,7 +103,7 @@ public sealed class YamlConfigurationLoader
         catch (InvalidOperationException) { throw new ConfigurationException("Configuration contains an invalid structure."); }
     }
 
-    private void Visit(YamlNode node, HashSet<YamlNode> ancestors, Dictionary<YamlScalarNode, string> secretReferences, int depth)
+    private void Visit(YamlNode node, HashSet<YamlNode> ancestors, Dictionary<YamlScalarNode, string> secretReferences, int depth, bool calendarEntry = false)
     {
         if (depth > 64 || !ancestors.Add(node))
             throw new ConfigurationException("Configuration YAML aliases are recursive or nesting exceeds 64 levels.");
@@ -105,12 +115,22 @@ public sealed class YamlConfigurationLoader
                 {
                     if (pair.Key is not YamlScalarNode key || key.Value is null)
                         throw new ConfigurationException("Configuration mapping keys must be text.");
-                    if (SecretFields.Contains(key.Value))
+                    if (SecretFields.Contains(key.Value) || calendarEntry && key.Value == "url")
                     {
                         if (pair.Value is not YamlScalarNode scalar || scalar.Value is null || !SecretResolver.ReferencePattern().IsMatch(scalar.Value))
                             throw new ConfigurationException($"Field {key.Value} must contain a ${{NAME}} reference, never an inline secret.");
                         _ = resolver.Resolve(scalar.Value);
                         secretReferences[scalar] = scalar.Value;
+                        continue;
+                    }
+                    if (key.Value == "calendar_subscriptions")
+                    {
+                        if (pair.Value is not YamlSequenceNode calendars) throw new ConfigurationException("calendar_subscriptions must be a list.");
+                        foreach (var calendar in calendars.Children)
+                        {
+                            if (calendar is not YamlMappingNode) throw new ConfigurationException("Calendar subscription entries must be mappings.");
+                            Visit(calendar, ancestors, secretReferences, depth + 1, calendarEntry: true);
+                        }
                         continue;
                     }
                     Visit(pair.Value, ancestors, secretReferences, depth + 1);

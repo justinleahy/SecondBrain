@@ -1,0 +1,229 @@
+{
+  "date": "2026-10-24",
+  "scope": "Protected calendar subscription foundation; not end-to-end subscriptions, M4 acceptance, or deployment",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2078,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_38_19.trx",
+        "counts": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "917bfdf1bc4a2b1dfc84ff38aa4ed7e0edd2922deb1a649f33b78be97460cafa"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_38_22.trx",
+        "counts": {
+          "total": "171",
+          "executed": "171",
+          "passed": "171",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "6780a6711df19215c4c994ed4586ea9637efa4dc9682904b141c2a9cf8848225"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_38_26.trx",
+        "counts": {
+          "total": "164",
+          "executed": "164",
+          "passed": "164",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "76ef9719e2c215758feda7aff803d2bd3aaa814d27b6ac4cf7751389b75669d8"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_38_38.trx",
+        "counts": {
+          "total": "809",
+          "executed": "809",
+          "passed": "809",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "4b08d0ead0df45b1ae87f5591660eae17f105c1fec91d9f244e9d30a1a13fd05"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_38_44.trx",
+        "counts": {
+          "total": "152",
+          "executed": "152",
+          "passed": "152",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "d29cab6eb4716ad31f0c2dc7c94391e2f6642c6f6f4c7e0945a3053a4e8c6d49"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_38_48.trx",
+        "counts": {
+          "total": "73",
+          "executed": "73",
+          "passed": "73",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "aab3f42f05d25bb2d041cadf3e59d7f6bb71f0852b702d9f5df37c8f07769863"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_38_55.trx",
+        "counts": {
+          "total": "348",
+          "executed": "348",
+          "passed": "348",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "ebc0c41869d6204b3906e63efaf94653e669a9f938f4ca5238957d0a401d48bf"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_39_42.trx",
+        "counts": {
+          "total": "298",
+          "executed": "298",
+          "passed": "298",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "a54078fed8cd70ee241ca063abe1e0c7f2e5f92dff2503344506d159cfaa2689"
+      }
+    ]
+  },
+  "validated": [
+    "Complete bearer link encrypted using a dedicated Data Protection purpose; no plaintext in source listings or serialized work",
+    "Stable source/container identity, coalesced refresh intent, expiring leases, restart recovery, source-generation invalidation and pause/resume",
+    "Persisted attempt/success/change timestamps, bounded retry delays, rejected-content fingerprints, accepted-validator preservation on failure",
+    "Webcal-to-HTTPS normalization, exact origin permission separate from model provider trust",
+    "Public unicast address checks including mapped IPv4, canary exclusion, second DNS resolution and pinning before connection",
+    "Redirect refusal, disabled ambient proxies/cookies, HTTP/1.1, bounded headers, encoded/decoded byte and expansion limits",
+    "Truncated gzip/deflate/Brotli rejection even when the runtime decompressor returns apparently complete calendar text",
+    "Revocation while reading a body discards its stage; transport errors omit bearer links"
+  ],
+  "testTransport": "Response handling uses controlled message handlers. DNS rebinding rejection exercises the real socket-handler path and confirms no loopback connection. No external feed was fetched.",
+  "notYetImplementedOrQualified": [
+    "Accepted snapshot and member publication integrated with refresh completion and source-generation fencing",
+    "Automatic hosted polling and independent daily subscription materialization",
+    "Subscription REST/CLI/browser controls and query/assistant freshness propagation",
+    "Configured secret-reference subscriptions and immutable resolved-URL reconciliation",
+    "Systemd/Compose source-origin firewall provisioning",
+    "Live iCloud/generic HTTPS qualification, full end-to-end subscription crash/race qualification",
+    "Remaining M4 enrichment, providers, usage/budgets, encrypted backup/restore/export, retention and release operations"
+  ],
+  "privateFeed": {
+    "provided": true,
+    "fetched": false,
+    "urlPersistedInRepository": false
+  },
+  "files": {
+    "src/SecondBrain.Core/Sources/CalendarLink.cs": "52a0f70ecc1cc990d5265d3042ba2bd7ee3c48eda8c75c6c2f7ff170a1d09fbb",
+    "src/SecondBrain.Core/Sources/CalendarSubscriptions.cs": "add690369c67cbc8a9bb0da4f856da32eb64d78cefafc4e67cc59019b4bc2857",
+    "src/SecondBrain.Core/Sources/CalendarSubscriptionService.cs": "e8f2a6f0af16817a9f1c108f81e66ada22270a27f529f1a560e5007eaab5cae5",
+    "src/SecondBrain.Core/Configuration/SourcesOptions.cs": "40b654bd56c881eeba41652514fec974f822cb2b32bf43515102e34c5c5592a0",
+    "src/SecondBrain.Infrastructure/Network/CalendarDownloadTransport.cs": "d1f5a5c237d6d25e5b87b2a7d0802da11732dd99abad17704e9afcf5d986dd13",
+    "src/SecondBrain.Infrastructure/Network/CalendarResponseIntegrity.cs": "c5b272888282a5be420bf55c2e4c5049f292c79fea5201f42ff284b1ec059772",
+    "src/SecondBrain.Infrastructure/Security/CalendarSubscriptionSecrets.cs": "8b1dad1476559629a1d73c29df1db0c337d21b78ae421f5347e466993200c8bf",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.cs": "67ba0c73784a6a7bf267e05b9256ea17337c4f02309851bb17b5ca55be407c5d",
+    "src/SecondBrain.Storage/Migrations/M4Schema.cs": "cad731dfad98ec8ac756611af0f80b816ca2f9e12a68df1d87b1fb7f69eeaa70",
+    "tests/SecondBrain.Infrastructure.Tests/Network/CalendarDownloadTests.cs": "f8fb843a04cd8133b155546ab8e1d861c18f599b76118d6df23a0bd26e7ea1ca",
+    "tests/SecondBrain.Storage.Tests/CalendarSubscriptionTests.cs": "f38fe1f1f6a077574f5c8edb921ba2881d653a7a83a57642146272def6eb771f",
+    "tests/SecondBrain.Server.Tests/CalendarSubscriptionSecretTests.cs": "2532391f87249c16482aeaefc4d5cdc1397f3328c6522a66dfb23ec1b581efd6"
+  }
+}

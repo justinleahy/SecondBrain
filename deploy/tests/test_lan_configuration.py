@@ -66,6 +66,25 @@ class LanConfigurationTests(unittest.TestCase):
             self.assertEqual(path.stat().st_mode & 0o777, 0o600)
             self.assertEqual(list(path.parent.iterdir()), [path])
 
+    def test_stable_settings_link_resolves_to_the_private_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            (root / 'settings').mkdir()
+            target = root / 'settings/config.yaml'
+            target.write_bytes(b'private configuration')
+            (root / 'config.yaml').symlink_to('settings/config.yaml')
+            self.assertEqual(lan.configuration_path(root), target)
+            self.assertEqual(lan.read_configuration(target)[0], b'private configuration')
+
+    def test_configuration_alias_cannot_redirect_privileged_writes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            outside = root / 'outside.yaml'; outside.write_bytes(b'unchanged')
+            (root / 'config.yaml').symlink_to(outside)
+            with self.assertRaisesRegex(RuntimeError, 'Unexpected configuration link'):
+                lan.configuration_path(root)
+            self.assertEqual(outside.read_bytes(), b'unchanged')
+
 
 if __name__ == '__main__':
     unittest.main()

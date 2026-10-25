@@ -188,7 +188,7 @@ public sealed partial class SqliteChatRepository(IStateStore state, TimeProvider
         }
         else
         {
-            var verified = CitationVerifier.Verify(answer.Text, await ReadSourcesAsync(connection, transaction, turnId, token));
+            var verified = CitationVerifier.VerifyAnswer(answer, await ReadSourcesAsync(connection, transaction, turnId, token),Policy(row).MaxReadBytes);
             answer = verified with
             {
                 InvalidCitationCount = verified.InvalidCitationCount + answer.InvalidCitationCount,

@@ -1,0 +1,50 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using SecondBrain.Core.Auth
+@using SecondBrain.Server.Auth
+@implements IAsyncDisposable
+@inject AuthenticationStateProvider Authentication
+@inject IServiceProvider Services
+
+@code {
+    private readonly CancellationTokenSource lifetime = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var principal = (await Authentication.GetAuthenticationStateAsync()).User;
+        if (!SessionRevalidationProvider.TryAuthority(principal, out var id, out var generation, out var epoch)) return;
+        // Resolve persistence only for an authenticated interactive circuit. This read-only
+        // watch does not refresh idle expiry and also runs while the browser is inactive.
+        var authority = Services.GetRequiredService<ICredentialAuthority>();
+        _ = WatchAsync(authority, id!, generation, epoch);
+    }
+
+    private async Task WatchAsync(ICredentialAuthority authority, string id, long generation, long epoch)
+    {
+        Exception? failure = null;
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
+            do
+            {
+                if (!await authority.IsCurrentAsync(id, generation, epoch, lifetime.Token)) throw new AuthorityChangedException();
+            } while (await timer.WaitForNextTickAsync(lifetime.Token));
+        }
+        catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+        catch (Exception exception) { failure = exception; }
+        if (failure is not null && !lifetime.IsCancellationRequested)
+        {
+            // There is deliberately no ErrorBoundary around this watch: invalid authority
+            // is fatal to the circuit, including one which receives no inbound activity.
+            try { await DispatchExceptionAsync(failure); }
+            catch (Exception) when (lifetime.IsCancellationRequested) { }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await lifetime.CancelAsync();
+        // Do not await the watch from its own renderer-triggered disposal path.
+        lifetime.Dispose();
+    }
+}

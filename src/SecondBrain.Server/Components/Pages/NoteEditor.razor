@@ -1,0 +1,86 @@
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JavaScript
+
+<div class="note-editor-toolbar">
+    <span>Markdown · <code>[[</code> for links · <code>#</code> for tags</span>
+    <button type="button" disabled="@(loading || ReadOnly)" @onclick="ToggleAsync">@(plain ? "Use rich editor" : "Use plain text editor")</button>
+</div>
+@if (error is not null) { <p class="knowledge-notice" role="status">@error</p> }
+@if (plain)
+{
+    <label>Content<textarea class="note-editor" @bind="workingValue" @bind:event="oninput" @bind:after="ChangedAsync" rows="20" readonly="@ReadOnly"></textarea></label>
+}
+else
+{
+    <div class="monaco-host" @ref="host" aria-label="Markdown editor"></div>
+    @if (loading) { <p role="status">Loading editor…</p> }
+}
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public long Version { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public EventCallback Changed { get; set; }
+    private ElementReference host;
+    private IJSObjectReference? module, editor;
+    private DotNetObjectReference<NoteEditor>? callback;
+    private string workingValue = "";
+    private string? error;
+    private long appliedVersion = -1;
+    private bool plain, loading = true, reset, appliedReadOnly, disposed, initializing;
+
+    protected override void OnParametersSet()
+    {
+        if (appliedVersion == Version) return;
+        workingValue = Value; appliedVersion = Version; reset = true;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (disposed || plain || initializing) return;
+        initializing = true;
+        try
+        {
+            if (editor is null)
+            {
+                module ??= await JavaScript.InvokeAsync<IJSObjectReference>("import", "/editor/editor.js");
+                if (disposed) { await module.DisposeAsync(); module = null; return; }
+                callback ??= DotNetObjectReference.Create(this);
+                editor = await module.InvokeAsync<IJSObjectReference>("create", host, workingValue, callback);
+                if (disposed) { await editor.InvokeVoidAsync("dispose"); await editor.DisposeAsync(); editor = null; return; }
+                reset = false; loading = false;
+                await editor.InvokeVoidAsync("setReadOnly", ReadOnly); appliedReadOnly = ReadOnly;
+                StateHasChanged();
+            }
+            else if (reset) { await editor.InvokeVoidAsync("setValue", workingValue); reset = false; }
+            if (editor is not null && appliedReadOnly != ReadOnly)
+            { await editor.InvokeVoidAsync("setReadOnly", ReadOnly); appliedReadOnly = ReadOnly; }
+        }
+        catch (JSDisconnectedException) { }
+        catch (JSException)
+        {
+            if (!disposed) { plain = true; loading = false; error = "The rich editor could not start. You can continue with the plain text editor."; StateHasChanged(); }
+        }
+        finally { initializing = false; }
+    }
+    public async Task<string> GetValueAsync() => editor is null || plain ? workingValue : await editor.InvokeAsync<string>("getValue");
+    [JSInvokable] public Task MarkDirty() => ChangedAsync();
+    private Task ChangedAsync() => Changed.InvokeAsync();
+    private async Task ToggleAsync()
+    {
+        workingValue = await GetValueAsync();
+        if (editor is not null) { await editor.InvokeVoidAsync("dispose"); await editor.DisposeAsync(); editor = null; }
+        plain = !plain; loading = !plain; error = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        disposed = true;
+        try
+        {
+            if (editor is not null) { await editor.InvokeVoidAsync("dispose"); await editor.DisposeAsync(); }
+            if (module is not null) await module.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+        callback?.Dispose();
+    }
+}

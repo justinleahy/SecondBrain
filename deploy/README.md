@@ -4,10 +4,15 @@
 serve as distinct unprivileged identities, with umask 0077 for daemon-created
 files. Keep `/srv/secondbrain` and its key ring at 0700, owned by `secondbrain`.
 The incoming tree is 0750, owned by `secondbrain-sync` with group `secondbrain`.
-Config and external secret files are 0600 and mounted read-only to the daemon.
-Directories need traversal bits: config/secrets are private traversable
+Configuration is 0600 in a private 0700 `config/settings` directory that the
+daemon can update atomically. The stable `config.yaml` path is a relative link
+to `settings/config.yaml`. External secret files remain 0600 and read-only to
+the daemon. Directories need traversal bits: config/secrets are private traversable
 directories, not 0600 directories. The shared runtime directory must be group
 writable for the standalone extractor, with its socket at 0660.
+
+Existing installations use the [M3 settings migration](systemd/writable-settings.md)
+to adopt the private writable directory without changing configuration contents.
 
 The reference model provider is the separate [vllm](vllm/README.md) Compose
 project: two vLLM servers on the GPU host, one per model, whose `IP:port` pairs
@@ -39,7 +44,7 @@ sudo mkdir -p "$SECONDBRAIN_HOST_ROOT"/{data,incoming,config,project}
 printf 'nameserver %s\n' "$SECONDBRAIN_DNS_IP" | sudo tee "$SECONDBRAIN_HOST_ROOT/resolv.conf"
 docker compose -f deploy/compose.yaml --profile provision run --rm provision
 # Configure providers, all required model roles, and exact trusted origins first.
-sudoedit "$SECONDBRAIN_HOST_ROOT/config/config.yaml"
+sudoedit "$SECONDBRAIN_HOST_ROOT/config/settings/config.yaml"
 docker compose -f deploy/compose.yaml up -d egress extractor
 # Enter the account password and save the initial admin key shown once.
 docker compose -f deploy/compose.yaml run --rm --no-deps daemon dotnet /app/cli/brain.dll init
@@ -81,7 +86,7 @@ IP:443 pairs. Hosted providers are added only when `SECONDBRAIN_LOCAL_ONLY=false
 Provider locality comes from the exact trusted origin in configuration; the
 firewall enforces the operator-pinned address and port. UID65532 may reach
 DNS and the published Cloudflare tunnel IPs on TCP7844; the daemon gets no tunnel
-allowance. IPv6 external egress is denied. An explicit read-only `resolv.conf`
+allowance. IPv6 external egress is denied by default; M4 can opt in to exact calendar TCP pins on a dual-stack bridge. Narrow neighbor-discovery rules support those IPv6 connections. An explicit read-only `resolv.conf`
 avoids Docker's embedded DNS forwarding. Allowlist entries accept numeric
 IPv4:port pairs only, with no hostname or subnet wildcard. Pin every resolved
 IP and port selected in config, and update those rules alongside config.
@@ -128,7 +133,46 @@ Stop the retained stack explicitly with the same environment and both Compose
 files using `docker compose --project-name <printed-project> -f deploy/compose.yaml
 -f deploy/tests/compose-smoke.yaml down --remove-orphans --volumes`.
 
+## Calendar download allowances (M4 checkout)
+
+Calendar subscriptions require exact HTTPS origins in `sources.calendar_allowed_origins` and matching host rules. These origins do not enter `privacy.trusted_services` or grant a model provider access. The default calendar allowance is empty. Full subscription links remain in protected state or private secret files; they never belong in these firewall files.
+
+Using an account that can read the selected configuration and its secret references, prepare the policy:
+
+```sh
+brain --config /etc/secondbrain/config.yaml maintenance calendar-egress --output-dir ./calendar-network
+```
+
+The command resolves only the allowed origins and canary, checks all returned addresses against the public-unicast policy, and refuses a destination sharing the canary's address. It writes three reviewable files: `40-calendar-egress.conf`, `calendar-egress.env`, and `calendar-egress.json`. It does not install rules or restart services. Regenerating with an empty origin list removes the generated calendar pins. Re-run it when the approved hosts' DNS records change; new addresses fail closed until the matching policy is installed. A failed DNS or policy validation leaves the previous files intact.
+
+For systemd, install the reviewed drop-in and restart the service:
+
+```sh
+sudo install -d /etc/systemd/system/secondbrain.service.d
+sudo install -m 0644 ./calendar-network/40-calendar-egress.conf /etc/systemd/system/secondbrain.service.d/40-calendar-egress.conf
+sudo systemctl daemon-reload
+sudo systemctl restart secondbrain.service
+```
+
+This drop-in adds only the selected addresses and preserves the base deny rule and existing provider/control-plane allowances. systemd's address rules apply to both ingress and egress and do not filter destination ports; the daemon's source transport enforces the exact HTTPS origin, port and registered URL. Other installed drop-ins must not independently allow the canary.
+
+For Compose, rebuild/use the egress image from this release and pass the generated environment file after the deployment's normal environment file. Validate the merged configuration before restarting the namespace helper and all its dependants together:
+
+```sh
+docker compose --env-file .env --env-file ./calendar-network/calendar-egress.env -f deploy/compose.yaml config --quiet
+```
+
+`SECONDBRAIN_CALENDAR_ALLOWLIST` contains only numeric `IPv4:port` or `[IPv6]:port` pairs. `SECONDBRAIN_CALENDAR_CANARY_ADDRESSES` contains the separately resolved canary addresses. The helper validates public destinations, rejects canary overlaps and grants calendar TCP access only to daemon UID1654, including under `local_only`. Tunnel UID65532 and extractor UID1655 receive no calendar allowance.
+
+The default Compose bridge remains IPv4-only. To use IPv6 calendar pins, include `-f deploy/compose.ipv6.yaml` after the main file and provide a working host IPv6 uplink. Its optional `SECONDBRAIN_DOCKER_IPV6_SUBNET` defaults to `fd42:5342:1::/64`; choose a nonconflicting subnet. The overlay adds the IPv6 subnet while retaining the IPv4 subnet and leaves the extractor on `network_mode: none`.
+
+The kernel qualification command is `python3 deploy/tests/calendar-egress-qualification.py --output /tmp/calendar-egress-result.json`. It uses the existing firewall image with the current script in a disposable `network_mode: none` container and a nested namespace. All fixture addresses, listeners and routes remain inside that container. It first proves every listener is reachable, then checks allowed/refused IPv4/IPv6 destinations, ports, the canary and process identities, plus the extractor's offline namespace. The fixture needs `SYS_ADMIN` and an unconfined seccomp profile for `unshare`; these are test-only settings. Shipping helpers retain `NET_ADMIN` alone and the normal seccomp profile. This is a firewall qualification, not evidence that the complete application has been deployed.
+
 ## systemd
+
+For a dedicated Cloudflare Tunnel serving `https://leahy.ai`, use the
+[native tunnel setup](systemd/cloudflare-tunnel.md). It includes the Access gate,
+daemon configuration, credential delivery, and a separate persistent connector.
 
 M1 provisioning creates `incoming/inbox` as daemon-owned mode1770 with the
 daemon's shared group, and `.claimed` as daemon-owned mode0700. The sync
@@ -289,3 +333,34 @@ M0 closed for the Fedora/Tailscale deployment with these qualifications
 explicitly deferred; see [the closure record](../docs/build/M0-convergence-report.md#m0-closure-2026-10-09).
 
 The daemon defaults to an 8 GiB memory ceiling: one million 1024-dimensional float32 vectors alone occupy about 3.8 GiB, with additional space needed for old readers, SQLite and managed state. Set `SECONDBRAIN_DAEMON_MEMORY_LIMIT` for Compose or override `MemoryMax` in a systemd drop-in to match the corpus and embedding dimensions. The extractor supervisor has no cumulative CPU-time ceiling; each disposable parser sets a kernel-enforced 120-second CPU limit before receiving input, alongside the existing request deadline and memory/process limits.
+
+## M4 upgrade preparation (checkout only)
+
+Before first starting M4 against an initialized M3 data root, stop the daemon and provision its backup key with the local `brain maintenance backup-key --recovery-copy ABSOLUTE_PATH` command. Both destination parents must already exist and be owned by the invoking user; the key directory must be private. Keep a verified recovery copy off the server. See the [CLI backup instructions](../src/SecondBrain.Cli/README.md#encrypted-backups-m4-checkout).
+
+For the existing reference systemd installation, `deploy/systemd/prepare-backup-key.py` can prepare the key before the M4 CLI is installed. Review its default plan with `python3 deploy/systemd/prepare-backup-key.py --recovery-owner USER`, then run the same command with `sudo python3 -I` and `--apply`. This fixed-layout helper creates a raw 32-byte key at `/etc/secondbrain/secrets/backup.key` owned by the daemon, and a matching private copy at `/var/lib/secondbrain-recovery/backup.key` owned by the chosen operator. Existing files are verified and never overwritten or rotated. It changes neither service state nor configuration. The operator must store the recovery copy off-server and confirm custody; a same-server handoff copy does not satisfy recovery custody. Its eight unprivileged safeguard tests cover matching copies, repeat execution, mismatches, missing originals, unsafe links/permissions/owners and exclusive publication.
+
+M4 refuses an initialized upgrade without a complete encrypted pre-upgrade archive. Resolve unavailable external source files before retrying a partial backup. The migration records its phase and the archive name, retains the archive under normal backup retention, and completes the index transition on restart. Fresh empty initialization does not need a backup key. This checkout's migration checks do not constitute production deployment acceptance; the reference service remains on M3 until its full M4 deployment checks are complete.
+
+
+### M4 isolated Compose qualification
+
+Run the existing deployment workflow with `SECONDBRAIN_M4_QUALIFY=1`, an unused loopback port in 18000–18999, and a distinct `secondbrain-m4-` project name. It uses separate `:m4` image tags, then runs the mounted-source encrypted backup/restore and synthetic VTT/SRT/calendar checks. `SECONDBRAIN_SMOKE_RESULTS` selects the JSON result directory. The fixture is removed on exit unless `SECONDBRAIN_SMOKE_KEEP=1` is explicitly set for subsequent browser or network qualification.
+
+```sh
+SECONDBRAIN_PRIVATE_ADDRESS=127.0.0.1 \
+SECONDBRAIN_PORT=18340 \
+SECONDBRAIN_M4_QUALIFY=1 \
+bash deploy/tests/compose-smoke.sh
+```
+
+These checks use synthetic data and a disposable account. They do not establish production key custody, large-corpus bounds, live-provider quality or release-signing acceptance.
+
+For controlled HTTPS subscription qualification, retain that disposable stack and run `deploy/tests/m4-calendar-hardened.py` with its `--project`, `--host-root`, `--origin` and an `--output` JSON path. Preserve the same Compose environment, including its private address, port and subnet. The harness requires the mounted-backup preparation above. It creates a temporary TLS peer inside the fixture network, verifies certificates through a fixture-only CA, checks permitted and denied addresses, and exercises conditional refresh, failure recovery and encrypted subscription restore. It restores the original configuration, removes the test source and TLS peer, and recreates the base fixture on exit. Its peer image is pinned; no live feed credentials are needed. Remove the retained Compose stack after any browser/network checks finish.
+
+
+### Container base provenance
+
+The runtime uses a digest-pinned Wolfi ASP.NET base with the same .NET servicing version as the self-contained packages. The firewall helper uses a separately pinned Wolfi base, explicit firewall/diagnostic package versions, and the nft backend. The build verifies both installed .NET runtime versions. Serving identities, capabilities, read-only roots and network policy remain governed by the existing Compose profile.
+
+Base-image changes require fresh signatures, inventories, vulnerability scans and hardened deployment qualification. The [current base comparison](../docs/build/evidence/m4-clean-base-20261024/verification.json) records those checks and their remaining scope. Historical Ubuntu/Alpine results remain attached to their original image IDs.

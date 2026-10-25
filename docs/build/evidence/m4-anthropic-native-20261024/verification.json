@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-24",
+  "scope": "Native Anthropic chat and prompt caching adapter checkpoint; not full M4 acceptance",
+  "sdk": "Anthropic 13.3.0",
+  "sdkCommit": "a0cdd4c2cd909c5ae29ed939a8ad6e1568c0377a",
+  "configuration": "Debug",
+  "lockedRestore": "passed",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 2461,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 202,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 818,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 109,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 225,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 475,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 396,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "newAdapterTests": 20,
+  "checks": [
+    "Official IChatClient integration uses policy-owned HTTP with explicit endpoint and credential, no automatic retries and no SDK telemetry.",
+    "Final headers exclude ambient SDK custom headers and host metadata. A dedicated test run with synthetic environment credentials and headers passed all twenty adapter checks.",
+    "Chat supports streaming, function tools, structured schemas and declared adaptive reasoning. Stable system-prefix caching is explicitly declared and does not mutate caller history.",
+    "Input usage includes regular input, cache creation and cache reads; cached reads are also reported separately. Streaming usage is emitted once by the SDK.",
+    "Missing stop reasons, missing terminal stream records, invalid bodies, oversized responses, redirects and unsafe overrides fail with sanitized errors. Current policy is rechecked for retained clients.",
+    "Model discovery uses the native read-only URL, matching protocol version and configured authentication. Partial pagination fails visibly rather than presenting an incomplete model list."
+  ],
+  "packageAdvisories": "No known vulnerabilities listed by NuGet for the restored dependency graph at this check",
+  "logHashes": {
+    "restore": "6da0d23ed3352e65fda0613663e3072aed0221854da9b082a9118ef129dd8f4e",
+    "build": "4ceae8ab52a18cc8508fd2afa747716b57bec0ac5dab40a5627ed628f8b60a2b",
+    "tests": "595e7c401cbb8646308b4099822c09a8286698dd902863bb267e0690ef8322b9",
+    "adapterWithSyntheticEnvironment": "9fbf665daee8f7008a71883bff7b5fbd7c164b1df33e0db0be933c6a324b6736",
+    "advisories": "3196172f5c5e8c3bfb2271c612b4f2aced3a24fbc7b37ab6efb8109086d41168"
+  },
+  "productionChanged": false,
+  "liveCloudCalls": false,
+  "limitations": [
+    "Native citation annotations are preserved but verified span-level citation integration is unfinished and is not advertised.",
+    "Native batch and OpenAI native adapter work remain open.",
+    "No live Anthropic qualification was performed. All new Anthropic tests use controlled local responses.",
+    "Remaining real-export, full operational deployment/restore, large-corpus and signed-release acceptance gates remain open."
+  ]
+}

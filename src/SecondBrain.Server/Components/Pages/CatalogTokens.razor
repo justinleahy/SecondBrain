@@ -1,0 +1,50 @@
+@using SecondBrain.Core.Ingestion
+@using Microsoft.JSInterop
+@implements IDisposable
+@inject BrowserApi Api
+
+<label for="@id">@Label</label>
+<input id="@id" value="@Value" @oninput="InputAsync" @onfocus="SuggestAsync" list="@(id + "-suggestions")" placeholder="@Placeholder" maxlength="8192" autocomplete="off" />
+<datalist id="@(id + "-suggestions")">
+    @foreach (var item in suggestions) { <option value="@(prefix + item.Value)">@item.Label</option> }
+</datalist>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter, EditorRequired] public string Kind { get; set; } = "";
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string? Placeholder { get; set; }
+    private readonly string id = "catalog-" + Guid.NewGuid().ToString("N");
+    private IReadOnlyList<CatalogCompletion> suggestions = [];
+    private string prefix = "";
+    private int request;
+    private bool disposed;
+
+    private async Task InputAsync(ChangeEventArgs change)
+    {
+        Value = change.Value?.ToString() ?? "";
+        await ValueChanged.InvokeAsync(Value);
+        await SuggestAsync();
+    }
+    private async Task SuggestAsync()
+    {
+        var current = ++request;
+        var comma = Value.LastIndexOf(',');
+        prefix = comma < 0 ? "" : Value[..(comma + 1)] + " ";
+        var query = Value[(comma + 1)..].Trim();
+        suggestions = [];
+        if (query.Length > 256) return;
+        // Collapse rapid typing and ignore results for an older field value.
+        await Task.Delay(150);
+        if (disposed || current != request) return;
+        try
+        {
+            var result = await Api.SendAsync<CatalogCompletion[]>("/browse/complete?kind=" + Uri.EscapeDataString(Kind) + "&q=" + Uri.EscapeDataString(query));
+            if (!disposed && current == request) suggestions = result;
+        }
+        catch (Exception exception) when (exception is BrowserApiException or JSException)
+        { if (!disposed && current == request) suggestions = []; }
+    }
+    public void Dispose() { disposed = true; request++; }
+}

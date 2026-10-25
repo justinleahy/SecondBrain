@@ -25,10 +25,11 @@ public sealed class Migrations
         await using (var restarted = new MigrationTestStores(root.Path))
         {
             var report = await restarted.Runner.MigrateAsync();
-            Assert.Equal(1, report.StateVersion);
-            Assert.Equal(1, report.IndexVersion);
+            Assert.Equal(8, report.StateVersion);
+            Assert.Equal(8, report.IndexVersion);
             Assert.Equal("applied", await MigrationTestSql.ScalarAsync(restarted.Index, "SELECT phase FROM migration_state WHERE version = 1;"));
-            Assert.Equal("1", await MigrationTestSql.ScalarAsync(restarted.Index, "SELECT value FROM index_meta WHERE key = 'built_from_schema_version';"));
+            Assert.Equal("8", await MigrationTestSql.ScalarAsync(restarted.Index, "SELECT value FROM index_meta WHERE key = 'built_from_schema_version';"));
+            Assert.False(File.Exists(restarted.Runner.GetStateSnapshotPath(1)));
         }
 
         await using var secondRestart = new MigrationTestStores(root.Path);
@@ -77,6 +78,11 @@ public sealed class Migrations
                 "INSERT INTO sources(id, kind, name, created_at) VALUES ('source-1', 'folder', 'keep me', '2026-10-08T00:00:00Z');");
             stateSchema = await MigrationTestSql.SchemaAsync(stores.State);
             indexSchema = await MigrationTestSql.SchemaAsync(stores.Index);
+            // Simulate an interrupted old migration, including its required recovery copy.
+            var snapshot = stores.Runner.GetStateSnapshotPath(1);
+            await ((IStoreSnapshot)stores.State).CreateSnapshotAsync(snapshot);
+            await File.WriteAllTextAsync(snapshot + ".sha256",
+                Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(await File.ReadAllBytesAsync(snapshot))));
             await MigrationTestSql.WriteAsync(stores.State, "UPDATE migration_state SET phase = 'applying', finished_at = NULL;");
             await MigrationTestSql.WriteAsync(stores.Index, "UPDATE migration_state SET phase = 'applying', finished_at = NULL;");
         }
@@ -218,7 +224,7 @@ public sealed class Migrations
         var roomyDisk = new MigrationTestDisk(1L << 40);
         await using (var stores = new MigrationTestStores(root.Path, options: new MigrationOptions { MinimumFreeBytes = 8192 }, disk: roomyDisk))
         {
-            Assert.Equal(1, (await stores.Runner.MigrateAsync()).StateVersion);
+            Assert.Equal(8, (await stores.Runner.MigrateAsync()).StateVersion);
         }
         Assert.Equal(new[] { Path.GetFullPath(root.Path) }, roomyDisk.Queried);
     }
@@ -245,8 +251,8 @@ public sealed class Migrations
 
         await using var restarted = new MigrationTestStores(root.Path, options: new MigrationOptions { MinimumFreeBytes = long.MaxValue / 2 });
         var report = await restarted.Runner.MigrateAsync();
-        Assert.Equal(1, report.StateVersion);
-        Assert.Equal(1, report.IndexVersion);
+        Assert.Equal(8, report.StateVersion);
+        Assert.Equal(8, report.IndexVersion);
         Assert.Empty(report.Recoveries);
     }
 

@@ -85,6 +85,17 @@ public sealed class CliIngestTests
         Assert.Contains("next_cursor", output.ToString(), StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task CalendarQueryIncludesTheCancellationChoice()
+    {
+        using var handler = new RecordingHandler("{\"records\":[],\"next_cursor\":null,\"truncated\":false}");
+        Assert.Equal(0, await SecondBrain.Cli.Program.RunAsync(["query", "--type", "calendar_event", "--include-cancelled", "--json"],
+            new CliServices(false) { Knowledge = Commands(handler) }, new StringWriter(), new StringWriter()));
+        using var sent = JsonDocument.Parse(handler.Body!);
+        Assert.Equal("calendar_event", sent.RootElement.GetProperty("type").GetString());
+        Assert.True(sent.RootElement.GetProperty("include_cancelled").GetBoolean());
+    }
+
     [Theory]
     [InlineData(400, 2)]
     [InlineData(401, 4)]
@@ -106,7 +117,7 @@ public sealed class CliIngestTests
 
     [Theory]
     [InlineData("search", "topic", "--mode", "invalid")]
-    [InlineData("query", "--type", "calendar_event", "--limit", "1")]
+    [InlineData("query", "--type", "unknown", "--limit", "1")]
     [InlineData("query", "--where", "bad", "--limit", "1")]
     [InlineData("add", "-", "--props", "[]")]
     public async Task InvalidInputsAreUsageFailures(params string[] args)

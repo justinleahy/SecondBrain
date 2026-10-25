@@ -9,8 +9,9 @@ namespace SecondBrain.Storage.Durability;
 internal sealed class ManagedMutationFiles
 {
     private readonly string _root;
+    private readonly bool requireSafeRoot;
 
-    internal ManagedMutationFiles(string dataRoot)
+    internal ManagedMutationFiles(string dataRoot, bool requireSafeRoot = false)
     {
         if (!OperatingSystem.IsMacOS() && !OperatingSystem.IsLinux())
             throw new PlatformNotSupportedException("Mutation durability requires macOS or Linux filesystem primitives.");
@@ -18,6 +19,7 @@ internal sealed class ManagedMutationFiles
             throw new PlatformNotSupportedException("Mutation metadata inspection requires the x64 or arm64 stat ABI.");
         ArgumentException.ThrowIfNullOrWhiteSpace(dataRoot);
         _root = Path.GetFullPath(dataRoot);
+        this.requireSafeRoot = requireSafeRoot;
     }
 
     internal string NormalizeDestination(string destination)
@@ -35,9 +37,7 @@ internal sealed class ManagedMutationFiles
     {
         var full = NormalizeDestination(destination);
         var segments = Path.GetRelativePath(_root, full).Split(Path.DirectorySeparatorChar);
-        var fd = Native.Open(_root, DirectoryFlags);
-        if (fd < 0) Throw("open managed root");
-        var parent = new SafeFileHandle((nint)fd, ownsHandle: true);
+        var parent = OpenRoot();
         try
         {
             for (var i = 0; i < segments.Length - 1; i++)
@@ -58,6 +58,29 @@ internal sealed class ManagedMutationFiles
         }
     }
 
+    internal void ValidateRoot() { using var root = OpenRoot(); }
+
+    private SafeFileHandle OpenRoot()
+    {
+        var origin = requireSafeRoot ? Path.GetPathRoot(_root)! : _root;
+        var fd = Native.Open(origin, DirectoryFlags);
+        if (fd < 0) Throw("open managed root");
+        var handle = new SafeFileHandle((nint)fd, ownsHandle: true);
+        if (!requireSafeRoot) return handle;
+        try
+        {
+            foreach (var part in Path.GetRelativePath(origin, _root).Split(Path.DirectorySeparatorChar))
+            {
+                if (part == ".") continue;
+                var next = Native.OpenAt(Descriptor(handle), part, DirectoryFlags, 0);
+                if (next < 0) Throw("open managed root without following parent links");
+                handle.Dispose(); handle = new SafeFileHandle((nint)next, ownsHandle: true);
+            }
+            return handle;
+        }
+        catch { handle.Dispose(); throw; }
+    }
+
     private static int DirectoryFlags => OperatingSystem.IsMacOS()
         ? 0x100000 | 0x1000000 | 0x100
         : 0x10000 | 0x80000 | 0x20000;
@@ -68,7 +91,52 @@ internal sealed class ManagedMutationFiles
 
     internal sealed class DestinationLease(SafeFileHandle parent, string fullPath, string name, string tempName) : IDisposable
     {
+        internal string FullPath => fullPath;
         internal string TempPath => Path.Combine(Path.GetDirectoryName(fullPath)!, tempName);
+
+        internal SnapshotRead OpenSnapshotRead()
+        {
+            var fd = Native.OpenAt(Descriptor(parent), name, NoFollowFlags | (OperatingSystem.IsMacOS() ? 4 : 0x800), 0);
+            if (fd < 0) Throw("open backup source without following symlinks");
+            var handle = new SafeFileHandle((nint)fd, ownsHandle: true);
+            try
+            {
+                var identity = SnapshotRead.IdentityOf(handle);
+                return new SnapshotRead(new FileStream(handle, FileAccess.Read), identity);
+            }
+            catch { handle.Dispose(); throw; }
+        }
+
+        internal sealed class SnapshotRead(FileStream stream, SnapshotIdentity identity) : IDisposable
+        {
+            internal FileStream Stream => stream;
+            internal SnapshotIdentity Identity => identity;
+            internal bool Unchanged => IdentityOf(stream.SafeFileHandle) == identity;
+            internal static SnapshotIdentity IdentityOf(SafeFileHandle handle)
+            {
+                var metadata = new byte[512];
+                if (Native.Stat(Descriptor(handle), metadata) != 0) Throw("inspect backup source");
+                if (!IsRegular(metadata)) throw new InvalidDataException("Backup source is not a regular file.");
+                var mac = OperatingSystem.IsMacOS();
+                var links = mac ? BitConverter.ToUInt16(metadata, 6) : RuntimeInformation.ProcessArchitecture == Architecture.Arm64
+                    ? BitConverter.ToUInt32(metadata, 20) : BitConverter.ToUInt64(metadata, 16);
+                if (links != 1) throw new InvalidDataException("Backup source has multiple hard links.");
+                // Exclude access time: reading a file must not invalidate its captured version.
+                byte[] version = mac ? [.. metadata.AsSpan(0, 24), .. metadata.AsSpan(48, 32), .. metadata.AsSpan(96, 8)]
+                    : [.. metadata.AsSpan(0, 48), .. metadata.AsSpan(48, 8), .. metadata.AsSpan(88, 32)];
+                var length = BitConverter.ToInt64(metadata, mac ? 96 : 48);
+                if (length < 0) throw new InvalidDataException("Invalid backup source size.");
+                return new(length, Convert.ToHexStringLower(SHA256.HashData(version)))
+                {
+                    FileId = Convert.ToHexStringLower(SHA256.HashData(metadata.AsSpan(0, 24)))
+                };
+            }
+            public void Dispose() => stream.Dispose();
+        }
+        internal sealed record SnapshotIdentity(long Length, string Version)
+        {
+            internal string FileId { get; init; } = "";
+        }
 
         internal async ValueTask<string?> HashDestinationAsync(CancellationToken cancellationToken) =>
             await HashAsync(name, cancellationToken).ConfigureAwait(false);
@@ -144,6 +212,7 @@ internal sealed class ManagedMutationFiles
             var admitted = await ObserveDestinationAsync(cancellationToken).ConfigureAwait(false);
             if (admitted.Kind == EntryKind.Nonregular || !StringComparer.OrdinalIgnoreCase.Equals(admitted.Hash, expectedHash))
                 return false;
+            if (expectedHash is not null) await SecondBrain.Storage.Backup.BackupFilePins.PreserveBeforeChangeAsync(fullPath, cancellationToken).ConfigureAwait(false);
             await crashPoint(SecondBrain.Core.Durability.MutationCrashPointNames.BeforeAtomicRename, cancellationToken).ConfigureAwait(false);
             if (expectedHash is null)
             {
@@ -187,6 +256,7 @@ internal sealed class ManagedMutationFiles
             // A crash may have interrupted exchange-and-verify. Restore the displaced unseen edit before reporting conflict.
             if (await HashDestinationAsync(cancellationToken).ConfigureAwait(false) == newHash)
             {
+                await SecondBrain.Storage.Backup.BackupFilePins.PreserveBeforeChangeAsync(fullPath, cancellationToken).ConfigureAwait(false);
                 if (!Exchange(tempName, name)) throw new IOException("Cannot restore an interrupted external edit.");
                 SyncDirectory();
             }
@@ -207,6 +277,7 @@ internal sealed class ManagedMutationFiles
                 var source = await ObserveDestinationAsync(cancellationToken).ConfigureAwait(false);
                 if (source.Kind == EntryKind.Missing) return true;
                 if (source.Kind != EntryKind.Regular || source.Hash != expectedHash) return false;
+                await SecondBrain.Storage.Backup.BackupFilePins.PreserveBeforeChangeAsync(fullPath, cancellationToken).ConfigureAwait(false);
                 await crashPoint(SecondBrain.Core.Durability.MutationCrashPointNames.BeforeSourceQuarantine, cancellationToken).ConfigureAwait(false);
                 if (!Rename(name, removedName, exclusive: true)) return false;
                 SyncDirectory();

@@ -1,0 +1,342 @@
+{
+  "date": "2026-10-24",
+  "scope": "Calendar egress provisioning, dual-stack firewall rules and local kernel qualification; not full M4 acceptance or production deployment",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2161,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "counts": {
+          "total": "162",
+          "executed": "162",
+          "passed": "162",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_56_41.trx",
+        "sha256": "2bdf63afe8c395f058b3293986bba1f88862ac210591462c823df6c98ba1bab1"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "counts": {
+          "total": "314",
+          "executed": "314",
+          "passed": "314",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_56_41[1].trx",
+        "sha256": "3ea39d628067255686427eb63eeb942741ff6b27323ce065cd4863e76c8b5fe8"
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "counts": {
+          "total": "171",
+          "executed": "171",
+          "passed": "171",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_56_42.trx",
+        "sha256": "7a745c9966c64c33e748e2c8b2dc19b35122ff15e80f3a9d37c6bb769b731441"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "counts": {
+          "total": "73",
+          "executed": "73",
+          "passed": "73",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_56_42[1].trx",
+        "sha256": "e31521957477b30bb52304ec2ff82ade9b67313d3f6100bf6505ac934289569c"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "counts": {
+          "total": "809",
+          "executed": "809",
+          "passed": "809",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_56_42[2].trx",
+        "sha256": "051958175ed6de75cd45fd05c7f275bfed204e438991e18ff09ad59135db6bdb"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "counts": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_56_44.trx",
+        "sha256": "8f1b5eb404b493b1fd7fbeea9225bfa50ddd3b6f5204a44364927c7f1bdcefd6"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "counts": {
+          "total": "208",
+          "executed": "208",
+          "passed": "208",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_56_44[1].trx",
+        "sha256": "ae6eb1e6e9676ee54ae6dfb6cb14146640232324cdf8bf540b1f138f145d5774"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "counts": {
+          "total": "361",
+          "executed": "361",
+          "passed": "361",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "server.trx",
+        "sha256": "06b447310f78bea7979e728353e437708dff722d947b3f8e0b0e82cb951b5033"
+      }
+    ]
+  },
+  "kernelQualification": {
+    "status": "passed",
+    "imageId": "sha256:1a079c8ce373030447ef4db6314ff872cb50a891df00a670b8895960e5547d94",
+    "script": "deploy/docker/egress-entrypoint.sh",
+    "baselineListenersReachable": true,
+    "localOnly": true,
+    "networkNoneWithNestedNamespace": true,
+    "publicAliasesInsideContainersOnly": true,
+    "checks": [
+      {
+        "uid": 1654,
+        "destination": "allowed_ipv4",
+        "connected": true,
+        "expected": true
+      },
+      {
+        "uid": 1654,
+        "destination": "other_port",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1654,
+        "destination": "other_ipv4",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1654,
+        "destination": "canary",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1654,
+        "destination": "allowed_ipv6",
+        "connected": true,
+        "expected": true
+      },
+      {
+        "uid": 1654,
+        "destination": "other_ipv6",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 65532,
+        "destination": "allowed_ipv4",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 65532,
+        "destination": "other_port",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 65532,
+        "destination": "other_ipv4",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 65532,
+        "destination": "canary",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 65532,
+        "destination": "allowed_ipv6",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 65532,
+        "destination": "other_ipv6",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1655,
+        "destination": "allowed_ipv4",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1655,
+        "destination": "other_port",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1655,
+        "destination": "other_ipv4",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1655,
+        "destination": "canary",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1655,
+        "destination": "allowed_ipv6",
+        "connected": false,
+        "expected": false
+      },
+      {
+        "uid": 1655,
+        "destination": "other_ipv6",
+        "connected": false,
+        "expected": false
+      }
+    ],
+    "extractorNetworkNoneBlocked": true,
+    "seconds": 21.22
+  },
+  "systemdGeneratedPolicySyntax": "passed via systemd-analyze verify",
+  "realDnsCliExample": "Passed for the public GOV.UK origin, with no calendar URL or content provided to the generator. Outputs are an example, not installed policy.",
+  "ci": "Added the real kernel firewall qualification to the Docker job; workflow YAML parsed locally, remote CI not run.",
+  "sourceHashes": {
+    "src/SecondBrain.Cli/Provisioning/CalendarEgressPlanner.cs": "9434fdd06f4631996ad2181631ecff3f6d61fb7a283ed12dd577126135483ef9",
+    "deploy/docker/egress-entrypoint.sh": "92116c321a9582640f291f493c793a9bf0659c3ea67bdae23bf333e894850131",
+    "deploy/tests/calendar-egress-qualification.py": "59484fd3cf4dbf1005029fc97963e59f436a71f4fdd6d7bf3dceb8fefaa1aa9f",
+    "deploy/compose.ipv6.yaml": "52bb0dd71d50f35fc9c4e6bc953dfb28457c307b3ab1928e0d0a0e92c92283b2"
+  },
+  "qualificationNotes": [
+    "The host Docker bridge test encountered a pre-existing missing DOCKER-INTERNAL chain. No host firewall repair was attempted; qualification moved into a network-none container with a nested namespace.",
+    "The nested fixture needs SYS_ADMIN and unconfined seccomp only for testing. Shipping helper privileges are unchanged.",
+    "The IPv6 baseline exposed missing neighbor discovery. Narrow hop-limit-255 NS/NA rules now permit the required exchange; actual IPv4/IPv6 port and UID checks passed afterward.",
+    "The initial full regression caught an existing transcript test using segment persistence as a search-publication signal. It now waits for the actual keyword result, and all server tests passed afterward.",
+    "The restricted command sandbox could not run the direct systemd verification and returned no diagnostics; rerunning with local system-tool access succeeded with exit code 0."
+  ],
+  "limitations": [
+    "Systemd kernel/BPF enforcement on the production service has not been exercised in this checkpoint; generated syntax is verified.",
+    "The full application plus live feeds has not been qualified in a newly deployed hardened environment. Earlier functional live-feed checks remain separate.",
+    "No production configuration, source records or network policy was changed.",
+    "M4 still requires source/container purge and retained-original lifecycle, backup/restore/export/retention, remaining providers/enrichment/usage/budgets, supply-chain work and final deployment qualification."
+  ],
+  "systemdVerifyExitCode": 0
+}

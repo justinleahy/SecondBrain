@@ -1,6 +1,8 @@
 # M4 — Meetings, enrichment, operations
 
-Status: planned; calendar subscription requirements added 2026-10-09. This document defines future work, not implemented functionality. The current product contract is [spec.md](../../spec.md), especially §5.7, CAL-1–CAL-7, §7.1, §15.6 and §19.
+Status: implementation started 2026-10-24 under the user-requested M4 completion goal; not accepted or deployed. See the [progress ledger](M4-progress.md) for implemented and pending work. Calendar subscription requirements were added 2026-10-09. This document defines the full target scope. The current product contract is [spec.md](../../spec.md), especially §5.7, CAL-1–CAL-7, §7.1, §15.6 and §19.
+
+Agreed acceptance exception (2026-10-24): the user explicitly skipped U15's pricing-specific real-transcript example because no suitable transcript is available. The existing real-export speaker/topic and timestamped-citation checks remain evidence; pricing-specific validation is waived, not passed. This exception does not waive the remaining M4 acceptance gates.
 
 ## 1. Outcome and scope
 
@@ -124,3 +126,21 @@ The calendar gates supplement, rather than replace, the existing milestone requi
 - **Operations:** implement budgets/usage attribution, streaming encrypted backup and manifest-verified restore under sustained writes, exports, retention, dependency/SBOM scanning and signed releases.
 
 Before M4 closes, run the repository's locked restore, warnings-as-errors build, deterministic test suite and relevant hardened deployment/browser gates. Record separate real-export and live-feed qualification evidence.
+
+
+## 6. Current closure audit
+
+The following records distinguish implementation evidence from remaining execution gates. M4 is not yet closed. Earlier checkpoints in the progress ledger remain historical; the latest evidence below supersedes their pending-state descriptions where applicable.
+
+| Requirement | Latest evidence | Status |
+|---|---|---|
+| Transcript/speaker/time import, U3 and bounded U15 topic answer | [Real export](evidence/m4-real-transcript-20261024/verification.json), [fresh agent semantic review](evidence/m4-real-transcript-20261024/semantic-review.json), hardened Compose and systemd imports | Passed for recorded scope; pricing example waived by user |
+| Calendar files, recurrence, subscriptions and freshness, U14/U14a and CAL gates | Deterministic suite, live iCloud/Outlook checkpoint, desktop/phone records and [final TLS restore](evidence/m4-clean-base-20261024/final-calendar-https.json) | Passed for recorded fixture/live scope |
+| Enrichment, reclassification, people filters, write-back, budgets, adapters and batch recovery | Provider/usage/enrichment checkpoints in the [progress ledger](M4-progress.md), 2,549 Release tests | Local deterministic and recorded local-model/browser checks passed; external vendors use controlled contracts |
+| Sustained-write encrypted backup, manifest restore, trash, auth epoch and external roots | [Final mounted workflow](evidence/m4-clean-base-20261024/final-recovery-mounted.json), [systemd workflow](evidence/m4-systemd-20261024/verification.json) | Passed on disposable deployments |
+| Corpus-independent resource bounds and million-vector restored startup | [Scale checkpoint](evidence/m4-backup-scale-20261024/verification.json) | Large restore index rebuild running; final checks pending |
+| Off-server production key recovery copy | [Operator custody](evidence/m4-key-custody-20261024/verification.json) | Operator confirmed; destination intentionally undisclosed |
+| Supported deployment isolation | [Compose audit](evidence/m4-clean-base-20261024/final-hardened-audit.json), [numeric-UID systemd](evidence/m4-systemd-20261024/verification.json) | Disposable Compose/systemd passed; production remains M3 |
+| Dependency/browser/runtime inventories and strict scans | [Final exact images](evidence/m4-clean-base-20261024/final-image-scans.json), [local packages](evidence/m4-recovery-final-release-20261024/verification.json), CI workflow and 9 inventory safeguards | Zero matches under unchanged low threshold; local unsigned artifacts |
+| Signed release with workflow provenance | `.github/workflows/ci.yml`, pinned tools, local signature controls | Remote CI, GitHub OIDC signing and draft release execution remain pending |
+| Production upgrade and preserved state | Prepared manifest-verified 465-file candidate; complete encrypted pre-upgrade migration gate | Pending production deployment and live verification |

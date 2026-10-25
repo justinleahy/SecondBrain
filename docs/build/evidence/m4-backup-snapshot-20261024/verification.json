@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-24",
+  "scope": "Consistent state snapshot and journal-preserved file versions for backup; not the completed encrypted backup/restore product",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2254,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_46.trx",
+        "sha256": "25c6b8fdf8f2bfcd55f5a16249c612cd3d3cc942ecc034aea14ec623bfe0861a"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 163,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_46[1].trx",
+        "sha256": "ea83a22d979106d3d29856a657c05f12e4d8d01b9b5a38d389759bf574791bcb"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_47.trx",
+        "sha256": "b7d5191127b4537bec4e7347f0c0573b3d51ccfa647ae5ff053c0cb811e77678"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_47[1].trx",
+        "sha256": "eb64e8e0098dafc296b783e2a3b7cb0c289cbb007702a4403c751a5b83f581ca"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 398,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_47[2].trx",
+        "sha256": "431e1da7a74ceed39f47f15ad2f41de55c75c53e02ced2f256c538102cb6988e"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_48.trx",
+        "sha256": "1358321b2832e8f3a29c1c9df842dec48ef6fde95df79c6377470f2cb8dc6ea4"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 210,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_48[1].trx",
+        "sha256": "9a215144fd4168f555f3014e63240cb4efe03e08896f0e4c7349f39396258974"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 367,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_37_48[2].trx",
+        "sha256": "593c82499513c77fd264f84fcd02db22ee4cdf02cc124316b23cf98b2554d580"
+      }
+    ]
+  },
+  "focusedTests": [
+    {
+      "project": "SecondBrain.Storage.Tests",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "result": "pins.trx",
+      "sha256": "9b2c8bbd9a36037c60b8da6f39eb1d037a806158af252e070a57bd3b4e040553"
+    }
+  ],
+  "verifiedBehavior": [
+    "A combined journal/publication barrier captures an SQLite online snapshot and file metadata without copying the corpus while the barrier is held.",
+    "Capture waits for pending prepared/applied mutations to finish; bounded admission waiting reports a retryable failure if they remain pending.",
+    "The file manifest is an on-disk SQLite table; enumeration and reads use bounded pages and fixed copy buffers.",
+    "Existing captured file bytes are saved before journal replacement, removal and recovery exchange, then remain available after edit/trash/purge.",
+    "Forty-eight real content edits after capture preserve file hashes matching the captured authoritative database.",
+    "A deterministic pause after filesystem apply verifies capture waits for the database revision before choosing its version set.",
+    "External unjournaled changes and unreadable/linked entries produce partial manifest rows instead of silently replacing the captured version.",
+    "A locked manifest for one data root does not block edits in another data root.",
+    "Snapshot files, manifest and copied bytes have private modes, and disposal removes the temporary workspace.",
+    "Cancellation and a competing capture leave the original capture and source files intact."
+  ],
+  "notes": [
+    "The first full regression exposed a cross-data-root manifest query while another capture was populating its transaction. Registration now occurs after commit, and mutation hooks consult only captures of their own data root. The full regression passed after the fix.",
+    "Initial content-edit tests supplied an internal operation name that performed metadata-only changes. They were corrected to use the public update/content contract; the final checks perform actual file-content changes.",
+    "After the full 2254-test regression, data-root trailing separators were normalized. All 13 final snapshot tests passed on that one-line refinement and its added case; no browser workflow changed."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Storage/Backup/BackupFilePins.cs": "a657cad4ba87279214a7918229a05718e75d428211d482349e0f403cdd278009",
+    "src/SecondBrain.Storage/Durability/ManagedMutationFiles.cs": "2e476c24c5d549a7b418f40313f93e5d84539c7c75c604da0b0b2381fb20765d",
+    "src/SecondBrain.Storage/Durability/MutationJournal.cs": "b87fe2e79e2f9d489c0eac9e6480a18bbbab09da7de3d02bd5cddd8344c9e0eb",
+    "src/SecondBrain.Storage/Backup/BackupCipher.cs": "89cd6385a0411fe5e2416079ea6603d36a6f68b3c54fbef87e1fa6f5dfdb5462",
+    "tests/SecondBrain.Storage.Tests/BackupFilePinsTests.cs": "2fb5a1731e7cce61cb10904a1770dfdd5d340352d2293534deb75c9ff4f51108",
+    "tests/SecondBrain.Storage.Tests/BackupCipherTests.cs": "0f0c41eafc96f14505c572761701af19a1cb737ca5b9a13a6dfb070ae84024bc"
+  },
+  "limitations": [
+    "This checkpoint does not expose a backup endpoint or CLI command and does not yet assemble the encrypted archive.",
+    "Manifest packaging/verification, atomic archive publication, key-material integration, restore/export, backup rotation and pre-migration backup integration remain open.",
+    "Interrupted capture workspaces still need the backup lifecycle recovery/cleanup integration.",
+    "Large-corpus latency and full encrypted restore under sustained edits are not qualified by these focused snapshot tests.",
+    "All tests use temporary synthetic stores. No production data, configuration or running service changed."
+  ]
+}

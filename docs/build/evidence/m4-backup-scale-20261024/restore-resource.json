@@ -1,0 +1,12 @@
+{
+  "memoryBytes": 268435456,
+  "pidsLimit": 64,
+  "user": "1654:1654",
+  "readOnlyRoot": true,
+  "networkMode": "none",
+  "imageId": "sha256:a9adac9b38a6046fbc3f5781a5d77dbffaf833cc0b9fc75b4dc558e329720a54",
+  "memorySample": [
+    "268365824",
+    "268435456"
+  ]
+}

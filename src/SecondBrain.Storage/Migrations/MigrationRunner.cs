@@ -2,6 +2,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Security.Cryptography;
 using Microsoft.Data.Sqlite;
+using Dapper;
 using SecondBrain.Core.Durability;
 using SecondBrain.Core.Limits;
 using SecondBrain.Core.Storage;
@@ -26,13 +27,14 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
     private readonly IDiskCapacity diskCapacity;
     private readonly ICrashPoints crashPoints;
     private readonly MigrationOptions options;
+    private readonly Func<IMigrationBackup>? migrationBackup;
     private readonly SemaphoreSlim gate = new(1, 1);
 
     /// <summary>
     /// The caller holds the exclusive data-root lock and owns the injected stores. The disk probe must measure
     /// the filesystem actually mounted at the data root, which need not be the root filesystem.
     /// </summary>
-    public MigrationRunner(IStateStore state, IIndexStore index, string dataRoot, IDiskCapacity diskCapacity, ICrashPoints? crashPoints = null, MigrationOptions? options = null)
+    public MigrationRunner(IStateStore state, IIndexStore index, string dataRoot, IDiskCapacity diskCapacity, ICrashPoints? crashPoints = null, MigrationOptions? options = null, Func<IMigrationBackup>? migrationBackup = null)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(index);
@@ -44,6 +46,7 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
         this.diskCapacity = diskCapacity;
         this.crashPoints = crashPoints ?? new NoOpCrashPoints();
         this.options = options ?? new MigrationOptions();
+        this.migrationBackup = migrationBackup;
         ArgumentOutOfRangeException.ThrowIfNegative(this.options.MinimumFreeBytes);
     }
 
@@ -56,6 +59,22 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            bool needsM4;
+            bool initialized;
+            string? backupName = null;
+            await using (var read = await state.OpenReadConnectionAsync(cancellationToken))
+            {
+                needsM4 = await M4SchemaTransition.NeedsAsync(read.Connection, cancellationToken);
+                var accountExists = await read.Connection.ExecuteScalarAsync<int>(new Dapper.CommandDefinition(
+                    "SELECT COUNT(*) FROM sqlite_schema WHERE type='table' AND name='account'", cancellationToken: cancellationToken)) != 0;
+                initialized = accountExists && await read.Connection.ExecuteScalarAsync<int>(new CommandDefinition("SELECT COUNT(*) FROM account", cancellationToken: cancellationToken)) != 0;
+            }
+            if (needsM4 && initialized)
+            {
+                PreflightDisk();
+                backupName = await (migrationBackup?.Invoke() ?? throw new InvalidOperationException("An initialized schema upgrade requires an encrypted backup service."))
+                    .CreateAsync(M4SchemaTransition.Version, cancellationToken);
+            }
             if (await NeedsMigrationAsync(state, cancellationToken).ConfigureAwait(false)
                 || await NeedsMigrationAsync(index, cancellationToken).ConfigureAwait(false))
             {
@@ -74,11 +93,47 @@ public sealed class MigrationRunner : IMigrationRunner, IDisposable
             await ApplyM1Async(cancellationToken).ConfigureAwait(false);
             await state.QueueWriteAsync((connection, transaction, token) =>
                 MigrationSql.ExecuteAsync(connection, transaction, M2Schema.StateDdl, token), cancellationToken).ConfigureAwait(false);
-            return new MigrationReport(M0Schema.Version, M0Schema.Version, recoveries.AsReadOnly());
+            if (needsM4)
+            {
+                await state.QueueWriteAsync(async (connection, transaction, token) =>
+                {
+                    await M4SchemaTransition.PrepareAsync(connection, transaction, backupName, token); return 0;
+                }, cancellationToken);
+                await crashPoints.HitAsync("before_m4_schema", cancellationToken);
+                await state.QueueWriteAsync(async (connection, transaction, token) =>
+                {
+                    await M4SchemaTransition.ApplyStateAsync(connection, transaction, token); return 0;
+                }, cancellationToken);
+                await crashPoints.HitAsync("after_m4_state", cancellationToken);
+            }
+            await index.QueueWriteAsync(async (connection, transaction, token) =>
+            {
+                await M4SchemaTransition.ApplyIndexAsync(connection, transaction, token); return 0;
+            }, cancellationToken);
+            await RemoveBootstrapSnapshotAsync(cancellationToken);
+            return new MigrationReport(M4SchemaTransition.Version, M4SchemaTransition.Version, recoveries.AsReadOnly());
         }
         finally
         {
             gate.Release();
+        }
+    }
+
+    // M0's local crash-recovery copy is needed only until both stores have migrated.
+    // Initialized upgrades retain their encrypted package through normal backup retention.
+    private async Task RemoveBootstrapSnapshotAsync(CancellationToken token)
+    {
+        var path = GetStateSnapshotPath(M0Schema.Version);
+        if (!Directory.Exists(Path.GetDirectoryName(path))) return;
+        var files = new SecondBrain.Storage.Durability.ManagedMutationFiles(dataRoot, requireSafeRoot: true);
+        foreach (var candidate in new[] { path, path + ".sha256", path + ".sha256.tmp" })
+        {
+            using var entry = files.Open(candidate, "completed-bootstrap-migration");
+            var observed = await entry.ObserveDestinationAsync(token);
+            if (observed.Kind == SecondBrain.Storage.Durability.ManagedMutationFiles.DestinationLease.EntryKind.Missing) continue;
+            if (observed.Kind != SecondBrain.Storage.Durability.ManagedMutationFiles.DestinationLease.EntryKind.Regular
+                || !await entry.RemoveExpectedAsync(observed.Hash!, static (_, _) => ValueTask.CompletedTask, token))
+                throw new IOException("An obsolete bootstrap migration snapshot could not be safely removed.");
         }
     }
 

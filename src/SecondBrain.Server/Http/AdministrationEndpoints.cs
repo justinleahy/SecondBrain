@@ -4,6 +4,9 @@ using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Problems;
 using SecondBrain.Core.Providers;
 using SecondBrain.Infrastructure.Security;
+using SecondBrain.Core.Auth;
+using SecondBrain.Core.Ingestion;
+using SecondBrain.Core.Operations;
 
 namespace SecondBrain.Server.Http;
 
@@ -15,6 +18,8 @@ public static class AdministrationEndpoints
 {
     public static void Map(IEndpointRouteBuilder endpoints)
     {
+        SettingsEndpoints.Map(endpoints);
+        BackupEndpoints.Map(endpoints);
         foreach (var prefix in new[] { "", "/v1" })
         {
             endpoints.MapGet(prefix + "/providers", async (IProviderRegistry providers, HttpContext context) =>
@@ -43,7 +48,38 @@ public static class AdministrationEndpoints
                         result.Value.IsHealthy, result.Value.CheckedAt, result.Value.Detail }).ToArray());
             }).WithMetadata(new EndpointPolicy("providers.test"));
             endpoints.MapGet(prefix + "/diagnostics", DiagnosticsAsync).WithMetadata(new EndpointPolicy("diagnostics.read"));
+            endpoints.MapGet(prefix + "/usage", UsageAsync).WithMetadata(new EndpointPolicy("usage.read")).Produces<ModelUsageReport>();
+            endpoints.MapPost(prefix + "/maintenance/retention/metadata", RetentionAsync)
+                .WithMetadata(new EndpointPolicy("maintenance.retention", StepUp: true)).Produces<MetadataRetentionResult>();
+            endpoints.MapPost(prefix + "/maintenance/retention", FullRetentionAsync)
+                .WithMetadata(new EndpointPolicy("maintenance.retention", StepUp: true)).Produces<RetentionResult>();
         }
+    }
+
+    private static async Task<IResult> UsageAsync(HttpContext context, IAuthRepository auth, IModelUsage usage, TimeProvider clock,
+        DateTimeOffset? from, DateTimeOffset? to, CancellationToken token)
+    {
+        context.Response.Headers.CacheControl = "no-store";
+        var end = to ?? clock.GetUtcNow().AddTicks(1);
+        var start = from ?? new DateTimeOffset(end.UtcDateTime.Date, TimeSpan.Zero);
+        try { return Results.Ok(await usage.ReadAsync(await SecondBrain.Server.Ingestion.KnowledgeEndpoints.AuthorityAsync(context, auth, token), start, end, token)); }
+        catch (ArgumentException) { return Results.Problem(statusCode: 400, title: "Choose a usage interval of up to 31 days."); }
+    }
+
+    private static async Task<IResult> RetentionAsync(HttpContext context, IAuthRepository auth, IMetadataRetention retention, CancellationToken token)
+    {
+        var actor = (AuthenticatedCredential)context.Items[typeof(AuthenticatedCredential)]!;
+        var credential = await auth.FindAsync(actor.Id, token) ?? throw new AuthorityChangedException();
+        return Results.Ok(await retention.RunAsync(new(actor.Id, actor.Generation, actor.AccountEpoch, credential.Name, actor.Kind), cancellationToken: token));
+    }
+
+    private static async Task<IResult> FullRetentionAsync(HttpContext context, IAuthRepository auth, IMetadataRetention metadata, IDocumentRetention documents, IBackupOperations backups, IOperationCleanup cleanup, CancellationToken token)
+    {
+        var actor = (AuthenticatedCredential)context.Items[typeof(AuthenticatedCredential)]!;
+        var credential = await auth.FindAsync(actor.Id, token) ?? throw new AuthorityChangedException();
+        var authority = new IngestionAuthority(actor.Id, actor.Generation, actor.AccountEpoch, credential.Name, actor.Kind);
+        return Results.Ok(new RetentionResult(await metadata.RunAsync(authority, cancellationToken: token), await documents.RunAsync(authority, cancellationToken: token))
+        { Backups = await backups.RotateAsync(authority, token), Operations = await cleanup.RunAsync(authority, token) });
     }
 
     private static async Task<IResult> DiagnosticsAsync(ReadinessService readiness, IProviderRegistry providers,

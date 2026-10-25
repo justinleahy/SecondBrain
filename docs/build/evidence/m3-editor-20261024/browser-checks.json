@@ -1,0 +1,88 @@
+{
+  "status": "M3 development checkpoint; not full milestone acceptance",
+  "fixture": "KnowledgeBrowserQualification.BrowserWorkflows; isolated stores, synthetic account and documents, real loopback Kestrel and extractor",
+  "origin": "http://127.0.0.1:18216",
+  "editor": {
+    "status": "passed",
+    "editor": [
+      {
+        "width": 1280,
+        "monaco": true,
+        "linkCompletion": true,
+        "tagCompletion": true,
+        "peopleCompletion": true,
+        "plainTextRoundTrip": true,
+        "draftGuard": true,
+        "aliases": true,
+        "history": true,
+        "revisionSave": true
+      },
+      {
+        "width": 390,
+        "monaco": true,
+        "linkCompletion": true,
+        "tagCompletion": true,
+        "peopleCompletion": true,
+        "plainTextRoundTrip": true,
+        "draftGuard": true,
+        "aliases": true,
+        "history": true,
+        "revisionSave": true
+      }
+    ],
+    "pdfPageSelection": true,
+    "pdfMarkupEscaped": true,
+    "inlineScriptBlocked": true,
+    "remoteImageBlocked": true
+  },
+  "baseline": {
+    "highlighted": [
+      "retrieval"
+    ],
+    "passage": true,
+    "scriptBlocked": true,
+    "conflictPreserved": true,
+    "mergedSave": true,
+    "mobileCapture": true,
+    "mobileNoOverflow": true,
+    "settingsAndJobs": true,
+    "stepUpReload": true,
+    "signOut": true
+  },
+  "catalog": [
+    {
+      "width": 1280,
+      "facets": true,
+      "filterHistory": true,
+      "timeline": true,
+      "peopleFilter": true,
+      "trashMetadataOnly": true,
+      "liftSuppression": true,
+      "restore": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "facets": true,
+      "filterHistory": true,
+      "timeline": true,
+      "peopleFilter": true,
+      "trashMetadataOnly": true,
+      "liftSuppression": true,
+      "restore": true,
+      "noOverflow": true
+    }
+  ],
+  "circuits": {
+    "directLoads": 9,
+    "revokedIdleCircuitClosedMilliseconds": 1905,
+    "independentSessionPreserved": true,
+    "revokedCredentialRejected": true
+  },
+  "csp": "Expected script-src-elem and img-src violations when appending an inline script and a remote image inside the rendered PDF page; no execution. Monaco had no CSP initialization error.",
+  "limitations": [
+    "Not VPN or Cloudflare acceptance.",
+    "No deployment or Release acceptance claimed.",
+    "Source administration, fuller settings, U6/U7/U11 and remaining gates are tracked in M3-web-ui-progress.md."
+  ]
+}

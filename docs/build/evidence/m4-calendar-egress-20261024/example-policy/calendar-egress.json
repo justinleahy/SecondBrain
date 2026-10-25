@@ -1,0 +1,37 @@
+{
+  "origins": [
+    "https://www.gov.uk"
+  ],
+  "destinations": [
+    {
+      "origin": "https://www.gov.uk",
+      "address": "151.101.0.144",
+      "port": 443
+    },
+    {
+      "origin": "https://www.gov.uk",
+      "address": "151.101.128.144",
+      "port": 443
+    },
+    {
+      "origin": "https://www.gov.uk",
+      "address": "151.101.192.144",
+      "port": 443
+    },
+    {
+      "origin": "https://www.gov.uk",
+      "address": "151.101.64.144",
+      "port": 443
+    },
+    {
+      "origin": "https://www.gov.uk",
+      "address": "2a04:4e42:b::144",
+      "port": 443
+    }
+  ],
+  "canaryAddresses": [
+    "1.1.1.1"
+  ],
+  "systemdDropIn": "# Generated from sources.calendar_allowed_origins. Does not grant model-provider trust.\n[Service]\nIPAddressAllow=151.101.0.144\nIPAddressAllow=151.101.128.144\nIPAddressAllow=151.101.192.144\nIPAddressAllow=151.101.64.144\nIPAddressAllow=2a04:4e42:b::144\n",
+  "composeEnvironment": "# Calendar downloads by the daemon UID only; independent of local_only and provider trust.\nSECONDBRAIN_CALENDAR_ALLOWLIST=151.101.0.144:443 151.101.128.144:443 151.101.192.144:443 151.101.64.144:443 [2a04:4e42:b::144]:443\nSECONDBRAIN_CALENDAR_CANARY_ADDRESSES=1.1.1.1\n"
+}

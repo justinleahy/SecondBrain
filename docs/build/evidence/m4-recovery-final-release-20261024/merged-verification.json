@@ -1,0 +1,8 @@
+{
+  "status": "passed_for_local_unsigned_bundle",
+  "files": 465,
+  "vulnerabilityMatches": 0,
+  "threshold": "low",
+  "sharedAssemblySelection": "CLI/Server platform runtime assemblies 10.0.13 retained over equivalent portable NuGet 10.0.13 Extractor copies.",
+  "systemdQualification": "pending"
+}

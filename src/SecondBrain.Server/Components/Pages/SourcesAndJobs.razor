@@ -1,0 +1,314 @@
+@page "/manage/sources"
+@page "/manage/jobs"
+@inherits BrowserPage
+@implements IAsyncDisposable
+@using System.Text.Json
+@using SecondBrain.Core.Ingestion
+@using SecondBrain.Core.Sources
+@using SecondBrain.Core.Authorization
+@using SecondBrain.Server.Sources
+@inject Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions> Options
+
+<PageTitle>Sources and jobs · SecondBrain</PageTitle>
+<KnowledgeNav />
+<main class="knowledge-page">
+    <header class="knowledge-heading"><div><span class="knowledge-eyebrow">YOUR KNOWLEDGE</span><h1>Sources and jobs</h1></div><button disabled="@(!Loaded || Busy)" @onclick="RefreshAsync">Refresh</button></header>
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (notice is not null) { <p role="status" class="knowledge-notice">@notice</p> }
+    @if (isAdmin)
+    {
+        <section aria-label="Calendar subscriptions">
+            <h2>Shared calendars</h2>
+            <p>Add a read-only shared iCloud calendar or HTTPS calendar feed. Its host must be allowed in this server's settings.</p>
+            <p>Adding, editing, pausing or removing a calendar requires a recent password confirmation in <a href="/settings">Settings</a>.</p>
+            <button disabled="@Busy" @onclick="() => showCalendar = !showCalendar">@(showCalendar ? "Close calendar form" : "Add calendar subscription")</button>
+            @if (showCalendar)
+            {
+                <form class="knowledge-editor source-form" @onsubmit="AddCalendarAsync" @onsubmit:preventDefault>
+                    <fieldset disabled="@Busy"><legend>New shared calendar</legend>
+                        <label>Calendar name<input @bind="calendarName" required maxlength="200" /></label>
+                        <label>Shared calendar link<input type="password" @bind="calendarUrl" required maxlength="8192" autocomplete="off" spellcheck="false" /></label>
+                        <p>The link is private. After saving, only its host is shown.</p>
+                        <label>Refresh interval (minutes)<input type="number" @bind="calendarMinutes" min="5" /></label>
+                        <label class="knowledge-toggle"><input type="checkbox" @bind="calendarEnabled" /> Start refreshing now</label>
+                    </fieldset>
+                    <button disabled="@Busy">Add calendar</button>
+                </form>
+            }
+            @foreach (var calendar in calendars)
+            {
+                <article class="knowledge-card" aria-label="@("Calendar " + calendar.Name)" @key="calendar.Id">
+                    <h3>@calendar.Name</h3><p>@calendar.Origin · @Freshness(calendar.Freshness)</p>
+                    <p>Last attempt: @CalendarTime(calendar.LastAttemptAt)<br />Last successful check: @CalendarTime(calendar.LastSuccessAt)<br />Last content change: @CalendarTime(calendar.LastChangeAt)<br />Next refresh: @CalendarTime(calendar.NextAttemptAt)</p>
+                    @if (calendar.Error is not null) { <p class="knowledge-error">@CalendarError(calendar.Error)</p> }
+                    <div class="knowledge-actions">
+                        <button disabled="@(Busy || calendar.Status != "active")" @onclick="() => RefreshCalendarAsync(calendar.Id, false)">Refresh now</button>
+                        <button disabled="@(Busy || calendar.Status != "active")" @onclick="() => RefreshCalendarAsync(calendar.Id, true)">Force refresh</button>
+                        <button disabled="@Busy" @onclick="() => ToggleCalendarAsync(calendar)">@(calendar.Status == "active" ? "Pause" : "Resume")</button>
+                        <button disabled="@Busy" @onclick="() => EditCalendar(calendar)">Edit calendar</button>
+                        <button disabled="@Busy" @onclick="() => removeId = calendar.Id">Remove calendar…</button>
+                        <button disabled="@Busy" @onclick="() => purgeCalendarId = calendar.Id">Purge calendar…</button>
+                    </div>
+                    @if (editCalendarId == calendar.Id)
+                    {
+                        <form class="knowledge-editor" @onsubmit="SaveCalendarAsync" @onsubmit:preventDefault>
+                            <label>Calendar name<input @bind="editCalendarName" required maxlength="200" /></label>
+                            <label>Refresh interval (minutes)<input type="number" @bind="editCalendarMinutes" min="5" /></label>
+                            <button disabled="@Busy">Save calendar</button><button type="button" @onclick="() => editCalendarId = null">Cancel edit</button>
+                        </form>
+                    }
+                    @if (removeId == calendar.Id)
+                    {
+                        <p>Remove this subscription and hide its imported events? The shared calendar itself will stay unchanged.</p>
+                        <button disabled="@Busy" @onclick="() => RemoveAsync(calendar.Id)">Confirm remove calendar</button><button @onclick="() => removeId = null">Cancel</button>
+                    }
+                    @if (purgeCalendarId == calendar.Id)
+                    {
+                        <p>Permanently remove this subscription, its imported events and its saved calendar files? This cannot be undone.</p>
+                        <button disabled="@Busy" @onclick="() => RemoveAsync(calendar.Id, true)">Confirm purge calendar</button><button @onclick="() => purgeCalendarId = null">Cancel purge</button>
+                    }
+                </article>
+            }
+            @if (Loaded && calendars.Count == 0) { <p>No calendar subscriptions have been added.</p> }
+        </section>
+        <section aria-label="Folder sources">
+            <h2>Folder sources</h2>
+            <p>Creating, pausing or removing a source requires a recent password confirmation in <a href="/settings">Settings</a>. Folder paths refer to this server.</p>
+            <button disabled="@Busy" @onclick="() => showAdd = !showAdd">@(showAdd ? "Close new source form" : "Add folder source")</button>
+            @if (showAdd)
+            {
+                <form class="knowledge-editor source-form" @onsubmit="AddAsync" @onsubmit:preventDefault>
+                    <fieldset disabled="@Busy"><legend>New folder source</legend>
+                        <label>Name<input @bind="name" required maxlength="200" /></label>
+                        <label>Folder path<input @bind="path" required placeholder="A folder under an allowed server root" /></label>
+                        <label>Mode<select @bind="mode"><option value="index">Index in place</option><option value="import">Import into vault</option></select></label>
+                        <label>Watch<select @bind="watch"><option value="poll">Periodic scans</option><option value="events">Filesystem events and scans</option></select></label>
+                        <label>Scan interval (seconds)<input type="number" @bind="interval" min="1" max="86400" /></label>
+                        <label>Default type<select @bind="defaultType"><option value="">Detect from files</option><option value="note">Note</option><option value="article">Article</option><option value="file">File</option></select></label>
+                        <label class="knowledge-toggle"><input type="checkbox" @bind="recursive" /> Include subfolders</label>
+                        <label>Include patterns<textarea @bind="include" rows="3" placeholder="One glob per line; empty includes all files"></textarea></label>
+                        <label>Exclude patterns<textarea @bind="exclude" rows="3" placeholder="One glob per line"></textarea></label>
+                        <label>Type mappings (JSON object)<textarea @bind="typeMap" rows="3" spellcheck="false"></textarea></label>
+                    </fieldset>
+                    <button disabled="@Busy">Create source</button>
+                </form>
+            }
+            @foreach (var item in sources)
+            {
+                var count = counts.FirstOrDefault(value => value.Id == item.Id);
+                <article class="knowledge-card" aria-label="@("Source " + item.Name)" @key="item.Id">
+                    <h3>@item.Name</h3><p>@item.Config.Path · @item.Status · @item.Config.Mode</p>
+                    @if (count is not null) { <p>@count.Total documents · @count.Available available · @count.Pending pending · @count.Failed failed or skipped · @count.Missing missing or removed</p> }
+                    <p>Last scan: @(item.LastScanAt?.ToString("g") ?? "Not scanned") · Last deep scan: @(item.LastFullScanAt?.ToString("g") ?? "Not scanned")</p>
+                    @if (item.LastScanError is not null) { <p class="knowledge-error">Last scan failed: @item.LastScanError · @item.LastScanErrorAt?.ToString("g")</p> }
+                    @if (item.Status == "removed") { <p>This source was removed. Its documents are no longer available in search.</p> }
+                    else
+                    {
+                        <div class="knowledge-actions">
+                            <button disabled="@(Busy || item.Status != "active")" @onclick="() => ScanAsync(item.Id, false)">Scan</button>
+                            <button disabled="@(Busy || item.Status != "active")" @onclick="() => ScanAsync(item.Id, true)">Deep scan</button>
+                            <button disabled="@Busy" @onclick="() => ToggleSourceAsync(item)">@(item.Status == "active" ? "Pause" : "Resume")</button>
+                            <button disabled="@Busy" @onclick="() => FilterSourceAsync(item.Id)">Show jobs</button>
+                            @if (item.Id != "inbox") { <button disabled="@Busy" @onclick="() => removeId = item.Id">Remove source…</button> }
+                        </div>
+                        @if (removeId == item.Id)
+                        {
+                            <p>Remove this source? Its documents will disappear from search. The original files remain on disk.</p>
+                            <button disabled="@Busy" @onclick="() => RemoveAsync(item.Id)">Confirm remove source</button><button @onclick="() => removeId = null">Cancel</button>
+                        }
+                    }
+                    @if (item.Id != "inbox")
+                    {
+                        <button disabled="@Busy" @onclick="() => purgeFolderId = item.Id">Purge source…</button>
+                        @if (purgeFolderId == item.Id)
+                        {
+                            <p>Permanently remove this source and all its retained documents, including trash? Files in the original folder will remain on disk.</p>
+                            <button disabled="@Busy" @onclick="() => RemoveAsync(item.Id, true)">Confirm purge source</button><button @onclick="() => purgeFolderId = null">Cancel purge</button>
+                        }
+                    }
+                </article>
+            }
+            @if (Loaded && sources.Count == 0) { <p>No folder sources are configured.</p> }
+        </section>
+    }
+    <section aria-label="Processing jobs">
+        <h2>Processing jobs</h2>
+        <form @onsubmit="FilterAsync" @onsubmit:preventDefault><fieldset class="knowledge-filters" disabled="@(!Loaded || Busy)">
+            <label>Status<select @bind="status"><option value="">All jobs</option><option value="failed">Failed</option><option value="queued">Queued</option><option value="running">Running</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></label>
+            <label>Source<select @bind="source"><option value="">All sources</option>@foreach (var item in sourceOptions) { <option value="@item.Id">@item.Name</option> }</select></label>
+            <button>Filter</button>
+        </fieldset></form>
+        @foreach (var job in jobs)
+        {
+            <article class="knowledge-card" aria-label="@("Job " + job.Id)" @key="job.Id">
+                <h3><a href="@("/library/" + Uri.EscapeDataString(job.DocumentId))">@job.Title</a></h3>
+                @if (job.FileName is not null) { <p>File: @job.FileName</p> }
+                <p>@job.SourceName · @job.Status · @job.Stage · revision @job.Revision · @job.Attempts attempts</p>
+                @if (job.Error is not null) { <p class="knowledge-error">@job.Error</p> }
+                @if (job.CanRetry) { <button disabled="@Busy" @onclick="() => RetryAsync(job.Id)">Retry job</button> }
+                else if (job.Status == "failed") { <p>@RetryExplanation(job.RetryRejection)</p> }
+            </article>
+        }
+        @if (Loaded && jobs.Count == 0) { <p>No jobs match this status and source.</p> }
+        @if (next is not null) { <button disabled="@Busy" @onclick="MoreAsync">More jobs</button> }
+    </section>
+</main>
+
+@code {
+    private IReadOnlyList<SourceRecord> sources = [];
+    private IReadOnlyList<SourceResponse> calendars = [];
+    private IReadOnlyList<SourceDocumentCounts> counts = [];
+    private IReadOnlyList<CatalogSource> sourceOptions = [];
+    private readonly List<CatalogJob> jobs = [];
+    private string status = "", source = "", activeStatus = "", activeSource = "";
+    private string name = "", path = "", mode = "index", watch = "poll", defaultType = "", include = "", exclude = "", typeMap = "{}";
+    private int interval = 600;
+    private bool recursive = true, showAdd, isAdmin;
+    private bool showCalendar, calendarEnabled = true;
+    private string calendarName = "", calendarUrl = "";
+    private int calendarMinutes = 60;
+    private string? editCalendarId;
+    private string editCalendarName = "";
+    private int editCalendarMinutes = 60;
+    private string? notice, next, removeId, retryId, purgeCalendarId, purgeFolderId;
+    private readonly CancellationTokenSource stop = new();
+    private Task? polling;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender) polling = PollAsync();
+    }
+    protected override async Task LoadAsync()
+    {
+        isAdmin = (await Api.SendAsync<BrowserSessionIdentity>("/auth/me")).Scopes.Contains(Scope.Admin);
+        await LoadSourcesAsync();
+        await LoadJobsAsync();
+    }
+    private async Task LoadSourcesAsync()
+    {
+        var options = new List<CatalogSource>(); string? cursor = null;
+        do
+        {
+            var page = await Api.SendAsync<CatalogPage<CatalogSource>>("/browse/sources" + (cursor is null ? "" : "?cursor=" + Uri.EscapeDataString(cursor)));
+            options.AddRange(page.Items); cursor = page.NextCursor;
+        } while (cursor is not null);
+        sourceOptions = options;
+        if (!isAdmin) return;
+        var allSources = await Api.SendAsync<SourceResponse[]>("/sources");
+        sources = allSources.Where(item => item.Kind == "folder" && item.Config is not null).Select(item => new SourceRecord(item.Id, item.Kind, item.Name, item.Config!, item.Status, item.LastScanAt, item.LastFullScanAt, item.CreatedAt)
+            { LastScanError = item.LastScanError, LastScanErrorAt = item.LastScanErrorAt }).ToArray();
+        calendars = allSources.Where(item => item.Kind == "calendar_subscription").ToArray();
+        counts = await Api.SendAsync<SourceDocumentCounts[]>("/browse/source-counts");
+    }
+    private string JobsUrl(string? cursor = null) => "/browse/jobs?status=" + Uri.EscapeDataString(activeStatus) + "&source=" + Uri.EscapeDataString(activeSource)
+        + (cursor is null ? "" : "&cursor=" + Uri.EscapeDataString(cursor));
+    private async Task LoadJobsAsync()
+    {
+        var page = await Api.SendAsync<CatalogPage<CatalogJob>>(JobsUrl());
+        jobs.Clear(); jobs.AddRange(page.Items); next = page.NextCursor;
+        if (retryId is not null && jobs.FirstOrDefault(job => job.Id == retryId) is { } retried && retried.Status is "completed" or "failed")
+        { notice = retried.Status == "completed" ? "Retried job completed." : "Retried job failed again. See its reason below."; retryId = null; }
+    }
+    private Task RefreshAsync() => RunAsync(async () => { await LoadSourcesAsync(); await LoadJobsAsync(); });
+    private Task FilterAsync() => RunAsync(async () => { activeStatus = status; activeSource = source; await LoadJobsAsync(); });
+    private Task FilterSourceAsync(string id) { source = id; return FilterAsync(); }
+    private Task MoreAsync() => RunAsync(async () =>
+    {
+        if (next is null) return;
+        var page = await Api.SendAsync<CatalogPage<CatalogJob>>(JobsUrl(next)); jobs.AddRange(page.Items); next = page.NextCursor;
+    });
+    private Task ScanAsync(string id, bool deep) => RunAsync(async () =>
+    {
+        try
+        {
+            await Api.SendAsync<JsonElement>("/sources/" + Uri.EscapeDataString(id) + "/scan?deep=" + (deep ? "true" : "false"), "POST");
+            notice = "Scan completed. Processing jobs may continue in the background.";
+        }
+        finally { await LoadSourcesAsync(); await LoadJobsAsync(); }
+    });
+    private Task ToggleSourceAsync(SourceRecord item) => RunAsync(async () =>
+    {
+        await Api.SendAsync<JsonElement>("/sources/" + Uri.EscapeDataString(item.Id), "PATCH", new { status = item.Status == "active" ? "disabled" : "active" });
+        notice = item.Status == "active" ? "Source paused." : "Source resumed."; await LoadSourcesAsync();
+    });
+    private Task AddCalendarAsync() => RunAsync(async () =>
+    {
+        if (calendarMinutes < 5 || calendarMinutes > int.MaxValue / 60) { Error = "Choose a refresh interval of at least 5 minutes."; return; }
+        await Api.SendAsync<SourceResponse>("/sources", "POST", new { kind = "calendar_subscription", name = calendarName.Trim(), url = calendarUrl.Trim(), poll_interval_s = calendarMinutes * 60, enabled = calendarEnabled });
+        calendarUrl = ""; calendarName = ""; showCalendar = false;
+        notice = calendarEnabled ? "Calendar added. Its first refresh is queued." : "Calendar added and paused.";
+        await LoadSourcesAsync();
+    });
+    private void EditCalendar(SourceResponse calendar)
+    {
+        editCalendarId = calendar.Id; editCalendarName = calendar.Name; editCalendarMinutes = (calendar.PollIntervalSeconds ?? 3600) / 60;
+    }
+    private Task SaveCalendarAsync() => RunAsync(async () =>
+    {
+        if (editCalendarMinutes < 5 || editCalendarMinutes > int.MaxValue / 60) { Error = "Choose a refresh interval of at least 5 minutes."; return; }
+        await Api.SendAsync<JsonElement>("/sources/" + Uri.EscapeDataString(editCalendarId!), "PATCH", new { name = editCalendarName.Trim(), poll_interval_s = editCalendarMinutes * 60 });
+        editCalendarId = null; notice = "Calendar settings saved."; await LoadSourcesAsync();
+    });
+    private Task RefreshCalendarAsync(string id, bool deep) => RunAsync(async () =>
+    {
+        await Api.SendAsync<JsonElement>("/sources/" + Uri.EscapeDataString(id) + "/scan?deep=" + (deep ? "1" : "0"), "POST");
+        notice = "Calendar refresh queued."; await LoadSourcesAsync();
+    });
+    private Task ToggleCalendarAsync(SourceResponse item) => RunAsync(async () =>
+    {
+        await Api.SendAsync<JsonElement>("/sources/" + Uri.EscapeDataString(item.Id), "PATCH", new { enabled = item.Status != "active" });
+        notice = item.Status == "active" ? "Calendar paused. Imported events remain available." : "Calendar resumed. A refresh is queued.";
+        await LoadSourcesAsync();
+    });
+    private string CalendarTime(DateTimeOffset? value) => value is null ? "Not yet" : TimeZoneInfo.ConvertTime(value.Value, TimeZoneInfo.FindSystemTimeZoneById(Options.CurrentValue.Time.Zone)).ToString("g");
+    private static string Freshness(string? value) => value switch { "current" => "Up to date", "paused" => "Paused", "failed" => "Refresh failed", "stale" => "Refresh overdue", _ => "Waiting for first refresh" };
+    private static string CalendarError(string value) => value switch
+    {
+        "calendar_unavailable" => "The calendar could not be accessed. Check that sharing is still enabled.",
+        "calendar_parse_failed" or "calendar_rejected_unchanged" => "The feed was not a complete calendar. Previously imported events have been kept.",
+        "calendar_origin_not_allowed" => "This calendar's host is no longer allowed by the server settings.",
+        "calendar_address_refused" or "calendar_canary_refused" => "The calendar host resolved to an address this server cannot use.",
+        "calendar_timeout" => "The calendar server did not respond in time. A retry is scheduled.",
+        "calendar_rate_limited" => "The calendar server asked us to wait. A retry is scheduled.",
+        _ => "The refresh could not complete. Previously imported events have been kept; a retry is scheduled."
+    };
+    private Task RemoveAsync(string id, bool purge = false) => RunAsync(async () =>
+    {
+        await Api.SendAsync<JsonElement>("/sources/" + Uri.EscapeDataString(id) + (purge ? "?purge=1" : ""), "DELETE"); removeId = null; purgeCalendarId = null; purgeFolderId = null;
+        notice = purge ? "Source and its retained data purged. External originals remain on disk." : "Source removed. Original files remain on disk."; await LoadSourcesAsync(); await LoadJobsAsync();
+    });
+    private Task AddAsync() => RunAsync(async () =>
+    {
+        Dictionary<string, string>? mappings;
+        try { mappings = JsonSerializer.Deserialize<Dictionary<string, string>>(typeMap); }
+        catch (JsonException) { Error = "Type mappings must be a JSON object mapping globs to types."; return; }
+        if (mappings is null) { Error = "Type mappings must be a JSON object."; return; }
+        var created = await Api.SendAsync<SourceRecord>("/sources", "POST", new CreateSourceRequest
+        { Name = name.Trim(), Path = path.Trim(), Mode = mode, Watch = watch, Recursive = recursive, PollIntervalSeconds = interval,
+          DefaultType = defaultType.Length == 0 ? null : defaultType, Include = Patterns(include), Exclude = Patterns(exclude), TypeMap = mappings });
+        showAdd = false; notice = "Source created: " + created.Name + "."; await LoadSourcesAsync(); await LoadJobsAsync();
+    });
+    private static string[] Patterns(string text) => text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    private Task RetryAsync(string id) => RunAsync(async () =>
+    {
+        await Api.SendAsync<ProcessingJob>("/jobs/" + Uri.EscapeDataString(id) + "/retry", "POST"); retryId = id;
+        status = activeStatus = ""; notice = "Job queued for retry."; await LoadJobsAsync();
+    });
+    private static string RetryExplanation(string? reason) => reason == "job-superseded" ? "This job belongs to an older revision or processing generation."
+        : "This failure cannot be retried with the same input. Correct the source file or change the extractor generation, then scan again.";
+    private async Task PollAsync()
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
+            while (await timer.WaitForNextTickAsync(stop.Token))
+                await InvokeAsync(async () =>
+                {
+                    if (!Busy && (retryId is not null || jobs.Any(job => job.Status is "queued" or "running") || calendars.Any(item => item.Status == "active")))
+                    { await RunAsync(async () => { await LoadJobsAsync(); if (isAdmin) await LoadSourcesAsync(); }); StateHasChanged(); }
+                });
+        }
+        catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
+    }
+    public async ValueTask DisposeAsync() { await stop.CancelAsync(); if (polling is not null) await polling; stop.Dispose(); }
+}

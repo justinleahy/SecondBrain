@@ -48,6 +48,8 @@ public static class KnowledgeEndpoints
                 .WithMetadata(new EndpointPolicy("documents.create"), new AdmissionPolicy(AdmissionResource.Upload, QueuedJobs: 1, AdmittedBytes: MaximumUploadBytes + 65536, Ingestion: true))
                 .Produces<CaptureResult>(201).Produces<CaptureResult>(200).Produces<CaptureResult>(202).ProducesProblem(400).ProducesProblem(413).ProducesProblem(422);
             endpoints.MapGet(prefix + "/documents/{id}", ReadAsync).WithMetadata(new EndpointPolicy("documents.read")).Produces<DocumentRecord>().ProducesProblem(404);
+            endpoints.MapPost(prefix + "/documents/{id}/enrich", EnrichAsync).WithMetadata(new EndpointPolicy("documents.enrich"), new AdmissionPolicy(QueuedJobs: 1))
+                .Produces<EnrichmentJob>(202).ProducesProblem(409);
             endpoints.MapGet(prefix + "/files/{id}", DownloadAsync).WithMetadata(new EndpointPolicy("documents.read")).Produces(200, contentType: "application/octet-stream").ProducesProblem(404);
             endpoints.MapGet(prefix + "/jobs", JobsAsync).WithMetadata(new EndpointPolicy("jobs.read")).Produces<IReadOnlyList<ProcessingJob>>();
             endpoints.MapGet(prefix + "/jobs/{id}", JobAsync).WithMetadata(new EndpointPolicy("jobs.read")).Produces<ProcessingJob>().ProducesProblem(404);
@@ -62,12 +64,24 @@ public static class KnowledgeEndpoints
         }
     }
 
-    private static async Task<IngestionAuthority> AuthorityAsync(HttpContext context, IAuthRepository auth, CancellationToken token)
+    internal static async Task<IngestionAuthority> AuthorityAsync(HttpContext context, IAuthRepository auth, CancellationToken token)
     {
         var identity = (AuthenticatedCredential)context.Items[typeof(AuthenticatedCredential)]!;
         if (!await auth.IsCurrentAsync(identity.Id, identity.Generation, identity.AccountEpoch, token)) throw new AuthorityChangedException();
         var row = await auth.FindAsync(identity.Id, token) ?? throw new AuthorityChangedException();
         return new(identity.Id, identity.Generation, identity.AccountEpoch, row.Name, identity.Kind);
+    }
+
+    private static async Task<IResult> EnrichAsync(string id, HttpContext context, IAuthRepository auth, IEnrichmentRepository enrichment,
+        IOptionsMonitor<SecondBrainOptions> options, IPersistentAdmissionAccounting accounting, CancellationToken token)
+    {
+        try
+        {
+            var job = await enrichment.RequestAsync(id, await AuthorityAsync(context, auth, token), EnrichmentPolicy.Fingerprint(options.CurrentValue), token);
+            await accounting.RefreshAsync(token);
+            return Results.Accepted("/v1/jobs/" + Uri.EscapeDataString(job.Id), job);
+        }
+        catch (IngestionConflictException error) { return Results.Problem(statusCode: error.Code == "not-found" ? 404 : 409, title: error.Code); }
     }
 
     private static async Task<IResult> CaptureAsync(HttpContext context, IDocumentRepository documents, IAuthRepository auth,
@@ -150,7 +164,7 @@ public static class KnowledgeEndpoints
     private static async Task<IResult> ReadAsync(string id, HttpContext context, IDocumentRepository documents, CancellationToken token)
     {
         var includes = context.Request.Query["include"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
-        if (includes.Any(value => value is not ("text" or "chunks"))) return Invalid("unsupported-include");
+        if (includes.Any(value => value is not ("text" or "chunks" or "segments"))) return Invalid("unsupported-include");
         var text = includes.Length > 0;
         // Like downloads, retained projections of an unavailable document are never served; the status check
         // precedes loading them and is repeated on the loaded record in case the status changed in between.
@@ -199,18 +213,18 @@ public static class KnowledgeEndpoints
             var request = await ReadJsonAsync<SearchRequest>(context.Request.Body, 65536, token);
             if (string.IsNullOrWhiteSpace(request.Query) || request.Query.Length > 8192 || request.Mode is not ("keyword" or "semantic" or "hybrid") || request.Limit is < 1 or > 200 || request.Rerank is not ("none" or "llm" or "provider")) return Invalid("invalid-search");
             RetrievalFilterValidation.Validate(request.Filters);
-            await AuthorityAsync(context, auth, token);
+            var inferenceActor = await AuthorityAsync(context, auth, token);
             (float[]? Vector, string? SpaceId) vector = (null, null);
             if (request.Mode != "keyword")
             {
-                try { vector = await embeddings.QueryAsync(request.Query, token); }
+                try { vector = await embeddings.QueryAsync(request.Query, token, actor: inferenceActor); }
                 catch (Exception ex) when (EmbeddingOrchestrator.IsProviderFailure(ex)) { }
             }
             await AuthorityAsync(context, auth, token);
             var fallback = request.Mode != "keyword" && vector.Vector is null;
             var retrievalRequest = request with { Mode = fallback ? "keyword" : request.Mode, Limit = request.Rerank == "none" ? request.Limit : Math.Max(20, request.Limit) };
             var response = await retrieval.SearchAsync(retrievalRequest, vector.Vector, vector.SpaceId, token);
-            response = await reranker.ApplyAsync(request, response, token);
+            response = await reranker.ApplyAsync(request, response, token, inferenceActor);
             await AuthorityAsync(context, auth, token);
             await retrieval.RecordTraceAsync(request, response, token);
             return Results.Ok(fallback ? response with { Degraded = response.Degraded.Concat(new[] { "embed-unavailable" }).Distinct(StringComparer.Ordinal).ToArray() } : response);
@@ -257,6 +271,14 @@ public static class KnowledgeEndpoints
             if (result.Document.Status == "proposed") return Results.Json(new PendingOperationResponse(result.Job!.Id), statusCode: 202);
             context.Response.Headers.ETag = "\"" + result.Document.Revision + "\"";
             return Results.Ok(Served(result));
+        }
+        catch (ManagedFileConflictException conflict)
+        {
+            context.RequestServices.GetRequiredService<FileProcessingOrchestrator>().Notify();
+            var current = await documents.GetAsync(id, cancellationToken: CancellationToken.None);
+            return Results.Problem(statusCode: 409, type: "https://secondbrain.dev/problems/file-conflict", title: "The file changed on disk. Your draft was preserved.",
+                extensions: new Dictionary<string, object?> { ["conflict_file"] = conflict.ConflictPath is null ? null : Path.GetFileName(conflict.ConflictPath),
+                    ["conflict_id"] = conflict.MutationId, ["current_revision"] = current?.Revision });
         }
         catch (IngestionConflictException ex)
         {

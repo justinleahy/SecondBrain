@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-24",
+  "syntheticData": true,
+  "realExtractor": true,
+  "widths": [
+    1280,
+    390
+  ],
+  "settingsToggleAndReload": true,
+  "summaryAndSuggestionsVisible": true,
+  "triggerFollowsSetting": true,
+  "completedRequestIsIdempotent": true,
+  "noHorizontalOverflow": true,
+  "screenshotsReviewed": true,
+  "workflowConsoleWarnings": 0,
+  "workflowConsoleErrors": 0,
+  "expectedPreLogin401": 1,
+  "screenshots": [
+    {
+      "file": "document-1280.png",
+      "sha256": "f70f89e76f2996608c84c87627aa2150157361a1a04b47c0841b5689e200cb70"
+    },
+    {
+      "file": "document-390.png",
+      "sha256": "255666b92cb5ae570389d4d4befdfc1a6b850c51108aacf1398e221ab4ab7aeb"
+    },
+    {
+      "file": "settings-1280.png",
+      "sha256": "3587ea32fe4d3789bf7bf09b4a7ed812f44450116f6906ab86230da2fc35e84a"
+    },
+    {
+      "file": "settings-390.png",
+      "sha256": "40a3792724257804dead4f518e550979994cf3da0e64e7fc687e7a69c58240f3"
+    }
+  ],
+  "harness": "tests/SecondBrain.Server.Tests/M4EnrichmentQualification.cs",
+  "browserScript": "tests/browser/m4-enrichment.js"
+}

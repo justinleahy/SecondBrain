@@ -1,0 +1,30 @@
+{
+  "inputSha256": "1f19e9d59f21b03e77448bbdbce62dc107a70f796721d2f8d92dc46ea1a269f9",
+  "inputBytes": 31508,
+  "cues": 224,
+  "speakerCount": 3,
+  "multipartImport": true,
+  "repeatedImportSameIdentity": true,
+  "speakerFilteredSearch": true,
+  "freshLocalModels": true,
+  "chatModel": "Qwen/Qwen3-8B",
+  "embeddingModel": "Qwen/Qwen3-Embedding-0.6B",
+  "answerComplete": true,
+  "timestampedCitations": 1,
+  "metadataStartTimeSuppliedByTest": true,
+  "pricingVocabularyPresent": false,
+  "privateContentInEvidence": false,
+  "usesDisposableStore": true,
+  "limitations": [
+    "The supplied export contains no pricing vocabulary; the question used an actual topic from one speaker.",
+    "Meeting start time and participant metadata were supplied by the test; the VTT bytes are the real export.",
+    "The automated checks verify current document, speaker, and timestamp citation metadata; no separate human semantic review is recorded."
+  ],
+  "pricingCheck": {
+    "status": "waived",
+    "date": "2026-10-24",
+    "authority": "explicit user instruction",
+    "reason": "No suitable pricing transcript is available.",
+    "scope": "Pricing-specific real-transcript example only; existing speaker/topic and timestamped-citation results remain unchanged."
+  }
+}

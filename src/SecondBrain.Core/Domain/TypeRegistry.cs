@@ -132,6 +132,30 @@ public sealed class TypeRegistry
               "additionalProperties": false,
               "x-occurred-basis": "published_at", "x-index": ["author", "site"], "x-people": { "author": "author" } }
             """, "article");
+        yield return new ContentTypeDefinition("transcript", 1, """
+            { "$id": "brain:type/transcript/1", "type": "object",
+              "properties": {
+                "participants": { "type": "array", "items": { "type": "string" } },
+                "started_at": { "type": "string", "format": "date-time" },
+                "duration_ms": { "type": "integer", "minimum": 0 },
+                "event_id": { "type": "string" },
+                "recording_url": { "type": "string", "format": "uri" }
+              }, "additionalProperties": false,
+              "x-occurred-basis": "started_at", "x-index": ["event_id"], "x-people": { "participants": "participant" } }
+            """, "transcript");
+        yield return new ContentTypeDefinition("calendar_event", 1, """
+            { "$id": "brain:type/calendar_event/1", "type": "object", "properties": {
+              "uid": { "type": "string" }, "recurrence_id": { "type": "string" }, "master_id": { "type": "string" },
+              "sequence": { "type": "integer" }, "starts_at": { "type": "string", "format": "date-time" },
+              "ends_at": { "type": "string", "format": "date-time" }, "ends_basis": { "type": "string" },
+              "all_day": { "type": "boolean" }, "tz": { "type": "string" },
+              "attendees": { "type": "array", "items": { "type": "string" } }, "organizer": { "type": "string" },
+              "location": { "type": "string" }, "status": { "type": "string", "enum": ["confirmed", "tentative", "cancelled"] },
+              "rrule": { "type": "string" }
+            }, "required": ["uid", "starts_at"], "additionalProperties": false,
+            "x-occurred-basis": "starts_at", "x-natural-key": "uid+recurrence_id", "x-index": ["location", "status", "master_id"],
+            "x-people": { "attendees": "attendee", "organizer": "organizer" } }
+            """, "calendar_event");
         yield return new ContentTypeDefinition("file", 1,
             """{ "$id": "brain:type/file/1", "type": "object", "properties": {}, "additionalProperties": false }""", "file");
     }

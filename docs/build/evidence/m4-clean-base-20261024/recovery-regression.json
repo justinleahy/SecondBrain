@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "configuration": "Release",
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "filter": "Category!=Qualification",
+  "projects": [
+    {
+      "project": "SecondBrain.Architecture.Tests",
+      "total": 63,
+      "passed": 63,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "project": "SecondBrain.Core.Tests",
+      "total": 213,
+      "passed": 213,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "project": "SecondBrain.Deploy.Tests",
+      "total": 226,
+      "passed": 226,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "project": "SecondBrain.Extractor.Tests",
+      "total": 826,
+      "passed": 826,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "project": "SecondBrain.Infrastructure.Tests",
+      "total": 173,
+      "passed": 173,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+      "total": 149,
+      "passed": 149,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "project": "SecondBrain.Server.Tests",
+      "total": 404,
+      "passed": 404,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "project": "SecondBrain.Storage.Tests",
+      "total": 495,
+      "passed": 495,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "totalPassed": 2549
+}

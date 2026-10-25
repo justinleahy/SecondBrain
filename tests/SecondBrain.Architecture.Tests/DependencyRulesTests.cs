@@ -5,7 +5,7 @@ namespace SecondBrain.Architecture.Tests;
 
 public sealed class DependencyRulesTests
 {
-    private static readonly string[] VendorSdkAssemblies = ["OpenAI", "Microsoft.Extensions.AI.OpenAI"];
+    private static readonly string[] VendorSdkAssemblies = ["OpenAI", "Microsoft.Extensions.AI.OpenAI", "OllamaSharp", "Anthropic"];
 
     /// <summary>AR-06 (network): the socket and DNS types whose use belongs to Infrastructure.</summary>
     private static readonly string[] CoreForbiddenNetworkTypes =

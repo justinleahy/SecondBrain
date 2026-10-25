@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-24",
+  "scope": "Encrypted backup package assembly, atomic file publication and isolated manifest-verified restore staging; not completed daemon backup/restore commands",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2279,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_47.trx",
+        "sha256": "61f76a700ff98ab58f4d1f6f8cba6109400f5de08cdb12b0422352614a5fb6a4"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 163,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_47[1].trx",
+        "sha256": "45e514fe4b37e5bde59cca4c43cc57d4437b83a64c64d9e7ff33bbc7b158d13d"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 423,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_47[2].trx",
+        "sha256": "dd9fc0e314360ea0a64df01027dd3637e61affdb99cebeda6ed8a16580e30643"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_48.trx",
+        "sha256": "b970e3103a21548f7b54f804159b27188744cfd5cf05cba2f77327a42c4afd8e"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_48[1].trx",
+        "sha256": "ddd1d15fdbb471332e458ab583c602e07bb55b92852a6eeff9fb21de9d25cbe6"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_53.trx",
+        "sha256": "a1bcbfe348a304923c334465d47c9057e8d9a6bb9ed0c33a72f7140309cf8fd7"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 210,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_53[1].trx",
+        "sha256": "0af35fea376739dd7ce657edf56ddb7fb11ec43291834f07310087fcedbe153a"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 367,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_43_53[2].trx",
+        "sha256": "612e9ee2c07101d57f3d77f6e98a1089a5f62ffb05b0e69132272bccef86ae5a"
+      }
+    ]
+  },
+  "focusedTests": [
+    {
+      "project": "SecondBrain.Storage.Tests",
+      "passed": 52,
+      "failed": 0,
+      "skipped": 0,
+      "result": "package.trx",
+      "sha256": "4e3b3baaeb9a8465693718b4406494d25870329ce3b67106ed3c0ab97cefec16"
+    }
+  ],
+  "format": {
+    "outer": "SBKB0001",
+    "inner": "SBKP0001",
+    "metadataLimitBytes": 1048576,
+    "fileRecordLimitBytes": 65536,
+    "manifest": "Length-prefixed UTF-8 JSON metadata/file records, exact file bodies, then counts and SHA-256 of manifest records. Outer authentication is completed explicitly after the final package record.",
+    "partial": "Partial file records contain no body or content hash. Atomically published partial archives end in .partial.sbk."
+  },
+  "verifiedBehavior": [
+    "Incremental encryption supports multiple writes and flushes; disposal without successful explicit completion leaves an unauthenticated archive.",
+    "Round-trip verification checks every file size/hash, manifest counts/hash, state migration version, full schema fingerprint, instance id, account epoch, SQLite integrity and foreign keys.",
+    "Owned files, trash, external originals and keyring bytes survive a complete encrypted round trip.",
+    "Thirty-two real content edits during package writing leave staged restored bytes and state hashes consistent with the captured version.",
+    "A real persisted ASP.NET Data Protection and HMAC key ring restores a protected calendar subscription link and verifies an existing signature.",
+    "Atomic publication writes 0600 files, syncs the result and containing directory, distinguishes partial archives and removes failed temporary output.",
+    "Wrong keys, ciphertext corruption, unsafe paths, duplicate entries, invalid record lengths, missing state, hash/schema mismatches, trailing plaintext and staging limits are rejected; failed restore workspaces are removed.",
+    "Restored content is exposed only through a verified private workspace; existing files and external roots are not modified."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Storage/Backup/BackupCipher.cs": "888c0671b5c6cff6c4b3177732bff2f19d1bbee74a0c6b5cbe04a9f567113142",
+    "src/SecondBrain.Storage/Backup/BackupCipher.Writer.cs": "6e0db09e36db307231360712e197c7ee6d81b8dd1cddc9d1820b33da44250f92",
+    "src/SecondBrain.Storage/Backup/BackupFilePins.cs": "d217ab10ecb47c241326cd8f784ff234b155c05bcaf3b7a7c316851fe7d18d69",
+    "src/SecondBrain.Storage/Backup/BackupPackage.cs": "aac49244528aa1bbb5cbf5e9150d476e3053f77ea46d30fa4d74196b0ac3095e",
+    "src/SecondBrain.Storage/Backup/BackupPackage.Restore.cs": "f2dc73884e75b328e175f565cec2c08e1be867940039a336cd9a5a235964e3f5",
+    "src/SecondBrain.Storage/Backup/BackupPackage.Atomic.cs": "dd09cae454e17c86b93dc212aec80e4e826eac0e5ae91d10663c5ba0750c4814",
+    "tests/SecondBrain.Storage.Tests/BackupCipherTests.cs": "deb9480173d6e76b8844dbc37c5f854892194dfa7a8f524db4df8deadba590a4",
+    "tests/SecondBrain.Storage.Tests/BackupPackageTests.cs": "7dc687f3e5751e62937f774a9d329bb59b320f331d696590d6fc0fa82710ddb6",
+    "tests/SecondBrain.Storage.Tests/SecondBrain.Storage.Tests.csproj": "dd7bc0d5ba7e87b12804b6989a6fdcbd67085d4a627853888c2ca06a37c4f1b6"
+  },
+  "notes": [
+    "The first package run used SQLite user_version for schema metadata, but this repository tracks migrations in migration_state. The package now records that authoritative version and a hash of the complete schema.",
+    "The incremental writer requests smaller source read chunks than the original bulk codec; its bounded-read test now checks the maximum rather than requiring an exact allocation size.",
+    "The storage test project adds an ASP.NET Core framework reference solely to exercise real persisted Data Protection keys. No production NuGet dependency changed.",
+    "Tests use synthetic data, synthetic keys and temporary local stores. No browser workflow or production service changed."
+  ],
+  "limitations": [
+    "The daemon use case, admin endpoints/CLI, backup-key provisioning, root selection, and consistent capture of live index/embedding descriptors still need integration.",
+    "Verification stages a package; it does not install state/files, remap paths, increment the account epoch or rebuild the running index.",
+    "Verified partial packages remain labelled partial; a future installer must enforce its explicit partial-restore policy.",
+    "Restore currently authenticates a bounded private plaintext package before extraction, so staging needs capacity for the package and extracted files.",
+    "Backup rotation, export, interrupted-workspace recovery, pre-migration snapshots and full hardened-deployment qualification remain open.",
+    "The controlled sustained-edit round trip is not full daemon restore acceptance or a large-corpus latency/memory benchmark."
+  ]
+}

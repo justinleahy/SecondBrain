@@ -104,6 +104,7 @@ public sealed class FileCompletionTests
         var extraction = new ExtractionResult("extracted", "markdown", "text/markdown", "extracted astronomy", DeclaredType: declared, Links:["Notebook", "https://example.org/article"]);
         var completed = await repository.CompleteFileAsync(work.DocumentId, work.Revision, extraction);
         Assert.Equal(expected, completed.Document.Type);
+        Assert.Equal(extraction.LosslessText, (await repository.CachedExtractionAsync(completed.Document.Id))?.LosslessText);
         Assert.Equal(origin, await MigrationTestSql.ScalarAsync(stores.State, "SELECT type_origin FROM documents"));
         var payloadCount = await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM payloads");
         await repository.CompleteFileAsync(work.DocumentId, work.Revision, extraction);

@@ -7,6 +7,12 @@ public interface IMigrationRunner
     ValueTask<MigrationReport> MigrateAsync(CancellationToken cancellationToken = default);
 }
 
+/// <summary>Creates a complete encrypted backup before a state-schema upgrade.</summary>
+public interface IMigrationBackup
+{
+    Task<string> CreateAsync(int targetVersion, CancellationToken token = default);
+}
+
 /// <summary>The resulting store versions and explicit startup recovery report.</summary>
 public sealed record MigrationReport(int StateVersion, int IndexVersion, IReadOnlyList<MigrationRecovery> Recoveries);
 

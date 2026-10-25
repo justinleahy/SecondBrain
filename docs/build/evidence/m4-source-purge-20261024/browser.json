@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "evidence": [
+    {
+      "width": 1280,
+      "cancelPreservesEvents": true,
+      "explicitConfirmation": true,
+      "sourceRemoved": true,
+      "eventsRemoved": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "cancelPreservesEvents": true,
+      "explicitConfirmation": true,
+      "sourceRemoved": true,
+      "eventsRemoved": true,
+      "noOverflow": true
+    }
+  ],
+  "fixture": "Synthetic calendar, controlled transport and real extraction sandbox",
+  "fixtureStopped": true,
+  "screenshotsReviewed": true,
+  "console": "One expected 404 from the deliberate lookup of a purged source; no application error or warning before fixture shutdown."
+}

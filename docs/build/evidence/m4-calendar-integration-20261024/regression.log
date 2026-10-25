@@ -1,0 +1,82 @@
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Debug/net10.0/SecondBrain.Server.dll
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/bin/Debug/net10.0/brain.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Debug/net10.0/SecondBrain.Extractor.dll
+  SecondBrain.MockProvider -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/bin/Debug/net10.0/SecondBrain.MockProvider.dll
+  SecondBrain.Architecture.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_28_17.trx
+
+Passed!  - Failed:     0, Passed:    63, Skipped:     0, Total:    63, Duration: 83 ms - SecondBrain.Architecture.Tests.dll (net10.0)
+  SecondBrain.Core.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_28_18.trx
+
+Passed!  - Failed:     0, Passed:   171, Skipped:     0, Total:   171, Duration: 205 ms - SecondBrain.Core.Tests.dll (net10.0)
+  SecondBrain.Deploy.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_28_22.trx
+
+Passed!  - Failed:     0, Passed:   164, Skipped:     0, Total:   164, Duration: 9 s - SecondBrain.Deploy.Tests.dll (net10.0)
+  SecondBrain.Extractor.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_28_34.trx
+
+Passed!  - Failed:     0, Passed:   809, Skipped:     0, Total:   809, Duration: 2 s - SecondBrain.Extractor.Tests.dll (net10.0)
+  SecondBrain.Infrastructure.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_28_38.trx
+
+Passed!  - Failed:     0, Passed:    84, Skipped:     0, Total:    84, Duration: 866 ms - SecondBrain.Infrastructure.Tests.dll (net10.0)
+  SecondBrain.Providers.OpenAICompatible.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_28_40.trx
+
+Passed!  - Failed:     0, Passed:    73, Skipped:     0, Total:    73, Duration: 2 s - SecondBrain.Providers.OpenAICompatible.Tests.dll (net10.0)
+  SecondBrain.Server.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_28_46.trx
+
+Passed!  - Failed:     0, Passed:   347, Skipped:     0, Total:   347, Duration: 43 s - SecondBrain.Server.Tests.dll (net10.0)
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-calendar-final/_DESKTOP-8NJSRF2_2026-10-24_19_29_31.trx
+
+Passed!  - Failed:     0, Passed:   293, Skipped:     0, Total:   293, Duration: 4 s - SecondBrain.Storage.Tests.dll (net10.0)

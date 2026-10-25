@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-10-24 20:41:36 UTC",
+  "origin": "http://127.0.0.1:18190",
+  "fixture": "KnowledgeBrowserQualification.BrowserWorkflows",
+  "script": "tests/browser/m3-workflows.js",
+  "results": {
+    "highlighted": [
+      "Retrieval",
+      "retrieval"
+    ],
+    "passage": true,
+    "scriptBlocked": true,
+    "conflictPreserved": true,
+    "mergedSave": true,
+    "mobileCapture": true,
+    "mobileNoOverflow": true,
+    "settingsAndJobs": true,
+    "stepUpReload": true,
+    "signOut": true
+  },
+  "limits": [
+    "Synthetic temporary data and loopback origin only.",
+    "Document text was safely rendered; the full CSP execution gate remains pending.",
+    "Sources/jobs screens loaded; live source-failure retry qualification remains pending.",
+    "This is a development checkpoint, not M3 acceptance."
+  ]
+}

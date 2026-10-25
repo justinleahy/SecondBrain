@@ -1,0 +1,241 @@
+{
+  "date": "2026-10-24",
+  "scope": "M4 transcript implementation checkpoint; not complete M4 acceptance or deployment",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 1975,
+    "failed": 0,
+    "projects": [
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_09_27.trx",
+        "counts": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "0cd7f8f969df0ee51c01648bba843b4bad332d0683bda2a54203b3b33a7b11cd"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_09_28.trx",
+        "counts": {
+          "total": "171",
+          "executed": "171",
+          "passed": "171",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "b24e4776d8cb1ccf5bec70e1e868475e3e0d675a24c5940a8d7b4742935b2b37"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_09_32.trx",
+        "counts": {
+          "total": "163",
+          "executed": "163",
+          "passed": "163",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "059a79dc0574037ca47d1ac181372af77dcc8a30a06185be43f9b29bba601686"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_09_45.trx",
+        "counts": {
+          "total": "790",
+          "executed": "790",
+          "passed": "790",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "ed80fe502957a18664dc55d33a8b00def7990b2e6365788dc524772134a58074"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_09_47.trx",
+        "counts": {
+          "total": "84",
+          "executed": "84",
+          "passed": "84",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "7c0a07627b7a42e5fa0bfa4afa7001e92d1f86b9b784dcd29a8e669053a11fce"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_09_49.trx",
+        "counts": {
+          "total": "73",
+          "executed": "73",
+          "passed": "73",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "47517859c0859f1ac499242fd8d5425ee6da8b263810bf002e46f6dcf5222852"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_09_55.trx",
+        "counts": {
+          "total": "346",
+          "executed": "346",
+          "passed": "346",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "e3c64943cb4dc88ab6e049b4b792c912050c5d1db22c03a3a904a77f1c863e51"
+      },
+      {
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_10_40.trx",
+        "counts": {
+          "total": "285",
+          "executed": "285",
+          "passed": "285",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "sha256": "af25be763f02137b8cdef14b06e323305b2937262f81c825db8e0f381748fc5b"
+      }
+    ]
+  },
+  "browser": {
+    "widths": [
+      1280,
+      390
+    ],
+    "realExtractor": true,
+    "syntheticDataOnly": true,
+    "qualificationResult": "passed",
+    "timestampAnchorFixedAfterDeterministicSuite": true,
+    "postFixBuildWarnings": 0,
+    "postFixBuildErrors": 0
+  },
+  "limitations": [
+    "Real-export U3/U15 and live-model M4 qualification remain open.",
+    "The historical M2 recorded evaluation pins its original note/article/file registry and is not M4 model-quality evidence.",
+    "Calendar imports/subscriptions and other M4 work remain open.",
+    "No production deployment or existing user data changes."
+  ],
+  "head": "53b8dab07d5120c330aa5520a2058c547c9cdf54",
+  "sourceSha256": {
+    "src/SecondBrain.Extraction.Contracts/ExtractionSegment.cs": "19488808edbe77796e6f526d5d981975d7452cae510ecd43bd97f2d880ffc3c1",
+    "src/SecondBrain.Extraction.Contracts/ExtractionResult.cs": "e118e485422714473aefdcbef9a7057d683f66c75ad683dca3071ec9e4045e8a",
+    "src/SecondBrain.Extractor/TranscriptParser.cs": "d5846d54be10e37c2ecb09add24f5e3bba98a4763edbe234e6cb38a2f305429e",
+    "src/SecondBrain.Extractor/DocumentParser.cs": "4e0d9d080f491e8c690424a345e3608011db83bf295fb796a33da43ae47a34f1",
+    "src/SecondBrain.Core/Domain/TypeRegistry.cs": "9eef4fd3b66e042d9159c41de81e117a2af563102320d6e50adffa5fb8fc760d",
+    "src/SecondBrain.Core/Ingestion/Contracts.cs": "db91d7649b4fedadbfd8b2f2c0200ee14c940bdd103d0b29c441261067ebdd77",
+    "src/SecondBrain.Core/Ingestion/TranscriptTextProcessor.cs": "dbbf1798ee7268b447c2f1d6c0a5d6e5dfebfde438facddec9cffc22cf195694",
+    "src/SecondBrain.Core/Retrieval/Contracts.cs": "d26602fb16eab3f34952ea51a556a8c040f026a2e931f1b32747e9f7bba5a7fe",
+    "src/SecondBrain.Core/Retrieval/RetrievalFilterValidation.cs": "2c61a24223b7065026b06fd29d4d51f2a2b9dcc1652ae5ddd216e715745dfb23",
+    "src/SecondBrain.Core/Chat/Contracts.cs": "aa5cca21255b902aefe3f65351ec46e37c8262cf46d4b93f029f0a073cf21b0f",
+    "src/SecondBrain.Infrastructure/Extraction/DescriptorExtractorClient.cs": "ddd25b39df8bde8de3cedd804a9402e5e9b87fe58739091204be5aba582fba07",
+    "src/SecondBrain.Storage/Ingestion/SqliteDocumentRepository.cs": "bc91c02687b71079ba55b932e07582a13c2d309b82de36c37d2a96b15bf7a3d3",
+    "src/SecondBrain.Storage/Ingestion/SqliteChunkingWorkRepository.cs": "66118b2e8ff91f9fb95978f7d78da50c874b9d2798050fc4c5654623c672df13",
+    "src/SecondBrain.Storage/Durability/PublicationCoordinator.cs": "34618fdc98cf4c537958c9d3a2b2bb34a3cfeb607ec4865632c8239c17b4fdc3",
+    "src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs": "3856ad4312e541d086ae3720ae7a6e948a1e92d2b599108887252e2a7379cd6f",
+    "src/SecondBrain.Storage/Chat/SqliteChatRepository.Exposure.cs": "2fb65d3832167e5ab964d9b7637a80bde38c0e70e8bb5c8f4add1b20c4235410",
+    "src/SecondBrain.Server/Ingestion/KnowledgeEndpoints.cs": "63b352d201b72a1d3266a98236a8f1d1ed984d373e59c7ea25fe0edfd76f4541",
+    "src/SecondBrain.Server/Components/Pages/DocumentView.razor": "dee11293bfc0c92c164fcfea061d6cc2039c360d70444eddf9ad804d834ab987",
+    "src/SecondBrain.Server/Components/Pages/Library.razor": "32f95cfaf5c4cb8367616b6a33d29c2190e78d5c03c70cb093ba911e69891f4e",
+    "src/SecondBrain.Server/Components/Pages/Chat.razor": "8fc8a47227e3cdfcb08aa209ed398dbb3243d03b57409c1a9970a6f236c9b9e8",
+    "src/SecondBrain.Server/Mcp/McpOperations.cs": "4311252c3edc8514f84c476350cff56184c673458ebc6d10be39570fbcaba6a9",
+    "src/SecondBrain.Cli/Commands/KnowledgeCommandRegistration.cs": "805048b6cab2a1a2367bf7e8e1f93a29ac7a5fe48759dfb42a7660a33ed14bf7",
+    "tests/SecondBrain.Server.Tests/M4TranscriptQualification.cs": "9ae3406814eefa021e19b9a55475eb17df9dfcc1bbe955b919518dfcfc4c6f41",
+    "tests/SecondBrain.Server.Tests/TranscriptApiTests.cs": "085b6cc4b13d48d793433bfe35dafcb0176e80a33649673bc9277c49a3b5cd11",
+    "tests/SecondBrain.Server.Tests/ChatQualityEvaluationTests.cs": "f218255b3400280c8c4c5c21707d6f125369a2ffd1b5f129a8723370a7473c0f",
+    "tests/SecondBrain.Storage.Tests/TranscriptIngestionTests.cs": "51780b597c2ff2e17a3531c5bea26884a4423fc273ab45e1a877df9115792a32",
+    "tests/SecondBrain.Extractor.Tests/TranscriptParserTests.cs": "44f6f3051ab4075859b0f8a597d0bc3f7c7ff4582da4e6efb7547654052850da",
+    "tests/SecondBrain.Extractor.Tests/ExtractionOutputTests.cs": "b2514398884ee05774adab0886f050dc1f58c30cfd4988b3277ffee3876bbf29",
+    "tests/SecondBrain.Extractor.Tests/ExtractionResultContractTests.cs": "9c9f62153620ba10ac1bea7ca1c8966788d3784003e3d434ac75980506b4585d",
+    "tests/SecondBrain.Core.Tests/Ingestion/TranscriptTextProcessorTests.cs": "5cc4b48d1f1e5b734f522126b4c6a4baa83940bd4fd5713e321fd3598615c3f2",
+    "tests/SecondBrain.Core.Tests/Domain/TypeRegistryTests.cs": "9c570371502c4222bb2d0e36ff111f2613ddd5a360ec7a34cec07ffc40e8248b",
+    "tests/browser/m4-transcript-workflows.js": "e2376d6c11cdb62664f9993b71500d1a1aa305dbae31e68c621feefb452e33b5"
+  }
+}

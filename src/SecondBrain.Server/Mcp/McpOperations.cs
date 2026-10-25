@@ -59,8 +59,8 @@ public sealed class McpOperations(IHttpContextAccessor contexts, IAuthRepository
             var data = JsonSerializer.SerializeToElement(result, McpToolCatalog.Json);
             return new() { Content = [new TextContentBlock { Text = data.GetRawText() }], StructuredContent = data };
         }
-        catch (ArgumentException error) when (error.Message == "Unsupported M1 type.")
-        { return Failure("unsupported_type", "Transcript and calendar records are not available in this milestone."); }
+        catch (ArgumentException error) when (error.Message == "Unsupported document type.")
+        { return Failure("unsupported_type", "The requested content type is not available."); }
         catch (Exception error) when (error is ArgumentException or JsonException or InvalidDataException)
         { throw new McpProtocolException("Invalid tool arguments or result bounds.", McpErrorCode.InvalidParams); }
         catch (ChatNotFoundException) { return Failure("not_found", "The requested document is unavailable."); }
@@ -86,7 +86,7 @@ public sealed class McpOperations(IHttpContextAccessor contexts, IAuthRepository
         RetrievalFilterValidation.Validate(filters);
         (float[]? Vector, string? Space) vector = (null, null);
         if (request.Mode != "keyword")
-            try { vector = await embeddings.QueryAsync(request.Query, token); }
+            try { vector = await embeddings.QueryAsync(request.Query, token, actor: await AuthorityAsync(actor, token)); }
             catch (Exception error) when (EmbeddingOrchestrator.IsProviderFailure(error)) { }
         await AuthorizeAsync([Scope.Read], token);
         var search = new SearchRequest(request.Query, request.Mode != "keyword" && vector.Vector is null ? "keyword" : request.Mode, filters, Limit: 200);

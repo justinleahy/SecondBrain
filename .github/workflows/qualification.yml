@@ -58,7 +58,7 @@ env:
 
 jobs:
   qualification:
-    name: Tests marked Category=Qualification
+    name: Selected live provider readiness
     runs-on: ${{ inputs.runner }}
     timeout-minutes: 30
     env:
@@ -83,11 +83,13 @@ jobs:
           cache: true
           cache-dependency-path: "**/packages.lock.json"
       - name: Restore locked dependencies
-        run: dotnet restore SecondBrain.slnx --locked-mode
+        run: dotnet restore SecondBrain.slnx --locked-mode -p:NuGetAudit=true -p:NuGetAuditMode=all -p:NuGetAuditLevel=low -warnaserror
       - name: Build with warnings as errors
         run: dotnet build SecondBrain.slnx --configuration Release --no-restore -warnaserror -p:ContinuousIntegrationBuild=true
       - name: Run live qualification tests
-        run: dotnet test SecondBrain.slnx --configuration Release --no-build --no-restore --filter 'Category=Qualification&FullyQualifiedName!~DistinctIdentityStagingTests' --logger trx --results-directory TestResults
+        # Browser, private-export and scale fixtures each require their own explicit
+        # inputs and orchestration. This workflow supplies only provider settings.
+        run: dotnet test tests/SecondBrain.Server.Tests --configuration Release --no-build --no-restore --filter FullyQualifiedName=SecondBrain.Server.Tests.Qualification.VllmReady --logger trx --results-directory TestResults
       - name: Upload qualification results
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

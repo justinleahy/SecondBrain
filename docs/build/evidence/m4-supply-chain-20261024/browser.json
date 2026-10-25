@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "widths": [
+    1280,
+    390
+  ],
+  "syntheticData": true,
+  "features": [
+    "rich editor",
+    "link/tag/people completion",
+    "plain-text round trip",
+    "draft navigation guard",
+    "aliases",
+    "revision history",
+    "save/reload",
+    "PDF page selection",
+    "escaped PDF markup",
+    "blocked inline script",
+    "blocked remote image"
+  ],
+  "servedAssetHashVerified": true,
+  "deliberateCspDenials": 2,
+  "screenshots": {
+    "editor-1280.png": "8c487c123f0bd0be05666b51ec64a66940e8f588854d5ba3cb666454e83a4ab5",
+    "editor-390.png": "ccba5462c44882119ff68d2bc765dc00fd73cea190a5dde625f68f1ca3a2dcd2"
+  },
+  "fixtureStopped": true
+}

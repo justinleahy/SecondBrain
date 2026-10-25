@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <!-- SDK 10.0.105 remains the compiler; releases carry the pinned current runtime. -->
+    <!-- Keep self-contained releases on the reviewed current security runtime. -->
     <RuntimeFrameworkVersion Condition="'$(SelfContained)' == 'true'">$(SecondBrainRuntimeVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
   <!-- Blazor's implicit asset package must have the same version in local and publish restores. -->

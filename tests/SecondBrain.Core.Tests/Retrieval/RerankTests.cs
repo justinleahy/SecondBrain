@@ -8,6 +8,41 @@ namespace SecondBrain.Core.Tests.Retrieval;
 
 public sealed class RerankTests
 {
+    [Theory]
+    [InlineData("provider")]
+    [InlineData("llm")]
+    public async Task BudgetDenialSkipsTheProviderAndKeepsTheOriginalOrder(string mode)
+    {
+        var registry = new Registry(); var usage = new Usage { Deny = true };
+        var response = await new SearchReranker(registry, usage).ApplyAsync(new("question", Rerank: mode, Limit: 2), Results(2));
+        Assert.Equal(new[] { "0", "1" }, response.Results.Select(hit => hit.ChunkId));
+        Assert.Contains("rerank", response.Degraded);
+        Assert.Equal(0, registry.Binding.Count); Assert.Equal(0, registry.Binding.Chat.Calls);
+        Assert.Null(usage.Settled);
+    }
+
+    [Fact]
+    public async Task FailedProviderStillSettlesAnUnknownCharge()
+    {
+        var registry = new Registry(); registry.Binding.Failure = "unavailable"; var usage = new Usage();
+        await new SearchReranker(registry, usage).ApplyAsync(new("question", Rerank: "provider"), Results(2));
+        Assert.NotNull(usage.Request); Assert.True(usage.Request.ReservedTokens > 0);
+        Assert.Equal(1, usage.Settlements); Assert.Null(usage.Settled);
+    }
+
+    private sealed class Usage : IModelUsage
+    {
+        public bool Deny { get; init; }
+        public ModelUsageRequest? Request { get; private set; }
+        public ModelUsageTotals? Settled { get; private set; }
+        public int Settlements { get; private set; }
+        public Task<long> ReserveAsync(ModelUsageRequest request, CancellationToken token = default)
+        { Request = request; if (Deny) throw new ModelBudgetException(); return Task.FromResult(1L); }
+        public Task SettleAsync(long id, ModelUsageTotals? totals, CancellationToken token = default)
+        { Settled = totals; Settlements++; return Task.CompletedTask; }
+        public Task<ModelUsageReport> ReadAsync(SecondBrain.Core.Ingestion.IngestionAuthority actor, DateTimeOffset from, DateTimeOffset to, CancellationToken token = default) => throw new NotSupportedException();
+    }
+
     [Fact]
     public async Task ProviderReranksOnlyTwentyThenRetainsTail()
     {

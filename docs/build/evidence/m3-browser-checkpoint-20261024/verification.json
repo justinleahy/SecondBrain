@@ -1,0 +1,121 @@
+{
+  "status": "development checkpoint, M3 incomplete",
+  "configuration": "Debug, warnings as errors, no restore",
+  "base_commit": "53b8dab07d5120c330aa5520a2058c547c9cdf54",
+  "server_test_counters": {
+    "total": "307",
+    "executed": "307",
+    "passed": "307",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "server_test_results_sha256": "8721b6c106e2295d0ec4f162bb827c134a249f9f894d775595303761ebb1c5cb",
+  "browser_harness_results_sha256": "64dad1887a419b8b6775f6ce2ffc788ac8842a4771860c1f0c319d764b9769dc",
+  "javascript_tests": {
+    "command": "node tests/browser/browser-api.test.cjs",
+    "passed": 6,
+    "failed": 0
+  },
+  "browser_checks": "browser-checks.json",
+  "source_manifest": [
+    {
+      "path": "src/SecondBrain.Server/Components/App.razor",
+      "sha256": "a669a2c4cedef261aa7f274f4b5d6bce53c5f6010a64087860ec02b8c67a8da9"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/BrowserApi.cs",
+      "sha256": "c315fa528d9eaa0431c3084e480d5ce63c4997eacd79ddb7843922e8b67ad29f"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/BrowserPage.cs",
+      "sha256": "730743a85358421f5ee1d1f21e2e5d0fbc7a9b3492f93a121f353ac6043c2088"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/BrowserStatus.razor",
+      "sha256": "1dac06db77d2a2d8ba886f594aee7fb8d37b9ccaf2a4dd0e09feb3d2b236c329"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Chat.razor",
+      "sha256": "4ff56ef37744ff2bf833b2b83564716a5ba76b97a2fd5309bc11ee78656fbfcc"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/DocumentEdit.razor",
+      "sha256": "40b0b93171ac56c8a3dbbea9b94aace8fe862f7476127fb461d3fa880fdd8a7f"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/DocumentView.razor",
+      "sha256": "0267315a248f22ad920c3eed19ddf34c24afbaa96cd1523626a26eb38d86e29e"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/HighlightedText.razor",
+      "sha256": "23dc93ea9334dda845f5cf96032a5cbdb39585328f8ad553c1867e1c00c48a65"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/KnowledgeNav.razor",
+      "sha256": "d8372937dd67c1afda646bd8f303871b1a6b2b3246ac8a3cda13899e67b3134d"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Library.razor",
+      "sha256": "c71089d6d40c24cfc75f8aa620886feb094cab728378a1554b89a950c794a103"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Settings.razor",
+      "sha256": "5abbf5d0c1e73fb0f75c355cfe59b6f543fa78e9bb24f07282d07a05a677459d"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/SourcesAndJobs.razor",
+      "sha256": "b6437e3d9976337995cc268fadc388489889df88c9ab558edeb1bb610175694b"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Routes.razor",
+      "sha256": "de4900c60a0545c9ddd529e97a09ee84f4354f4f86c0305823469580f8b0cd66"
+    },
+    {
+      "path": "src/SecondBrain.Server/Http/HttpServices.cs",
+      "sha256": "0b973eebc0969f48b91ab95fcb1bc38388e700bd84053bf72813f040985c8b60"
+    },
+    {
+      "path": "src/SecondBrain.Server/wwwroot/app.css",
+      "sha256": "93f07f03879ebf3f64cd784e66e59534c666a71057f8f898fe6fcc921d472a17"
+    },
+    {
+      "path": "src/SecondBrain.Server/wwwroot/browser-api.js",
+      "sha256": "94df631149d956a93f0c3c9b445a904e9d272c70d22e24adb4c64f1cbadfb059"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/BrowserApiTests.cs",
+      "sha256": "50330050111f320a79e704c229927126c1f20de88653efdcd0b7dc457bc9eb3f"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/Golden/composition.txt",
+      "sha256": "93328707e6b9ee8cef4b95e8a1e9aea065c609daa4229211ad8e2ed6cfe86711"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/HighlightedTextTests.cs",
+      "sha256": "4e4705608da7dd4b709488650370e03ab3bda3cac5c9277780057c7b9a5b155f"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/KnowledgeBrowserQualification.cs",
+      "sha256": "8471f263b191c04a127360e52f325fc8a6e2a7eee117d80e0cbf629b6935f7fd"
+    },
+    {
+      "path": "tests/browser/browser-api.test.cjs",
+      "sha256": "56d76f1cde781ffc572f5093a70a4e8046e33668b8055b3f402e582228bef7ac"
+    },
+    {
+      "path": "tests/browser/m3-workflows.js",
+      "sha256": "87cee2f6c026f2ef5104741233dd700d657a0becc69af9f5d606909c43712612"
+    }
+  ]
+}

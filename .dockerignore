@@ -9,6 +9,7 @@
 .idea
 **/bin
 **/obj
+**/node_modules
 **/TestResults
 artifacts
 docs

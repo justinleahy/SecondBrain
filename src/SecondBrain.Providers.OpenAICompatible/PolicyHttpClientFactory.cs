@@ -110,8 +110,7 @@ public sealed class PolicyHttpClientFactory : IPolicyHttpClientFactory, IDisposa
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var uri = request.RequestUri ?? throw new InvalidOperationException("Provider request has no URI.");
-            if (discovery && (request.Method != HttpMethod.Get || binding.Endpoint is null ||
-                uri.AbsolutePath != binding.Endpoint.AbsolutePath.TrimEnd('/') + "/models"))
+            if (discovery && (request.Method != HttpMethod.Get || uri != binding.ModelDiscoveryEndpoint))
                 throw new PrivacyPolicyException(SecondBrain.Core.Problems.ProblemTypes.PrivacyPolicy,
                     "Provider discovery transport cannot send inference requests.");
             // The checks below are per connection and per request. HTTP/3 bypasses ConnectCallback and

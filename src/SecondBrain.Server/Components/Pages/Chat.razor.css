@@ -431,6 +431,7 @@ button:disabled {
         display:flex;
         width:100%;
         max-height:min(45dvh, 360px);
+        overflow:auto;
         flex-shrink:1;
         padding:12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left));
         gap:10px;
@@ -438,9 +439,9 @@ button:disabled {
         border-bottom:1px solid #dce4de;
     }
     .sidebar>.brand, .sidebar>.new-conversation, .sidebar-note { display:none; }
-    .sidebar h2 { margin:4px 0 0; }
-    .sidebar .new-chat { min-height:44px; flex-shrink:0; }
-    .sidebar nav { flex-shrink:1; }
+    .sidebar h2 { margin:4px 0 0; flex-shrink:0; }
+    .sidebar .new-chat { min-height:44px; flex-shrink:0; box-sizing:border-box; }
+    .sidebar nav { flex:0 0 auto; overflow:visible; }
     .conversation { min-height:44px; padding:10px 12px; }
     .conversation span { max-width:100%; font-size:14px; }
     .delete-conversation { min-width:44px; min-height:44px; }

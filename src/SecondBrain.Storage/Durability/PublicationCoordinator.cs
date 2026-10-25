@@ -7,11 +7,12 @@ using SecondBrain.Core.Durability;
 using SecondBrain.Core.Storage;
 using SecondBrain.Core.Ingestion;
 using System.Security.Cryptography;
+using Dapper;
 
 namespace SecondBrain.Storage.Durability;
 
 /// <summary>M0 metadata publication and restart recovery following spec §8's three durable steps.</summary>
-public sealed class PublicationCoordinator : IPublicationCoordinator
+public sealed partial class PublicationCoordinator : IPublicationCoordinator
 {
     private static readonly ConditionalWeakTable<IStateStore, DocumentLocks> SharedLocks = new();
     private static readonly ConditionalWeakTable<IStateStore, SemaphoreSlim> AdmissionGates = new();
@@ -19,14 +20,19 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
     private readonly IIndexStore index;
     private readonly ICrashPoints crashPoints;
     private readonly DocumentLocks locks;
-    private readonly SecondBrain.Core.Configuration.GlobalLimitsOptions limits;
+    private readonly SecondBrain.Core.Configuration.GlobalLimitsOptions initialLimits;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? optionsMonitor;
+    private readonly TimeProvider clock;
 
     /// <summary>Creates a coordinator over migrated stores. Register one coordinator per data root.</summary>
-    public PublicationCoordinator(IStateStore state, IIndexStore index, ICrashPoints? crashPoints = null, Microsoft.Extensions.Options.IOptions<SecondBrain.Core.Configuration.SecondBrainOptions>? configuration = null)
+    public PublicationCoordinator(IStateStore state, IIndexStore index, ICrashPoints? crashPoints = null, Microsoft.Extensions.Options.IOptions<SecondBrain.Core.Configuration.SecondBrainOptions>? configuration = null,
+        Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? optionsMonitor = null, TimeProvider? clock = null)
     {
         this.state = state;
         this.index = index;
-        limits = configuration?.Value.Limits.Global ?? new SecondBrain.Core.Configuration.GlobalLimitsOptions();
+        initialLimits = configuration?.Value.Limits.Global ?? new SecondBrain.Core.Configuration.GlobalLimitsOptions();
+        this.optionsMonitor = optionsMonitor;
+        this.clock = clock ?? TimeProvider.System;
         this.crashPoints = crashPoints ?? new NoOpCrashPoints();
         locks = SharedLocks.GetValue(state, static _ => new DocumentLocks());
     }
@@ -57,6 +63,8 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
         ArgumentException.ThrowIfNullOrWhiteSpace(publication.Cause);
         ArgumentOutOfRangeException.ThrowIfNegative(publication.ExpectedRevision);
         ArgumentOutOfRangeException.ThrowIfLessThan(publication.SchemaVersion, 1);
+        if (publication.Expiry is { } expiry)
+        { expiry.Validate(); if (publication.Cause != "purge") throw new ArgumentException("Retention requires a purge."); }
         var generation = NormalizeGeneration(publication.GenerationJson);
         using var effectiveProps = JsonDocument.Parse(publication.PropsJson);
         using var originalProps = JsonDocument.Parse(publication.PropsOriginalJson);
@@ -71,6 +79,11 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
         var now = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
         var accepted = await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
+            if (await CalendarOwnsAsync(connection, transaction, publication.DocumentId, token)) return false;
+            if (publication.Cause != "purge" && await connection.ExecuteScalarAsync<long>(Sql("""
+                SELECT COUNT(*) FROM folder_source_purges WHERE source_id=@source AND completed_at IS NULL
+                """, new { source = publication.SourceId }, transaction, token)) != 0) return false;
+            if (publication.Expiry is { } condition && !await RetentionConditions.MatchesAsync(connection, transaction, publication.DocumentId, condition, token)) return false;
             if (publication.Admission is { Authority: { } actor } initiating)
                 await SecondBrain.Storage.Auth.IngestionAuthorityValidator.ValidateAsync(connection, transaction, actor,
                     publication.Cause == "purge" ? SecondBrain.Core.Authorization.Scope.Admin : SecondBrain.Core.Authorization.Scope.Write,
@@ -102,6 +115,13 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
                 }
             }
 
+            var memberMutation = false;
+            await using (var member = Command(connection, transaction, "SELECT 1 FROM documents WHERE id=$id AND container_document_id IS NOT NULL", ("$id", publication.DocumentId)))
+                memberMutation = await member.ExecuteScalarAsync(token) is not null;
+            if ((memberMutation || publication.Expiry is not null) && publication.Cause == "purge")
+                await connection.ExecuteAsync(Sql(SecondBrain.Storage.Ingestion.PurgeCleanup.MarkSql, new { id = publication.DocumentId }, transaction, token));
+            if (publication.Expiry is { } acceptedExpiry) await RetentionConditions.RecordAsync(connection, transaction, publication.DocumentId, acceptedExpiry, token);
+
             await using (var write = Command(connection, transaction,
                 """
                 INSERT INTO documents (
@@ -126,7 +146,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
                   size_bytes=excluded.size_bytes, revision=excluded.revision, publish_state='publishing',
                   status=excluded.status, error=excluded.error, updated_at=excluded.updated_at,
                   deleted_at=CASE WHEN excluded.deleted_at IS NULL THEN NULL
-                    ELSE COALESCE(documents.deleted_at, excluded.deleted_at) END
+                    WHEN documents.status=excluded.status THEN COALESCE(documents.deleted_at, excluded.deleted_at) ELSE excluded.deleted_at END
                 """,
                 ("$id", publication.DocumentId), ("$source", publication.SourceId), ("$type", publication.Type),
                 ("$origin", publication.TypeOrigin), ("$confidence", publication.TypeConfidence), ("$schema", publication.SchemaVersion),
@@ -190,7 +210,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
                 {
                     await using var clearOld = Command(connection, transaction, "DELETE FROM occurrences WHERE source_id=$source AND document_id=$id AND path<>$path", ("$source", occurrence.SourceId), ("$id", publication.DocumentId), ("$path", occurrence.RelativePath)); await clearOld.ExecuteNonQueryAsync(token);
                     await using var writeOccurrence = Command(connection, transaction,
-                        "INSERT INTO occurrences(document_id,source_id,path,file_mtime,size_bytes,last_seen_at) VALUES($id,$source,$path,$mtime,$length,$now) ON CONFLICT(source_id,path,member_key) DO UPDATE SET document_id=excluded.document_id,file_mtime=excluded.file_mtime,size_bytes=excluded.size_bytes,last_seen_at=excluded.last_seen_at", ("$id", publication.DocumentId), ("$source", occurrence.SourceId), ("$path", occurrence.RelativePath), ("$mtime", occurrence.ModifiedAt.ToString("O", CultureInfo.InvariantCulture)), ("$length", occurrence.Length), ("$now", now)); await writeOccurrence.ExecuteNonQueryAsync(token);
+                        "INSERT INTO occurrences(document_id,source_id,path,file_mtime,size_bytes,last_seen_at,source_content_hash) VALUES($id,$source,$path,$mtime,$length,$now,$hash) ON CONFLICT(source_id,path,member_key) DO UPDATE SET document_id=excluded.document_id,file_mtime=excluded.file_mtime,size_bytes=excluded.size_bytes,last_seen_at=excluded.last_seen_at,source_content_hash=excluded.source_content_hash", ("$id", publication.DocumentId), ("$source", occurrence.SourceId), ("$path", occurrence.RelativePath), ("$mtime", occurrence.ModifiedAt.ToString("O", CultureInfo.InvariantCulture)), ("$length", occurrence.Length), ("$now", now), ("$hash", admission.RequestHash)); await writeOccurrence.ExecuteNonQueryAsync(token);
                     await using var clearAbsence = Command(connection, transaction, "UPDATE absences SET cleared_at=$now WHERE document_id=$id AND source_id=$source AND cleared_at IS NULL", ("$id", publication.DocumentId), ("$source", occurrence.SourceId), ("$now", now)); await clearAbsence.ExecuteNonQueryAsync(token);
                 }
                 if (!string.IsNullOrEmpty(admission.IdempotencyKey))
@@ -220,7 +240,9 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
                     ("$payload", payloadId), ("$id", publication.DocumentId));
                 await reference.ExecuteNonQueryAsync(token);
             }
+            if (memberMutation || publication.Expiry is not null) await ApplyCalendarMemberMutationAsync(connection, transaction, publication, now, token);
             await WriteGenerationAsync(connection, transaction, publication.DocumentId, generation, token);
+            if (!memberMutation) await CalendarLifecycle.ApplyAsync(connection, transaction, publication.DocumentId, publication.Cause, now, token);
             return true;
         }, cancellationToken);
 
@@ -230,6 +252,8 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
             return PublicationOutcome.Superseded;
         }
         await crashPoints.HitAsync(CrashPointNames.AfterStatePublishing, cancellationToken);
+        if (await HasCalendarLifecycleAsync(publication.DocumentId, cancellationToken))
+            return await CompleteCalendarWithRootHeldAsync(publication.DocumentId, cancellationToken);
         return await CompleteAsync(new PublicationFence(publication.DocumentId, revision, generation), cancellationToken);
     }
 
@@ -243,6 +267,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
 
     private async ValueTask EnsureCapacityAsync(DbConnection connection, DbTransaction? transaction, string documentId, string sourceId, PublicationAdmission admission, CancellationToken token)
     {
+        var limits = optionsMonitor?.CurrentValue.Limits.Global ?? initialLimits;
         await using var accounting = Command(connection, transaction,
             "SELECT (SELECT COUNT(*) FROM jobs WHERE status IN ('queued','running')),(SELECT COALESCE(SUM(size_bytes),0) FROM documents WHERE status NOT IN ('deleted','purged') AND id<>$id),(SELECT COUNT(*) FROM documents WHERE status NOT IN ('deleted','purged') AND id<>$id),(SELECT COUNT(*) FROM documents WHERE source_id=$source AND status NOT IN ('deleted','purged') AND id<>$id)", ("$id", documentId), ("$source", sourceId));
         await using var reader = await accounting.ExecuteReaderAsync(token);
@@ -258,9 +283,15 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
     {
         fence = NormalizeFence(fence);
         using var documentLock = await locks.AcquireAsync(fence.DocumentId, cancellationToken);
+        if (await HasCalendarLifecycleAsync(fence.DocumentId, cancellationToken))
+        {
+            if ((await ReadSnapshotAsync(fence.DocumentId, cancellationToken))?.Fence != fence) return PublicationOutcome.Superseded;
+            return await CompleteCalendarWithRootHeldAsync(fence.DocumentId, cancellationToken);
+        }
         using var publicationGate = await AcquirePublicationGateAsync(state, cancellationToken);
         var accepted = await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
+            if (await CalendarOwnsAsync(connection, transaction, fence.DocumentId, token)) return false;
             if (!await FenceMatchesAsync(connection, transaction, fence, token))
             {
                 return false;
@@ -288,6 +319,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
         using var publicationGate = await AcquirePublicationGateAsync(state, cancellationToken);
         var accepted = await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
+            if (await CalendarOwnsAsync(connection, transaction, expected.DocumentId, token)) return false;
             await using var reservation = Command(connection, transaction, "SELECT 1 FROM meta WHERE key=$key", ("$key", MutationJournal.DocumentReservationKey(expected.DocumentId)));
             if (await reservation.ExecuteScalarAsync(token) is not null) return false;
             if (!await FenceMatchesAsync(connection, transaction, expected, token))
@@ -311,7 +343,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
     /// <inheritdoc />
     public async ValueTask<int> RecoverAsync(CancellationToken cancellationToken = default)
     {
-        var completed = 0;
+        var completed = await RecoverCalendarsAsync(cancellationToken);
         var afterId = string.Empty;
         while (true)
         {
@@ -319,7 +351,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
             // Release each bounded read snapshot before attempting publication writes.
             await using (var lease = await state.OpenReadConnectionAsync(cancellationToken))
             await using (var lookup = Command(lease.Connection, null,
-                "SELECT id FROM documents WHERE publish_state='publishing' AND id>$after ORDER BY id LIMIT 128", ("$after", afterId)))
+                "SELECT id FROM documents WHERE publish_state='publishing' AND id>$after AND NOT EXISTS(SELECT 1 FROM calendar_batch_members m JOIN calendar_batches b ON b.container_id=m.container_id WHERE m.document_id=documents.id AND b.phase='publishing') ORDER BY id LIMIT 128", ("$after", afterId)))
             await using (var reader = await lookup.ExecuteReaderAsync(cancellationToken))
             {
                 while (await reader.ReadAsync(cancellationToken))
@@ -456,7 +488,7 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
         await using (var removeSource = Command(connection, transaction,
             "DELETE FROM chunks_fts_source WHERE rowid IN (SELECT rowid FROM chunks WHERE document_id=$id)", ("$id", id)))
             await removeSource.ExecuteNonQueryAsync(token);
-        foreach (var table in new[] { "chunks", "document_text", "effective_tags", "tag_assertions", "indexed_props", "people", "indexed_document_sources" })
+        foreach (var table in new[] { "chunks", "segments", "event_occurrences", "document_text", "effective_tags", "tag_assertions", "indexed_props", "people", "indexed_people_names", "indexed_document_sources", "mentions", "enrichment_links" })
         {
             await using var remove = Command(connection, transaction, "DELETE FROM " + table + " WHERE document_id=$id", ("$id", id));
             await remove.ExecuteNonQueryAsync(token);
@@ -484,19 +516,40 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
             ("$id", id), ("$source", snapshot.SourceId), ("$path", indexedPath), ("$mime", snapshot.Mime)))
             await source.ExecuteNonQueryAsync(token);
         if (projection is null) return;
+        if (projection.Enrichment is { } enrichment) EnrichmentPolicy.Validate(enrichment);
+        await using (var metadata = await state.OpenReadConnectionAsync(token))
+        {
+            await using var parent = Command(metadata.Connection, null, "SELECT container_document_id FROM documents WHERE id=$id", ("$id", id));
+            if (await parent.ExecuteScalarAsync(token) is string container)
+            {
+                await using var mapping = Command(connection, transaction, "INSERT INTO indexed_calendar_members(document_id,container_id) VALUES($id,$container) ON CONFLICT(document_id) DO UPDATE SET container_id=excluded.container_id", ("$id", id), ("$container", container));
+                await mapping.ExecuteNonQueryAsync(token);
+            }
+        }
+        using var occurrenceProps = JsonDocument.Parse(snapshot.PropsJson);
+        var occurrenceAllDay = occurrenceProps.RootElement.TryGetProperty("all_day", out var allDayValue) && allDayValue.ValueKind == JsonValueKind.True;
+        foreach (var occurrence in projection.CalendarInstances ?? [])
+        {
+            await using var insert = Command(connection, transaction,
+                "INSERT INTO event_occurrences(instance_id,document_id,recurrence_id,starts_at,ends_at,all_day,status,materialization_generation) VALUES($instance,$id,$rid,$start,$end,$allDay,$status,$generation)",
+                ("$instance", id + "@" + occurrence.StartsAt), ("$id", id), ("$rid", occurrence.RecurrenceId), ("$start", occurrence.StartsAt), ("$end", occurrence.EndsAt),
+                ("$allDay", occurrenceAllDay ? 1 : 0),
+                ("$status", occurrence.Status), ("$generation", projection.CalendarGeneration ?? 1));
+            await insert.ExecuteNonQueryAsync(token);
+        }
         await using (var text = Command(connection, transaction,
-            "INSERT INTO document_text(document_id,revision,generation_json,lossless_text,search_text,offset_map,indexed_at) VALUES($id,$revision,$generation,$lossless,$search,$map,$now)",
+            "INSERT INTO document_text(document_id,revision,generation_json,lossless_text,search_text,offset_map,summary,indexed_at) VALUES($id,$revision,$generation,$lossless,$search,$map,$summary,$now)",
             ("$id", id), ("$revision", snapshot.Fence.Revision), ("$generation", snapshot.Fence.GenerationJson),
             ("$lossless", projection.LosslessText), ("$search", projection.SearchText),
-            ("$map", JsonSerializer.SerializeToUtf8Bytes(projection.OffsetMap)), ("$now", snapshot.UpdatedAt)))
+            ("$map", JsonSerializer.SerializeToUtf8Bytes(projection.OffsetMap)), ("$summary", projection.Enrichment?.Summary), ("$now", snapshot.UpdatedAt)))
             await text.ExecuteNonQueryAsync(token);
         foreach (var chunk in projection.Chunks)
         {
             await using var insert = Command(connection, transaction,
-                "INSERT INTO chunks(id,document_id,revision,ordinal,context,text,start_offset,end_offset,page,token_count,input_hash) VALUES($chunk,$id,$revision,$ordinal,$context,$text,$start,$end,$page,$tokens,$hash) RETURNING rowid",
+                "INSERT INTO chunks(id,document_id,revision,ordinal,context,text,start_offset,end_offset,page,token_count,input_hash,segment_from,segment_to) VALUES($chunk,$id,$revision,$ordinal,$context,$text,$start,$end,$page,$tokens,$hash,$segmentFrom,$segmentTo) RETURNING rowid",
                 ("$chunk", chunk.Id), ("$id", id), ("$revision", snapshot.Fence.Revision), ("$ordinal", chunk.Ordinal),
                 ("$context", chunk.Context), ("$text", chunk.Text), ("$start", chunk.StartOffset), ("$end", chunk.EndOffset),
-                ("$page", chunk.Page), ("$tokens", chunk.TokenCount), ("$hash", chunk.InputHash));
+                ("$page", chunk.Page), ("$tokens", chunk.TokenCount), ("$hash", chunk.InputHash), ("$segmentFrom", chunk.Transcript?.From), ("$segmentTo", chunk.Transcript?.To));
             var row = await insert.ExecuteScalarAsync(token);
             // FTS tokenizes the normalized search text; chunks.text stays the lossless slice for citations, and
             // retrieval maps highlight ranges back to it through document_text.offset_map.
@@ -536,6 +589,33 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
             await using var insert = Command(connection, transaction, "INSERT OR IGNORE INTO effective_tags(document_id,tag) VALUES($id,$tag)", ("$id", id), ("$tag", tag));
             await insert.ExecuteNonQueryAsync(token);
         }
+        if (projection.Enrichment is { } enriched)
+        {
+            bool userTags;
+            await using (var read = await state.OpenReadConnectionAsync(token))
+            await using (var query = Command(read.Connection, null, "SELECT COUNT(*) FROM overrides WHERE document_id=$id AND kind='tags'", ("$id", id)))
+                userTags = Convert.ToInt64(await query.ExecuteScalarAsync(token), CultureInfo.InvariantCulture) != 0;
+            foreach (var tag in enriched.Tags)
+            {
+                await using var assertion = Command(connection, transaction, "INSERT OR IGNORE INTO tag_assertions(document_id,tag,origin) VALUES($id,$tag,'llm')", ("$id", id), ("$tag", tag));
+                await assertion.ExecuteNonQueryAsync(token);
+                if (!userTags)
+                {
+                    await using var effective = Command(connection, transaction, "INSERT OR IGNORE INTO effective_tags(document_id,tag) VALUES($id,$tag)", ("$id", id), ("$tag", tag));
+                    await effective.ExecuteNonQueryAsync(token);
+                }
+            }
+            foreach (var mention in enriched.Mentions)
+            {
+                await using var insert = Command(connection, transaction, "INSERT OR IGNORE INTO mentions(document_id,kind,text) VALUES($id,$kind,$text)", ("$id", id), ("$kind", mention.Kind), ("$text", mention.Text));
+                await insert.ExecuteNonQueryAsync(token);
+            }
+            foreach (var link in enriched.SuggestedLinks)
+            {
+                await using var insert = Command(connection, transaction, "INSERT OR IGNORE INTO enrichment_links(document_id,target_text,reason) VALUES($id,$target,$reason)", ("$id", id), ("$target", link.Target), ("$reason", link.Reason));
+                await insert.ExecuteNonQueryAsync(token);
+            }
+        }
         foreach (var link in projection.Links ?? [])
         {
             var kind = Uri.TryCreate(link, UriKind.Absolute, out _) ? "markdown" : "wikilink";
@@ -555,6 +635,18 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
                 ("$num", property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetDouble(out var number) ? number : null));
             await insert.ExecuteNonQueryAsync(token);
         }
+        foreach (var segment in projection.Segments ?? [])
+        {
+            await using var insert = Command(connection, transaction,
+                "INSERT INTO segments(document_id,ordinal,speaker,start_ms,end_ms,start_offset,end_offset) VALUES($id,$ordinal,$speaker,$startMs,$endMs,$start,$end)",
+                ("$id", id), ("$ordinal", segment.Ordinal), ("$speaker", segment.Speaker), ("$startMs", segment.StartMs), ("$endMs", segment.EndMs), ("$start", segment.Start), ("$end", segment.Start + segment.Length));
+            await insert.ExecuteNonQueryAsync(token);
+            if (segment.Speaker is not { Length: > 0 } speaker) continue;
+            await using var person = Command(connection, transaction,
+                "INSERT OR IGNORE INTO people(document_id,role,identifier,display_name) VALUES($id,'speaker',$identifier,$name)",
+                ("$id", id), ("$identifier", speaker.Trim().ToLowerInvariant()), ("$name", speaker));
+            await person.ExecuteNonQueryAsync(token);
+        }
         foreach (var role in typeMetadata.PeopleRoles)
         {
             if (!props.RootElement.TryGetProperty(role.Key, out var value)) continue;
@@ -565,9 +657,21 @@ public sealed class PublicationCoordinator : IPublicationCoordinator
                 if (string.IsNullOrWhiteSpace(name)) continue;
                 await using var insert = Command(connection, transaction,
                     "INSERT OR IGNORE INTO people(document_id,role,identifier,display_name) VALUES($id,$role,$identifier,$name)",
-                    ("$id", id), ("$role", role.Value), ("$identifier", name.ToLowerInvariant()), ("$name", name));
+                    ("$id", id), ("$role", role.Value), ("$identifier", name.Trim().ToLowerInvariant()), ("$name", name.Trim()));
                 await insert.ExecuteNonQueryAsync(token);
             }
+        }
+        foreach (var person in projection.People ?? [])
+        {
+            if (!typeMetadata.PeopleRoles.Values.Contains(person.Role)) continue;
+            await using var insert = Command(connection, transaction,
+                "UPDATE people SET display_name=$name WHERE document_id=$id AND role=$role AND identifier=$identifier",
+                ("$id", id), ("$role", person.Role), ("$identifier", person.Identifier.Trim().ToLowerInvariant()), ("$name", person.DisplayName));
+            await insert.ExecuteNonQueryAsync(token);
+            await using var name = Command(connection, transaction,
+                "INSERT OR REPLACE INTO indexed_people_names(document_id,role,identifier,normalized_name) SELECT document_id,role,identifier,$name FROM people WHERE document_id=$id AND role=$role AND identifier=$identifier",
+                ("$id", id), ("$role", person.Role), ("$identifier", person.Identifier.Trim().ToLowerInvariant()), ("$name", person.DisplayName.Trim().ToLowerInvariant()));
+            await name.ExecuteNonQueryAsync(token);
         }
     }
 

@@ -30,6 +30,8 @@ services:
       SECONDBRAIN_PROVIDER_ALLOWLIST: ${SECONDBRAIN_PROVIDER_ALLOWLIST:-10.8.0.5:8000}
       SECONDBRAIN_ACCESS_ALLOWLIST: ${SECONDBRAIN_ACCESS_ALLOWLIST:-192.0.2.1:443}
       SECONDBRAIN_HOSTED_ALLOWLIST: ${SECONDBRAIN_HOSTED_ALLOWLIST:-}
+      SECONDBRAIN_CALENDAR_ALLOWLIST: ${SECONDBRAIN_CALENDAR_ALLOWLIST:-}
+      SECONDBRAIN_CALENDAR_CANARY_ADDRESSES: ${SECONDBRAIN_CALENDAR_CANARY_ADDRESSES:-1.1.1.1}
     networks:
       restricted:
         ipv4_address: ${SECONDBRAIN_DOCKER_ADDRESS:-172.30.0.2}
@@ -60,7 +62,7 @@ services:
     mem_limit: ${SECONDBRAIN_DAEMON_MEMORY_LIMIT:-8g}
     pids_limit: 256
     environment:
-      SECONDBRAIN_CONFIG: /etc/secondbrain/config.yaml
+      SECONDBRAIN_CONFIG: /etc/secondbrain/settings/config.yaml
       SECONDBRAIN_SECRETS_DIRECTORY: /etc/secondbrain/secrets
       SECONDBRAIN_SYNC_UID: "1656"
       ASPNETCORE_URLS: http://127.0.0.1:7171;http://${SECONDBRAIN_DOCKER_ADDRESS:-172.30.0.2}:8080
@@ -80,9 +82,8 @@ services:
         target: /srv/secondbrain-incoming/inbox
         bind: { create_host_path: false }
       - type: bind
-        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config/config.yaml
-        target: /etc/secondbrain/config.yaml
-        read_only: true
+        source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config/settings
+        target: /etc/secondbrain/settings
         bind: { create_host_path: false }
       - type: bind
         source: ${SECONDBRAIN_HOST_ROOT:-/srv/secondbrain-compose}/config/secrets

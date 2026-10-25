@@ -1,0 +1,7 @@
+{
+  "status": "interrupted_for_verified_scaling_fix",
+  "copiedDocuments": 100000,
+  "revisionLookupPlan": "SCAN documents per file, then primary-key lookups of projection/payload",
+  "scratchWrites": "File copy Flush(true) and per-file full-sync scratch-catalog update",
+  "originalCorpusChanged": false
+}

@@ -15,7 +15,7 @@ using SecondBrain.Storage.Ingestion;
 namespace SecondBrain.Storage.Retrieval;
 
 /// <summary>Retrieval uses only a single committed index snapshot, never live state metadata.</summary>
-public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloadProtection protection, IOptionsMonitor<SecondBrainOptions>? options = null, IStateStore? state = null) : IRetrievalRepository
+public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloadProtection protection, IOptionsMonitor<SecondBrainOptions>? options = null, IStateStore? state = null, TimeProvider? clock = null) : IRetrievalRepository
 {
     private const string CursorPurpose = "SecondBrain.M1.QueryCursor.v1";
     private const string QueryOperation = "query";
@@ -40,6 +40,9 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
         gateAndSnapshot = PhaseElapsed(started);
         var parameters = new List<(string Name, object? Value)>();
         var filter = BuildFilters(request.Filters ?? new RetrievalFilters(), parameters);
+        var hasSpeakerFilter = request.Filters?.People?.Any(person => person.Role == "speaker") == true;
+        var passageParameters = new List<(string Name, object? Value)>();
+        var passageFilter = BuildFilters(request.Filters ?? new RetrievalFilters(), passageParameters, passage: true);
         var degraded = new List<string>();
         var lexical = new List<Candidate>();
         if (request.Mode != "semantic")
@@ -50,7 +53,7 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
             {
                 var marker = Guid.NewGuid().ToString("N");
                 var start = "[" + marker + ":start]"; var end = "[" + marker + ":end]";
-                var lexicalParameters = parameters.Concat(new[] { ("$query", (object?)query), ("$start", (object?)start), ("$end", (object?)end) }).ToArray();
+                var lexicalParameters = passageParameters.Concat(new[] { ("$query", (object?)query), ("$start", (object?)start), ("$end", (object?)end) }).ToArray();
                 var ids = new List<string>();
                 var rowids = new List<long>();
                 // A bounded SQL top-k sorter avoids sorting/spilling every lexical match.
@@ -58,7 +61,7 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
                 // remains inside the query and ties retain the canonical chunk-id order.
                 var allowFill = request.Mode == "keyword" || queryVector is null || spaceId is null || vectorRegistry.IsCurrent(spaceId, queryVector.Length);
                 var fillRoom = TimeSpan.FromSeconds(10) - Stopwatch.GetElapsedTime(started);
-                var derived = await lexicalState.TryRankAsync(snapshot.Connection, transaction, vectorRegistry.Generation,
+                var derived = hasSpeakerFilter ? null : await lexicalState.TryRankAsync(snapshot.Connection, transaction, vectorRegistry.Generation,
                     query, filter, parameters.ToArray(), allowFill, fillRoom, cancellationToken);
                 if (derived is not null)
                 {
@@ -73,7 +76,7 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
                         lexicalRankingPasses++;
                         ids.Clear(); rowids.Clear(); var scanned = 0;
                         await using var read = Command(snapshot.Connection, transaction,
-                            "SELECT c.id,c.document_id,c.rowid FROM chunks c JOIN indexed_documents d ON d.document_id=c.document_id JOIN chunks_fts ON chunks_fts.rowid=c.rowid WHERE chunks_fts MATCH $query AND " + filter + " ORDER BY bm25(chunks_fts),c.id LIMIT $prefix", lexicalParameters.Append(("$prefix", (object?)prefix)).ToArray());
+                            "SELECT c.id,c.document_id,c.rowid FROM chunks c JOIN indexed_documents d ON d.document_id=c.document_id JOIN chunks_fts ON chunks_fts.rowid=c.rowid WHERE chunks_fts MATCH $query AND " + passageFilter + " ORDER BY bm25(chunks_fts),c.id LIMIT $prefix", lexicalParameters.Append(("$prefix", (object?)prefix)).ToArray());
                         await using var reader = await read.ExecuteReaderAsync(cancellationToken);
                         var counts = new Dictionary<string, int>();
                         while (await reader.ReadAsync(cancellationToken))
@@ -110,7 +113,7 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
                     while (await reader.ReadAsync(cancellationToken))
                     {
                         var candidate = ReadCandidate(reader);
-                        materialized.Add(candidate.ChunkId, (candidate, reader.GetString(14), reader.GetString(15), reader.GetInt32(16), reader.GetInt32(17)));
+                        materialized.Add(candidate.ChunkId, (candidate, reader.GetString(19), reader.GetString(20), reader.GetInt32(21), reader.GetInt32(22)));
                     }
                 }
                 foreach (var id in ids)
@@ -160,6 +163,16 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
                         var documentId = reader.GetString(0);
                         if (vectorRegistry.HasMissingVectors(documentId) && !degraded.Contains("vector-pending")) degraded.Add("vector-pending");
                         var chunks = vectorRegistry.ChunkIds(documentId);
+                        if (hasSpeakerFilter)
+                        {
+                            var eligible = new HashSet<string>(StringComparer.Ordinal);
+                            await using var speakerQuery = Command(snapshot.Connection, transaction,
+                                "SELECT c.id FROM chunks c JOIN indexed_documents d ON d.document_id=c.document_id WHERE d.document_id=$speakerDocument AND " + passageFilter,
+                                passageParameters.Append(("$speakerDocument", (object?)documentId)).ToArray());
+                            await using var speakerReader = await speakerQuery.ExecuteReaderAsync(cancellationToken);
+                            while (await speakerReader.ReadAsync(cancellationToken)) eligible.Add(speakerReader.GetString(0));
+                            chunks = chunks.Where(eligible.Contains).ToArray();
+                        }
                         var available = Math.Min(chunks.Count, Math.Max(0, cap - count));
                         if (available < chunks.Count && !degraded.Contains("exact-cap")) degraded.Add("exact-cap");
                         count += available;
@@ -216,7 +229,7 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
             .OrderByDescending(candidate => candidate.Score).ThenBy(candidate => candidate.ChunkId, StringComparer.Ordinal).Take(request.Limit)
             .Select(candidate => new SearchHit(candidate.ChunkId, candidate.DocumentId, candidate.Revision, candidate.Type, candidate.Title,
                 candidate.Path, candidate.Context, candidate.Text, candidate.Highlights ?? [], candidate.Score,
-                candidate.OccurredAt, candidate.UpdatedAt, candidate.Tags, candidate.Page)).ToArray();
+                candidate.OccurredAt, candidate.UpdatedAt, candidate.Tags, candidate.Page, candidate.Transcript)).ToArray();
         fusion = PhaseElapsed(fusionStarted);
         return new SearchResponse(hits, degraded.Distinct(StringComparer.Ordinal).ToArray())
         {
@@ -245,12 +258,12 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
         {
             // The anchor must still be live at the requested revision in this same snapshot.
             await using var read = Command(snapshot.Connection, transaction,
-                $"SELECT c.id,c.document_id,c.revision,c.ordinal,c.context,c.text,c.page,c.token_count FROM chunks anchor JOIN chunks c ON c.document_id=anchor.document_id AND c.ordinal BETWEEN anchor.ordinal-1 AND anchor.ordinal+1 JOIN indexed_documents d ON d.document_id=c.document_id WHERE anchor.id=$chunk AND anchor.document_id=$document AND anchor.revision=$revision AND c.revision=$revision AND d.status NOT IN ({DocumentStatusSql.Unavailable}) ORDER BY c.ordinal",
+                $"SELECT c.id,c.document_id,c.revision,c.ordinal,c.context,c.text,c.page,c.token_count,{LocatorSelect} FROM chunks anchor JOIN chunks c ON c.document_id=anchor.document_id AND c.ordinal BETWEEN anchor.ordinal-1 AND anchor.ordinal+1 JOIN indexed_documents d ON d.document_id=c.document_id WHERE anchor.id=$chunk AND anchor.document_id=$document AND anchor.revision=$revision AND c.revision=$revision AND d.status NOT IN ({DocumentStatusSql.Unavailable}) ORDER BY c.ordinal",
                 ("$chunk", hit.ChunkId), ("$document", hit.DocumentId), ("$revision", hit.Revision));
             await using var reader = await read.ExecuteReaderAsync(cancellationToken);
             while (await reader.ReadAsync(cancellationToken))
             {
-                var passage = new ContextPassage(reader.GetString(0), reader.GetString(1), reader.GetInt64(2), reader.GetInt32(3), reader.GetString(4), reader.GetString(5), reader.IsDBNull(6) ? null : reader.GetInt32(6), reader.GetInt32(7));
+                var passage = new ContextPassage(reader.GetString(0), reader.GetString(1), reader.GetInt64(2), reader.GetInt32(3), reader.GetString(4), reader.GetString(5), reader.IsDBNull(6) ? null : reader.GetInt32(6), reader.GetInt32(7), ReadLocator(reader, 8));
                 if (passage.ChunkId == hit.ChunkId) seeds.Add(passage); else neighbors.Add(passage);
             }
         }
@@ -291,6 +304,8 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
     {
         if (request.Limit is < 1 or > 200 || request.Sort is not ("updated_at" or "occurred_at" or "title") || request.Direction is not ("asc" or "desc")) throw new ArgumentException("Invalid query bounds or sort.");
         RetrievalFilterValidation.Validate(new RetrievalFilters(request.Type, request.Tags, request.Source, request.PathPrefix, request.Mime, request.Occurred, request.Updated, request.Predicates, request.People));
+        if (request.Type == "calendar_event" || request.Type is null && (request.Occurred is not null || request.Sort == "occurred_at"))
+            return await QueryCalendarAsync(request, authority, cancellationToken);
         var hash = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request with { Cursor = null, Limit = 0 })));
         var registry = VectorSnapshotRegistry.For(index);
         using var consistentGeneration = await registry.EnterAsync(cancellationToken);
@@ -316,11 +331,12 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
         var results = new List<DocumentRecord>();
         var positions = new List<string>();
         await using (var read = Command(snapshot.Connection, transaction,
-            "SELECT d.document_id,d.revision,d.type,d.title,d.status,d.props_json,d.updated_at," + sort + " FROM indexed_documents d WHERE " + filter + " ORDER BY " + sort + " " + request.Direction + ",d.document_id " + request.Direction + " LIMIT $limit", parameters.ToArray()))
+            "SELECT d.document_id,d.revision,d.type,d.title,d.status,d.props_json,d.updated_at," + sort + ",d.occurred_at,(SELECT group_concat(tag,char(31)) FROM effective_tags WHERE document_id=d.document_id) FROM indexed_documents d WHERE " + filter + " ORDER BY " + sort + " " + request.Direction + ",d.document_id " + request.Direction + " LIMIT $limit", parameters.ToArray()))
         await using (var reader = await read.ExecuteReaderAsync(cancellationToken))
             while (await reader.ReadAsync(cancellationToken))
             {
-                results.Add(new DocumentRecord(reader.GetString(0), reader.GetInt64(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), "", reader.GetString(5), "", reader.GetString(6)));
+                results.Add(new DocumentRecord(reader.GetString(0), reader.GetInt64(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), "", reader.GetString(5), "", reader.GetString(6), Tags: reader.IsDBNull(9) ? [] : reader.GetString(9).Split((char)31))
+                { OccurredAt = reader.IsDBNull(8) ? null : reader.GetString(8) });
                 positions.Add(reader.GetString(7));
             }
         var truncated = results.Count > request.Limit;
@@ -335,10 +351,11 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
         return new QueryPage(results, next, truncated);
     }
 
-    private static string BuildFilters(RetrievalFilters filters, List<(string Name, object? Value)> parameters)
+    private static string BuildFilters(RetrievalFilters filters, List<(string Name, object? Value)> parameters, bool passage = false)
     {
-        if (filters.Type is not null && filters.Type is not ("note" or "article" or "file")) throw new ArgumentException("Unsupported M1 type.");
+        if (filters.Type is not null && filters.Type is not ("note" or "article" or "transcript" or "calendar_event" or "file")) throw new ArgumentException("Unsupported document type.");
         var clauses = new List<string> { $"d.status NOT IN ({DocumentStatusSql.Unavailable})" };
+        clauses.Add("NOT EXISTS(SELECT 1 FROM indexed_calendar_members cm WHERE cm.document_id=d.document_id AND NOT EXISTS(SELECT 1 FROM indexed_documents root WHERE root.document_id=cm.container_id))");
         void Add(string expression, object? value) { var name = "$f" + parameters.Count; clauses.Add(expression.Replace("?", name, StringComparison.Ordinal)); parameters.Add((name, value)); }
         if (filters.Type is not null) Add("d.type=?", filters.Type);
         if (filters.Source is not null) Add("EXISTS(SELECT 1 FROM indexed_document_sources s WHERE s.document_id=d.document_id AND s.source_id=?)", filters.Source);
@@ -347,8 +364,13 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
         foreach (var tag in filters.Tags ?? []) Add("EXISTS(SELECT 1 FROM effective_tags t WHERE t.document_id=d.document_id AND t.tag=?)", tag);
         foreach (var person in filters.People ?? [])
         {
-            var value = "$f" + parameters.Count; parameters.Add((value, person.Value.ToLowerInvariant()));
-            var sql = "EXISTS(SELECT 1 FROM people p WHERE p.document_id=d.document_id AND p.identifier=" + value;
+            var value = "$f" + parameters.Count; parameters.Add((value, person.Value.Trim().ToLowerInvariant()));
+            if (passage && person.Role == "speaker")
+            {
+                clauses.Add("EXISTS(SELECT 1 FROM segments sg JOIN people sp ON sp.document_id=sg.document_id AND sp.role='speaker' AND sp.display_name=sg.speaker WHERE sg.document_id=d.document_id AND sg.ordinal BETWEEN c.segment_from AND c.segment_to AND sp.identifier=" + value + ")");
+                continue;
+            }
+            var sql = "EXISTS(SELECT 1 FROM people p WHERE p.document_id=d.document_id AND (p.identifier=" + value + " OR EXISTS(SELECT 1 FROM indexed_people_names n WHERE n.document_id=p.document_id AND n.role=p.role AND n.identifier=p.identifier AND n.normalized_name=" + value + "))";
             if (person.Role is not null) { var role = "$f" + parameters.Count; parameters.Add((role, person.Role)); sql += " AND p.role=" + role; }
             clauses.Add(sql + ")");
         }
@@ -393,11 +415,13 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
         return string.Join(" AND ", clauses);
     }
     private static readonly Dictionary<string, string> BaseFields = new(StringComparer.Ordinal) { ["id"] = "d.document_id", ["document_id"] = "d.document_id", ["title"] = "d.title", ["type"] = "d.type", ["status"] = "d.status", ["revision"] = "d.revision", ["occurred_at"] = "d.occurred_at", ["updated_at"] = "d.updated_at" };
-    private static readonly HashSet<string> IndexedFields = new(new SecondBrain.Core.Domain.TypeRegistry().Types.Where(type => type.Key is "note" or "article" or "file").SelectMany(type => type.Metadata.IndexedProperties).Select(name => "props." + name), StringComparer.Ordinal);
+    private static readonly HashSet<string> IndexedFields = new(new SecondBrain.Core.Domain.TypeRegistry().Types.SelectMany(type => type.Metadata.IndexedProperties).Select(name => "props." + name), StringComparer.Ordinal);
     private static string NormalizeTime(string value) => DateTimeOffset.Parse(value, CultureInfo.InvariantCulture).ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
     private static string Scalar(JsonElement value) => value.ValueKind == JsonValueKind.String ? value.GetString()! : value.GetRawText();
-    private const string Select = "SELECT c.id,c.document_id,c.revision,d.type,d.title,(SELECT path FROM indexed_document_sources WHERE document_id=d.document_id),c.context,c.text,d.occurred_at,d.updated_at,c.page,(SELECT group_concat(tag,char(31)) FROM effective_tags WHERE document_id=d.document_id),c.ordinal,c.rowid FROM chunks c JOIN indexed_documents d ON d.document_id=c.document_id";
-    private static Candidate ReadCandidate(DbDataReader reader) => new(reader.GetString(0), reader.GetString(1), reader.GetInt64(2), reader.GetString(3), reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.IsDBNull(8) ? null : reader.GetString(8), reader.GetString(9), reader.IsDBNull(10) ? null : reader.GetInt32(10), reader.IsDBNull(11) ? [] : reader.GetString(11).Split((char)31));
+    private const string LocatorSelect = "c.segment_from,c.segment_to,(SELECT speaker FROM segments s WHERE s.document_id=c.document_id AND s.ordinal=c.segment_from),(SELECT MIN(start_ms) FROM segments s WHERE s.document_id=c.document_id AND s.ordinal BETWEEN c.segment_from AND c.segment_to),(SELECT MAX(end_ms) FROM segments s WHERE s.document_id=c.document_id AND s.ordinal BETWEEN c.segment_from AND c.segment_to)";
+    private const string Select = "SELECT c.id,c.document_id,c.revision,d.type,d.title,(SELECT path FROM indexed_document_sources WHERE document_id=d.document_id),c.context,c.text,d.occurred_at,d.updated_at,c.page,(SELECT group_concat(tag,char(31)) FROM effective_tags WHERE document_id=d.document_id),c.ordinal,c.rowid," + LocatorSelect + " FROM chunks c JOIN indexed_documents d ON d.document_id=c.document_id";
+    private static TranscriptLocator? ReadLocator(DbDataReader reader, int start) => reader.IsDBNull(start) || reader.IsDBNull(start + 3) || reader.IsDBNull(start + 4) ? null : new(reader.GetInt32(start), reader.GetInt32(start + 1), reader.IsDBNull(start + 2) ? null : reader.GetString(start + 2), reader.GetInt64(start + 3), reader.GetInt64(start + 4));
+    private static Candidate ReadCandidate(DbDataReader reader) => new(reader.GetString(0), reader.GetString(1), reader.GetInt64(2), reader.GetString(3), reader.GetString(4), reader.IsDBNull(5) ? null : reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.IsDBNull(8) ? null : reader.GetString(8), reader.GetString(9), reader.IsDBNull(10) ? null : reader.GetInt32(10), reader.IsDBNull(11) ? [] : reader.GetString(11).Split((char)31), Transcript: ReadLocator(reader, 14));
     private static double Dot(ReadOnlySpan<float> left, ReadOnlySpan<float> right)
     {
         var sum = Vector<float>.Zero; var position = 0;
@@ -490,7 +514,7 @@ public sealed partial class SqliteRetrievalRepository(IIndexStore index, IPayloa
         return vector.Select(value => (float)(value / magnitude)).ToArray();
     }
     private static DbCommand Command(DbConnection connection, DbTransaction? transaction, string sql, params (string Name, object? Value)[] parameters) => SqliteDocumentRepository.Command(connection, transaction, sql, parameters);
-    private sealed record Candidate(string ChunkId, string DocumentId, long Revision, string Type, string Title, string? Path, string Context, string Text, string? OccurredAt, string UpdatedAt, int? Page, string[] Tags, double Score = 0, HighlightRange[]? Highlights = null);
+    private sealed record Candidate(string ChunkId, string DocumentId, long Revision, string Type, string Title, string? Path, string Context, string Text, string? OccurredAt, string UpdatedAt, int? Page, string[] Tags, double Score = 0, HighlightRange[]? Highlights = null, TranscriptLocator? Transcript = null);
     // A cursor is bound to this data root's meta.instance_id; without a state store every cursor shares the empty instance.
     private async ValueTask<string> InstanceAsync(CancellationToken cancellationToken)
     {

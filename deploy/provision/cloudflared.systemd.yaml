@@ -1,0 +1,19 @@
+# For deploy/systemd/secondbrain-tunnel.service, separate from the Compose tunnel.
+# Replace the tunnel UUID, Access team name, and application audience before use.
+# The service supplies credentials with systemd LoadCredential; keep them out of Git.
+tunnel: 00000000-0000-0000-0000-000000000000
+no-autoupdate: true
+protocol: http2
+edge-ip-version: "4"
+metrics: 127.0.0.1:20243
+ingress:
+  - hostname: leahy.ai
+    service: http://127.0.0.1:7171
+    originRequest:
+      httpHostHeader: leahy.ai
+      access:
+        required: true
+        teamName: REPLACE_WITH_ACCESS_TEAM_NAME
+        audTag:
+          - REPLACE_WITH_ACCESS_APPLICATION_AUDIENCE
+  - service: http_status:404

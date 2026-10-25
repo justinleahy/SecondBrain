@@ -5,51 +5,91 @@
     "DELETE /documents/{id}",
     "DELETE /keys/{id}",
     "DELETE /sources/{id}",
+    "DELETE /suppressions/{id}",
     "DELETE /v1/auth/sessions/{id}",
     "DELETE /v1/conversations/{id}",
     "DELETE /v1/documents/{id}",
     "DELETE /v1/keys/{id}",
     "DELETE /v1/sources/{id}",
+    "DELETE /v1/suppressions/{id}",
     "GET /auth/antiforgery",
     "GET /auth/credential",
     "GET /auth/me",
     "GET /auth/sessions",
+    "GET /browse/complete",
+    "GET /browse/jobs",
+    "GET /browse/source-counts",
+    "GET /browse/sources",
+    "GET /configuration",
     "GET /conversations",
     "GET /conversations/{id}",
     "GET /conversations/{id}/transcript",
     "GET /diagnostics",
     "GET /documents/{id}",
+    "GET /documents/{id}/conflicts/{mutation}",
+    "GET /documents/{id}/metadata",
+    "GET /documents/{id}/related",
+    "GET /documents/{id}/revisions",
     "GET /files/{id}",
     "GET /health",
     "GET /jobs",
     "GET /jobs/{id}",
     "GET /keys",
+    "GET /maintenance/backup/key",
+    "GET /maintenance/backups",
+    "GET /maintenance/backups/{name}",
     "GET /pending",
     "GET /providers",
     "GET /ready",
     "GET /sources",
+    "GET /sources/{id}",
+    "GET /suppressions",
+    "GET /tags",
+    "GET /timeline",
+    "GET /trash",
     "GET /turns/{id}",
     "GET /turns/{id}/events",
     "GET /turns/{id}/manifest",
+    "GET /types",
+    "GET /usage",
     "GET /v1/auth/antiforgery",
     "GET /v1/auth/credential",
     "GET /v1/auth/me",
     "GET /v1/auth/sessions",
+    "GET /v1/browse/complete",
+    "GET /v1/browse/jobs",
+    "GET /v1/browse/source-counts",
+    "GET /v1/browse/sources",
+    "GET /v1/configuration",
     "GET /v1/conversations",
     "GET /v1/conversations/{id}",
     "GET /v1/conversations/{id}/transcript",
     "GET /v1/diagnostics",
     "GET /v1/documents/{id}",
+    "GET /v1/documents/{id}/conflicts/{mutation}",
+    "GET /v1/documents/{id}/metadata",
+    "GET /v1/documents/{id}/related",
+    "GET /v1/documents/{id}/revisions",
     "GET /v1/files/{id}",
     "GET /v1/jobs",
     "GET /v1/jobs/{id}",
     "GET /v1/keys",
+    "GET /v1/maintenance/backup/key",
+    "GET /v1/maintenance/backups",
+    "GET /v1/maintenance/backups/{name}",
     "GET /v1/pending",
     "GET /v1/providers",
     "GET /v1/sources",
+    "GET /v1/sources/{id}",
+    "GET /v1/suppressions",
+    "GET /v1/tags",
+    "GET /v1/timeline",
+    "GET /v1/trash",
     "GET /v1/turns/{id}",
     "GET /v1/turns/{id}/events",
     "GET /v1/turns/{id}/manifest",
+    "GET /v1/types",
+    "GET /v1/usage",
     "PATCH /documents/{id}",
     "PATCH /sources/{id}",
     "PATCH /v1/documents/{id}",
@@ -64,17 +104,23 @@
     "POST /auth/step-up",
     "POST /chat",
     "POST /documents",
+    "POST /documents/{id}/enrich",
     "POST /documents/{id}/purge",
     "POST /documents/{id}/restore",
     "POST /jobs/{id}/retry",
     "POST /keys",
+    "POST /maintenance/backup",
+    "POST /maintenance/export",
     "POST /maintenance/rebuild",
+    "POST /maintenance/retention",
+    "POST /maintenance/retention/metadata",
     "POST /pending/{id}/approve",
     "POST /pending/{id}/discard",
     "POST /pending/{id}/edit",
     "POST /providers/test",
     "POST /query",
     "POST /search",
+    "POST /search/facets",
     "POST /sources",
     "POST /sources/{id}/scan",
     "POST /turns/{id}/retry",
@@ -88,20 +134,28 @@
     "POST /v1/auth/step-up",
     "POST /v1/chat",
     "POST /v1/documents",
+    "POST /v1/documents/{id}/enrich",
     "POST /v1/documents/{id}/purge",
     "POST /v1/documents/{id}/restore",
     "POST /v1/jobs/{id}/retry",
     "POST /v1/keys",
+    "POST /v1/maintenance/backup",
+    "POST /v1/maintenance/export",
     "POST /v1/maintenance/rebuild",
+    "POST /v1/maintenance/retention",
+    "POST /v1/maintenance/retention/metadata",
     "POST /v1/pending/{id}/approve",
     "POST /v1/pending/{id}/discard",
     "POST /v1/pending/{id}/edit",
     "POST /v1/providers/test",
     "POST /v1/query",
     "POST /v1/search",
+    "POST /v1/search/facets",
     "POST /v1/sources",
     "POST /v1/sources/{id}/scan",
-    "POST /v1/turns/{id}/retry"
+    "POST /v1/turns/{id}/retry",
+    "PUT /configuration",
+    "PUT /v1/configuration"
   ],
   "schemas": {
     "AntiforgeryResponse": {
@@ -117,6 +171,49 @@
         "token",
         "headerName"
       ],
+      "type": "object"
+    },
+    "AssistantOptions": {
+      "properties": {
+        "allowExternalWrites": {
+          "type": "boolean"
+        },
+        "autoApproveWrites": {
+          "type": "boolean"
+        },
+        "maxReadBytes": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxReadDocuments": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "maxToolCallsPerTurn": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "pendingTtlHours": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
       "type": "object"
     },
     "AuthenticatedCredential": {
@@ -170,8 +267,254 @@
       ],
       "type": "object"
     },
+    "BackupCreated": {
+      "properties": {
+        "archive": {
+          "$ref": "#/components/schemas/BackupInfo"
+        },
+        "completeFiles": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "files": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "partialFiles": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "retention": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/BackupRetentionResult"
+            }
+          ]
+        }
+      },
+      "required": [
+        "archive",
+        "files",
+        "completeFiles",
+        "partialFiles"
+      ],
+      "type": "object"
+    },
+    "BackupInfo": {
+      "properties": {
+        "bytes": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "partial": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "bytes",
+        "createdAt",
+        "partial"
+      ],
+      "type": "object"
+    },
+    "BackupKeyStatus": {
+      "properties": {
+        "ready": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ready",
+        "status"
+      ],
+      "type": "object"
+    },
+    "BackupRetentionResult": {
+      "properties": {
+        "deferred": {
+          "default": 0,
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "deleted": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "moreWork": {
+          "type": "boolean"
+        },
+        "retained": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "deleted",
+        "retained",
+        "moreWork"
+      ],
+      "type": "object"
+    },
+    "BackupRetentionSetting": {
+      "properties": {
+        "keep": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "keep"
+      ],
+      "type": "object"
+    },
+    "BudgetOptions": {
+      "properties": {
+        "dailyTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "CalendarDocumentInfo": {
+      "properties": {
+        "containerId": {
+          "type": "string"
+        },
+        "duplicateCalendars": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "from": {
+          "type": "string"
+        },
+        "generation": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "occurrences": {
+          "items": {
+            "$ref": "#/components/schemas/CalendarInstance"
+          },
+          "type": "array"
+        },
+        "to": {
+          "type": "string"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "containerId",
+        "from",
+        "to",
+        "generation",
+        "duplicateCalendars",
+        "occurrences",
+        "truncated"
+      ],
+      "type": "object"
+    },
+    "CalendarInstance": {
+      "properties": {
+        "endsAt": {
+          "type": "string"
+        },
+        "recurrenceId": {
+          "type": "string"
+        },
+        "startsAt": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "uid",
+        "recurrenceId",
+        "startsAt",
+        "endsAt",
+        "status"
+      ],
+      "type": "object"
+    },
+    "CanaryState": {
+      "type": "integer"
+    },
     "CaptureRequest": {
       "properties": {
+        "aliases": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
         "content": {
           "type": "string"
         },
@@ -239,6 +582,227 @@
       ],
       "type": "object"
     },
+    "CatalogCompletion": {
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "value",
+        "detail"
+      ],
+      "type": "object"
+    },
+    "CatalogJob": {
+      "properties": {
+        "attempts": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "canRetry": {
+          "type": "boolean"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "error": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "fileName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "retryRejection": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "documentId",
+        "revision",
+        "title",
+        "fileName",
+        "sourceId",
+        "sourceName",
+        "status",
+        "attempts",
+        "error",
+        "stage",
+        "canRetry",
+        "retryRejection"
+      ],
+      "type": "object"
+    },
+    "CatalogPageOfCatalogJob": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/components/schemas/CatalogJob"
+          },
+          "type": "array"
+        },
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "CatalogPageOfCatalogSource": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/components/schemas/CatalogSource"
+          },
+          "type": "array"
+        },
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "CatalogPageOfDocumentRevisionEntry": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/components/schemas/DocumentRevisionEntry"
+          },
+          "type": "array"
+        },
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "CatalogPageOfSuppressionRecord": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/components/schemas/SuppressionRecord"
+          },
+          "type": "array"
+        },
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "CatalogPageOfTrashedDocument": {
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/components/schemas/TrashedDocument"
+          },
+          "type": "array"
+        },
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "CatalogSource": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "status"
+      ],
+      "type": "object"
+    },
     "ChatAnswer": {
       "properties": {
         "citations": {
@@ -277,8 +841,23 @@
     },
     "ChatCitation": {
       "properties": {
+        "granularity": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "source": {
           "$ref": "#/components/schemas/ChatSource"
+        },
+        "spans": {
+          "items": {
+            "$ref": "#/components/schemas/ChatCitationSpan"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
         },
         "state": {
           "default": "current",
@@ -287,6 +866,39 @@
       },
       "required": [
         "source"
+      ],
+      "type": "object"
+    },
+    "ChatCitationSpan": {
+      "properties": {
+        "end": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "excerpt": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "start": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "excerpt",
+        "sha256"
       ],
       "type": "object"
     },
@@ -642,6 +1254,16 @@
         },
         "title": {
           "type": "string"
+        },
+        "transcript": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/TranscriptLocator"
+            }
+          ]
         }
       },
       "required": [
@@ -962,6 +1584,51 @@
       ],
       "type": "object"
     },
+    "ChunkingOptions": {
+      "properties": {
+        "maxTokens": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "overlapTokens": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "targetTokens": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ClassificationOptions": {
+      "properties": {
+        "llm": {
+          "type": "boolean"
+        },
+        "minConfidence": {
+          "format": "double",
+          "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+          "type": [
+            "number",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
     "CreateKeyRequest": {
       "properties": {
         "expiresAt": {
@@ -995,6 +1662,12 @@
             "string"
           ]
         },
+        "enabled": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
         "enrich": {
           "type": "boolean"
         },
@@ -1009,6 +1682,9 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "kind": {
+          "type": "string"
         },
         "mode": {
           "type": "string"
@@ -1026,6 +1702,7 @@
           "format": "int32",
           "pattern": "^-?(?:0|[1-9]\\d*)$",
           "type": [
+            "null",
             "integer",
             "string"
           ]
@@ -1039,8 +1716,75 @@
           },
           "type": "object"
         },
+        "url": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "watch": {
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "CredentialLimitsOptions": {
+      "properties": {
+        "circuits": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "concurrentSearches": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "concurrentTurns": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "concurrentUploads": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "modelTokensPerHour": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "requestsPerMinute": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "sseStreams": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
         }
       },
       "type": "object"
@@ -1123,6 +1867,235 @@
       ],
       "type": "object"
     },
+    "DocumentDetails": {
+      "properties": {
+        "aliases": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "calendar": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/CalendarDocumentInfo"
+            }
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "enrichment": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/DocumentEnrichment"
+            }
+          ]
+        },
+        "links": {
+          "items": {
+            "$ref": "#/components/schemas/DocumentLink"
+          },
+          "type": "array"
+        },
+        "mime": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "occurredAt": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "occurredBasis": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "occurredPrecision": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "pages": {
+          "items": {
+            "$ref": "#/components/schemas/DocumentPage"
+          },
+          "type": "array"
+        },
+        "propsOriginalJson": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tags": {
+          "items": {
+            "$ref": "#/components/schemas/DocumentTag"
+          },
+          "type": "array"
+        },
+        "typeConfidence": {
+          "format": "double",
+          "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+          "type": [
+            "null",
+            "number",
+            "string"
+          ]
+        },
+        "typeOrigin": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "revision",
+        "sourceId",
+        "sourceName",
+        "typeOrigin",
+        "mime",
+        "sourceUrl",
+        "createdAt",
+        "updatedAt",
+        "occurredAt",
+        "occurredBasis",
+        "occurredPrecision",
+        "propsOriginalJson",
+        "aliases",
+        "tags",
+        "links"
+      ],
+      "type": "object"
+    },
+    "DocumentEnrichment": {
+      "properties": {
+        "fingerprint": {
+          "type": "string"
+        },
+        "mentions": {
+          "items": {
+            "$ref": "#/components/schemas/EnrichmentMention"
+          },
+          "type": "array"
+        },
+        "suggestedLinks": {
+          "items": {
+            "$ref": "#/components/schemas/EnrichmentLink"
+          },
+          "type": "array"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "writtenBack": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "fingerprint",
+        "summary",
+        "tags",
+        "mentions",
+        "suggestedLinks"
+      ],
+      "type": "object"
+    },
+    "DocumentLink": {
+      "properties": {
+        "documentId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "target": {
+          "type": "string"
+        },
+        "title": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "target",
+        "documentId",
+        "title"
+      ],
+      "type": "object"
+    },
+    "DocumentPage": {
+      "properties": {
+        "length": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "number": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "start": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "number",
+        "start",
+        "length"
+      ],
+      "type": "object"
+    },
     "DocumentRecord": {
       "properties": {
         "chunks": {
@@ -1137,8 +2110,42 @@
         "content_hash": {
           "type": "string"
         },
+        "document_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "ends_at": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "enrichment": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/DocumentEnrichment"
+            }
+          ]
+        },
         "id": {
           "type": "string"
+        },
+        "instance_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "occurred_at": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "path": {
           "type": [
@@ -1152,11 +2159,32 @@
         "provenance": {
           "type": "string"
         },
+        "recurrence_id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "revision": {
           "format": "int64",
           "pattern": "^-?(?:0|[1-9]\\d*)$",
           "type": [
             "integer",
+            "string"
+          ]
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/components/schemas/ExtractionSegment"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "starts_at": {
+          "type": [
+            "null",
             "string"
           ]
         },
@@ -1199,6 +2227,244 @@
         "provenance",
         "updated_at"
       ],
+      "type": "object"
+    },
+    "DocumentRetentionResult": {
+      "properties": {
+        "deferred": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "expiredIdentities": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "moreWork": {
+          "type": "boolean"
+        },
+        "purged": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "purged",
+        "expiredIdentities",
+        "deferred",
+        "moreWork"
+      ],
+      "type": "object"
+    },
+    "DocumentRevisionEntry": {
+      "properties": {
+        "cause": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "revision",
+        "cause",
+        "createdAt"
+      ],
+      "type": "object"
+    },
+    "DocumentTag": {
+      "properties": {
+        "origin": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tag",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "EditablePrivacy": {
+      "properties": {
+        "localOnly": {
+          "type": "boolean"
+        },
+        "trustedServices": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "localOnly",
+        "trustedServices"
+      ],
+      "type": "object"
+    },
+    "EnrichmentJob": {
+      "properties": {
+        "documentId": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "documentId",
+        "status"
+      ],
+      "type": "object"
+    },
+    "EnrichmentLink": {
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "target",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "EnrichmentMention": {
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "EnrichmentOptions": {
+      "properties": {
+        "batchBackfill": {
+          "type": "boolean"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "writeBackFrontmatter": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "ExtractionSegment": {
+      "properties": {
+        "endMs": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "length": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "ordinal": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "speaker": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "start": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "startMs": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "ordinal",
+        "speaker",
+        "startMs",
+        "endMs",
+        "start",
+        "length"
+      ],
+      "type": "object"
+    },
+    "FacetRequest": {
+      "properties": {
+        "filters": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/RetrievalFilters"
+            }
+          ]
+        },
+        "query": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
       "type": "object"
     },
     "FolderSourceConfiguration": {
@@ -1265,6 +2531,59 @@
       ],
       "type": "object"
     },
+    "GlobalLimitsOptions": {
+      "properties": {
+        "admittedGb": {
+          "format": "double",
+          "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+          "type": [
+            "number",
+            "string"
+          ]
+        },
+        "calendarOccurrences": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "diskLowWaterGb": {
+          "format": "double",
+          "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+          "type": [
+            "number",
+            "string"
+          ]
+        },
+        "files": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "filesPerSource": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "queuedJobs": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
     "HighlightRange": {
       "properties": {
         "end": {
@@ -1288,6 +2607,22 @@
         "start",
         "end"
       ],
+      "type": "object"
+    },
+    "IngestOptions": {
+      "properties": {
+        "deepRescanAt": {
+          "type": "string"
+        },
+        "syncEmbedDeadlineMs": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
       "type": "object"
     },
     "JsonElement": {},
@@ -1317,6 +2652,17 @@
       ],
       "type": "object"
     },
+    "LimitsOptions": {
+      "properties": {
+        "global": {
+          "$ref": "#/components/schemas/GlobalLimitsOptions"
+        },
+        "perCredential": {
+          "$ref": "#/components/schemas/CredentialLimitsOptions"
+        }
+      },
+      "type": "object"
+    },
     "LoginRequest": {
       "properties": {
         "password": {
@@ -1325,6 +2671,482 @@
       },
       "required": [
         "password"
+      ],
+      "type": "object"
+    },
+    "MetadataRetentionResult": {
+      "properties": {
+        "detachedReferences": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "expiredProposals": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "idempotencyRecords": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "moreWork": {
+          "type": "boolean"
+        },
+        "orphanPayloads": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "prunedProposals": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "retrievalTraces": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "expiredProposals",
+        "prunedProposals",
+        "idempotencyRecords",
+        "detachedReferences",
+        "orphanPayloads",
+        "retrievalTraces",
+        "moreWork"
+      ],
+      "type": "object"
+    },
+    "ModelBindingOptions": {
+      "properties": {
+        "capabilities": {
+          "$ref": "#/components/schemas/ModelCapabilityOptions"
+        },
+        "dimensions": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "fallback": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ModelBindingOptions"
+            }
+          ]
+        },
+        "limits": {
+          "$ref": "#/components/schemas/ModelLimits"
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "reasoning": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ModelCapabilities": {
+      "properties": {
+        "batch": {
+          "type": "boolean"
+        },
+        "nativeCitations": {
+          "type": "boolean"
+        },
+        "promptCaching": {
+          "type": "boolean"
+        },
+        "reasoningControl": {
+          "type": "boolean"
+        },
+        "reasoningMapping": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "streaming": {
+          "type": "boolean"
+        },
+        "structuredOutput": {
+          "type": "boolean"
+        },
+        "tools": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "ModelCapabilityOptions": {
+      "properties": {
+        "batch": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "nativeCitations": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "promptCaching": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "reasoningControl": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "streaming": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "structuredOutput": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "tools": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ModelLimits": {
+      "properties": {
+        "contextTokens": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "embedBatchMax": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "embedDimensions": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "embedMaxInputTokens": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "maxOutputTokens": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ModelRolesOptions": {
+      "properties": {
+        "chat": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ModelBindingOptions"
+            }
+          ]
+        },
+        "embed": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ModelBindingOptions"
+            }
+          ]
+        },
+        "enrich": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ModelBindingOptions"
+            }
+          ]
+        },
+        "rerank": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/ModelBindingOptions"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ModelUsageReport": {
+      "properties": {
+        "dailyLimit": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "dailyTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "from": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/components/schemas/ModelUsageRow"
+          },
+          "type": "array"
+        },
+        "to": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "dailyTokens",
+        "dailyLimit",
+        "rows",
+        "truncated"
+      ],
+      "type": "object"
+    },
+    "ModelUsageRow": {
+      "properties": {
+        "cachedInputTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "calls": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "chargedTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "credentialId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "inputTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "jobId": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "model": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "outputTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
+        "provider": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "reservedTokens": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "role": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "unsettledCalls": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "provider",
+        "model",
+        "role",
+        "credentialId",
+        "jobId",
+        "calls",
+        "reservedTokens",
+        "chargedTokens",
+        "inputTokens",
+        "outputTokens",
+        "cachedInputTokens",
+        "unsettledCalls"
+      ],
+      "type": "object"
+    },
+    "OperationCleanupResult": {
+      "properties": {
+        "debugLogs": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "deferred": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "moreWork": {
+          "type": "boolean"
+        },
+        "workspaces": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "workspaces",
+        "debugLogs",
+        "deferred",
+        "moreWork"
       ],
       "type": "object"
     },
@@ -1353,6 +3175,51 @@
       },
       "required": [
         "value"
+      ],
+      "type": "object"
+    },
+    "PrivacyReadiness": {
+      "properties": {
+        "canaryEnabled": {
+          "type": "boolean"
+        },
+        "canaryState": {
+          "$ref": "#/components/schemas/CanaryState"
+        },
+        "detail": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "isReady": {
+          "type": "boolean"
+        },
+        "lastCheckedAt": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "localOnly": {
+          "type": "boolean"
+        },
+        "problemType": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "isReady",
+        "localOnly",
+        "canaryEnabled",
+        "canaryState",
+        "lastCheckedAt",
+        "problemType",
+        "detail"
       ],
       "type": "object"
     },
@@ -1462,6 +3329,40 @@
       ],
       "type": "object"
     },
+    "ProviderSetting": {
+      "properties": {
+        "endpoint": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "hasCredential": {
+          "type": "boolean"
+        },
+        "isLocal": {
+          "type": "boolean"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "trusted": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "kind",
+        "endpoint",
+        "trusted",
+        "hasCredential",
+        "isLocal"
+      ],
+      "type": "object"
+    },
     "ProviderTestRequest": {
       "properties": {
         "name": {
@@ -1510,6 +3411,10 @@
         "direction": {
           "default": "desc",
           "type": "string"
+        },
+        "include_cancelled": {
+          "default": false,
+          "type": "boolean"
         },
         "limit": {
           "default": 50,
@@ -1598,6 +3503,102 @@
       },
       "type": "object"
     },
+    "RetentionOptions": {
+      "properties": {
+        "debugLogDays": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "idempotencyHours": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "payloadDays": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "removedDays": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "resolvedProposalDays": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "traceDays": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "trashDays": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "RetentionResult": {
+      "properties": {
+        "backups": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/BackupRetentionResult"
+            }
+          ]
+        },
+        "documents": {
+          "$ref": "#/components/schemas/DocumentRetentionResult"
+        },
+        "metadata": {
+          "$ref": "#/components/schemas/MetadataRetentionResult"
+        },
+        "operations": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/OperationCleanupResult"
+            }
+          ]
+        }
+      },
+      "required": [
+        "metadata",
+        "documents"
+      ],
+      "type": "object"
+    },
     "RetrievalFilters": {
       "properties": {
         "mime": {
@@ -1674,6 +3675,33 @@
       },
       "type": "object"
     },
+    "RoleSetting": {
+      "properties": {
+        "capabilities": {
+          "$ref": "#/components/schemas/ModelCapabilities"
+        },
+        "limits": {
+          "$ref": "#/components/schemas/ModelLimits"
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "provider",
+        "model",
+        "capabilities",
+        "limits"
+      ],
+      "type": "object"
+    },
     "Scope": {
       "type": "integer"
     },
@@ -1742,6 +3770,16 @@
         },
         "title": {
           "type": "string"
+        },
+        "transcript": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/TranscriptLocator"
+            }
+          ]
         },
         "type": {
           "type": "string"
@@ -1830,20 +3868,231 @@
       ],
       "type": "object"
     },
-    "SourceRecord": {
+    "SettingsChange": {
+      "properties": {
+        "providerName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "section": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/components/schemas/JsonElement"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "section",
+        "value"
+      ],
+      "type": "object"
+    },
+    "SettingsSnapshot": {
+      "properties": {
+        "assistant": {
+          "$ref": "#/components/schemas/AssistantOptions"
+        },
+        "backup": {
+          "$ref": "#/components/schemas/BackupRetentionSetting"
+        },
+        "budgets": {
+          "$ref": "#/components/schemas/BudgetOptions"
+        },
+        "canEdit": {
+          "type": "boolean"
+        },
+        "chunking": {
+          "$ref": "#/components/schemas/ChunkingOptions"
+        },
+        "classification": {
+          "$ref": "#/components/schemas/ClassificationOptions"
+        },
+        "egress": {
+          "$ref": "#/components/schemas/PrivacyReadiness"
+        },
+        "enrichment": {
+          "$ref": "#/components/schemas/EnrichmentOptions"
+        },
+        "ingest": {
+          "$ref": "#/components/schemas/IngestOptions"
+        },
+        "limits": {
+          "$ref": "#/components/schemas/LimitsOptions"
+        },
+        "models": {
+          "$ref": "#/components/schemas/ModelRolesOptions"
+        },
+        "privacy": {
+          "$ref": "#/components/schemas/EditablePrivacy"
+        },
+        "providers": {
+          "items": {
+            "$ref": "#/components/schemas/ProviderSetting"
+          },
+          "type": "array"
+        },
+        "retention": {
+          "$ref": "#/components/schemas/RetentionOptions"
+        },
+        "roles": {
+          "items": {
+            "$ref": "#/components/schemas/RoleSetting"
+          },
+          "type": "array"
+        },
+        "time": {
+          "$ref": "#/components/schemas/TimeOptions"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "canEdit",
+        "providers",
+        "roles",
+        "models",
+        "privacy",
+        "limits",
+        "time",
+        "assistant",
+        "budgets",
+        "ingest",
+        "chunking",
+        "retention",
+        "egress"
+      ],
+      "type": "object"
+    },
+    "SourceDocumentCounts": {
+      "properties": {
+        "available": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "failed": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "missing": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "pending": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "total": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "total",
+        "available",
+        "pending",
+        "failed",
+        "missing"
+      ],
+      "type": "object"
+    },
+    "SourceResponse": {
       "properties": {
         "config": {
-          "$ref": "#/components/schemas/FolderSourceConfiguration"
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/FolderSourceConfiguration"
+            }
+          ]
+        },
+        "container_id": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "created_at": {
           "format": "date-time",
           "type": "string"
+        },
+        "error": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "freshness": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "id": {
           "type": "string"
         },
         "kind": {
           "type": "string"
+        },
+        "lastScanError": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "lastScanErrorAt": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last_attempt_at": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last_change_at": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "last_full_scan_at": {
           "format": "date-time",
@@ -1859,8 +4108,37 @@
             "string"
           ]
         },
+        "last_success_at": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
         "name": {
           "type": "string"
+        },
+        "next_attempt_at": {
+          "format": "date-time",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "origin": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "poll_interval_s": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
         },
         "status": {
           "type": "string"
@@ -1870,22 +4148,126 @@
         "id",
         "kind",
         "name",
-        "config",
         "status",
-        "last_scan_at",
-        "last_full_scan_at",
         "created_at"
       ],
       "type": "object"
     },
     "SourceStatusRequest": {
       "properties": {
+        "enabled": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "poll_interval_s": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "null",
+            "integer",
+            "string"
+          ]
+        },
         "status": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "SuppressionRecord": {
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "document_status": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "source": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "scope",
+        "source",
+        "key",
+        "reason",
+        "created_at",
+        "document_status"
+      ],
+      "type": "object"
+    },
+    "TagCount": {
+      "properties": {
+        "count": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "tag": {
           "type": "string"
         }
       },
       "required": [
-        "status"
+        "tag",
+        "count"
+      ],
+      "type": "object"
+    },
+    "TagPage": {
+      "properties": {
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tags": {
+          "items": {
+            "$ref": "#/components/schemas/TagCount"
+          },
+          "type": "array"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "tags",
+        "next_cursor",
+        "truncated"
       ],
       "type": "object"
     },
@@ -1943,6 +4325,16 @@
             "integer",
             "string"
           ]
+        },
+        "transcript": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/components/schemas/TranscriptLocator"
+            }
+          ]
         }
       },
       "required": [
@@ -1955,6 +4347,17 @@
         "token_count",
         "input_hash"
       ],
+      "type": "object"
+    },
+    "TimeOptions": {
+      "properties": {
+        "weekStart": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "string"
+        }
+      },
       "type": "object"
     },
     "TimeWindow": {
@@ -1972,6 +4375,164 @@
           ]
         }
       },
+      "type": "object"
+    },
+    "TimelineDay": {
+      "properties": {
+        "day": {
+          "type": "string"
+        },
+        "documents": {
+          "items": {
+            "$ref": "#/components/schemas/DocumentRecord"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "day",
+        "documents"
+      ],
+      "type": "object"
+    },
+    "TimelinePage": {
+      "properties": {
+        "coverage": {},
+        "days": {
+          "items": {
+            "$ref": "#/components/schemas/TimelineDay"
+          },
+          "type": "array"
+        },
+        "fromDay": {
+          "type": "string"
+        },
+        "next_cursor": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "timeZone": {
+          "type": "string"
+        },
+        "toDay": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "timeZone",
+        "fromDay",
+        "toDay",
+        "days",
+        "next_cursor",
+        "coverage"
+      ],
+      "type": "object"
+    },
+    "TranscriptLocator": {
+      "properties": {
+        "end_ms": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "from": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "speaker": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "start_ms": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "to": {
+          "format": "int32",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "speaker",
+        "start_ms",
+        "end_ms"
+      ],
+      "type": "object"
+    },
+    "TrashedDocument": {
+      "properties": {
+        "deleted_at": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "revision",
+        "title",
+        "type",
+        "deleted_at"
+      ],
+      "type": "object"
+    },
+    "TypeCount": {
+      "properties": {
+        "count": {
+          "format": "int64",
+          "pattern": "^-?(?:0|[1-9]\\d*)$",
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "count"
+      ],
       "type": "object"
     }
   }

@@ -1,0 +1,75 @@
+{
+  "status": "passed",
+  "syntheticData": true,
+  "productionChanged": false,
+  "systemdNumericUidDeployment": true,
+  "socketActivatedTranscriptAndCalendarImport": true,
+  "editsDuringBackup": 2,
+  "totalEdits": 6,
+  "restoredRevision": 6,
+  "laterLiveRevision": 7,
+  "archiveBytes": 13180058,
+  "archiveSha256": "93de2f37060432d54eac01a08949bb79e58ac28d14cfce5d2f673b7e2694eda7",
+  "offlineCliManifestVerified": true,
+  "trashPreserved": true,
+  "oldSessionRejected": true,
+  "rebuiltSearchPassed": true,
+  "restoreResult": {
+    "recoveryRecord": "/srv/sb-m1-qualification.a5dnZ20R/data/.restore-complete-f2da5de4632a49b89e936b9b3cddf0e6.json",
+    "accountEpoch": 2,
+    "remappedValues": 0,
+    "indexedDocuments": 13
+  },
+  "readiness": {
+    "ready": true,
+    "components": {
+      "stores": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": null
+      },
+      "migrations": {
+        "ready": true,
+        "detail": "Migrations and durability recovery completed.",
+        "checkedAt": null
+      },
+      "lock": {
+        "ready": true,
+        "detail": "Exclusive data-root lock.",
+        "checkedAt": null
+      },
+      "canary": {
+        "ready": true,
+        "detail": "Egress canary: Blocked. Egress canary state is current.",
+        "checkedAt": "2026-10-25T03:55:15.8327559+00:00"
+      },
+      "extractor": {
+        "ready": true,
+        "detail": "Extractor answered ping.",
+        "checkedAt": null
+      },
+      "provider:chat": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-25T03:55:16.5817344+00:00"
+      },
+      "provider:enrich": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-25T03:55:16.5834289+00:00"
+      },
+      "provider:embed": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-25T03:55:16.5845448+00:00"
+      },
+      "provider:rerank": {
+        "ready": true,
+        "detail": "Optional rerank role is not configured.",
+        "checkedAt": "2026-10-25T03:55:19.3921834+00:00"
+      }
+    }
+  },
+  "daemonProperties": "MemoryMax=8589934592\nTasksMax=256\nUser=1654\nGroup=1654\nProtectSystem=strict\nNoNewPrivileges=yes\n",
+  "extractorProperties": "User=1655\nPrivateNetwork=yes\nProtectSystem=strict\nNoNewPrivileges=yes\n"
+}

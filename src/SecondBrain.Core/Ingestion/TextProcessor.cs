@@ -76,7 +76,16 @@ public static class TextProcessor
             chunks.Add(new TextChunk(id + ":0", 0, context, "", 0, 0, Encoding.UTF8.GetByteCount(context) + 1, hash));
         }
         return new TextProjection(text, normalized, offsets, chunks,
-            (tags ?? []).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(), path);
+            (tags ?? []).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray(), path, Links: Links(text));
+    }
+
+    private static IReadOnlyList<string> Links(string text)
+    {
+        var values = Regex.Matches(text, @"\[\[([^\]\r\n]+)\]\]|\[[^\]\r\n]*\]\(([^)\r\n]+)\)", RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1))
+            .Select(match => match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value)
+            .Where(value => value.Length <= 4096 && !value.Any(char.IsControl)).Distinct(StringComparer.Ordinal).Take(201).ToArray();
+        if (values.Length > 200) throw new IngestionConflictException("link-count-bound");
+        return values;
     }
 
     /// <summary>

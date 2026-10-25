@@ -123,6 +123,49 @@ public sealed class SessionCircuitTests
     }
 
     [Fact]
+    public async Task DisconnectedCircuitsReleaseCapacityAndReconnectMustReserveAgain()
+    {
+        await using var factory = new LaneDWebFactory(options => options.Limits.PerCredential.Circuits = 1);
+        var session = await CreateSessionAsync(factory);
+        var principal = Principal(session.Record);
+        var admission = factory.Services.GetRequiredService<IAdmissionController>();
+        using var first = Handler(factory, principal, admission);
+        using var second = Handler(factory, principal, admission);
+        await first.OnCircuitOpenedAsync(null!, default);
+        await first.OnConnectionUpAsync(null!, default);
+        Assert.Equal(1, admission.Snapshot.ActiveReservations);
+        await first.OnConnectionDownAsync(null!, default);
+        Assert.Equal(0, admission.Snapshot.ActiveReservations);
+        await second.OnCircuitOpenedAsync(null!, default);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => first.OnConnectionUpAsync(null!, default));
+        Assert.Equal(1, admission.Snapshot.ActiveReservations);
+        await second.OnConnectionDownAsync(null!, default);
+        await first.OnConnectionUpAsync(null!, default);
+        Assert.Equal(1, admission.Snapshot.ActiveReservations);
+        await first.OnCircuitClosedAsync(null!, default);
+        Assert.Equal(0, admission.Snapshot.ActiveReservations);
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => first.OnConnectionUpAsync(null!, default));
+    }
+
+    [Theory]
+    [InlineData("generation")]
+    [InlineData("epoch")]
+    [InlineData("revoked")]
+    [InlineData("idle")]
+    public async Task DisconnectedAuthorityIsRevalidatedBeforeReconnection(string invalidation)
+    {
+        await using var factory = new LaneDWebFactory();
+        var session = await CreateSessionAsync(factory);
+        var admission = factory.Services.GetRequiredService<IAdmissionController>();
+        using var handler = Handler(factory, Principal(session.Record), admission);
+        await handler.OnCircuitOpenedAsync(null!, default);
+        await handler.OnConnectionDownAsync(null!, default);
+        await InvalidateAsync(factory, session.Record.Id, invalidation);
+        await Assert.ThrowsAsync<AuthorityChangedException>(() => handler.OnConnectionUpAsync(null!, default));
+        Assert.Equal(0, admission.Snapshot.ActiveReservations);
+    }
+
+    [Fact]
     public async Task Circuit_ValidActivityRefreshesIdleExpiryAndDispatches()
     {
         await using var factory = new LaneDWebFactory();

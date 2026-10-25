@@ -24,6 +24,8 @@ privacy:
   canary_target: 1.1.1.1:443
   control_plane_egress: [dns]
 sources:
+  calendar_allowed_origins: []
+  calendar_subscriptions: []
   incoming_root: /srv/secondbrain-incoming
   allowed_roots: [/srv/secondbrain-incoming]
 logging:

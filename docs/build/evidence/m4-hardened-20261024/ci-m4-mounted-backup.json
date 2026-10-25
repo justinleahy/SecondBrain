@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "syntheticData": true,
+  "hardenedCompose": true,
+  "productionChanged": false,
+  "httpEdits": 34,
+  "editsDuringBackup": 18,
+  "restoredRevision": 18,
+  "laterLiveRevision": 35,
+  "archiveBytes": 13332163,
+  "archiveSha256": "638480a335cc88f9ae70ffffafcc94558d8838725781b028d92ceae379aea664",
+  "completeManifestVerifiedByOfflineCli": true,
+  "mountedExternalRootRemapped": true,
+  "externalSourceIdentityRetained": true,
+  "externalFileBytesPreserved": true,
+  "trashIncluded": true,
+  "oldSessionRejected": true,
+  "restartedSearchVerified": true,
+  "restoreResult": {
+    "recoveryRecord": "/srv/secondbrain/.restore-complete-3b9c47aed9bb4c73aa8e9aee834bf1e0.json",
+    "accountEpoch": 3,
+    "remappedValues": 3,
+    "indexedDocuments": 19
+  },
+  "daemonImageId": "sha256:9e2124c058b88eec88688a5cd08807199508991b92d80ce945d80abb458478e1"
+}

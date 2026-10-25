@@ -84,7 +84,9 @@ public static class ExtractionSupervisor
         using var frame = UnixDescriptorTransport.Receive(socket, token.Token);
         var request = JsonSerializer.Deserialize<ExtractorRequest>(frame.Json, ExtractorProtocol.JsonOptions) ?? throw new InvalidDataException();
         if (frame.Descriptor is null || request.Operation != "extract_v2") throw new InvalidDataException();
-        var result = DocumentParser.Extract(frame.Descriptor, request.FormatHint, token.Token);
+        var calendar = request.CalendarFrom is null ? null : new SecondBrain.Extraction.Contracts.CalendarWindow(
+            request.CalendarFrom, request.CalendarTo ?? throw new InvalidDataException(), request.CalendarTimeZone ?? throw new InvalidDataException(), request.CalendarMaxOccurrences ?? 100000);
+        var result = DocumentParser.Extract(frame.Descriptor, request.FormatHint, token.Token, calendar);
         ExtractorSocketServer.SendExtraction(socket, request.Id, result, token.Token);
     }
 }

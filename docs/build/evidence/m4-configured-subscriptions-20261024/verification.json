@@ -1,0 +1,223 @@
+{
+  "date": "2026-10-24",
+  "scope": "Configured calendar subscription references, atomic startup reconciliation, identity persistence and immutable-link reload validation; not full M4 acceptance or deployment",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2127,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "counts": {
+          "total": "162",
+          "executed": "162",
+          "passed": "162",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_16.trx",
+        "sha256": "f8ba09523203a59fa6b37d8e722a1e4359d5381677dccb97bd6e33a1db014800"
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "counts": {
+          "total": "171",
+          "executed": "171",
+          "passed": "171",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_17.trx",
+        "sha256": "3dbce0da92e172e610948af5e242a0109e269ce39eef6415b4d4ae9ca370133b"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "counts": {
+          "total": "73",
+          "executed": "73",
+          "passed": "73",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_17[1].trx",
+        "sha256": "1a3cf7e9bc92973f5edb942bae76f68b606e5941085820506297c32042a0d3a5"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "counts": {
+          "total": "809",
+          "executed": "809",
+          "passed": "809",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_17[2].trx",
+        "sha256": "d4a59cd4a815131107158aba0e59fc31124ece10968094b382fc88841b0ee0ea"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "counts": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_19.trx",
+        "sha256": "4802fdced37f6337b90cbe5b48f22eb7b90396d010ec9a5ee46a4062b6581d74"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "counts": {
+          "total": "174",
+          "executed": "174",
+          "passed": "174",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_19[1].trx",
+        "sha256": "b63db69f0cc8e458c3678194b4dc89ff730ded5a57886e7c4e069ce36f25ad30"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "counts": {
+          "total": "361",
+          "executed": "361",
+          "passed": "361",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_19[2].trx",
+        "sha256": "3dd5980d57942953ab5fcda783e9e237fc0c446020028d1026accd6c95946fc7"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "counts": {
+          "total": "314",
+          "executed": "314",
+          "passed": "314",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_19_52_20.trx",
+        "sha256": "d0e0ec4f6017a673fafb0d325c0e277cda6d83e1b1e10470fd70df2c148e2fe2"
+      }
+    ]
+  },
+  "validated": [
+    "Configuration snapshots and diagnostics omit resolved bearer links; URL values must be standalone secret references.",
+    "Secret files and environment references resolve through the existing resolver; malformed links, unapproved origins, duplicate ids and YAML alias leakage are rejected.",
+    "Restart preserves source/container identity, protected link and outstanding lease.",
+    "All registration changes roll back on an id conflict or queue-capacity failure.",
+    "Pause from omitted configuration fences in-flight downloads and preserves API-created sources.",
+    "Accepted pending publication is recovered before a configured pause, at both crash points.",
+    "UI/CLI edits retain configured ownership; declared settings apply on restart; explicit source-removal tombstones are not recreated.",
+    "A changed resolved URL is rejected at reload and initialization before source changes."
+  ],
+  "reviewedContractChanges": [
+    "Three YAML alias additions for configured calendar entries.",
+    "ConfiguredCalendarSubscriptions service registration."
+  ],
+  "qualificationNotes": [
+    "Initial full regression had only the expected YAML/composition golden mismatches. Reviewed and updated those files, then reran all eight projects successfully.",
+    "Configuration-only changes use the existing source UI and transport. No browser or external-feed rerun was required in this checkpoint.",
+    "No production service, credentials or configuration were changed."
+  ],
+  "remaining": [
+    "Systemd and Compose source-egress provisioning and hardened deployment",
+    "Source purge, retained snapshot lineage and detached snapshot cleanup",
+    "Full encrypted backup/restore/export, retention and supply-chain operations",
+    "Remaining enrichment/providers/usage/budgets and live model qualification"
+  ]
+}

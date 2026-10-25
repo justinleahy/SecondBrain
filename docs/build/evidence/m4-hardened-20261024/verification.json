@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-24",
+  "scope": "Isolated hardened Compose imports and mounted-source encrypted backup/restore",
+  "productionChanged": false,
+  "applicationSchemaVersion": 8,
+  "runtime": "10.0.13",
+  "containerAudit": "container-audit.json",
+  "mountedBackup": "mounted-backup.json",
+  "meetings": "meetings.json",
+  "browser": "browser.json",
+  "limitations": [
+    "The user waived the pricing-specific real-export example on 2026-10-24. The synthetic transcript does not establish separate real-export semantic review.",
+    "This fixture does not establish production/off-server backup-key custody, large-corpus bounds, systemd M4 qualification or release acceptance."
+  ],
+  "fullCiEquivalentRun": {
+    "status": "passed",
+    "exitCode": 0,
+    "project": "secondbrain-m4-ci-qualification",
+    "fixtureRemoved": true,
+    "logSha256": "9883cff9ba4b3249465eb265a8fd880f27bf3356186b6da3d70f6b0cb5fe3988",
+    "mountedBackup": "ci-m4-mounted-backup.json",
+    "meetings": "ci-m4-meetings.json"
+  },
+  "fixtureProject": "secondbrain-m4-qualification",
+  "fixtureRetainedForAdditionalChecks": false,
+  "calendarHttps": "calendar-https.json",
+  "calendarHarnessLogSha256": "62adb0ce94c35af3f2b26e874c25e12502db1690ab110ce228ace5c0e305041b",
+  "fixtureRemoved": true,
+  "fixtureTrustAndFirewallRestoredBeforeRemoval": true
+}

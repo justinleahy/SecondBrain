@@ -1,0 +1,187 @@
+{
+  "date": "2026-10-24",
+  "scope": "Bounded backup rotation and portable plaintext export through administrator API, CLI and settings; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2325,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_22.trx",
+        "sha256": "308c12721ada32b99e77dec41d6deb27222ee7a7f8f7be5186ba49e333c9988c"
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_20.trx",
+        "sha256": "12c412a5dfd36b85d93f1e97e4ac4bb425632975b8236b6bc08228b286f7dbdc"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 221,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_23.trx",
+        "sha256": "34ffcebe4e719583cb4cb1a2ba6b6093c7d31f47e0c8f96a20e6ef441d112c04"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_21[1].trx",
+        "sha256": "0f23a33df0964bb72602de5743332d0fce71e7f42169706e9bf6ed6f1f5aec91"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 170,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_20[1].trx",
+        "sha256": "18f3b0836511e7759ab41a14038f21e698d74a458d4263ea0c8bb1ead60cfe90"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_21.trx",
+        "sha256": "25151bbeac9e790831ce23b5949e4ffae13742d187baf6099be5f4246e447f31"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 383,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_22[1].trx",
+        "sha256": "614c43c27bae5b468718ebc23c5fba48d96f6e1b9aff0d1d30365558c705c9c6"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 435,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_08_21[2].trx",
+        "sha256": "d1f44b9398669a275adc6782cc35ad0c8e116a49585a128f7b169c89736a98af"
+      }
+    ]
+  },
+  "focusedChecks": {
+    "backupRetention": 4,
+    "exportApi": 6,
+    "exportCli": 3,
+    "existingSnapshotPackageAndRestoreChecks": 46
+  },
+  "checks": [
+    "Rotation runs after creation, hourly and through manual retention. It keeps the configured newest archives plus the latest complete archive and temporarily protects a newly created archive. Deletion is bounded to 64 per pass.",
+    "Quarantined removals recover before policy evaluation; unknown files, symbolic links, hard-linked files and wrong format headers are not candidates. Deferred cleanup is reported.",
+    "Backup retention can be edited with bounded numeric controls; changing the count preserves key and source settings.",
+    "Exports use one pinned state/file snapshot, 51 explicitly reviewed JSON Lines tables, original file bodies and a SHA-256 manifest. A changed or new schema requires an explicit export-policy update.",
+    "Authentication tables, key material, protected calendar links, HTTP validators, provider endpoints and raw state.db are excluded. Partial file sets produce an explicitly partial archive and CLI exit 4.",
+    "Export files use numeric directories and escaped names; original locations remain in the manifest. Backslashes, reserved names, trailing dots, case differences and long names cannot create unsafe or colliding archive paths.",
+    "Backup/export reads reject links in every root ancestor, closing a parent-directory redirection gap. Descriptor-based reads still reject linked file entries.",
+    "CLI streaming requires recent-password confirmation, validates length, preserves existing destinations, uses private output files and closes its temporary session. Server temporary export files are removed when the response stream closes.",
+    "Expected OpenAPI additions were reviewed: two export operations, two retention schemas and additive retention/settings properties. The composition addition is one shared export port."
+  ],
+  "browser": {
+    "viewports": [
+      1280,
+      390
+    ],
+    "retentionEditPassed": true,
+    "oneCompleteArchiveRetained": true,
+    "nativeExportDownloadPassed": true,
+    "qualification": {
+      "downloadedArchives": 2,
+      "downloadedExports": 2,
+      "authenticatedAndManifestVerified": true,
+      "trashIncluded": true,
+      "rotationKeptOne": true,
+      "liveDataUnchanged": true
+    },
+    "independentExportVerification": [
+      {
+        "file": "export-1280.tar",
+        "tarEntries": 54,
+        "manifestRows": 53,
+        "allHashesMatched": true,
+        "noUnsafePaths": true,
+        "authenticationRecordsExcluded": true
+      },
+      {
+        "file": "export-390.tar",
+        "tarEntries": 54,
+        "manifestRows": 53,
+        "allHashesMatched": true,
+        "noUnsafePaths": true,
+        "authenticationRecordsExcluded": true
+      }
+    ],
+    "consoleWarnings": 0,
+    "consoleErrors": 0,
+    "noHorizontalOverflow": true,
+    "screenshotsReviewed": [
+      "backups-1280.png",
+      "backups-390.png",
+      "export-1280.png",
+      "export-390.png"
+    ],
+    "fixtureExitedSuccessfully": true,
+    "syntheticDataOnly": true
+  },
+  "sourceHashes": {
+    "src/SecondBrain.Core/Operations/BackupOperations.cs": "3a09e473ac322597edeb6ce7e2179185a0646b5eb73643f4d9fa060b20cea524",
+    "src/SecondBrain.Core/Operations/ExportOperations.cs": "07e3dbe9cef35c8ed1eeb6a3205d3875d50537bb9581fbe1bb9a36104d481966",
+    "src/SecondBrain.Core/Ingestion/DocumentRetention.cs": "c43238d961ac29c1f763ac57dc6d955e3b63bf7375234753ec64c722cd46f88d",
+    "src/SecondBrain.Core/Authorization/EndpointPolicy.cs": "7afb365e697be122aaffa0d1f5742177dc7f31d89434d219d95fe88dcf2d684f",
+    "src/SecondBrain.Storage/Backup/BackupOperations.cs": "44cf623b3155f0a3d0ef55e4a3c4e28f64813adbf2a66ef162e074c3f2d511a7",
+    "src/SecondBrain.Storage/Backup/BackupRotation.cs": "0dddbca9734bebf8491bb2371dc5c14fe275fb5bc8c989f3ebbc26533a610660",
+    "src/SecondBrain.Storage/Backup/ExportOperations.cs": "d39f0245405c23d843f601e3f304a6ac452e2d82e7bd18cca35eef76db40d946",
+    "src/SecondBrain.Storage/Backup/ExportTable.cs": "26bce10df7f2333d266c8a63d550e39cbc5057a57730bd493bd14d7b8dc4d26b",
+    "src/SecondBrain.Storage/Backup/PortableExport.cs": "17cb2607ada05ee0ded7722f89cce41c669ac926831a909d7cd852a95a4c163c",
+    "src/SecondBrain.Storage/Backup/BackupFilePins.cs": "50c0e8f9acba1de6b284b28484bb7f02a3c3ecd10ca03ae4a4b100e7eccb7f4d",
+    "src/SecondBrain.Storage/Durability/ManagedMutationFiles.cs": "0c5a174c1e4aa62be7a8b6be4a460bd7c5eb5143f898016bcb55b5d6a0c44501",
+    "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs": "050accfdd5fbca20bf41657d96791fdbdced1a92707c3f7961b1ec95a06182ee",
+    "src/SecondBrain.Server/Http/BackupEndpoints.cs": "b4cb9bcce23ada83a7ac51fc7967ba08fec7182a1c7afeab8a2c5f3dd582ad85",
+    "src/SecondBrain.Server/Http/AdministrationEndpoints.cs": "5a9ca8570e3541a686ce7452a443609ec1dd6bdd05ee0d0a7cc52ade47459e94",
+    "src/SecondBrain.Server/Http/SettingsEndpoints.cs": "c922b618789f31878a7bdd6ab317f55d936eeb760c75f417359595323db765f4",
+    "src/SecondBrain.Server/Ingestion/MetadataRetentionOrchestrator.cs": "f19a607ed4d5bf048d72a68423267c9ab6b4398cfd1a175054283009ebb21d05",
+    "src/SecondBrain.Server/Components/Pages/Settings.razor": "dd88616d55e00ce68cfd802b757e8ea1e664882d66bf31867ec25b7e744e64bb",
+    "src/SecondBrain.Cli/Commands/ExportCommands.cs": "1b4193c925a3a8cc527174938c2bdb6874acaea96700e16fdd3a438085f99863",
+    "src/SecondBrain.Cli/Commands/HttpDaemonCommands.cs": "9b6653a0bb8b56d9a387c13b8b4e739f801ce48bde9f4b15e4dfe405384373f0",
+    "src/SecondBrain.Cli/Commands/CliContracts.cs": "a588415667cb9175430610cb99bbc1e8b24f9a235bf28106316f6767ebde44ab",
+    "src/SecondBrain.Cli/Program.cs": "cc239ed25881dd3f2bde864d3f381d9667952ca1f4f6211f368c2d2dc95434cf",
+    "tests/SecondBrain.Server.Tests/BackupRetentionTests.cs": "a87a52c7a6006d29178a89070c583d59ce822817f17dc54bbda400dc8b03ba4e",
+    "tests/SecondBrain.Server.Tests/ExportApiTests.cs": "ff607d454128a54f5cb974f8e815a8623ab002cbad10a660e8bd766f865617c2",
+    "tests/SecondBrain.Deploy.Tests/CliExportTests.cs": "9e5b0d2928588402b2f86242e220d2a450ee79533c875b4be1e5253a1d0004fa",
+    "tests/SecondBrain.Server.Tests/M4ExportRetentionQualification.cs": "b52c5eefa82701155d2dc4aafdbcc9604790aa53f7142e6a19cfd6f23f56088b",
+    "tests/browser/m4-export-retention.js": "bf3b107d27fd1a90b86defd0553aa966cace0a9a4e65da4995625a1fb46244b9",
+    "tests/SecondBrain.Server.Tests/Golden/openapi.json": "9d1359d222a7e5b3b3c6c6540cbb84fca62ed8238b4d927811e99b3d443d55c2",
+    "tests/SecondBrain.Server.Tests/Golden/composition.txt": "9fe42bc0c307023c15fe0d76e8d71df2cb0311249564d3be1ebff3f976e235c2"
+  },
+  "references": [
+    "https://github.com/dotnet/docs/blob/main/docs/standard/io/zip-tar-best-practices.md"
+  ],
+  "notes": [
+    "Initial validation corrected a component namespace import and test fixtures for valid retention timestamps and empty TAR entries.",
+    "A real export bug treated internally copied files as incomplete; file inclusion and manifest tests caught it, and the internal status mapping was corrected.",
+    "The final review added no-follow traversal for backup root ancestors and portable archive paths before the final regression and repeated browser qualification.",
+    "No package dependency changed. No production data, configuration, credentials, calendar subscriptions or service deployment changed."
+  ],
+  "limitations": [
+    "Backup-key provisioning, interrupted-workspace cleanup, debug-log cleanup and pre-migration encrypted snapshots remain open.",
+    "The portable export is plaintext and intentionally excludes authentication state; it is not accepted by the encrypted restore command.",
+    "Root paths must be canonical directories without symbolic-link ancestors.",
+    "Full daemon backup/restore under sustained edits, external mount-point qualification, large-corpus resource checks and hardened deployment remain required.",
+    "The remaining enrichment/provider and release acceptance gates in the M4 plan remain open."
+  ]
+}

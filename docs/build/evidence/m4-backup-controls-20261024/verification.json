@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-24",
+  "scope": "Administrator encrypted backup creation, key readiness, listing and authenticated download through daemon API, CLI and settings; restore installation remains open",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2294,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_42.trx",
+        "sha256": "5ce59ea484d5d08940215050ef0e5bd7f1633982920ba37bf50ecea3a9dda51a"
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_36.trx",
+        "sha256": "2a49aeb672ae844f7c5f0afe0e4f3e2f6f130c3353aa4fab3ac4ac08e7adfa24"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 213,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_42[1].trx",
+        "sha256": "132e69625edb9483830ab98499ea4ac36a01f113b6b4380d07dd25d2dc9a8dfd"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_37[1].trx",
+        "sha256": "ddf4dd62fabcbc1d18b29644801a5f41420a7c3a09387a7d8944f17702b4c480"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 169,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_36[1].trx",
+        "sha256": "5bd0a5d8315de302484ef9eb980ca85ef99d999f06c9821a96082a5c25809aa9"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_37.trx",
+        "sha256": "4bd6ac53f37a41a9bc0c8acb48fa32d24fecf3439c802bf10d2377bd2dd262c1"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 373,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_42[2].trx",
+        "sha256": "fc6bd6082c39d36f53194bbf0d62d26080995bc0301d6506c401ba96379a686e"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 423,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_50_37[2].trx",
+        "sha256": "5bafe2b5552fcaff7a54abab0b9c7d24cfc51a05b03853e120d52e8cc945af25"
+      }
+    ]
+  },
+  "focusedChecks": {
+    "api": 6,
+    "cli": 3,
+    "keyAndConfiguration": 6,
+    "package": 21
+  },
+  "checks": [
+    "Private external raw 32-byte keys and explicit base64 environment keys; invalid lengths, public modes and symbolic links rejected; disposed key buffers cleared.",
+    "Administrator scope and recent password confirmation enforced for creation/download; missing keys do not prevent ordinary startup; authority revalidated after key access and before archive publication.",
+    "Index-mode registered source folders included automatically, with extra allowed roots; embedding descriptors and source requirements read from captured state.",
+    "Free-space admission and one active backup per state store; complete and partial archive names distinguish unavailable files.",
+    "Created archive can be listed, downloaded, authenticated and manifest-verified; API responses forbid caching and path traversal is rejected.",
+    "CLI uses an ephemeral stepped-up session, streams to a private temporary file, checks announced length, refuses overwrite and removes incomplete downloads.",
+    "Expected configuration, composition and OpenAPI contract additions reviewed and accepted; existing API operations preserved."
+  ],
+  "browser": {
+    "viewports": [
+      1280,
+      390
+    ],
+    "passed": true,
+    "configuredTimeZone": "UTC",
+    "createdAndDownloaded": 2,
+    "verification": {
+      "downloadedArchives": 2,
+      "authenticatedAndManifestVerified": true,
+      "trashIncluded": true,
+      "liveDataUnchanged": true
+    },
+    "noHorizontalOverflow": true,
+    "consoleWarnings": 0,
+    "consoleErrors": 0,
+    "screenshotsReviewed": [
+      "settings-1280.png",
+      "settings-390.png"
+    ],
+    "fixtureExitedSuccessfully": true,
+    "syntheticDataOnly": true
+  },
+  "sourceHashes": {
+    "src/SecondBrain.Core/Configuration/BackupOptions.cs": "14fcab579724bd1b2b82f15c73031d24fc6611ffdc565312ac4da3ca33c950b6",
+    "src/SecondBrain.Core/Configuration/ConfigurationValidator.cs": "f1aabdc7a2aa3d9c820b76640999746ba9e07863699a1412457ff731a7a5ca1f",
+    "src/SecondBrain.Core/Configuration/SecondBrainOptions.cs": "524b35c376e387d1273e3c88ebc2e5f55fbecb2a383a2e7d979b7e376c9fb0ce",
+    "src/SecondBrain.Core/Operations/BackupOperations.cs": "76863fd3b63f6a26546c02b343861c44cb7cf8d60de5714dcdcc84b2a27d94ca",
+    "src/SecondBrain.Infrastructure/Security/FileBackupKeyProvider.cs": "a090e1f61c0d0ef1795121055049887d80e97d01635ff322d6bfc6ec602de46b",
+    "src/SecondBrain.Infrastructure/Configuration/YamlConfigurationLoader.cs": "814fe550219985159b56d690df78dfcdd7cbc4dae1e1b013e1da4ca18131c283",
+    "src/SecondBrain.Infrastructure/Configuration/ReloadingConfiguration.cs": "24155602f36f2cf05291879b37c540abb7ae8441985243e835da02002c7c1ca5",
+    "src/SecondBrain.Storage/Backup/BackupOperations.cs": "067b7d849bb6dbcd811a79b746b8a2050d0003be3d22f7079dbe6d5882199d78",
+    "src/SecondBrain.Storage/Backup/BackupFilePins.cs": "cfc6931a700c518b032bed662ce97bfa24ca03fa356ab7db72970e2cfa7ee9b6",
+    "src/SecondBrain.Storage/Backup/BackupPackage.cs": "47fdf319b73cfb81ff424b446197b2db566e7c1849c001e0a5b5a19e72839a6e",
+    "src/SecondBrain.Storage/Backup/BackupPackage.Atomic.cs": "a4d09163672601c84fb24a8a9f558bb1869d765f319d2aa69a6a7b8267d47378",
+    "src/SecondBrain.Storage/Backup/BackupPackage.Restore.cs": "6fb86876e15155048a1dc04e92a2b705577e4d17f3ebda1b4a983bd25dcfa66b",
+    "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs": "f5dbc59363245216c74d807df7652e7bba5044eb27a10535450aaad155e3699c",
+    "src/SecondBrain.Server/Http/BackupEndpoints.cs": "fb8c7199d904528b0c6476e8592d986814237ac82cf58f12913554e52b0e1620",
+    "src/SecondBrain.Server/Http/HttpServices.cs": "69ccc7578a8ff79907d8754664c632190c0db0f76c61485131e54dd31b9b2984",
+    "src/SecondBrain.Server/Http/AdministrationEndpoints.cs": "8d4e9a1858eca1edf3404a2609020b624ac2e1de2aa6f83bcaf1702617b12cef",
+    "src/SecondBrain.Server/Components/Pages/Settings.razor": "776737ef61645f146f038dc59d62d32517c1ae5e34c3dafcbc7f1584f1fa836a",
+    "src/SecondBrain.Cli/Commands/BackupCommands.cs": "cfcbc3a3ac9a50be823668704e9edae5d6cba6dc0d360843520d2f39a6a82684",
+    "src/SecondBrain.Cli/Program.cs": "51ded6b6ab4f5f851d140e4a891832e3a1d794bf9c62f6356ce72d8c50e88361",
+    "tests/SecondBrain.Server.Tests/BackupApiTests.cs": "c999f23914e6fc9903d3646590ae6fc527de419657902a4aed3f71877b03ad98",
+    "tests/SecondBrain.Infrastructure.Tests/Security/BackupKeyTests.cs": "a92a6945297e10f3d84dec01d08c73fae7a7d2eda15f648ce3a4828269e8f25f",
+    "tests/SecondBrain.Deploy.Tests/CliBackupTests.cs": "ec91a68d5244af0a4fbde01c04a410a92a3af2e792341686ae3f20aa9c258351",
+    "tests/SecondBrain.Server.Tests/M4BackupQualification.cs": "bea0b8e79be194cbbb7140d68f36c5fc54e6bfdb37f8dd2a08ab97f16243bad1",
+    "tests/browser/m4-backup-controls.js": "6e229f5dc4a85f691747bac6cf1ea08c6be87758d024db6e345f02c3d6af2be9"
+  },
+  "notes": [
+    "Initial expected snapshot changes were reviewed before refreshing YAML aliases, service composition and OpenAPI goldens.",
+    "A revocation check initially returned a generic 503 because AuthorityChangedException inherits InvalidOperationException; the explicit 403 branch and post-key-read reauthorization passed final API and full-suite tests.",
+    "The first full test run also passed 2294 tests, but its fixed TRX name overwrote earlier project result files. The final run retained independent project files and hashes.",
+    "An initial time-zone-specific browser rerun observed the default local zone. The final fixture asserts UTC before readiness and uses a fresh port; both final workflows and archive verifications pass.",
+    "After the final full regression, only the isolated browser fixture and browser assertions changed. Production code is unchanged from that regression.",
+    "No production service, data, key material, backup or calendar subscription was modified."
+  ],
+  "limitations": [
+    "Restore verifies in isolated staging only; installation, path remapping, account-epoch increment and index rebuild remain open.",
+    "Automatic key provisioning, rotation, export, abandoned-workspace recovery and pre-migration integration remain open; backup.keep is not yet enforced.",
+    "Archive listing is capped at 128 newest matching archives.",
+    "Full daemon backup/restore under sustained edits, large-corpus resource qualification and hardened deployment remain required.",
+    "Restore staging currently requires space for both the authenticated plaintext package and extracted files."
+  ]
+}

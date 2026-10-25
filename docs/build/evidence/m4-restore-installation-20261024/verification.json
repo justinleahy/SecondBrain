@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-24",
+  "scope": "Offline verified restore installation, state/path transformation, credential invalidation, index rebuild, interrupted-install rollback and startup fencing; hardened deployment acceptance remains open",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2312,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_45.trx",
+        "sha256": "13a2bc7ad41c7d5232e8bf70836a673705531b5ea0b3e0b6aa327ee93e1478d9"
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_42.trx",
+        "sha256": "a6523275c027af4c291563517c85ed23fdb52a6f82d76f9f735602eeb30fd47d"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 218,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_46.trx",
+        "sha256": "7c93822b96df0e40233570b18dfbd75727c52fe009e7b9d1f90faa14f818d620"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_42[2].trx",
+        "sha256": "50925848e974653b701261d719b72d804022f2f98db8a5c6034cec5d1ccde193"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 170,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_41.trx",
+        "sha256": "753517aed49d86920e7e9fdc17e5f6b2ee483e6ca7725bc2019f80b987325daa"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_42[1].trx",
+        "sha256": "eaac4a19c250f45ac2bee589adae8d12daac04984239314a1c58b12ee6d437a9"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 373,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_43.trx",
+        "sha256": "a9bb1503ea4c87243c5750733a9e4e578036e8b667d7e527538a5c2f137a7a44"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 435,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_58_45[1].trx",
+        "sha256": "cf5f89da2f686cf4e067f1cea179d7c208048d0c181d3b8a40213d590e417ad7"
+      }
+    ]
+  },
+  "focusedChecks": {
+    "storageInstallationAndRecovery": 12,
+    "cliRestore": 5,
+    "startupFence": 1
+  },
+  "checks": [
+    "Install requires a retained exclusive root lease; the real lock still excludes another process at every injected installation boundary.",
+    "All archive entries authenticate and verify before replacement; the installer rechecks copied file hashes. Partial archives, changed verified files, unknown/overlapping/unapproved roots and linked destination ancestors fail without replacing the instance.",
+    "Disk admission precedes both verification and preparation. The state, vault, trash, key ring, external roots and disposable index are coordinated by a durable private installation record.",
+    "Old directories are retained; injected failures after old-directory moves, new-directory moves and index rebuild can roll back every root, including an external source. A rollback interrupted after displacing a restored directory can resume.",
+    "Normal startup refuses a pending restore while explicit recovery can take the same exclusive lock. Recovery completion is idempotent if interrupted before removal of the pending marker.",
+    "Restored paths are mapped in source settings, occurrences/absences, journal destinations, calendar snapshot paths, job metadata and internal projection/journal payloads; document bodies and file bytes are unchanged.",
+    "The new account epoch exceeds both source and destination epochs; old credentials are revoked, pending approvals expire and unfinished jobs are cancelled with an explicit retry reason.",
+    "The real CLI restores the captured document revision after 16 committed edits, rebuilds its searchable projection, restores a configured external source folder, and opens a protected calendar link with the restored Data Protection key ring. A previously recorded HMAC signature verifies under the restored ring.",
+    "CLI checks reject a running daemon, a wrong encryption key, invalid options, and replacement of the configured incoming root. Configured secrets and provider configuration are not overwritten."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Core/Operations/RestoreOperations.cs": "8a10ef301a59291ef2f3958a50dedfcedb73dadf7300e53c28cc136f8ab0d115",
+    "src/SecondBrain.Infrastructure/Security/DataRootLock.cs": "2e58362e0c2653ec48a8945c82524e421df24050e77ba7b9f25462ad5cc956ee",
+    "src/SecondBrain.Storage/Backup/BackupInstaller.cs": "e1ab6a12f11efc2325f09a371d7c540c0b159b196d60e7de83d4749f4f242299",
+    "src/SecondBrain.Storage/Backup/RestorePreparation.cs": "b8cbd0a662e1f6b4556358ef4bbd66e181b96d8a9976044971e8084124239d5b",
+    "src/SecondBrain.Cli/Commands/RestoreCommands.cs": "398b109564bc0e90949e8f4a30d25135d24e707c51146cfcf5670f7d13fbc7b2",
+    "src/SecondBrain.Cli/CliServices.cs": "7bb02f8bfa0428c12f97c3173512333ec5af04eb1177ea101dd3e1bf6e1bab60",
+    "src/SecondBrain.Cli/Program.cs": "49d204e36b2b9c054a4d3661c83c7d6c49dfe256ed8d4a02e14da5ef9be19bf5",
+    "tests/SecondBrain.Storage.Tests/BackupInstallerTests.cs": "08eb551c5f7666c7530160600987ecb5b0040c8d5dd660ced0920b77c18355ee",
+    "tests/SecondBrain.Deploy.Tests/CliRestoreTests.cs": "b9e58d8d3e06d220f9301540d3bc90f5a106cc562a827e3afcec44a6e2d3cd06",
+    "tests/SecondBrain.Infrastructure.Tests/Security/KeyRingAndRootTests.cs": "6d80d00a6f6c40cc804567a2818aad92d2a3c4a7b7ccf09b7665f7159784ebe5"
+  },
+  "notes": [
+    "Initial test compilation needed namespace imports. Initial parameter casing in SQL tests and transformation updates was corrected; the final suite passes.",
+    "The initial concurrent-edit CLI fixture used an API-key actor, which correctly generated proposals instead of direct writes. It now uses an authorized session and asserts all 16 edits committed before checking that restore returns the captured revision.",
+    "The final run includes destination protection, pre-verification disk admission, actual lock retention and interrupted recovery completion checks.",
+    "No browser surface changed in this checkpoint. No production service, key, configuration, data root or external source was modified."
+  ],
+  "limitations": [
+    "This is offline CLI qualification. Full live-daemon backup/restore under sustained edits, hardened systemd/Compose deployment and large-corpus resource qualification remain open.",
+    "Directory installation requires renameable destinations and writable parents; restoring directly onto external mount points still needs deployment-specific qualification or host-side path mapping.",
+    "Previous and prepared recovery folders are retained for operator review; automated cleanup, backup rotation, export and pre-migration integration remain open.",
+    "Only complete packages with a recoverable key ring are accepted by the CLI. No partial restore mode is provided.",
+    "Pending work is cancelled; operators must review and retry unfinished processing after restore."
+  ]
+}

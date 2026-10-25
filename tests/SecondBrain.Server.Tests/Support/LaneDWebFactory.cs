@@ -27,7 +27,8 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
 {
     public LaneDWebFactory(
         Action<SecondBrainOptions>? configureOptions = null,
-        Action<IServiceCollection>? configureServices = null)
+        Action<IServiceCollection>? configureServices = null,
+        Func<string, string?>? configurationEnvironment = null)
     {
         try
         {
@@ -42,6 +43,8 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
                 NullLogger<ExtractorSocketServer>.Instance).RunAsync(ExtractorCancellation.Token);
             var options = new SecondBrainOptions
             {
+                Classification = new() { Llm = false },
+                Enrichment = new() { Enabled = false },
                 DataRoot = System.IO.Path.Combine(Store.DirectoryPath, "data"),
                 Server = new ServerOptions
                 {
@@ -76,7 +79,8 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
             ConfigPath = Path.Combine(Store.DirectoryPath, "config.yaml");
             File.WriteAllText(ConfigPath, new SerializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance)
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull).Build().Serialize(options));
-            Configuration = new ReloadingConfiguration(ConfigPath, new YamlConfigurationLoader(environment: _ => null), watch: false);
+            ConfigurationLoader = new YamlConfigurationLoader(environment: configurationEnvironment ?? (_ => null));
+            Configuration = new ReloadingConfiguration(ConfigPath, ConfigurationLoader, watch: false);
             Options = new MutableOptionsMonitor<SecondBrainOptions>(Configuration.CurrentValue);
             Configuration.Changed += Options.Update;
             ConfigureServices = configureServices;
@@ -92,6 +96,7 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
 
     public Microsoft.AspNetCore.Builder.WebApplication MockProvider { get; }
     public string ConfigPath { get; }
+    private YamlConfigurationLoader ConfigurationLoader { get; }
     public ReloadingConfiguration Configuration { get; }
     public string ExtractorSocket { get; }
     private string SocketDirectory { get; }
@@ -135,6 +140,8 @@ public sealed class LaneDWebFactory : WebApplicationFactory<global::Program>
         {
             services.RemoveAll<ReloadingConfiguration>();
             services.AddSingleton(Configuration);
+            services.RemoveAll<ISecretResolver>();
+            services.AddSingleton(ConfigurationLoader.Secrets);
             services.RemoveAll<DataRootLock>();
             services.AddSingleton(_ => DataRootLock.Acquire(Options.CurrentValue.DataRoot));
             services.RemoveAll<IKeyRing>();

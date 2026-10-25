@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using SecondBrain.Core.Auth
 @using SecondBrain.Core.Chat
+@using SecondBrain.Core.Ingestion
 @using SecondBrain.Server.Auth
 @using SecondBrain.Server.Chat
 @implements IAsyncDisposable
@@ -31,6 +32,12 @@ else
             <a class="brand" href="/">◈ <span>SecondBrain</span></a>
             <button class="new-chat new-conversation" disabled="@deleting" @onclick="NewConversation">＋ New conversation</button>
             <button class="new-chat" @onclick="ShowApprovalsAsync">Approvals @if (proposals.Count(item => item.Status is "pending" or "executing") is var count && count > 0) { <span>(@count)</span> }</button>
+            <a class="new-chat" href="/library">Library and search</a>
+            <a class="new-chat" href="/activity">Timeline</a>
+            <a class="new-chat" href="/capture">Capture a note</a>
+            <a class="new-chat" href="/manage/sources">Sources and jobs</a>
+            <a class="new-chat" href="/manage/trash">Trash</a>
+            <a class="new-chat" href="/settings">Settings</a>
             <h2>Conversations</h2>
             <nav aria-label="Conversations">
                 @foreach (var conversation in conversations)
@@ -91,7 +98,18 @@ else
                                 <div class="sources"><h3>Sources</h3>
                                     @foreach (var citation in displayedAnswer.Citations)
                                     {
-                                        <details id="@ChatTextRenderer.CitationTargetId(turn.Id, citation.Source.Number)" data-citation-source><summary><span class="source-number">[@citation.Source.Number]</span> @citation.Source.Title <small>revision @citation.Source.Revision · @citation.State</small></summary><blockquote>@citation.Source.Excerpt</blockquote><small>Document @citation.Source.DocumentId · passage @(citation.Source.Ordinal + 1) @if (citation.Source.Page is not null) { <span>· page @citation.Source.Page</span> }</small>
+                                        <details id="@ChatTextRenderer.CitationTargetId(turn.Id, citation.Source.Number)" data-citation-source><summary><span class="source-number">[@citation.Source.Number]</span> @citation.Source.Title <small>revision @citation.Source.Revision · @citation.State</small></summary>
+                                            @if(citation.Spans is {Count:>0} exact)
+                                            {
+                                                <small>Exact quoted text</small>
+                                                @foreach(var span in exact) { <blockquote>@span.Excerpt</blockquote> }
+                                            }
+                                            else { <blockquote>@citation.Source.Excerpt</blockquote> }
+                                            <small>Document @citation.Source.DocumentId · passage @(citation.Source.Ordinal + 1) @if (citation.Source.Page is not null) { <span>· page @citation.Source.Page</span> }</small>
+                                            @if (citation.Source.Transcript is { } locator)
+                                            {
+                                                <p><a href="@("/library/" + Uri.EscapeDataString(citation.Source.DocumentId) + "?chunk=" + Uri.EscapeDataString(citation.Source.ChunkId) + "&revision=" + citation.Source.Revision + "#segment-" + locator.From)">@(locator.Speaker ?? "Unknown speaker") · @TranscriptTextProcessor.Timestamp(locator.StartMs)–@TranscriptTextProcessor.Timestamp(locator.EndMs)</a></p>
+                                            }
                                             <SourceNote @key="citation.Source.DocumentId" DocumentId="@citation.Source.DocumentId" CitedRevision="@citation.Source.Revision" Actor="actor" />
                                         </details>
                                     }
@@ -294,6 +312,7 @@ else
         "history_compacted" => "Earlier conversation was condensed into excerpts; some details may be omitted.",
         "invalid_citations_removed" => "Unsupported source references were removed from this answer.",
         "metadata_truncated" => "Only part of the matching records was examined.",
+        "calendar_subscription_stale" => "Some shared calendars are paused, out of date, or have not refreshed successfully. Their events may be incomplete or outdated.",
         _ => "Retrieval notice: " + code.Replace('_', ' ').Replace('-', ' ')
     };
     private async Task ReloadProposalsAsync() => proposals = await Approvals.ListAsync(null, actor!, lifetime.Token);

@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "threshold": "low",
+  "images": [
+    {
+      "image": "secondbrain:m4",
+      "imageId": "sha256:9a6594ecf53243cbe8bdb8cfc8c81d352a00181f85e2289c50277c71af33ca43",
+      "exitCode": 0,
+      "uniquePackageAdvisoryPairs": 0,
+      "severity": {}
+    },
+    {
+      "image": "secondbrain-extractor:m4",
+      "imageId": "sha256:253e8e6bc6dd5525feb3cf3bbeb7c4fb243eafead9b9f8a7a65924de748b8a25",
+      "exitCode": 0,
+      "uniquePackageAdvisoryPairs": 0,
+      "severity": {}
+    },
+    {
+      "image": "secondbrain-egress:m4",
+      "imageId": "sha256:cd0ccac04dd223e33bb08c2a8a0441aeb3fae7707c9ada4082da77c83f8984cc",
+      "exitCode": 0,
+      "uniquePackageAdvisoryPairs": 0,
+      "severity": {}
+    }
+  ],
+  "reportHashes": {
+    "secondbrain-egress-vulnerabilities.json": "0868cefe8cae3a9e749fa8eb2a18b121372cfd062db4223b7aaccd30772e4e68",
+    "secondbrain-egress.cdx.json": "a2cdfaa418e6db6d8cdc23b7e66332ef1f02cc46e619c8de6bac3c5b09bc3358",
+    "secondbrain-extractor-vulnerabilities.json": "8197c26f7ec31fbb2f1261c1067e4fbb2f66cfb1381c0593ca6870db1d41122d",
+    "secondbrain-extractor.cdx.json": "44e212a9d2bc838bd4b2b1b914d13f8652c08b5e332e1a2007a31fc4da215617",
+    "status.json": "977cf5793b3f2134ed7e15f4a6bcd46e01fd76b2ce2d82214777c52294055ccd",
+    "secondbrain-vulnerabilities.json": "49b92ad0bda788102a17832daaff7185e66268408dfb6d348f5fe7c3d59d2995",
+    "secondbrain.cdx.json": "0b49d77414814212c9802087ad239d2211ac12690c78fe945e96e22724f07acd"
+  }
+}

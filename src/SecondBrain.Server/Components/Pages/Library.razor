@@ -1,0 +1,162 @@
+@page "/library"
+@page "/search"
+@inherits BrowserPage
+@using SecondBrain.Core.Ingestion
+@using SecondBrain.Core.Retrieval
+@using SecondBrain.Server.Ingestion
+@inject NavigationManager Navigation
+@inject Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions> Options
+
+<PageTitle>Library · SecondBrain</PageTitle>
+<KnowledgeNav />
+<main class="knowledge-page">
+    <header class="knowledge-heading"><div><span class="knowledge-eyebrow">YOUR KNOWLEDGE</span><h1>@(IsSearch ? "Search" : "Library")</h1></div><a class="knowledge-button" href="/capture">＋ Capture a note</a></header>
+    <form @onsubmit="SearchAsync" @onsubmit:preventDefault><fieldset class="knowledge-filters" disabled="@(!Loaded || Busy)">
+        <label class="wide">Search your notes and documents<input @bind="query" placeholder="Search words or ask with semantic search" maxlength="8192" /></label>
+        <label>Mode<select @bind="mode"><option value="hybrid">Hybrid</option><option value="keyword">Keyword</option><option value="semantic">Semantic</option></select></label>
+        <label>Type<select @bind="type"><option value="">All types</option><option value="note">Notes</option><option value="article">Articles</option><option value="transcript">Transcripts</option><option value="calendar_event">Calendar events</option><option value="file">Files</option></select></label>
+        <div class="catalog-field"><CatalogTokens Label="Tags" Kind="tag" @bind-Value="tags" Placeholder="Comma-separated tags" /></div>
+        <label>Source<select @bind="source"><option value="">All sources</option>@foreach (var item in sources) { <option value="@item.Id">@item.Name</option> }</select></label>
+        @if (nextSource is not null) { <button type="button" disabled="@Busy" @onclick="MoreSourcesAsync">Load more sources</button> }
+        <div class="catalog-field"><CatalogTokens Label="People" Kind="person" @bind-Value="people" Placeholder="Comma-separated names" /></div>
+        <label>Occurred from<input type="date" @bind="occurredFrom" /></label>
+        <label>Occurred before<input type="date" @bind="occurredTo" /></label>
+        <label>Updated from<input type="date" @bind="updatedFrom" /></label>
+        <label>Updated before<input type="date" @bind="updatedTo" /></label>
+        <button type="submit" disabled="@Busy">@(string.IsNullOrWhiteSpace(query) ? "Browse" : "Search")</button>
+    </fieldset></form>
+    <p>Dates use @Options.CurrentValue.Time.Zone. “Before” excludes that date.</p>
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (facets.Count > 0)
+    {
+        <nav class="type-facets" aria-label="Type facets">
+            <span>@(string.IsNullOrWhiteSpace(query) || mode == "semantic" ? "Documents in these filters:" : "Keyword matches by type:")</span>
+            @foreach (var facet in facets) { <button aria-pressed="@(type == facet.Type ? "true" : "false")" disabled="@Busy" @onclick="() => SelectTypeAsync(facet.Type)">@facet.Type (@facet.Count)</button> }
+        </nav>
+    }
+    @if (degraded.Count > 0) { <p class="knowledge-notice" role="status">Search is running with reduced capabilities: @string.Join(", ", degraded). Keyword results remain available.</p> }
+    <section class="knowledge-results" aria-label="Results" aria-busy="@Busy">
+        @if (hits is not null)
+        {
+            <p>@hits.Count passages found@(hits.Count == 50 ? " (showing the first 50; narrow your filters for more specific results)" : "").</p>
+            @foreach (var hit in hits)
+            {
+                <article class="knowledge-card" @key="hit.ChunkId">
+                    <small>@hit.Type · revision @hit.Revision @if (hit.Page is not null) { <span>· page @hit.Page</span> }</small>
+                    <h2><a href="@DocumentUrl(hit)">@hit.Title</a></h2>
+                    @if (hit.Transcript is { } locator) { <small>@(locator.Speaker ?? "Unknown speaker") · @TranscriptTextProcessor.Timestamp(locator.StartMs)–@TranscriptTextProcessor.Timestamp(locator.EndMs)</small> }
+                    <p class="search-snippet"><HighlightedText Text="@hit.Snippet" Ranges="hit.HighlightRanges" /></p>
+                    <small>@string.Join(" · ", hit.Tags)</small>
+                </article>
+            }
+        }
+        else if (page is not null)
+        {
+            @foreach (var document in page.Records)
+            {
+                <article class="knowledge-card" @key="(document.InstanceId ?? document.Id)"><small>@document.Type · @document.Status · revision @document.Revision</small><h2><a href="@("/library/" + Uri.EscapeDataString(document.Id))">@document.Title</a></h2>@if (document.StartsAt is not null) { <p>@document.StartsAt – @document.EndsAt</p> } else { <p>Updated @document.UpdatedAt</p> }<small>@string.Join(" · ", document.Tags ?? [])</small></article>
+            }
+            <CalendarCoverageNotice Coverage="page.Coverage" />
+            @if (page.NextCursor is not null) { <button disabled="@Busy" @onclick="NextAsync">Next page</button> }
+        }
+        @if (Loaded && Error is null && (hits?.Count == 0 || hits is null && page?.Records.Count == 0)) { <p>No documents match. Try removing a filter or <a href="/capture">capture a note</a>.</p> }
+    </section>
+</main>
+
+@code {
+    [SupplyParameterFromQuery(Name = "q")] public string? InitialQuery { get; set; }
+    [SupplyParameterFromQuery(Name = "mode")] public string? InitialMode { get; set; }
+    [SupplyParameterFromQuery(Name = "type")] public string? InitialType { get; set; }
+    [SupplyParameterFromQuery(Name = "tags")] public string? InitialTags { get; set; }
+    [SupplyParameterFromQuery(Name = "source")] public string? InitialSource { get; set; }
+    [SupplyParameterFromQuery(Name = "people")] public string? InitialPeople { get; set; }
+    [SupplyParameterFromQuery(Name = "occurredFrom")] public string? InitialOccurredFrom { get; set; }
+    [SupplyParameterFromQuery(Name = "occurredTo")] public string? InitialOccurredTo { get; set; }
+    [SupplyParameterFromQuery(Name = "updatedFrom")] public string? InitialUpdatedFrom { get; set; }
+    [SupplyParameterFromQuery(Name = "updatedTo")] public string? InitialUpdatedTo { get; set; }
+    [SupplyParameterFromQuery(Name = "cursor")] public string? InitialCursor { get; set; }
+    private string query = "", mode = "hybrid", type = "", tags = "", source = "", people = "";
+    private DateTime? occurredFrom, occurredTo, updatedFrom, updatedTo;
+    private QueryPage? page;
+    private IReadOnlyList<SearchHit>? hits;
+    private IReadOnlyList<string> degraded = [];
+    private IReadOnlyList<TypeCount> facets = [];
+    private readonly List<CatalogSource> sources = [];
+    private string? nextSource;
+    private Dictionary<string, string> activeFilters = [];
+    private bool IsSearch => new Uri(Navigation.Uri).AbsolutePath == "/search";
+    protected override async Task LoadAsync()
+    {
+        query = InitialQuery ?? ""; mode = InitialMode ?? "hybrid"; type = InitialType ?? "";
+        tags = InitialTags ?? ""; source = InitialSource ?? ""; people = InitialPeople ?? "";
+        if (!TryDate(InitialOccurredFrom, out occurredFrom) || !TryDate(InitialOccurredTo, out occurredTo) ||
+            !TryDate(InitialUpdatedFrom, out updatedFrom) || !TryDate(InitialUpdatedTo, out updatedTo))
+        { Error = "Date filters must use yyyy-MM-dd."; return; }
+        activeFilters = FilterParameters();
+        var options = await Api.SendAsync<CatalogPage<CatalogSource>>("/browse/sources");
+        sources.AddRange(options.Items); nextSource = options.NextCursor;
+        if (source.Length > 0 && sources.All(item => item.Id != source)) sources.Add(new(source, source, "unknown"));
+        await FetchAsync(InitialCursor);
+    }
+    private Task SearchAsync() => RunAsync(async () =>
+    {
+        var path = FilterUrl(FilterParameters());
+        if (new Uri(Navigation.Uri).PathAndQuery == path) await FetchAsync();
+        else Navigation.NavigateTo(path);
+    });
+    private Task SelectTypeAsync(string value) { type = type == value ? "" : value; return SearchAsync(); }
+    private Task MoreSourcesAsync() => RunAsync(async () =>
+    {
+        if (nextSource is null) return;
+        var result = await Api.SendAsync<CatalogPage<CatalogSource>>("/browse/sources?cursor=" + Uri.EscapeDataString(nextSource));
+        foreach (var item in result.Items) { sources.RemoveAll(existing => existing.Id == item.Id); sources.Add(item); }
+        nextSource = result.NextCursor;
+    });
+    private Task NextAsync()
+    {
+        if (page?.NextCursor is not null) Navigation.NavigateTo(FilterUrl(activeFilters, page.NextCursor));
+        return Task.CompletedTask;
+    }
+    private static bool TryDate(string? value, out DateTime? date)
+    {
+        date = null;
+        if (string.IsNullOrEmpty(value)) return true;
+        if (!DateTime.TryParseExact(value, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsed)) return false;
+        date = parsed; return true;
+    }
+    private Dictionary<string, string> FilterParameters()
+    {
+        Dictionary<string, string> values = new() { ["q"] = query, ["mode"] = mode, ["type"] = type, ["tags"] = tags, ["source"] = source, ["people"] = people };
+        foreach (var (key, date) in new[] { ("occurredFrom", occurredFrom), ("occurredTo", occurredTo), ("updatedFrom", updatedFrom), ("updatedTo", updatedTo) })
+            if (date is not null) values[key] = date.Value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        return values.Where(item => !string.IsNullOrWhiteSpace(item.Value)).ToDictionary(item => item.Key, item => item.Value);
+    }
+    private string FilterUrl(Dictionary<string, string> values, string? cursor = null)
+    {
+        var parameters = values.Select(item => Uri.EscapeDataString(item.Key) + "=" + Uri.EscapeDataString(item.Value)).ToList();
+        if (cursor is not null) parameters.Add("cursor=" + Uri.EscapeDataString(cursor));
+        return (IsSearch ? "/search" : "/library") + (parameters.Count == 0 ? "" : "?" + string.Join('&', parameters));
+    }
+    private static string? Value(string value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    private static string[]? Values(string value) => Value(value)?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+    private TimeWindow? Window(DateTime? from, DateTime? to)
+    {
+        if (from is null && to is null) return null;
+        var zone = TimeZoneInfo.FindSystemTimeZoneById(Options.CurrentValue.Time.Zone);
+        string? Bound(DateTime? day) => day is null ? null : TimelineWindow.StartOfDay(DateOnly.FromDateTime(day.Value), zone).ToString("O", System.Globalization.CultureInfo.InvariantCulture);
+        return new(Bound(from), Bound(to));
+    }
+    private async Task FetchAsync(string? cursor = null)
+    {
+        hits = null; page = null; degraded = [];
+        var filters = new RetrievalFilters(Value(type), Values(tags), Value(source), Occurred: Window(occurredFrom, occurredTo), Updated: Window(updatedFrom, updatedTo), People: Values(people)?.Select(value => new PersonFilter(value)).ToArray());
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            var response = await Api.SendAsync<SearchResponse>("/search", "POST", new SearchRequest(query.Trim(), mode, filters, 50));
+            hits = response.Results; degraded = response.Degraded;
+        }
+        else page = await Api.SendAsync<QueryPage>("/query", "POST", new QueryRequest(Type: filters.Type, Tags: filters.Tags, Source: filters.Source, People: filters.People, Occurred: filters.Occurred, Updated: filters.Updated, Cursor: cursor));
+        facets = await Api.SendAsync<TypeCount[]>("/search/facets", "POST", new FacetRequest(mode == "semantic" ? null : Value(query), filters));
+    }
+    private static string DocumentUrl(SearchHit hit) => "/library/" + Uri.EscapeDataString(hit.DocumentId) + "?revision=" + hit.Revision + "&chunk=" + Uri.EscapeDataString(hit.ChunkId);
+}

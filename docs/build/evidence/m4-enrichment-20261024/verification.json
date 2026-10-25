@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-24",
+  "scope": "Individual document enrichment jobs, publication, authorization, usage and user controls; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "applicationSchemaVersion": 6,
+  "deterministicTests": {
+    "passed": 2403,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 202,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 225,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 463,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 395,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "commands": {
+    "restore": "dotnet restore SecondBrain.slnx --locked-mode -m:2",
+    "build": "dotnet build SecondBrain.slnx --no-restore -p:TreatWarningsAsErrors=true -m:2",
+    "tests": "dotnet test SecondBrain.slnx --no-build --no-restore -m:2 --filter 'Category!=Qualification'"
+  },
+  "logHashes": {
+    "restore": "40d104602671164ab3958225da3e1c8cabd55f0251d6df6bc911d9d5a24f44ce",
+    "build": "7610378d9b1ca71124ca007dde62999961b69aa1411a21e370e50e89e39b4139",
+    "deterministic": "25d6429be4333bd3dd8f88f3d027d37353bf59f4a8560880427cd7edb45a3de1"
+  },
+  "newChecks": {
+    "boundedModelProcessing": 12,
+    "durablePublicationAndFences": 7,
+    "priorVersionEncryptedUpgrade": 1,
+    "apiAndSettings": 2,
+    "cliForwarding": 1
+  },
+  "checks": [
+    "Optional jobs store summary, tags, mentions and internal-title link suggestions; source text, file bytes and revision are unchanged.",
+    "Own-document excerpts only; a bounded input, no tools, structured JSON when supported, bounded parser and a sixty-second deadline.",
+    "User tag overrides win; generated tags retain their llm origin and reuse existing tag spelling locally; suggestions never add graph links automatically.",
+    "Read and infer are required. Automatic folder work requires source opt-in. Configuration, source, document, credential and lease changes fence publication.",
+    "Cached publication results recover without another model call. Expired workers cannot cancel replacement leases. Re-enable resumes eligible automatic work.",
+    "Usage reserves and settles against the shared budget and explicit job identifier. Budget denial and transient failures back off.",
+    "Purge removes enrichment projections and live payloads. Prior application schema five upgrades through the encrypted-backup gate.",
+    "YAML aliases, service composition and OpenAPI additions reviewed. No dependency changes.",
+    "First full run found expected outdated goldens plus timing-sensitive MCP negotiation fallback; isolated MCP and the final full run passed without MCP code changes."
+  ],
+  "localModelEvidence": "live-enrichment.json",
+  "browserEvidence": "browser.json",
+  "productionChanged": false,
+  "limitations": [
+    "Native provider batch execution and remaining provider adapters are not implemented by this checkpoint.",
+    "Frontmatter write-back remains unimplemented; enabling it is explicitly rejected, while the batch preference is retained for future implementation.",
+    "Local-model qualification uses synthetic text, not the private real transcript; its successful output is not an independent semantic quality evaluation.",
+    "Full sustained-write daemon restore, mounted external-root and large-corpus qualification, hardened deployment, release operations and remaining real-export acceptance remain open."
+  ]
+}

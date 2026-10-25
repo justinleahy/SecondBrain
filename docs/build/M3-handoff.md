@@ -1,5 +1,7 @@
 # M3 UI handoff
 
+M3 is now [accepted and deployed for the user-agreed scope](M3-acceptance.md), with VPN/Cloudflare qualification explicitly waived. This handoff is retained as the implementation starting point; [M4](M4-meetings-enrichment-operations.md) is next.
+
 M2 implementation was verified on 2026-10-24; see the [acceptance ledger](M2-acceptance.md). This document describes the contracts available to M3. The complete M2 release is [deployed to the reference service](M2-complete-deployment.md), and the reference user's read-only Codex bridge is verified. **M3 is the next implementation milestone**; see [current project status](../project-status.md).
 
 ## Existing surfaces

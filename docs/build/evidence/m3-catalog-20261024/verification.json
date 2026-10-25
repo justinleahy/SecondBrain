@@ -1,0 +1,405 @@
+{
+  "status": "M3 development checkpoint; milestone remains incomplete",
+  "configuration": "Debug, warnings as errors, no restore",
+  "base_commit": "53b8dab07d5120c330aa5520a2058c547c9cdf54",
+  "full_suite_before_circuit_followup": [
+    {
+      "project": "secondbrain.architecture.tests",
+      "counts": {
+        "total": 63,
+        "executed": 63,
+        "passed": 63,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "4391b3d873bac8e9b45eda3628a83841cf238272970e2cef41b58f486fe2b407"
+    },
+    {
+      "project": "secondbrain.core.tests",
+      "counts": {
+        "total": 165,
+        "executed": 165,
+        "passed": 165,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "ca9d4e81eb1f699f0bdfe5430833b203c3b23f007c577379ddc618e8e78de44b"
+    },
+    {
+      "project": "secondbrain.deploy.tests",
+      "counts": {
+        "total": 161,
+        "executed": 161,
+        "passed": 161,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "278c931525812c1c70f114a35540715ab397590c7c3b18dd1c28a5a20cfe176c"
+    },
+    {
+      "project": "secondbrain.extractor.tests",
+      "counts": {
+        "total": 780,
+        "executed": 780,
+        "passed": 780,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "cb9d977e6efafc4e457be14a62448f86b85d100614dd2e27e44ad8413eed03f8"
+    },
+    {
+      "project": "secondbrain.infrastructure.tests",
+      "counts": {
+        "total": 81,
+        "executed": 81,
+        "passed": 81,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "f5d9142f55d44de9a850425b8d2c5c9dea1b193469f7a62e4c3320964eb65d4c"
+    },
+    {
+      "project": "secondbrain.providers.openaicompatible.tests",
+      "counts": {
+        "total": 72,
+        "executed": 72,
+        "passed": 72,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "3d67ad31bd426bb2f1770f3a9c1964e6b70676b080405ba44f2a791c39fcb4f6"
+    },
+    {
+      "project": "secondbrain.server.tests",
+      "counts": {
+        "total": 325,
+        "executed": 325,
+        "passed": 325,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "1082ce4291f02cb170839939d0cbd15acbd8f6825d10b2bf5b9f1bf6b48d02e6"
+    },
+    {
+      "project": "secondbrain.storage.tests",
+      "counts": {
+        "total": 276,
+        "executed": 276,
+        "passed": 276,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "515b60a85b3a8cc678c47a813931206e693609c552f958ac2ebe7e13b97a9156"
+    }
+  ],
+  "final_server_followup": {
+    "project": "secondbrain.server.tests",
+    "counts": {
+      "total": 330,
+      "executed": 330,
+      "passed": 330,
+      "failed": 0,
+      "error": 0,
+      "timeout": 0,
+      "aborted": 0,
+      "inconclusive": 0,
+      "passedButRunAborted": 0,
+      "notRunnable": 0,
+      "notExecuted": 0,
+      "disconnected": 0,
+      "warning": 0,
+      "completed": 0,
+      "inProgress": 0,
+      "pending": 0
+    },
+    "sha256": "9d42921e32db7a47e7fe1c55e2bce3b63b72599d54e4a8b1f2bb12929c5434ed"
+  },
+  "unique_tests_covered": 1928,
+  "phase_note": "The full suite passed 1923 tests. Subsequent application changes were confined to Server and its tests; the final 330-test Server run includes five new connection lifecycle cases. Other project results are retained from the full-suite run. The source_manifest scopes this checkpoint to application and test code; deployment assets are outside this checkpoint. This is not the final Release acceptance run.",
+  "browser": "browser-checks.json",
+  "browser_harness_sha256": "54d9fc61bf1f9ee1d9ca1129fb492cd3b675ebadf6630889332bf5fab1211c13",
+  "screenshots": [
+    {
+      "path": "mobile-search.png",
+      "sha256": "0d9b0e377b9b5015d5196ce5107c3a44399d1f14fa0996d1acd32ddbd7650e86"
+    },
+    {
+      "path": "mobile-timeline.png",
+      "sha256": "fbbf852e5d6a3fe8a0d1a5c106e9918c4ef1311b33c4dc74bc95e3c93cc413e7"
+    }
+  ],
+  "source_manifest": [
+    {
+      "path": "src/SecondBrain.Core/Authorization/EndpointPolicy.cs",
+      "sha256": "a9a3e856c3fb790da7515182b8b099c705a796ed18caffe1993e148a57b1e598"
+    },
+    {
+      "path": "src/SecondBrain.Core/Ingestion/Contracts.cs",
+      "sha256": "0b00cbc26ee125ba5fa3cdd5b5d21f02553cf8fe53d98720fe001bacd859143c"
+    },
+    {
+      "path": "src/SecondBrain.Core/Ingestion/IDocumentCatalog.cs",
+      "sha256": "f48a27e09d49d75ebdc4f1aa08baeee0c4cc47cc26efd3843d3582c91e602b3e"
+    },
+    {
+      "path": "src/SecondBrain.Core/Retrieval/Contracts.cs",
+      "sha256": "79f29d6785cef44e406c3acb1d1cf7298c8d398fa7ddc13f52517aec03523796"
+    },
+    {
+      "path": "src/SecondBrain.Server/Auth/SessionCircuitSecurity.cs",
+      "sha256": "4576e382f4a86c73e8c6984ef06ece22063fd00ef7d3042993f60fe45d5ec63b"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/App.razor",
+      "sha256": "4907f79c03721fc28c2856eaafc3c70d4e33a3cec781ad86f109e406ae5cecea"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/BrowserApi.cs",
+      "sha256": "c315fa528d9eaa0431c3084e480d5ce63c4997eacd79ddb7843922e8b67ad29f"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/BrowserPage.cs",
+      "sha256": "730743a85358421f5ee1d1f21e2e5d0fbc7a9b3492f93a121f353ac6043c2088"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/BrowserStatus.razor",
+      "sha256": "1dac06db77d2a2d8ba886f594aee7fb8d37b9ccaf2a4dd0e09feb3d2b236c329"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Chat.razor",
+      "sha256": "76aa359d26e9c1bb6c896556c5c1627cfa490ec96d11b0c3f861947001dbdb4e"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/DocumentEdit.razor",
+      "sha256": "40b0b93171ac56c8a3dbbea9b94aace8fe862f7476127fb461d3fa880fdd8a7f"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/DocumentView.razor",
+      "sha256": "44ae69fbc33aba31ef4f9a3a6c74987ff0b9b0583132718549e05303815ea5ef"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/HighlightedText.razor",
+      "sha256": "23dc93ea9334dda845f5cf96032a5cbdb39585328f8ad553c1867e1c00c48a65"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/KnowledgeNav.razor",
+      "sha256": "64c03ee647b39102845b2734bc3f26ad29dc30842aa81a732236b69ef72dc31e"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Library.razor",
+      "sha256": "71a4cbbf885622e3a869dba08101740253ea0a8e449442a5184d54581f231b74"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Settings.razor",
+      "sha256": "5abbf5d0c1e73fb0f75c355cfe59b6f543fa78e9bb24f07282d07a05a677459d"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/SourcesAndJobs.razor",
+      "sha256": "b6437e3d9976337995cc268fadc388489889df88c9ab558edeb1bb610175694b"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Suppressions.razor",
+      "sha256": "0f36e9f6306ab4f7f8fd075a59d1890558aa69604ef911b39357e271dcd4159e"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Timeline.razor",
+      "sha256": "9f2b37088598fbdef4f950ddcb2901b8480b7977c889ff3a941c96dab291ac40"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Pages/Trash.razor",
+      "sha256": "3a85300194e3c84d23c91ae5df8983a4b8ad40440e1abb4f62fa55ee0022c334"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/Routes.razor",
+      "sha256": "1f0e7f7881f642575d137445b74179a0de8d23fc0c6c96d14810f8b733907e33"
+    },
+    {
+      "path": "src/SecondBrain.Server/Components/SessionWatch.razor",
+      "sha256": "843a42ef73484093082700e470dac43dd2020f8bf4de85670927c6519a7f3869"
+    },
+    {
+      "path": "src/SecondBrain.Server/Http/HttpServices.cs",
+      "sha256": "7d3d890112b8cd6e2387c34693882e08e1d9743c04bc989762562a2c876bd340"
+    },
+    {
+      "path": "src/SecondBrain.Server/Ingestion/KnowledgeBrowserEndpoints.cs",
+      "sha256": "3e40e82d9e62c5046bde8cf1c28803447728ee5fc6d35f5ca888fd2656c3039c"
+    },
+    {
+      "path": "src/SecondBrain.Server/Ingestion/KnowledgeEndpoints.cs",
+      "sha256": "094aeca5606f2929b42997ddd7f383e509aba163d5d3612c0f094972c697cfa8"
+    },
+    {
+      "path": "src/SecondBrain.Server/Ingestion/TimelineWindow.cs",
+      "sha256": "1474dae4186aa7dca62f2a3d2007e01ace9fb99db5685ecb73ea905c84564da5"
+    },
+    {
+      "path": "src/SecondBrain.Server/wwwroot/app.css",
+      "sha256": "4a8a5e654448570152d05bf5c15b20b16900def4e4396d4e7d58b8c011712054"
+    },
+    {
+      "path": "src/SecondBrain.Server/wwwroot/browser-api.js",
+      "sha256": "94df631149d956a93f0c3c9b445a904e9d272c70d22e24adb4c64f1cbadfb059"
+    },
+    {
+      "path": "src/SecondBrain.Storage/Ingestion/SqliteDocumentCatalog.cs",
+      "sha256": "5a9cfdb2a4b3c62413576998a909737652d5366feb266e8e68576ebf24bc854e"
+    },
+    {
+      "path": "src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.Facets.cs",
+      "sha256": "24d5aca28d8a1d4e33e4c1e481ee08dee113715af690bcb22e457a3143eb9d5d"
+    },
+    {
+      "path": "src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.Related.cs",
+      "sha256": "d29f17b85d4fdd7789ca79b4016338aaee668c5b26da90a3f0b02c913f09199e"
+    },
+    {
+      "path": "src/SecondBrain.Storage/Retrieval/SqliteRetrievalRepository.cs",
+      "sha256": "e21ec41dfe66016474d341ecd3e0dec74426611421808173ccacc2e11ca7976e"
+    },
+    {
+      "path": "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs",
+      "sha256": "bc19950277f8e954046747f7c1ddcbb35d6fa9a1a306fd8c95c413bee9911552"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/AuthTests.cs",
+      "sha256": "665918b9cb2782453e40bba617b4a7e405400c7ed5a33993309c89d5c7387aa6"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/BrowserApiTests.cs",
+      "sha256": "50330050111f320a79e704c229927126c1f20de88653efdcd0b7dc457bc9eb3f"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/Golden/composition.txt",
+      "sha256": "b5d9376eb349f8024235dd2b53670ef1306a42b84fa42b3ce3795805731ac6e0"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/Golden/openapi.json",
+      "sha256": "119694fd39448684d3ec24822d722dea5b38ee4afcf87518b2557a2b9a7a98be"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/HighlightedTextTests.cs",
+      "sha256": "4e4705608da7dd4b709488650370e03ab3bda3cac5c9277780057c7b9a5b155f"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/KnowledgeBrowserApiTests.cs",
+      "sha256": "5497c786ceaedf8786e1d3f66829d09b57207a7b9f250a7139a2e253bb48bde0"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/KnowledgeBrowserQualification.cs",
+      "sha256": "8471f263b191c04a127360e52f325fc8a6e2a7eee117d80e0cbf629b6935f7fd"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/SessionCircuitTests.cs",
+      "sha256": "2ee4564ae37aa45f509008510f8e713c0858503d823f0705191a52cdd36ba83f"
+    },
+    {
+      "path": "tests/SecondBrain.Server.Tests/TimelineWindowTests.cs",
+      "sha256": "ac7d974d0c3bd7aa782e95032d54fe995f53b133a487c31a07b3c91690d8ac95"
+    },
+    {
+      "path": "tests/browser/browser-api.test.cjs",
+      "sha256": "56d76f1cde781ffc572f5093a70a4e8046e33668b8055b3f402e582228bef7ac"
+    },
+    {
+      "path": "tests/browser/m3-catalog-workflows.js",
+      "sha256": "39a02003d69e7ea2d92b37ca0c4b6b1542c49cb42dc2d26de502c747bd3357d1"
+    },
+    {
+      "path": "tests/browser/m3-circuit-workflows.js",
+      "sha256": "10b13763adb340dbd955db6808f91f29067d9a288d69b763cfdb6912ac7b1193"
+    },
+    {
+      "path": "tests/browser/m3-workflows.js",
+      "sha256": "87cee2f6c026f2ef5104741233dd700d657a0becc69af9f5d606909c43712612"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "checked_at_utc": "2026-10-24T21:54:51.489007+00:00",
+  "installed_files_verified": 484,
+  "all_installed_files_match": true,
+  "http": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/login",
+      "status": 200,
+      "csp_script_self": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/library",
+      "status": 200,
+      "csp_script_self": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/activity",
+      "status": 200,
+      "csp_script_self": true
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/configuration",
+      "status": 401
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/browse/jobs",
+      "status": 401
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/documents/example/conflicts/example",
+      "status": 401
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/browser-api.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 2692
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/reconnect.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 2200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/editor/editor.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 3052107
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/editor/editor.worker.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 307193
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/app.css",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 7160
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/login",
+      "status": 200,
+      "csp_script_self": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/library",
+      "status": 200,
+      "csp_script_self": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/activity",
+      "status": 200,
+      "csp_script_self": true
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/configuration",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/browse/jobs",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/documents/example/conflicts/example",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/browser-api.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 2692
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/reconnect.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 2200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/editor/editor.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 3052107
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/editor/editor.worker.js",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 307193
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/app.css",
+      "status": 200,
+      "body_matches_installed": true,
+      "bytes": 7160
+    }
+  ],
+  "vpn_cloudflare": "Skipped at the user's explicit request.",
+  "authenticated_live_account_workflows": "Not claimed by these anonymous checks."
+}

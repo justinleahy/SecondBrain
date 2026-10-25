@@ -74,19 +74,24 @@ internal sealed partial class ChatToolExecutor
         if (++searches > turn.Policy.MaxSearches) throw new ChatLimitException("The turn reached its search limit.");
         float[]? vector = null; string? space = null;
         var callId = Guid.NewGuid().ToString("N");
+        var sent = false;
+        SecondBrain.Core.Providers.ModelUsageTotals? usage = null;
         await repository.ReserveTokensAsync(turn.Id, callId, System.Text.Encoding.UTF8.GetByteCount(query) + 64, actor, cancellationToken);
         try
         {
-            (vector, space) = await embeddings.QueryAsync(query, cancellationToken, (provider, active, token) =>
-                repository.RecordProviderExposureAsync(turn.Id, callId, actor, token,
-                    new(provider.ProviderName, active.Model, provider.Endpoint?.AbsoluteUri)));
+            (vector, space) = await embeddings.QueryAsync(query, cancellationToken, async (provider, active, token) =>
+            {
+                await repository.RecordProviderExposureAsync(turn.Id, callId, actor, token,
+                    new(provider.ProviderName, active.Model, provider.Endpoint?.AbsoluteUri));
+                sent = true;
+            }, onUsage: reported => usage = reported);
         }
         catch (Exception error) when (error is not OperationCanceledException && error is not AuthorityChangedException)
         {
             Warnings.Add("keyword_fallback");
             await repository.AppendAsync(turn.Id, "warning", JsonSerializer.SerializeToElement(new { code = "keyword_fallback" }), [], actor, cancellationToken);
         }
-        finally { await repository.SettleTokensAsync(turn.Id, callId, null, CancellationToken.None); }
+        finally { await repository.SettleUsageAsync(turn.Id, callId, sent ? usage : new(null, null, null, 0), CancellationToken.None); }
         await repository.CheckActiveAsync(turn.Id, actor, cancellationToken);
         var response = await retrieval.SearchAsync(new(query, "hybrid", Filters: turn.Policy.Filters, Limit: limit, RecencyBoost: recencyBoost), vector, space, cancellationToken);
         foreach (var warning in response.Degraded) Warnings.Add(warning);
@@ -134,7 +139,11 @@ internal sealed partial class ChatToolExecutor
         foreach (var record in page.Records) surfaced.Add(record.Id);
         refs = page.Records.Select(record => record.Id).ToArray();
         if (page.Truncated) Warnings.Add("metadata_truncated");
-        var result = new { records = page.Records.Select(record => new { record.Id, record.Title, record.Type, record.Revision, record.UpdatedAt }).ToArray(), page.NextCursor, page.Truncated, page.Coverage };
+        if (page.Coverage is CalendarCoverage { Status: "partial" }) Warnings.Add("calendar_coverage_partial");
+        if (page.Coverage is CalendarCoverage { Subscriptions: { } subscriptions } && subscriptions.Any(item => item.Stale)) Warnings.Add("calendar_subscription_stale");
+        var result = new { records = page.Records.Select(record => record.InstanceId is null
+            ? (object)new { record.Id, record.Title, record.Type, record.Revision, record.UpdatedAt }
+            : new { record.Id, record.InstanceId, record.Title, record.Type, record.Revision, record.StartsAt, record.EndsAt, record.RecurrenceId, record.Status, Props = JsonSerializer.Deserialize<JsonElement>(record.PropsJson) }).ToArray(), page.NextCursor, page.Truncated, page.Coverage };
         return result;
         }, _ => refs, cancellationToken);
     }

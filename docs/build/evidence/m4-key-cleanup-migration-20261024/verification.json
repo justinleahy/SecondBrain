@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-24",
+  "scope": "Key provisioning, owned-workspace/debug-log cleanup, and encrypted pre-M4 migration; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2341,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_52.trx",
+        "sha256": "c12ede4352c45e3ce65a517db53394574186f9c2380f2bf48738f9b088151dcf"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_52[1].trx",
+        "sha256": "4a4d5e0a74ab9694f93c58d25b560107c18261131c540128f5e7b4840532b6a8"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_52[2].trx",
+        "sha256": "3a026a1a55f856d2d27b7c69f370f691faafc3a47dff16753f5173aa1431a971"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_52[3].trx",
+        "sha256": "63749a02fab0348e1a6a7a636fcec8fb117b02d084f5d9101aaf9ccc48bef316"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_53.trx",
+        "sha256": "e7dc3b4855b80fff6fadc7aed7bd649c63b5abd9691c6d0b440ecea5c16b93b6"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 223,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_53[1].trx",
+        "sha256": "ea10563866f81864ab904697d90f7b902877eb8ab017c038b9cc2b4dc293531d"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 385,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_53[2].trx",
+        "sha256": "8814407e4bf428a8278bdf79ca438f2f13456dcea4fac5bff6138d4eb5eb7ba6"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 444,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_16_54.trx",
+        "sha256": "ae437097161dfac66902c7478af8ab29162a7b4113a323d6100d343b9a9310ae"
+      }
+    ]
+  },
+  "focusedNewCases": {
+    "backupKeyProvisioning": 3,
+    "cliBackupKey": 2,
+    "workspaceAndDebugCleanup": 4,
+    "cleanupApiAndScheduler": 2,
+    "m4MigrationAndRecovery": 5
+  },
+  "checks": [
+    "Key creation and matching recovery copy are private and idempotent; existing keys and mismatched copies are not overwritten. Linked/unsafe parents and a held daemon lock are rejected.",
+    "Owned operation workspaces carry a locked marker through active backup, export-download and restore lifetimes. Cleanup preserves active, foreign and unmarked directories, handles interrupted marker writes, and drains bounded batches.",
+    "Only expired debug logs matching the owned timestamp/GUID filename are removed; normal logs and locked files remain.",
+    "Cleanup runs at startup, hourly and through the administrator retention endpoint with scope and session step-up checks.",
+    "An initialized legacy schema requires a complete encrypted backup before M4 DDL. Missing keys and partial backups refuse the upgrade. Interrupted migration retries preserve user data and encrypted archives.",
+    "The pre-upgrade encrypted archive authenticates, contains the old schema and account, and can be installed with staging migration and an advanced epoch.",
+    "M4 schema state and index are recorded as version 4. Obsolete M0 plaintext rollback copies are removed only after both stores complete.",
+    "Composition and OpenAPI snapshot changes were reviewed; additive services and the operations cleanup result are expected."
+  ],
+  "browserEvidence": "browser.json",
+  "browserApiUnitTests": 1,
+  "productionChanged": false,
+  "limitations": [
+    "No production key, archive, configuration, subscription, data, or service changed. Off-server recovery-copy custody remains an operator responsibility.",
+    "Unmarked workspaces and retained restore rollback directories are intentionally preserved. This checkpoint adds expiry for the owned debug-body filename format, not a debug-body logging producer.",
+    "Full daemon backup/restore under sustained writes, external mount-point restore, large-corpus qualification, hardened deployment, real transcript acceptance, enrichment/providers/budgets and release operations remain open."
+  ]
+}

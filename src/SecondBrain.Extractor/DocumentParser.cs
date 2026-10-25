@@ -23,7 +23,7 @@ public static class DocumentParser
     public const int MaximumPages = 2000;
     private static readonly UTF8Encoding Utf8 = new(false, true);
 
-    public static ExtractionResult Extract(SafeFileHandle descriptor, string? hint, CancellationToken cancellationToken)
+    public static ExtractionResult Extract(SafeFileHandle descriptor, string? hint, CancellationToken cancellationToken, CalendarWindow? calendarWindow = null)
     {
         UnixDescriptorTransport.RequireReadOnlyRegularFile(descriptor);
         hint = hint?.ToLowerInvariant();
@@ -40,15 +40,26 @@ public static class DocumentParser
         }
         try
         {
-            if (bytes.AsSpan().StartsWith("%PDF-"u8)) return Pdf(bytes, cancellationToken);
-            if (bytes.AsSpan().StartsWith("PK\x03\x04"u8)) return Docx(bytes, cancellationToken);
+            if (calendarWindow is null && bytes.AsSpan().StartsWith("%PDF-"u8)) return Pdf(bytes, cancellationToken);
+            if (calendarWindow is null && bytes.AsSpan().StartsWith("PK\x03\x04"u8)) return Docx(bytes, cancellationToken);
             var text = Utf8.GetString(bytes).TrimStart('\ufeff');
+            if (calendarWindow is not null)
+            {
+                var calendar = CalendarParser.Parse(text, calendarWindow, cancellationToken);
+                calendar.Validate();
+                return new("extracted", "calendar", "text/calendar", "", Calendar: calendar);
+            }
             if (text.Contains('\0')) return new("skipped", "unknown", "application/octet-stream", "", Error: "unsupported_format");
+            if (text.StartsWith("WEBVTT", StringComparison.Ordinal) || hint is ".vtt" or "vtt") return TranscriptParser.Parse(text, true, cancellationToken);
+            if (hint is ".srt" or "srt" || Regex.IsMatch(text, @"^\s*\d+\r?\n\d{2,}:\d{2}:\d{2},\d{3}\s+-->", RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1))) return TranscriptParser.Parse(text, false, cancellationToken);
             if (Regex.IsMatch(text.AsSpan(0, Math.Min(text.Length, 4096)).ToString(), @"^\s*<(?:!doctype\s+html|html|head|body|article|main|p|div|h[1-6]|table|section)(?:\s|>)", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)))
                 return Html(text, cancellationToken);
+            if (hint is ".ics" or "ics" || text.TrimStart().StartsWith("BEGIN:VCALENDAR", StringComparison.OrdinalIgnoreCase))
+                return new("failed", "calendar", "text/calendar", "", Error: "calendar_window_required");
             var markdown = hint is ".md" or ".markdown" or "md" or "markdown" || text.StartsWith("---\n", StringComparison.Ordinal) || text.StartsWith("---\r\n", StringComparison.Ordinal);
             return Text(text, markdown);
         }
+        catch (CalendarExtractionException exception) { return exception.IsBound ? Failed(exception.Code) : new("failed", "calendar", "text/calendar", "", Error: exception.Code); }
         catch (PdfBoundException exception) { return Failed(exception.Bound); }
         catch (BoundException exception) { return Failed(exception.Bound); }
         catch (Exception exception) when (exception is not OperationCanceledException && exception is not OutOfMemoryException)
@@ -66,12 +77,13 @@ public static class DocumentParser
         var props = new Dictionary<string, JsonElement>();
         string? title = null, type = null, created = null, updated = null;
         var tags = new List<string>(); var aliases = new List<string>();
+        FrontmatterLayout? frontmatter = markdown ? new(0) : null;
         if (markdown && (text.StartsWith("---\n", StringComparison.Ordinal) || text.StartsWith("---\r\n", StringComparison.Ordinal)))
         {
             var start = text.IndexOf('\n') + 1;
-            var end = text.IndexOf("\n---", start, StringComparison.Ordinal);
+            var end = text.IndexOf("\n---", start - 1, StringComparison.Ordinal);
             if (end < 0 || end - start > 65536) throw new BoundException("frontmatter_bytes");
-            var yaml = text[start..end];
+            var yaml = end < start ? "" : text[start..end];
             if (Utf8.GetByteCount(yaml) > 65536) throw new BoundException("frontmatter_bytes");
             var parser = new Parser(new StringReader(yaml));
             int nodes = 0, depth = 0;
@@ -83,7 +95,9 @@ public static class DocumentParser
                 if (parser.Current is MappingEnd or SequenceEnd) depth--;
             }
             var stream = new YamlStream(); stream.Load(new StringReader(yaml));
-            if (stream.Documents.Count != 1 || stream.Documents[0].RootNode is not YamlMappingNode map) throw new InvalidDataException();
+            var map = stream.Documents.Count == 0 && string.IsNullOrWhiteSpace(yaml) ? new YamlMappingNode()
+                : stream.Documents.Count == 1 && stream.Documents[0].RootNode is YamlMappingNode mapping ? mapping : throw new InvalidDataException();
+            frontmatter = InspectFrontmatter(text, start, end + 1, map);
             foreach (var pair in map.Children)
             {
                 var key = ((YamlScalarNode)pair.Key).Value;
@@ -105,7 +119,20 @@ public static class DocumentParser
         if (markdown)
             foreach (Match match in Regex.Matches(text, @"\[\[([^\]\r\n]+)\]\]|\[[^\]\r\n]*\]\(([^)\r\n]+)\)", RegexOptions.None, TimeSpan.FromSeconds(1)))
             { if (links.Count >= 200) throw new BoundException("links"); links.Add(match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value); }
-        return new("extracted", markdown ? "markdown" : "text", markdown ? "text/markdown" : "text/plain", text, title, type, props, tags, links, Aliases: aliases, DeclaredCreatedAt: created, DeclaredUpdatedAt: updated);
+        return new ExtractionResult("extracted", markdown ? "markdown" : "text", markdown ? "text/markdown" : "text/plain", text, title, type, props, tags, links, Aliases: aliases, DeclaredCreatedAt: created, DeclaredUpdatedAt: updated)
+            { Frontmatter = frontmatter };
+    }
+    private static FrontmatterLayout InspectFrontmatter(string text, int start, int end, YamlMappingNode map)
+    {
+        if (end + 3 < text.Length && text[end + 3] is not ('\r' or '\n')) return new(end, Writable: false);
+        var key = map.Children.Keys.OfType<YamlScalarNode>().Any(node => node.Value == FrontmatterLayout.Key);
+        var first = text.IndexOf(FrontmatterLayout.StartMarker, start, end - start, StringComparison.Ordinal);
+        if (first < 0) return new(end, Writable: !key);
+        var last = text.IndexOf(FrontmatterLayout.EndMarker, first, end - first, StringComparison.Ordinal);
+        if (!key || last < 0 || first > start && text[first - 1] != '\n'
+            || text.IndexOf(FrontmatterLayout.StartMarker, first + 1, end - first - 1, StringComparison.Ordinal) >= 0)
+            return new(end, Writable: false);
+        return new(end, first, last + FrontmatterLayout.EndMarker.Length - first);
     }
     private static string? Scalar(YamlNode node) => (node as YamlScalarNode)?.Value;
     private static object? ConvertYaml(YamlNode node) => node switch

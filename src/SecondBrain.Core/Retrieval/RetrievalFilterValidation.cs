@@ -8,12 +8,11 @@ public static class RetrievalFilterValidation
 {
     private static readonly HashSet<string> BaseFields = new(["id", "document_id", "title", "type", "status", "revision", "occurred_at", "updated_at"], StringComparer.Ordinal);
     private static readonly HashSet<string> IndexedFields = new(new Domain.TypeRegistry().Types
-        .Where(type => type.Key is "note" or "article" or "file")
         .SelectMany(type => type.Metadata.IndexedProperties).Select(name => "props." + name), StringComparer.Ordinal);
     public static void Validate(RetrievalFilters? filters)
     {
         if (filters is null) return;
-        if (filters.Type is not null && filters.Type is not ("note" or "article" or "file")) throw new ArgumentException("Unsupported M1 type.");
+        if (filters.Type is not null && filters.Type is not ("note" or "article" or "transcript" or "calendar_event" or "file")) throw new ArgumentException("Unsupported document type.");
         if (filters.Tags?.Any(tag => tag is null) == true) throw new ArgumentException("invalid-tag-filter");
         foreach (var person in filters.People ?? [])
             if (person is null || string.IsNullOrWhiteSpace(person.Value)) throw new ArgumentException("invalid-person-filter");

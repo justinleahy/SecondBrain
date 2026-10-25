@@ -1,0 +1,191 @@
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.50]     SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "nested/../../escape.txt") [FAIL]
+[xUnit.net 00:00:00.51]     SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "/tmp/backup-escape-test.txt") [FAIL]
+[xUnit.net 00:00:00.53]     SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "nested//empty.txt") [FAIL]
+[xUnit.net 00:00:00.56]     SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "../escape.txt") [FAIL]
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "nested/../../escape.txt") [210 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 99
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 102
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "/tmp/backup-escape-test.txt") [20 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 99
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 102
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "nested//empty.txt") [19 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 99
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 102
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(path: "../escape.txt") [21 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 99
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedTraversalHeadersCannotEscapeStaging(String path) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 102
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:00.89]     SecondBrain.Storage.Tests.BackupPackageTests.EncryptedArchiveUnderSustainedEditsRestoresItsCapturedStateAndBytes [FAIL]
+[xUnit.net 00:00:00.99]     SecondBrain.Storage.Tests.BackupPackageTests.EncryptedRoundTripVerifiesStateTrashKeyringExternalFilesAndRevisions [FAIL]
+[xUnit.net 00:00:01.03]     SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(byteLimit: False) [FAIL]
+[xUnit.net 00:00:01.07]     SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(byteLimit: True) [FAIL]
+[xUnit.net 00:00:01.09]     SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedPayloadHashMismatchAndMissingStateAreRejected [FAIL]
+[xUnit.net 00:00:01.11]     SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedDuplicateFileEntriesAreRejectedAndDiscarded [FAIL]
+[xUnit.net 00:00:01.16]     SecondBrain.Storage.Tests.BackupPackageTests.AtomicWriterPublishesPrivateCompleteArchivesAndCleansFailedWrites [FAIL]
+[xUnit.net 00:00:01.18]     SecondBrain.Storage.Tests.BackupPackageTests.TamperingAndWrongKeysLeaveNoRestoreWorkspace [FAIL]
+[xUnit.net 00:00:01.21]     SecondBrain.Storage.Tests.BackupPackageTests.StateMetadataMismatchCannotBecomeAVerifiedRestore [FAIL]
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.EncryptedArchiveUnderSustainedEditsRestoresItsCapturedStateAndBytes [333 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.EncryptedArchiveUnderSustainedEditsRestoresItsCapturedStateAndBytes() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 148
+   at SecondBrain.Storage.Tests.BackupPackageTests.EncryptedArchiveUnderSustainedEditsRestoresItsCapturedStateAndBytes() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 155
+   at SecondBrain.Storage.Tests.BackupPackageTests.EncryptedArchiveUnderSustainedEditsRestoresItsCapturedStateAndBytes() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 155
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.EncryptedRoundTripVerifiesStateTrashKeyringExternalFilesAndRevisions [100 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.EncryptedRoundTripVerifiesStateTrashKeyringExternalFilesAndRevisions() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 32
+   at SecondBrain.Storage.Tests.BackupPackageTests.EncryptedRoundTripVerifiesStateTrashKeyringExternalFilesAndRevisions() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 54
+   at SecondBrain.Storage.Tests.BackupPackageTests.EncryptedRoundTripVerifiesStateTrashKeyringExternalFilesAndRevisions() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 54
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(byteLimit: False) [40 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Archive() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 195
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Archive() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 195
+   at SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(Boolean byteLimit) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 139
+   at SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(Boolean byteLimit) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 142
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(byteLimit: True) [35 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Archive() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 195
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Archive() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 195
+   at SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(Boolean byteLimit) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 139
+   at SecondBrain.Storage.Tests.BackupPackageTests.RestoreLimitsAreEnforcedWithoutPublishingFiles(Boolean byteLimit) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 142
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedPayloadHashMismatchAndMissingStateAreRejected [21 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedPayloadHashMismatchAndMissingStateAreRejected() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 117
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedPayloadHashMismatchAndMissingStateAreRejected() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 122
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedDuplicateFileEntriesAreRejectedAndDiscarded [21 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Metadata() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 194
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedDuplicateFileEntriesAreRejectedAndDiscarded() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 108
+   at SecondBrain.Storage.Tests.BackupPackageTests.AuthenticatedDuplicateFileEntriesAreRejectedAndDiscarded() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 111
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.AtomicWriterPublishesPrivateCompleteArchivesAndCleansFailedWrites [46 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.AtomicWriterPublishesPrivateCompleteArchivesAndCleansFailedWrites() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 73
+   at SecondBrain.Storage.Tests.BackupPackageTests.AtomicWriterPublishesPrivateCompleteArchivesAndCleansFailedWrites() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 80
+   at SecondBrain.Storage.Tests.BackupPackageTests.AtomicWriterPublishesPrivateCompleteArchivesAndCleansFailedWrites() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 80
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.TamperingAndWrongKeysLeaveNoRestoreWorkspace [21 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Archive() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 195
+   at SecondBrain.Storage.Tests.BackupPackageTests.Fixture.Archive() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 195
+   at SecondBrain.Storage.Tests.BackupPackageTests.TamperingAndWrongKeysLeaveNoRestoreWorkspace() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 86
+   at SecondBrain.Storage.Tests.BackupPackageTests.TamperingAndWrongKeysLeaveNoRestoreWorkspace() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 89
+--- End of stack trace from previous location ---
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.StateMetadataMismatchCannotBecomeAVerifiedRestore [26 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.StateMetadataMismatchCannotBecomeAVerifiedRestore() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 128
+   at SecondBrain.Storage.Tests.BackupPackageTests.StateMetadataMismatchCannotBecomeAVerifiedRestore() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 131
+   at SecondBrain.Storage.Tests.BackupPackageTests.StateMetadataMismatchCannotBecomeAVerifiedRestore() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 131
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.23]     SecondBrain.Storage.Tests.BackupPackageTests.PartialArchiveReportsTheUncapturedFileWithoutInstallingOrInventingIt [FAIL]
+  Failed SecondBrain.Storage.Tests.BackupPackageTests.PartialArchiveReportsTheUncapturedFileWithoutInstallingOrInventingIt [24 ms]
+  Error Message:
+   System.IO.InvalidDataException : The backup package or its manifest is invalid.
+  Stack Trace:
+     at SecondBrain.Storage.Backup.BackupPackage.ValidateMetadata(BackupPackageMetadata value) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 144
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Backup.BackupPackage.DescribeAsync(BackupFilePins snapshot, Int32 indexSchemaVersion, IReadOnlyList`1 embeddingSpaces, CancellationToken token) in /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/Backup/BackupPackage.cs:line 56
+   at SecondBrain.Storage.Tests.BackupPackageTests.PartialArchiveReportsTheUncapturedFileWithoutInstallingOrInventingIt() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 61
+   at SecondBrain.Storage.Tests.BackupPackageTests.PartialArchiveReportsTheUncapturedFileWithoutInstallingOrInventingIt() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 67
+   at SecondBrain.Storage.Tests.BackupPackageTests.PartialArchiveReportsTheUncapturedFileWithoutInstallingOrInventingIt() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupPackageTests.cs:line 67
+--- End of stack trace from previous location ---
+Results File: /tmp/m4-backup-package-focused/package.trx
+
+Failed!  - Failed:    14, Passed:    31, Skipped:     0, Total:    45, Duration: 965 ms - SecondBrain.Storage.Tests.dll (net10.0)

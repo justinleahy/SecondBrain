@@ -6,9 +6,12 @@ namespace SecondBrain.Server.Ingestion;
 
 /// <summary>Processes durable admitted originals independently of the upload request.</summary>
 public sealed class FileProcessingOrchestrator(IDocumentRepository documents, IManagedDocumentFiles files,
-    IExtractorClient extractor, IInboxClaims claims, EmbeddingOrchestrator embeddings, IPersistentAdmissionAccounting accounting, ILogger<FileProcessingOrchestrator> logger) : BackgroundService
+    IExtractorClient extractor, IInboxClaims claims, EmbeddingOrchestrator embeddings, IPersistentAdmissionAccounting accounting, ILogger<FileProcessingOrchestrator> logger,
+    Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null,
+    ClassificationProcessor? classifier = null) : BackgroundService
 {
     private readonly SemaphoreSlim wake = new(0, 4);
+    private long nextCalendarCheck;
 
     public void Notify()
     {
@@ -53,12 +56,26 @@ public sealed class FileProcessingOrchestrator(IDocumentRepository documents, IM
             SecondBrain.Extraction.Contracts.ExtractionResult extraction;
             try
             {
-                var cached = await documents.CachedExtractionAsync(work.DocumentId, token);
+                var cached = Path.GetExtension(work.FileName).Equals(".ics", StringComparison.OrdinalIgnoreCase) ? null : await documents.CachedExtractionAsync(work.DocumentId, token);
                 if (cached is not null) extraction = cached;
                 else
                 {
                     await using var original = await files.OpenReadAsync(work.Path, token);
+                    if (work.JobId.StartsWith("external-edit:", StringComparison.Ordinal))
+                    {
+                        var current = await documents.GetAsync(work.DocumentId, cancellationToken: token);
+                        var stagedHash = Convert.ToHexStringLower(await System.Security.Cryptography.SHA256.HashDataAsync(original, token));
+                        original.Position = 0;
+                        if (current is null || current.Revision != work.Revision || current.ContentHash != stagedHash)
+                        {
+                            await documents.FailFileAsync(work.JobId, "external-file-changed-again", true, token);
+                            return;
+                        }
+                    }
                     extraction = await extractor.ExtractAsync(original, Path.GetExtension(work.FileName), token);
+                    if (extraction.PhysicalFormat == "calendar" && extraction.Error == "calendar_window_required")
+                        extraction = await extractor.ExtractCalendarAsync(original,
+                            CalendarMaterialization.Window(options?.CurrentValue ?? new(), DateTimeOffset.UtcNow), token);
                 }
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
@@ -72,7 +89,8 @@ public sealed class FileProcessingOrchestrator(IDocumentRepository documents, IM
                 await documents.FailFileAsync(work.JobId, extraction.Error, false, token);
                 return;
             }
-            var completed = await documents.CompleteFileAsync(work.DocumentId, work.Revision, extraction, token);
+            var classification = classifier is null ? null : await classifier.ClassifyAsync(work.DocumentId, work.Revision, extraction, token);
+            var completed = await documents.CompleteClassifiedFileAsync(work.DocumentId, work.Revision, extraction, classification, token);
             await embeddings.TryCompleteAsync(completed, token);
             await accounting.RefreshAsync(token);
             await CleanupClaimsAsync(token);
@@ -97,6 +115,13 @@ public sealed class FileProcessingOrchestrator(IDocumentRepository documents, IM
             try
             {
                 await CleanupClaimsAsync(stoppingToken);
+                var now = DateTimeOffset.UtcNow.UtcTicks;
+                var due = Interlocked.Read(ref nextCalendarCheck);
+                if (now >= due && Interlocked.CompareExchange(ref nextCalendarCheck, now + TimeSpan.FromMinutes(1).Ticks, due) == due)
+                {
+                    var scheduled = await documents.ScheduleCalendarMaterializationAsync(CalendarMaterialization.Window(options?.CurrentValue ?? new(), DateTimeOffset.UtcNow), stoppingToken);
+                    if (scheduled == 32) Interlocked.Exchange(ref nextCalendarCheck, 0);
+                }
                 var pending = await documents.PendingFilesAsync(1, stoppingToken);
                 if (pending.Count != 0)
                 {

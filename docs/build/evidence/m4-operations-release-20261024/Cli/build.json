@@ -1,0 +1,15 @@
+{
+  "gitCommit": "53b8dab07d5120c330aa5520a2058c547c9cdf54",
+  "workingTreeDirty": true,
+  "dotnetSdk": "10.0.111",
+  "repository": null,
+  "workflowRef": null,
+  "workflowRun": null,
+  "workflowAttempt": null,
+  "nativeSqliteVersions": [
+    "3.53.4"
+  ],
+  "fileCount": 450,
+  "componentCount": 462,
+  "editorBundles": 1
+}

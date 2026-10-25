@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-24",
+  "scope": "Verified native Anthropic citations; not full M4 acceptance",
+  "configuration": "Debug",
+  "applicationSchemaVersion": 8,
+  "lockedRestore": "passed",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 2535,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 213,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 818,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 149,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 226,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 489,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 404,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "productionChanged": false,
+  "liveCloudCalls": false,
+  "dependencyChanges": false,
+  "checks": [
+    "Explicit Anthropic native_citations capability; captured hash-verified passages become inline citation-enabled documents.",
+    "Native document indexes resolve only within the outgoing captured-source registry. A unique exact match normalizes character ranges to UTF-16 excerpt offsets; mismatched, unsupported and ambiguous ranges are rejected.",
+    "Buffered and streamed ranges produce bounded, hash-verified exact quotes. Model-written numeric evidence markers are removed.",
+    "Tool continuations send each captured body once and count those bytes before usage reservation.",
+    "Storage revalidates source identity, span boundaries, quote bytes and hashes before answer settlement. Revision/deletion states and purge retain their existing guarantees.",
+    "CLI and desktop/phone browser display exact quotes with the original passage snapshot retained in the API.",
+    "Reviewed additive OpenAPI/YAML contracts. Historical M2 quality recordings remain unchanged; the replay verifies passage granularity before omitting only that added field."
+  ],
+  "logHashes": {
+    "restore": "15fa4b58198701ee518f91da73e2ddcb4106918e1690d23f0f7644ef947418e6",
+    "build": "e48ebf49f917430bee6f443598224160b5d4e93f1081e32cf2b16a97caf146e3",
+    "tests": "00afff38c837371a1dbb5347c9a293ef21f689ba5ad6d8c4d8bf6056729fd120",
+    "browserHarness": "609722a37980088f2b79a5f5c217d18c80bf4741e805ace54b8096c5f48cd290"
+  },
+  "limitations": [
+    "Provider protocol and full workflow checks use controlled local HTTP responses and synthetic data; no live Anthropic account or model quality claim.",
+    "The browser fixture uses direct text capture, not a new real-export or extractor qualification.",
+    "Full hardened deployment, sustained-write full daemon restore, mounted external roots, large-corpus qualification, off-server key custody, signed release/SBOM/CI and remaining real-export semantic acceptance remain open."
+  ]
+}

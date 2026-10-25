@@ -51,6 +51,7 @@ public static class Program
             try
             {
                 services.ConfigureDaemon(() => Load(parse), parse.GetValue(daemonUrl), parse.GetValue(credentialNameOption)!);
+                services.ConfigurePaths(new RuntimeLocations(parse.GetValue(config), parse.GetValue(secrets)));
                 result = await handler(parse, token);
             }
             catch (DaemonCommandException ex) { result = ex.Result; }
@@ -70,6 +71,7 @@ public static class Program
         });
 
         KnowledgeCommandRegistration.Add(root, services, Bind);
+        SourceCommandRegistration.Add(root, services, Bind);
         AssistantCommandRegistration.Add(root, services, Bind, json, output, error);
         var mcp = new Command("mcp", "Run the MCP stdio bridge. Uses a read-only API key unless a credential is explicitly selected.");
         var bridgeCredential = new Option<string?>("--credential") { Description = "Select a dedicated non-admin API key for this MCP client." };
@@ -181,6 +183,13 @@ public static class Program
         Bind(keyRevoke, (parse, token) => services.Credentials.RevokeAsync(parse.GetValue(keyId)!, token));
         keys.Subcommands.Add(create); keys.Subcommands.Add(keyList); keys.Subcommands.Add(keyRevoke); root.Subcommands.Add(keys);
 
+        var usage = new Command("usage", "Report model token usage and the daily budget.");
+        var usageFrom = new Option<DateTimeOffset?>("--from");
+        var usageTo = new Option<DateTimeOffset?>("--to");
+        usage.Options.Add(usageFrom); usage.Options.Add(usageTo);
+        Bind(usage, (parse, token) => (services.Knowledge ?? throw new CliPreconditionException("Knowledge commands are unavailable."))
+            .ReadUsageAsync(parse.GetValue(usageFrom), parse.GetValue(usageTo), token));
+        root.Subcommands.Add(usage);
         var providers = new Command("providers", "Inspect configured provider bindings.");
         var providerList = new Command("list"); Bind(providerList, (_, token) => services.Providers.ListAsync(token));
         var providerTest = new Command("test"); var providerName = new Argument<string?>("name") { Arity = ArgumentArity.ZeroOrOne }; providerTest.Arguments.Add(providerName);
@@ -194,7 +203,74 @@ public static class Program
         var revokeAll = new Command("revoke-all"); Bind(revokeAll, (_, token) => services.Sessions.RevokeAllAsync(token));
         sessions.Subcommands.Add(sessionList); sessions.Subcommands.Add(sessionRevoke); sessions.Subcommands.Add(revokeAll); root.Subcommands.Add(sessions);
 
-        var maintenance = new Command("maintenance", "Maintain the local key ring.");
+        var maintenance = new Command("maintenance", "Maintain local keys and prepare deployment policy.");
+        var backupKey = new Command("backup-key", "Create or verify the backup key and write a separate private recovery copy.");
+        var recoveryCopy = new Option<string>("--recovery-copy") { Required = true, Description = "Absolute recovery-copy path outside the data and secrets directories; keep this copy off the server." };
+        backupKey.Options.Add(recoveryCopy);
+        Bind(backupKey, async (parse, token) =>
+        {
+            if (Environment.GetEnvironmentVariable("SECONDBRAIN_BACKUP_KEY") is not null)
+                throw new CliPreconditionException("An environment backup key is configured. Manage its recovery copy through the secret provider.");
+            var loaded = Load(parse);
+            RootSecurityValidator.ValidateOrThrow(loaded.DataRoot, loaded.Sources.IncomingRoot, parse.GetValue(daemonUid), parse.GetValue(daemonGid), parse.GetValue(syncUid));
+            using var held = DataRootLock.Acquire(loaded.DataRoot);
+            try
+            {
+                var result = await new BackupKeyProvisioner().EnsureAsync(loaded, parse.GetValue(recoveryCopy)!, token);
+                return CliResult.Ok("Backup key and recovery copy verified. Keep the recovery copy off the server; existing keys were not rotated.", result);
+            }
+            catch (SecondBrain.Core.Operations.BackupException)
+            { throw new CliPreconditionException("Backup key setup failed. Use an existing private key directory and a separate recovery directory; existing files are never overwritten."); }
+        });
+        maintenance.Subcommands.Add(backupKey);
+        var backup = new Command("backup", "Create an encrypted backup through the running daemon.");
+        var backupDestination = new Option<string?>("--to") { Description = "Also download the encrypted archive to this file or directory." };
+        backup.Options.Add(backupDestination);
+        Bind(backup, (parse, token) => (services.Knowledge ?? throw new CliPreconditionException("The daemon adapter is unavailable.")).BackupAsync(parse.GetValue(backupDestination), token));
+        maintenance.Subcommands.Add(backup);
+        var export = new Command("export", "Download a portable archive of knowledge data and files; authentication secrets are excluded.");
+        var exportDestination = new Option<string?>("--to") { Description = "File or existing directory; defaults to the current directory." };
+        export.Options.Add(exportDestination);
+        Bind(export, (parse, token) => (services.Knowledge ?? throw new CliPreconditionException("The daemon adapter is unavailable.")).ExportAsync(parse.GetValue(exportDestination), token));
+        maintenance.Subcommands.Add(export);
+        var restore = new Command("restore", "Install an encrypted backup with the daemon stopped, or roll back an interrupted installation.");
+        var restoreArchive = new Argument<string?>("archive") { Arity = ArgumentArity.ZeroOrOne };
+        var restoreRollback = new Option<bool>("--rollback");
+        var restoreRoots = new Option<string[]>("--external-root") { Description = "Map an archived source root to a destination: ORIGINAL=DESTINATION." };
+        restore.Arguments.Add(restoreArchive); restore.Options.Add(restoreRollback); restore.Options.Add(restoreRoots);
+        Bind(restore, (parse, token) =>
+        {
+            var rollback = parse.GetValue(restoreRollback); var archive = parse.GetValue(restoreArchive);
+            var mappings = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var mapping in parse.GetValue(restoreRoots) ?? [])
+            {
+                var separator = mapping.IndexOf('=');
+                if (separator <= 0 || separator == mapping.Length - 1 || !Path.IsPathFullyQualified(mapping[..separator])
+                    || !Path.IsPathFullyQualified(mapping[(separator + 1)..]) || !mappings.TryAdd(mapping[..separator], mapping[(separator + 1)..]))
+                    throw new CliUsageException("Each --external-root must map a distinct absolute ORIGINAL=DESTINATION path.");
+            }
+            if (rollback && (archive is not null || mappings.Count > 0)) throw new CliUsageException("--rollback cannot be combined with an archive or root mappings.");
+            if (!rollback && archive is null) throw new CliUsageException("Provide an archive or --rollback.");
+            var loaded = Load(parse);
+            RootSecurityValidator.ValidateOrThrow(loaded.DataRoot, loaded.Sources.IncomingRoot, parse.GetValue(daemonUid), parse.GetValue(daemonGid), parse.GetValue(syncUid));
+            return (services.Restore ?? throw new CliPreconditionException("The local restore adapter is unavailable.")).RunAsync(loaded,
+                new RuntimeLocations(parse.GetValue(config), parse.GetValue(secrets)), archive, rollback, mappings, token);
+        });
+        maintenance.Subcommands.Add(restore);
+        var retention = new Command("retention", "Apply the server's retention policy to expired records and trash.");
+        Bind(retention, (_, token) => (services.Knowledge ?? throw new CliPreconditionException("The daemon adapter is unavailable.")).RunRetentionAsync(token));
+        maintenance.Subcommands.Add(retention);
+        var calendarEgress = new Command("calendar-egress", "Prepare exact calendar network allowances for systemd and Compose.");
+        var policyDirectory = new Option<string>("--output-dir") { Required = true, Description = "Directory for reviewable policy files; nothing is installed or restarted." };
+        calendarEgress.Options.Add(policyDirectory);
+        Bind(calendarEgress, async (parse, token) =>
+        {
+            var plan = await services.CalendarEgress.BuildAsync(Load(parse), token);
+            await CalendarEgressPlanner.WriteAsync(plan, parse.GetValue(policyDirectory)!, token);
+            return CliResult.Ok("Calendar network policy prepared for review; installation and service restart are still required.",
+                new { directory = Path.GetFullPath(parse.GetValue(policyDirectory)!), origins = plan.Origins, destinations = plan.Destinations });
+        });
+        maintenance.Subcommands.Add(calendarEgress);
         var rotate = new Command("rotate-keys"); var revokeEpoch = new Option<bool>("--revoke-all"); rotate.Options.Add(revokeEpoch);
         Bind(rotate, async (parse, token) =>
         {

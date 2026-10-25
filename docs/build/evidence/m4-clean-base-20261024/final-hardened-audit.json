@@ -1,0 +1,96 @@
+{
+  "status": "passed",
+  "roles": {
+    "daemon": {
+      "imageId": "sha256:9a6594ecf53243cbe8bdb8cfc8c81d352a00181f85e2289c50277c71af33ca43",
+      "uid": "1654:1654",
+      "readOnlyRoot": true,
+      "capabilities": [],
+      "noNewPrivileges": true,
+      "memoryBytes": 8589934592,
+      "pidsLimit": 256,
+      "networkMode": "container:51d27256bb60c34aa5b03e60beaf9a7ddbfefbeb005c7fcb8b9f0790a60dea79"
+    },
+    "extractor": {
+      "imageId": "sha256:253e8e6bc6dd5525feb3cf3bbeb7c4fb243eafead9b9f8a7a65924de748b8a25",
+      "uid": "1655:1654",
+      "readOnlyRoot": true,
+      "capabilities": [],
+      "noNewPrivileges": true,
+      "memoryBytes": 1073741824,
+      "pidsLimit": 64,
+      "networkMode": "none"
+    },
+    "egress": {
+      "imageId": "sha256:cd0ccac04dd223e33bb08c2a8a0441aeb3fae7707c9ada4082da77c83f8984cc",
+      "uid": "0:0",
+      "readOnlyRoot": true,
+      "capabilities": [
+        "CAP_NET_ADMIN"
+      ],
+      "noNewPrivileges": true,
+      "memoryBytes": 67108864,
+      "pidsLimit": 32,
+      "networkMode": "secondbrain-m4-final-base_restricted"
+    }
+  },
+  "readOnlyWriteRejected": true,
+  "canaryBlocked": true,
+  "extractorOfflineAndNoStoreOrSecretMount": true,
+  "privateRootAndKeyModes": true,
+  "runtime": "10.0.13",
+  "distribution": "wolfi",
+  "firewallBackend": "nft",
+  "diagnosticIpAvailable": true,
+  "readiness": {
+    "ready": true,
+    "components": {
+      "stores": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": null
+      },
+      "migrations": {
+        "ready": true,
+        "detail": "Migrations and durability recovery completed.",
+        "checkedAt": null
+      },
+      "lock": {
+        "ready": true,
+        "detail": "Exclusive data-root lock.",
+        "checkedAt": null
+      },
+      "canary": {
+        "ready": true,
+        "detail": "Egress canary: Blocked. Egress canary state is current.",
+        "checkedAt": "2026-10-25T03:47:50.9418804+00:00"
+      },
+      "extractor": {
+        "ready": true,
+        "detail": "Extractor answered ping.",
+        "checkedAt": null
+      },
+      "provider:chat": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-25T03:48:03.676497+00:00"
+      },
+      "provider:enrich": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-25T03:48:03.6819321+00:00"
+      },
+      "provider:embed": {
+        "ready": true,
+        "detail": null,
+        "checkedAt": "2026-10-25T03:48:03.6828872+00:00"
+      },
+      "provider:rerank": {
+        "ready": true,
+        "detail": "Optional rerank role is not configured.",
+        "checkedAt": "2026-10-25T03:48:03.6854832+00:00"
+      }
+    }
+  },
+  "productionChanged": false
+}

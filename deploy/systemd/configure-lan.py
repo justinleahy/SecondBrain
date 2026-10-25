@@ -57,15 +57,40 @@ def atomic_write(path, data, uid, gid, mode):
     fd, name = tempfile.mkstemp(prefix='.' + path.name + '-', dir=path.parent)
     try:
         with os.fdopen(fd, 'wb') as stream:
+            os.fchown(stream.fileno(), uid, gid)
+            os.fchmod(stream.fileno(), mode)
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
-        os.chown(name, uid, gid)
-        os.chmod(name, mode)
         os.replace(name, path)
+        directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
     finally:
         if os.path.exists(name):
             os.unlink(name)
+
+
+def configuration_path(directory):
+    path = directory / 'config.yaml'
+    if not path.is_symlink():
+        return path
+    require(os.readlink(path) == 'settings/config.yaml', 'Unexpected configuration link.')
+    target = directory / 'settings/config.yaml'
+    require(target.parent.resolve() == target.parent and not target.is_symlink(), 'Writable configuration target must not traverse a symbolic link.')
+    return target
+
+
+def read_configuration(path):
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1, 'Configuration must be a regular file with one hard link.')
+        content = stream.read(1024 * 1024 + 1)
+        require(len(content) <= 1024 * 1024, 'Configuration exceeds the size bound.')
+        return content, info
 
 
 def get(url, origin=None):
@@ -110,11 +135,10 @@ def main():
     evidence = args.evidence_dir.resolve()
     require(evidence.is_relative_to(repo / 'artifacts'), 'Evidence must stay under repository artifacts.')
     evidence.mkdir(parents=True, exist_ok=True)
-    config_path = pathlib.Path('/etc/secondbrain/config.yaml')
+    config_path = configuration_path(pathlib.Path('/etc/secondbrain'))
     dropin = pathlib.Path('/etc/systemd/system/secondbrain.service.d/20-lan.conf')
     require(not config_path.is_symlink() and not dropin.is_symlink(), 'Configuration targets must not be symlinks.')
-    original_bytes = config_path.read_bytes()
-    info = config_path.stat()
+    original_bytes, info = read_configuration(config_path)
     try:
         original = yaml.safe_load(original_bytes)
     except yaml.YAMLError:
@@ -135,7 +159,7 @@ def main():
     os.umask(0o077)
     backup = pathlib.Path('/var/backups/secondbrain') / ('lan-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ'))
     backup.mkdir(mode=0o700, parents=True)
-    shutil.copy2(config_path, backup / 'config.yaml')
+    (backup / 'config.yaml').write_bytes(original_bytes)
     old_dropin = dropin.read_bytes() if dropin.exists() else None
     if old_dropin is not None:
         (backup / '20-lan.conf').write_bytes(old_dropin)
@@ -163,6 +187,7 @@ def main():
             for rule in rich:
                 firewall([*permanent, '--zone=' + zone], ['--query-rich-rule=' + rule], ['--add-rich-rule=' + rule], ['--remove-rich-rule=' + rule])
         run(['firewall-cmd', '--check-config'])
+        require(read_configuration(config_path)[0] == original_bytes, 'Configuration changed while preparing the listener; retry with the latest settings.')
         changed = True
         atomic_write(config_path, yaml.safe_dump(updated, sort_keys=False, allow_unicode=True).encode(), info.st_uid, info.st_gid, stat.S_IMODE(info.st_mode))
         dropin.parent.mkdir(parents=True, exist_ok=True)

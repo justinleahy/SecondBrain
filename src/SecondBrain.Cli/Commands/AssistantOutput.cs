@@ -22,7 +22,9 @@ internal static class AssistantOutput
         {
             var source = citation.Source;
             await output.WriteLineAsync(Text($"[{source.Number}] {source.Title} — {source.DocumentId}, revision {source.Revision} ({citation.State})"));
-            await output.WriteLineAsync(Text(source.Excerpt));
+            if(citation.Spans is {Count:>0} spans)
+                foreach(var span in spans) await output.WriteLineAsync(Text(span.Excerpt));
+            else await output.WriteLineAsync(Text(source.Excerpt));
         }
         foreach (var warning in turn.Answer?.Warnings ?? []) await error.WriteLineAsync(Text("Warning: " + warning));
         if (turn.Status != "complete") await error.WriteLineAsync(Text($"Turn {turn.Status}: {turn.FailureCode ?? "incomplete"}."));

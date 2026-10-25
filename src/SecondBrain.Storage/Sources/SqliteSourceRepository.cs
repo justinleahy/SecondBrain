@@ -38,14 +38,24 @@ public sealed class SqliteSourceRepository(IStateStore store) : ISourceRepositor
         var rows = await lease.Connection.QueryAsync<SourceRow>(new CommandDefinition(
             """
             SELECT id AS Id, kind AS Kind, name AS Name, config_json AS ConfigJson, status AS Status,
-                   last_scan_at AS LastScanAt, last_full_scan_at AS LastFullScanAt, created_at AS CreatedAt
-            FROM sources WHERE kind = 'folder' ORDER BY created_at, id
+                   last_scan_at AS LastScanAt, last_full_scan_at AS LastFullScanAt, created_at AS CreatedAt,
+                   json_extract(m.value,'$.error') AS LastScanError,json_extract(m.value,'$.at') AS LastScanErrorAt
+            FROM sources LEFT JOIN meta m ON m.key='source-scan-error:'||sources.id WHERE kind = 'folder' ORDER BY created_at, id
             """, cancellationToken: cancellationToken));
         return rows.Select(row => new SourceRecord(
             row.Id, row.Kind, row.Name,
             JsonSerializer.Deserialize<FolderSourceConfiguration>(row.ConfigJson) ?? throw new InvalidDataException("Invalid source configuration."),
             row.Status, ParseTimestamp(row.LastScanAt), ParseTimestamp(row.LastFullScanAt),
-            DateTimeOffset.Parse(row.CreatedAt, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind))).ToArray();
+            DateTimeOffset.Parse(row.CreatedAt, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind))
+            { LastScanError = row.LastScanError, LastScanErrorAt = ParseTimestamp(row.LastScanErrorAt) }).ToArray();
+    }
+
+    public async Task RecordScanErrorAsync(string id, string? error, DateTimeOffset at, CancellationToken cancellationToken = default)
+    {
+        await store.QueueWriteAsync(async (connection, transaction, token) =>
+            await connection.ExecuteAsync(new CommandDefinition(error is null ? "DELETE FROM meta WHERE key=@Key" :
+                "INSERT INTO meta(key,value) VALUES(@Key,@Value) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                new { Key = "source-scan-error:" + id, Value = JsonSerializer.Serialize(new { error, at }) }, transaction, cancellationToken: token)), cancellationToken);
     }
 
     private static DateTimeOffset? ParseTimestamp(string? value) => value is null ? null : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
@@ -60,5 +70,7 @@ public sealed class SqliteSourceRepository(IStateStore store) : ISourceRepositor
         public string? LastScanAt { get; set; }
         public string? LastFullScanAt { get; set; }
         public string CreatedAt { get; set; } = "";
+        public string? LastScanError { get; set; }
+        public string? LastScanErrorAt { get; set; }
     }
 }

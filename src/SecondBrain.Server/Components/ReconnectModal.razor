@@ -1,0 +1,13 @@
+<dialog id="components-reconnect-modal" class="connection-dialog" aria-labelledby="connection-heading" data-nosnippet>
+    <h2 id="connection-heading">Connection interrupted</h2>
+    <p class="connection-trying" role="status">Reconnecting to SecondBrain… Your saved work is on the server.</p>
+    <p class="connection-failed">The server could not be reached. Check your connection and try again.</p>
+    <p class="connection-rejected">This session could not be resumed. The server may have restarted or your session may have ended. Reload to continue. Copy any unsaved draft before reloading.</p>
+    <p class="connection-paused">The connection is paused. Resume to continue.</p>
+    <div class="connection-actions">
+        <button id="connection-retry" class="connection-failed" type="button">Retry connection</button>
+        <button id="connection-resume" class="connection-paused" type="button">Resume connection</button>
+        <button id="connection-reload" class="connection-rejected connection-failed" type="button">Reload page</button>
+        <button id="connection-dismiss" class="connection-rejected connection-failed" type="button">Keep page open</button>
+    </div>
+</dialog>

@@ -1,0 +1,9 @@
+@if (Error is not null)
+{
+    <div class="knowledge-error" role="alert"><p>@Error</p><a href="/login">Sign in</a> · <a href="/settings">Settings</a></div>
+}
+@if (Busy) { <p role="status">Loading…</p> }
+@code {
+    [Parameter] public string? Error { get; set; }
+    [Parameter] public bool Busy { get; set; }
+}

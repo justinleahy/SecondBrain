@@ -1,0 +1,30 @@
+{
+  "fixture": "M4ClassificationQualification.BrowserWorkflow",
+  "syntheticData": true,
+  "realExtractor": true,
+  "viewports": [
+    {
+      "width": 1280,
+      "enabled": false,
+      "minimumConfidencePercent": 83
+    },
+    {
+      "width": 390,
+      "enabled": true,
+      "minimumConfidencePercent": 91
+    }
+  ],
+  "settingsSavedAndReloaded": true,
+  "classifiedDocumentVisible": true,
+  "storedModelConfidence": 0.95,
+  "noHorizontalOverflow": true,
+  "workflowConsoleErrors": 0,
+  "workflowConsoleWarnings": 0,
+  "screenshotsInspected": [
+    "settings-1280.png",
+    "settings-390.png",
+    "document-1280.png",
+    "document-390.png"
+  ],
+  "fixtureStopped": true
+}

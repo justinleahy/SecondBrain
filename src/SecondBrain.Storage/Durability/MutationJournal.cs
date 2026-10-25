@@ -6,6 +6,8 @@ using System.Text.Json;
 using Dapper;
 using SecondBrain.Core.Durability;
 using SecondBrain.Core.Storage;
+using SecondBrain.Core.Ingestion;
+using SecondBrain.Storage.Ingestion;
 
 namespace SecondBrain.Storage.Durability;
 
@@ -16,14 +18,45 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
     private readonly IStateStore _state;
     private readonly ManagedMutationFiles _files;
     private readonly ICrashPoints _crashPoints;
+    private readonly Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? _options;
+    private readonly TimeProvider _clock;
     // One daemon owns a data root; serialize filesystem work independently of the database writer.
     private readonly SemaphoreSlim _gate = new(1, 1);
 
-    public MutationJournal(IStateStore state, string dataRoot, ICrashPoints? crashPoints = null)
+    public MutationJournal(IStateStore state, string dataRoot, ICrashPoints? crashPoints = null,
+        Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null, TimeProvider? clock = null)
     {
         _state = state ?? throw new ArgumentNullException(nameof(state));
         _files = new ManagedMutationFiles(dataRoot);
         _crashPoints = crashPoints ?? new NoOpCrashPoints();
+        _options = options; _clock = clock ?? TimeProvider.System;
+    }
+
+    internal async ValueTask<IDisposable> AcquireBackupBarrierAsync(CancellationToken token)
+    {
+        // Apply and finalization take the journal gate separately. Never capture the gap where a
+        // new file is on disk but its authoritative revision has not committed yet.
+        for (var attempt = 0; attempt < 128; attempt++)
+        {
+            await _gate.WaitAsync(token).ConfigureAwait(false);
+            IDisposable? publications = null;
+            try
+            {
+                publications = await PublicationCoordinator.AcquirePublicationGateAsync(_state, token).ConfigureAwait(false);
+                await using var read = await _state.OpenReadConnectionAsync(token).ConfigureAwait(false);
+                var pending = await read.Connection.ExecuteScalarAsync<long>(Command("SELECT COUNT(*) FROM mutations WHERE status IN ('prepared','applied')", null, null, token)).ConfigureAwait(false);
+                if (pending == 0) return new BackupBarrier(_gate, publications);
+            }
+            catch { publications?.Dispose(); _gate.Release(); throw; }
+            publications.Dispose(); _gate.Release();
+            await Task.Delay(10, token).ConfigureAwait(false);
+        }
+        throw new InvalidOperationException("Backup capture is waiting for pending file mutations to finish.");
+    }
+    private sealed class BackupBarrier(SemaphoreSlim journal, IDisposable publications) : IDisposable
+    {
+        private int disposed;
+        public void Dispose() { if (Interlocked.Exchange(ref disposed, 1) == 0) { publications.Dispose(); journal.Release(); } }
     }
 
     public async ValueTask<MutationRecord> PrepareAsync(MutationWriteRequest request, CancellationToken cancellationToken = default)
@@ -62,6 +95,40 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
         {
             var existing = await LoadAsync(connection, transaction, request.MutationId, ct).ConfigureAwait(false);
+            if (existing is null || existing.Status == "failed")
+                await EnrichmentWritebackConditions.ValidateAsync(connection, transaction, finalization, _options, _clock.GetUtcNow(), ct).ConfigureAwait(false);
+            if (finalization.Expiry is { } expiry && (existing is null || existing.Status == "failed")
+                && !await RetentionConditions.MatchesAsync(connection, transaction, finalization.DocumentId!, expiry, ct).ConfigureAwait(false))
+                throw new MutationRevisionException(finalization.DocumentId!);
+            if (finalization.DocumentId is { } purgeDocument && await connection.ExecuteScalarAsync<long>(Command("""
+                SELECT COUNT(*) FROM documents d JOIN calendar_source_purges p ON p.source_id=d.source_id
+                WHERE d.id=@purgeDocument AND p.completed_at IS NULL AND @mutation<>'source-purge:'||p.operation_id
+                """, new { purgeDocument, mutation = request.MutationId }, transaction, ct)).ConfigureAwait(false) != 0)
+                throw new InvalidOperationException("Calendar source purge is in progress.");
+            if (finalization.DocumentId is { } folderDocument && await connection.ExecuteScalarAsync<long>(Command("""
+                SELECT COUNT(*) FROM documents d JOIN folder_source_purges p ON p.source_id=d.source_id
+                WHERE d.id=@folderDocument AND p.completed_at IS NULL AND @mutation<>'folder-source-purge:'||p.operation_id||':'||d.id
+                """, new { folderDocument, mutation = request.MutationId }, transaction, ct)).ConfigureAwait(false) != 0)
+                throw new InvalidOperationException("Folder source purge is in progress.");
+            if (request.MutationId.StartsWith("calendar-snapshot:", StringComparison.Ordinal) && request.DocumentReferences.Count == 1)
+            {
+                var root = request.DocumentReferences[0];
+                if (await connection.ExecuteScalarAsync<long>(Command("""
+                    SELECT CASE WHEN EXISTS(SELECT 1 FROM meta WHERE key='mutation_document_reservation:'||@root)
+                      OR EXISTS(SELECT 1 FROM documents WHERE id=@root AND status IN ('deleted','purged','missing','removed_from_source'))
+                      OR EXISTS(SELECT 1 FROM calendar_subscriptions c JOIN sources s ON s.id=c.source_id WHERE c.container_id=@root AND s.status<>'active')
+                      THEN 1 ELSE 0 END
+                    """, new { root }, transaction, ct)).ConfigureAwait(false) != 0)
+                    throw new InvalidOperationException("Calendar container no longer permits snapshot writes.");
+            }
+            if (finalization.DocumentId is { } calendarDocument && await connection.ExecuteScalarAsync<long>(Command(
+                "SELECT COUNT(*) FROM calendar_batch_members m JOIN calendar_batches b ON b.container_id=m.container_id WHERE m.document_id=@id AND b.phase='publishing'", new { id = calendarDocument }, transaction, ct)).ConfigureAwait(false) != 0)
+                throw new InvalidOperationException("Calendar publication is in progress.");
+            if (finalization.DocumentId is { } related && await connection.ExecuteScalarAsync<long>(Command("""
+                SELECT COUNT(*) FROM documents d JOIN meta m ON m.key='mutation_document_reservation:'||d.id
+                WHERE d.id=(SELECT container_document_id FROM documents WHERE id=@id) OR d.container_document_id=@id
+                """, new { id = related }, transaction, ct)).ConfigureAwait(false) != 0)
+                throw new InvalidOperationException("A related calendar document has an active mutation.");
             if (existing is not null)
             {
                 var saved = ParsePlan(existing);
@@ -224,6 +291,7 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                 return await MarkConflictAsync(entry, durable, source, external, cancellationToken).ConfigureAwait(false);
         }
         await _crashPoints.HitAsync(CrashPointNames.BeforeFinalize, cancellationToken).ConfigureAwait(false);
+        using var publicationGate = await PublicationCoordinator.AcquirePublicationGateAsync(_state, cancellationToken).ConfigureAwait(false);
         var finalized = await _state.QueueWriteAsync<MutationRecord?>(async (connection, transaction, ct) =>
         {
             var fresh = (await LoadAsync(connection, transaction, mutationId, ct).ConfigureAwait(false))!;
@@ -265,12 +333,26 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             if (entry is null) return false;
             var plan = ParsePlan(entry);
             using var file = _files.Open(entry.Destination, entry.Id + ":discard");
+            using var publicationGate = await PublicationCoordinator.AcquirePublicationGateAsync(_state, cancellationToken).ConfigureAwait(false);
             return await _state.QueueWriteAsync(async (connection, transaction, ct) =>
             {
+                var calendarSnapshot = entry.Id.StartsWith("calendar-snapshot:", StringComparison.Ordinal) && plan.Finalization.DocumentId is null && plan.DocumentReferences.Length == 1;
+                if (calendarSnapshot)
+                {
+                    var root = plan.DocumentReferences[0]; var lease = entry.Id["calendar-snapshot:".Length..];
+                    var retained = await connection.ExecuteScalarAsync<long>(Command("""
+                        SELECT CASE WHEN EXISTS(SELECT 1 FROM calendar_subscriptions WHERE container_id=@root AND (snapshot_path=@destination OR lease_id=@lease))
+                          OR EXISTS(SELECT 1 FROM calendar_subscription_publications WHERE container_id=@root AND snapshot_path=@destination)
+                          OR EXISTS(SELECT 1 FROM revisions WHERE document_id=@root AND content_hash=@hash)
+                          OR EXISTS(SELECT 1 FROM meta WHERE key='mutation_document_reservation:'||@root) THEN 1 ELSE 0 END
+                        """, new { root, lease, destination, hash = entry.PayloadHash }, transaction, ct)).ConfigureAwait(false);
+                    if (retained != 0) return false;
+                }
                 // A published document owns its original; only an import that never became a document is undone.
-                foreach (var document in plan.DocumentReferences)
-                    if (await connection.ExecuteScalarAsync<long>(Command("SELECT count(*) FROM documents WHERE id=@document;", new { document }, transaction, ct)).ConfigureAwait(false) != 0)
-                        return false;
+                if (!calendarSnapshot)
+                    foreach (var document in plan.DocumentReferences)
+                        if (await connection.ExecuteScalarAsync<long>(Command("SELECT count(*) FROM documents WHERE id=@document;", new { document }, transaction, ct)).ConfigureAwait(false) != 0)
+                            return false;
                 if (!await file.RemoveExpectedAsync(entry.PayloadHash, _crashPoints.HitAsync, ct).ConfigureAwait(false)) return false;
                 var payloads = new[] { PayloadId(entry.Id, "content"), PayloadId(entry.Id, "plan"), PayloadId(entry.Id, "result") };
                 await connection.ExecuteAsync(Command("DELETE FROM mutations WHERE id=@id;", new { id = entry.Id }, transaction, ct)).ConfigureAwait(false);
@@ -282,7 +364,30 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
         finally { _gate.Release(); }
     }
 
-    public async ValueTask<MutationRecoveryReport> RecoverAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<int> CleanupUnpublishedCalendarSnapshotsAsync(int limit = 64, CancellationToken cancellationToken = default)
+    {
+        if (limit is < 1 or > 1024) throw new ArgumentOutOfRangeException(nameof(limit));
+        string[] paths;
+        await using (var lease = await _state.OpenReadConnectionAsync(cancellationToken).ConfigureAwait(false))
+            paths = (await lease.Connection.QueryAsync<string>(Command("""
+                SELECT m.destination FROM mutations m JOIN payloads p ON p.id=m.payload_id
+                WHERE m.kind='import' AND m.status='finalized' AND m.id LIKE 'calendar-snapshot:%' AND p.redacted_at IS NULL
+                  AND NOT EXISTS(SELECT 1 FROM calendar_subscriptions c WHERE c.snapshot_path=m.destination OR 'calendar-snapshot:'||c.lease_id=m.id)
+                  AND NOT EXISTS(SELECT 1 FROM revisions r JOIN json_each(p.document_refs_json) refs ON refs.value=r.document_id WHERE r.content_hash=p.sha256)
+                  AND NOT EXISTS(SELECT 1 FROM calendar_subscription_publications c WHERE c.snapshot_path=m.destination)
+                ORDER BY m.created_at,m.id LIMIT @limit
+                """, new { limit }, null, cancellationToken)).ConfigureAwait(false)).ToArray();
+        var count = 0;
+        foreach (var path in paths) if (await DiscardUnpublishedImportAsync(path, cancellationToken).ConfigureAwait(false)) count++;
+        return count;
+    }
+
+    public ValueTask<MutationRecoveryReport> RecoverAsync(CancellationToken cancellationToken = default) => RecoverMatchingAsync(null, null, false, null, cancellationToken);
+    public ValueTask<MutationRecoveryReport> RecoverCalendarSnapshotsAsync(string containerId, CancellationToken cancellationToken = default) => RecoverMatchingAsync(containerId, null, false, null, cancellationToken);
+    public ValueTask<MutationRecoveryReport> RecoverCalendarPurgeAsync(string operationId, CancellationToken cancellationToken = default) => RecoverMatchingAsync(null, operationId, false, null, cancellationToken);
+    public ValueTask<MutationRecoveryReport> RecoverRetentionPurgesAsync(CancellationToken cancellationToken = default) => RecoverMatchingAsync(null, null, true, null, cancellationToken);
+    public ValueTask<MutationRecoveryReport> RecoverDocumentAsync(string documentId, CancellationToken cancellationToken = default) => RecoverMatchingAsync(null, null, false, documentId, cancellationToken);
+    private async ValueTask<MutationRecoveryReport> RecoverMatchingAsync(string? calendar, string? purge, bool retention, string? document, CancellationToken cancellationToken)
     {
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -295,7 +400,15 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             {
                 string[] ids;
                 await using (var read = await _state.OpenReadConnectionAsync(cancellationToken).ConfigureAwait(false))
-                    ids = (await read.Connection.QueryAsync<string>(Command("SELECT id FROM mutations WHERE status IN ('prepared','applied') ORDER BY created_at,id LIMIT 128;", null, null, cancellationToken)).ConfigureAwait(false)).ToArray();
+                    ids = (await read.Connection.QueryAsync<string>(Command("""
+                        SELECT m.id FROM mutations m WHERE m.status IN ('prepared','applied')
+                          AND (@calendar IS NULL OR (m.id LIKE 'calendar-snapshot:%' AND EXISTS(
+                            SELECT 1 FROM payloads p,json_each(p.document_refs_json) r WHERE p.id=m.payload_id AND r.value=@calendar)))
+                          AND (@purge IS NULL OR (m.kind='purge' AND (m.operation_id=@purge OR m.id='source-purge:'||@purge OR m.id LIKE 'folder-source-purge:'||@purge||':%')))
+                          AND (@retention=0 OR m.id LIKE 'retention-purge:%')
+                          AND (@document IS NULL OR EXISTS(SELECT 1 FROM payloads p,json_each(p.document_refs_json) r WHERE p.id=m.payload_id AND r.value=@document))
+                        ORDER BY m.created_at,m.id LIMIT 128;
+                        """, new { calendar, purge, retention, document }, null, cancellationToken)).ConfigureAwait(false)).ToArray();
                 if (ids.Length == 0) break;
                 foreach (var id in ids)
                 {
@@ -394,7 +507,7 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                 var planWasCurrent = plan.HasExpectedGeneration && await PlanIsCurrentAsync(connection, transaction, plan, ct).ConfigureAwait(false);
                 if (document is not null && ((planWasCurrent && document.Revision == plan.Finalization.RevisionBefore) || document.ContentHash != externalHash))
                 {
-                    var count = await connection.ExecuteAsync(Command("UPDATE documents SET content_hash=@externalHash,revision=revision+1,publish_state='publishing',updated_at=@now WHERE id=@id AND revision=@current;",
+                    var count = await connection.ExecuteAsync(Command($"UPDATE documents SET content_hash=@externalHash,revision=revision+1,publish_state='publishing',status='queued',error=NULL,updated_at=@now WHERE id=@id AND revision=@current AND status NOT IN ({DocumentStatusSql.Unavailable});",
                         new { id = plan.Finalization.DocumentId, current = document.Revision, externalHash, now }, transaction, ct)).ConfigureAwait(false);
                     if (count != 0)
                     {
@@ -403,6 +516,23 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                         // A superseded plan's generation is older than the current fence; never roll that back.
                         var fence = planWasCurrent ? plan.Finalization : plan.Finalization with { GenerationJson = null };
                         await EnsurePublicationFenceAsync(connection, transaction, fence, ct).ConfigureAwait(false);
+                        // Retain metadata while removing stale text from the new revision. The
+                        // descriptor-backed extractor will publish the observed external bytes.
+                        var previous = await connection.ExecuteScalarAsync<byte[]?>(Command("SELECT p.bytes FROM document_projections d JOIN payloads p ON p.id=d.payload_id WHERE d.document_id=@id AND p.redacted_at IS NULL;", new { id = plan.Finalization.DocumentId }, transaction, ct)).ConfigureAwait(false);
+                        var projection = previous is null ? new TextProjection("", "", [], [], [], file.FullPath) :
+                            JsonSerializer.Deserialize<TextProjection>(previous)! with { LosslessText = "", SearchText = "", OffsetMap = [], Chunks = [], Links = [], Path = file.FullPath };
+                        var projectionId = PayloadId(entry.Id, "external-projection");
+                        await InsertPayloadAsync(connection, transaction, projectionId, JsonSerializer.SerializeToUtf8Bytes(projection), plan.DocumentReferences.Append(plan.Finalization.DocumentId).Distinct(StringComparer.Ordinal).ToArray(), entry.Id, now, ct).ConfigureAwait(false);
+                        await connection.ExecuteAsync(Command("""
+                            INSERT INTO document_projections(document_id,revision,generation_json,payload_id)
+                            SELECT d.id,d.revision,f.generation_json,@payload FROM documents d JOIN publication_fences f ON f.document_id=d.id WHERE d.id=@id
+                            ON CONFLICT(document_id) DO UPDATE SET revision=excluded.revision,generation_json=excluded.generation_json,payload_id=excluded.payload_id;
+                            UPDATE jobs SET status='cancelled',lease_until=NULL,updated_at=@now WHERE document_id=@id AND revision<@revision AND status IN ('queued','running');
+                            INSERT OR IGNORE INTO jobs(id,kind,document_id,revision,generation_json,account_epoch,status,payload_json,created_at,updated_at)
+                            SELECT @job,'extract',d.id,d.revision,f.generation_json,COALESCE((SELECT CAST(value AS INTEGER) FROM meta WHERE key='account_epoch'),0),'queued',@body,@now,@now
+                            FROM documents d JOIN publication_fences f ON f.document_id=d.id WHERE d.id=@id;
+                            """, new { id = plan.Finalization.DocumentId, payload = projectionId, revision = document.Revision + 1, now,
+                                job = "external-edit:" + entry.Id, body = JsonSerializer.Serialize(new { path = file.FullPath, file_name = Path.GetFileName(file.FullPath) }) }, transaction, ct)).ConfigureAwait(false);
                     }
                 }
             }
@@ -449,6 +579,8 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
 
     private static async ValueTask ApplyFinalizationAsync(DbConnection connection, DbTransaction transaction, DbMutation entry, MutationFinalization finalize, string now, CancellationToken ct)
     {
+        if (finalize.Expiry is { } expiry)
+            await RetentionConditions.RecordAsync(connection, transaction, finalize.DocumentId!, expiry, ct).ConfigureAwait(false);
         // The derived-cleanup marker commits with the purge itself, before the content hash is replaced.
         if (finalize.PurgeDocumentLineage && finalize.DocumentId is not null)
             await connection.ExecuteAsync(Command(SecondBrain.Storage.Ingestion.PurgeCleanup.MarkSql, new { id = finalize.DocumentId }, transaction, ct)).ConfigureAwait(false);
@@ -470,9 +602,11 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             if (payloadCount != 1) throw new InvalidOperationException("Mutation projection payload is missing or redacted.");
             await connection.ExecuteAsync(Command("""
                 UPDATE documents SET title=@Title,type=@Type,type_origin=@TypeOrigin,props_json=@PropsJson,
-                  props_original_json=@PropsOriginalJson,status=@Status,mime=@Mime,source_url=@SourceUrl
+                  props_original_json=@PropsOriginalJson,
+                  deleted_at=CASE WHEN @Status IN ('deleted','purged') THEN CASE WHEN status=@Status THEN COALESCE(deleted_at,@now) ELSE @now END ELSE NULL END,
+                  status=@Status,mime=@Mime,source_url=@SourceUrl
                 WHERE id=@id AND revision=@revision;
-                """, new { metadata.Title, metadata.Type, metadata.TypeOrigin, metadata.PropsJson, metadata.PropsOriginalJson, metadata.Status, metadata.Mime, metadata.SourceUrl, id = finalize.DocumentId, revision = finalize.RevisionAfter }, transaction, ct)).ConfigureAwait(false);
+                """, new { metadata.Title, metadata.Type, metadata.TypeOrigin, metadata.PropsJson, metadata.PropsOriginalJson, metadata.Status, metadata.Mime, metadata.SourceUrl, now, id = finalize.DocumentId, revision = finalize.RevisionAfter }, transaction, ct)).ConfigureAwait(false);
             if (metadata.UpdateOccurred)
                 await connection.ExecuteAsync(Command("""
                     UPDATE documents SET occurred_at=@OccurredAt,occurred_offset=@OccurredOffset,occurred_basis=@OccurredBasis,occurred_precision=@OccurredPrecision WHERE id=@id;
@@ -493,6 +627,13 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                 INSERT OR IGNORE INTO suppressions(id,scope,source_id,key,reason,created_at)
                 SELECT @suppression,'document',source_id,id,'app-delete',@now FROM documents WHERE id=@id;
                 """, new { suppression = "mutation:" + entry.Id, id = finalize.DocumentId, now }, transaction, ct)).ConfigureAwait(false);
+        if (finalize.EnrichmentWriteback is { } enrichment)
+            await connection.ExecuteAsync(Command("""
+                INSERT OR IGNORE INTO jobs(id,kind,document_id,revision,generation_json,initiating_credential_id,credential_generation,account_epoch,payload_json,status,created_at,updated_at)
+                SELECT @id,'write_back',@document,@revision,@generation,initiating_credential_id,credential_generation,account_epoch,'{}','completed',@now,@now
+                FROM jobs WHERE id=@original;
+                """, new { id = "finalized:" + entry.Id, document = finalize.DocumentId, revision = finalize.RevisionAfter,
+                    generation = finalize.GenerationJson, original = enrichment.JobId, now }, transaction, ct)).ConfigureAwait(false);
         if (finalize.ClearSuppression && finalize.DocumentId is not null)
             await connection.ExecuteAsync(Command("DELETE FROM suppressions WHERE scope='document' AND key=@id;", new { id = finalize.DocumentId }, transaction, ct)).ConfigureAwait(false);
         if (finalize.PurgeDocumentLineage && finalize.DocumentId is not null)
@@ -504,6 +645,8 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
                 DELETE FROM overrides WHERE document_id=@id;
                 """, new { id = finalize.DocumentId, now, retainedPlan = PayloadId(entry.Id, "plan"), retainedContent = PayloadId(entry.Id, "content") }, transaction, ct)).ConfigureAwait(false);
         }
+        if (finalize.DocumentId is { } calendarContainer)
+            await CalendarLifecycle.ApplyAsync(connection, transaction, calendarContainer, finalize.RevisionCause, now, ct).ConfigureAwait(false);
         if (finalize.PendingOperationId is not null)
         {
             var count = await connection.ExecuteAsync(Command("UPDATE pending_operations SET status='executed',resolved_at=@now WHERE id=@id AND status IN ('pending','executing');",
@@ -592,6 +735,7 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
     }
 
     private static string PayloadId(string mutationId, string suffix) => $"sb_mutation_{Hash(Encoding.UTF8.GetBytes(mutationId))}_{suffix}";
+    internal static string PlanPayloadId(string mutationId) => PayloadId(mutationId, "plan");
     private static DurablePlan ParsePlan(DbMutation entry)
     {
         var plan = JsonSerializer.Deserialize<DurablePlan>(entry.PlanBytes) ?? throw new InvalidDataException("Mutation finalization plan is missing.");
@@ -612,6 +756,12 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
     private static void ValidateFinalization(MutationFinalization finalize)
     {
         ArgumentNullException.ThrowIfNull(finalize);
+        if (finalize.Expiry is { } expiry)
+        {
+            expiry.Validate();
+            if (finalize.DocumentId is null || finalize.RevisionCause != "purge" || !finalize.PurgeDocumentLineage)
+                throw new ArgumentException("Retention expiry requires a document purge.");
+        }
         if (finalize.DocumentId is null)
         {
             if (finalize.RevisionBefore is not null || finalize.RevisionAfter is not null) throw new ArgumentException("Revisions require a document id.", nameof(finalize));
@@ -629,10 +779,10 @@ public sealed class MutationJournal : IMutationJournal, IDisposable
             if (finalize.DocumentId is null) throw new ArgumentException("Metadata requires a document id.", nameof(finalize));
             ArgumentException.ThrowIfNullOrWhiteSpace(metadata.ProjectionPayloadId);
             if (metadata.Title.Length > 4096 || metadata.Type.Length > 128 || metadata.PropsJson.Length > 65536 || metadata.PropsOriginalJson.Length > 65536) throw new ArgumentException("Mutation metadata exceeds bounds.", nameof(finalize));
-            if (metadata.Overrides?.Count > 4) throw new ArgumentException("Too many override kinds.", nameof(finalize));
+            if (metadata.Overrides?.Count > 5) throw new ArgumentException("Too many override kinds.", nameof(finalize));
             foreach (var value in metadata.Overrides ?? new Dictionary<string,string>())
             {
-                if (value.Key is not ("type" or "props" or "tags" or "title") || value.Value.Length > 65536) throw new ArgumentException("Invalid override kind or bound.", nameof(finalize));
+                if (value.Key is not ("type" or "props" or "tags" or "title" or "aliases") || value.Value.Length > 65536) throw new ArgumentException("Invalid override kind or bound.", nameof(finalize));
                 using var parsedOverride = JsonDocument.Parse(value.Value);
             }
             using var props = JsonDocument.Parse(metadata.PropsJson);

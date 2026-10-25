@@ -8,4 +8,10 @@ public sealed record ExtractionResult(
     IReadOnlyDictionary<string, JsonElement>? Properties = null,
     IReadOnlyList<string>? Tags = null, IReadOnlyList<string>? Links = null,
     IReadOnlyList<ExtractionPage>? Pages = null, string? Error = null, string? Bound = null,
-    IReadOnlyList<string>? Aliases = null, string? DeclaredCreatedAt = null, string? DeclaredUpdatedAt = null);
+    IReadOnlyList<string>? Aliases = null, string? DeclaredCreatedAt = null, string? DeclaredUpdatedAt = null,
+    IReadOnlyList<ExtractionSegment>? Segments = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] CalendarSnapshot? Calendar = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public FrontmatterLayout? Frontmatter { get; init; }
+}

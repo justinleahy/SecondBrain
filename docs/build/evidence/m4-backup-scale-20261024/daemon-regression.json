@@ -1,0 +1,41 @@
+{
+  "syntheticData": true,
+  "controlledLocalProvider": true,
+  "realExtractorProtocol": true,
+  "fullDaemonComposition": true,
+  "sameUserFixture": true,
+  "hardenedDeploymentQualified": false,
+  "productionChanged": false,
+  "totalHttpEdits": 34,
+  "archives": [
+    {
+      "Files": 22,
+      "Complete": 22,
+      "ConcurrentEdits": 15,
+      "capturedRevision": 7,
+      "manifestVerified": true,
+      "sqliteIntegrity": "ok",
+      "trashIncluded": true
+    },
+    {
+      "Files": 22,
+      "Complete": 22,
+      "ConcurrentEdits": 10,
+      "capturedRevision": 23,
+      "manifestVerified": true,
+      "sqliteIntegrity": "ok",
+      "trashIncluded": true
+    }
+  ],
+  "offlineCliRestore": true,
+  "daemonRestarted": true,
+  "capturedRevisionRestored": true,
+  "rebuiltSearchVerified": true,
+  "oldCredentialRejected": true,
+  "trashRestoredAfterRestart": true,
+  "limitations": [
+    "Disposable same-user Kestrel host, not systemd/Compose isolation.",
+    "Small synthetic corpus; mounted roots and large-corpus resource limits remain separate gates.",
+    "No external calendar service or cloud model used."
+  ]
+}

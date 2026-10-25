@@ -3,7 +3,10 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
+  schedule:
+    - cron: '31 6 * * *'
 
 permissions:
   contents: read
@@ -34,15 +37,30 @@ jobs:
           cache: true
           cache-dependency-path: "**/packages.lock.json"
       - name: Restore locked dependencies
-        run: dotnet restore SecondBrain.slnx --locked-mode
+        run: dotnet restore SecondBrain.slnx --locked-mode -p:NuGetAudit=true -p:NuGetAuditMode=all -p:NuGetAuditLevel=low -warnaserror
       - name: Build with warnings as errors
         run: dotnet build SecondBrain.slnx --configuration Release --no-restore -warnaserror -p:ContinuousIntegrationBuild=true
       - name: Run deterministic tests
         run: dotnet test SecondBrain.slnx --configuration Release --no-build --no-restore --filter 'Category!=Qualification' --logger trx --results-directory TestResults
+      - name: Check release inventory safeguards
+        run: python3 -m unittest discover -s tools/release -p 'test_*.py' -v
+      - name: Audit pinned editor build dependencies
+        run: npm audit --prefix tools/editor --audit-level=low --json > TestResults/npm-audit.json
+      - name: Vary the reproducible parser mutation corpus
+        env:
+          SECONDBRAIN_FUZZ_SEED: ${{ github.run_number }}
+        run: dotnet test tests/SecondBrain.Extractor.Tests --configuration Release --no-build --no-restore --filter 'Category=Fuzz' --logger trx --results-directory TestResults
+      - name: Qualify daemon backup and restore under sustained edits
+        env:
+          SECONDBRAIN_M4_DAEMON_BACKUP: '1'
+          SECONDBRAIN_M4_DAEMON_BACKUP_OUTPUT: ${{ github.workspace }}/TestResults/backup-restore
+        run: dotnet test tests/SecondBrain.Deploy.Tests --configuration Release --no-build --no-restore --filter FullyQualifiedName~M4BackupUnderSustainedHttpEditsRestoresAndRestartsTheFullDaemon --logger trx --results-directory TestResults
       - name: Check systemd upgrade safeguards
         run: python3 -m unittest discover -s deploy/tests -p test_systemd_upgrade.py -v
       - name: Check LAN listener safeguards
         run: python3 -m unittest discover -s deploy/tests -p test_lan_configuration.py -v
+      - name: Check backup recovery handoff safeguards
+        run: python3 -m unittest discover -s deploy/tests -p test_backup_key_handoff.py -v
       - name: Qualify staging with distinct daemon and sync identities
         run: sudo bash deploy/tests/distinct-identity-staging.sh
       - name: Check lock files remain unchanged
@@ -52,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-results
-          path: TestResults/**/*.trx
+          path: TestResults/**
           if-no-files-found: ignore
 
   publish:
@@ -82,9 +100,33 @@ jobs:
       - name: Check CLI artifact carries the daemon
         if: matrix.project == 'Cli'
         run: |
-          for f in SecondBrain.Server SecondBrain.Server.dll SecondBrain.Server.runtimeconfig.json; do
+          for f in SecondBrain.Server SecondBrain.Server.dll SecondBrain.Server.runtimeconfig.json SecondBrain.Server.staticwebassets.endpoints.json wwwroot/editor/manifest.json; do
             test -f "artifacts/Cli/$f" || { echo "missing $f"; exit 1; }
           done
+      - name: Install pinned inventory and vulnerability tools
+        run: python3 tools/release/install_tools.py "$RUNNER_TEMP/release-tools" syft grype
+      - name: Inventory shipped code and assets
+        env:
+          SYFT_FILE_METADATA_SELECTION: all
+        run: |
+          mkdir -p "reports/${{ matrix.project }}"
+          "$RUNNER_TEMP/release-tools/syft" "dir:artifacts/${{ matrix.project }}" -o "cyclonedx-json=reports/${{ matrix.project }}/syft.cdx.json"
+          python3 tools/release/inventory.py "artifacts/${{ matrix.project }}" "reports/${{ matrix.project }}/syft.cdx.json" "reports/${{ matrix.project }}"
+      - name: Scan the complete shipped inventory
+        env:
+          GRYPE_DB_REQUIRE_UPDATE_CHECK: 'true'
+          GRYPE_DB_VALIDATE_AGE: 'true'
+          GRYPE_DB_VALIDATE_BY_HASH_ON_START: 'true'
+        run: '"$RUNNER_TEMP/release-tools/grype" "sbom:reports/${{ matrix.project }}/sbom.cdx.json" --fail-on low -o json --file "reports/${{ matrix.project }}/vulnerabilities.json"'
+      - name: Package verified release files
+        run: python3 tools/release/package.py "artifacts/${{ matrix.project }}" "reports/${{ matrix.project }}" "secondbrain-${{ matrix.project }}-linux-x64"
+      - name: Upload inventory and scan evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: supply-chain-${{ matrix.project }}-linux-x64
+          path: reports/${{ matrix.project }}/
+          if-no-files-found: ignore
       - name: Check lock files remain unchanged
         run: git diff --exit-code -- '**/packages.lock.json'
       - name: Upload published binary
@@ -110,6 +152,30 @@ jobs:
         run: docker build --platform linux/amd64 --target extractor --file deploy/docker/Dockerfile --tag secondbrain-extractor:ci .
       - name: Qualify real extractor isolation and descriptor transport
         run: sudo python3 deploy/tests/extractor-isolation.py --engine docker --image secondbrain-extractor:ci
+      - name: Build calendar egress helper
+        run: docker build --file deploy/docker/Egress.Dockerfile --tag secondbrain-egress:ci .
+      - name: Qualify calendar IPv4 and IPv6 firewall boundaries
+        run: python3 deploy/tests/calendar-egress-qualification.py --image secondbrain-egress:ci --output TestResults/calendar-egress.json
+      - name: Install pinned image scanners
+        run: python3 tools/release/install_tools.py "$RUNNER_TEMP/release-tools" syft grype
+      - name: Scan shipped container operating systems and packages
+        env:
+          GRYPE_DB_REQUIRE_UPDATE_CHECK: 'true'
+          GRYPE_DB_VALIDATE_AGE: 'true'
+          GRYPE_DB_VALIDATE_BY_HASH_ON_START: 'true'
+        run: |
+          mkdir -p TestResults
+          for image in secondbrain secondbrain-extractor secondbrain-egress; do
+            "$RUNNER_TEMP/release-tools/syft" "docker:$image:ci" -o "cyclonedx-json=TestResults/$image.cdx.json"
+            "$RUNNER_TEMP/release-tools/grype" "sbom:TestResults/$image.cdx.json" --fail-on low -o json --file "TestResults/$image-vulnerabilities.json"
+          done
+      - name: Upload calendar firewall evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: calendar-firewall-results
+          path: TestResults/*.json
+          if-no-files-found: ignore
 
   compose-smoke:
     name: G1 hardened Compose smoke
@@ -124,4 +190,61 @@ jobs:
       - name: Deploy.ComposeSmoke — initialize and serve as non-root
         env:
           SECONDBRAIN_PRIVATE_ADDRESS: 127.0.0.1
+          SECONDBRAIN_PORT: '18340'
+          SECONDBRAIN_M4_QUALIFY: '1'
         run: deploy/tests/compose-smoke.sh
+      - name: Upload hardened M4 workflow evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: hardened-m4-workflows
+          path: TestResults/m4-*.json
+          if-no-files-found: ignore
+
+  signed-release:
+    name: Sign the verified release and prepare its draft
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: compose-smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+      BUILD_COMMIT: ${{ github.sha }}
+      SIGNER_IDENTITY: https://github.com/${{ github.workflow_ref }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download verified packages and evidence from this run
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: supply-chain-*-linux-x64
+          path: release
+      - name: Validate tag and package checksums
+        run: |
+          python3 -c 'import os,re; assert re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.-]+)?", os.environ["RELEASE_TAG"]), "Use a version tag"'
+          for project in Server Cli Extractor; do
+            (cd "release/supply-chain-$project-linux-x64" && sha256sum --check --strict SHA256SUMS)
+          done
+          mkdir dist
+          tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -czf "dist/secondbrain-$RELEASE_TAG-linux-x64.tar.gz" -C release .
+          (cd dist && sha256sum *.tar.gz > SHA256SUMS)
+      - name: Install pinned signing tool
+        run: python3 tools/release/install_tools.py "$RUNNER_TEMP/release-tools" cosign
+      - name: Sign and verify the release checksum manifest
+        run: |
+          "$RUNNER_TEMP/release-tools/cosign" sign-blob dist/SHA256SUMS --bundle dist/SHA256SUMS.sigstore.json --yes
+          "$RUNNER_TEMP/release-tools/cosign" verify-blob dist/SHA256SUMS --bundle dist/SHA256SUMS.sigstore.json --certificate-identity "$SIGNER_IDENTITY" --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-github-workflow-sha "$BUILD_COMMIT"
+      - name: Prepare a draft release for operator review
+        run: gh release create "$RELEASE_TAG" --verify-tag --draft --title "$RELEASE_TAG" --notes-file tools/release/RELEASE-NOTES.md dist/*
+      - name: Retain signed release files
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: signed-release-${{ github.ref_name }}
+          path: dist/
+          if-no-files-found: error

@@ -1,0 +1,58 @@
+{
+  "monaco": "0.57.0",
+  "esbuild": "0.28.2",
+  "packages": [
+    {
+      "name": "dompurify",
+      "version": "3.4.17",
+      "integrity": "sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==",
+      "license": "(MPL-2.0 OR Apache-2.0)",
+      "lockPath": "node_modules/dompurify"
+    },
+    {
+      "name": "marked",
+      "version": "14.0.0",
+      "integrity": "sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==",
+      "license": "MIT",
+      "lockPath": "node_modules/marked",
+      "vendoredFrom": "node_modules/monaco-editor/esm/vs/base/common/marked/marked.js",
+      "vendoredSha256": "05d70345908f4c6e9032a69a3e4781a9b92c51184077476846ce89d779b9fc18"
+    },
+    {
+      "name": "monaco-editor",
+      "version": "0.57.0",
+      "integrity": "sha512-5BkI9KGoqrNvBGUe15/QlZq3OooZ8WLg1AxTpaqHRCP3HNpzPPZKE2EDz8M7c+VRmCeUw1Brp4cx/PWm3kI/5A==",
+      "license": "MIT",
+      "lockPath": "node_modules/monaco-editor"
+    }
+  ],
+  "dependencyPatches": [
+    "monaco-vendored-dompurify"
+  ],
+  "styleNoncePatches": [
+    "contextview.js",
+    "domStylesheets.js"
+  ],
+  "files": [
+    {
+      "file": "codicon-LTRFOK3N.ttf",
+      "bytes": 153228,
+      "sha256": "77f902557231f95c4c71ae517d09a1a842753656f5f665086b3e5ad8095538da"
+    },
+    {
+      "file": "editor.css",
+      "bytes": 132073,
+      "sha256": "f3b68980e27fd3c57d397078d3e8c0e3c33ecc18b32401588f4e0cbd345a198c"
+    },
+    {
+      "file": "editor.js",
+      "bytes": 3054400,
+      "sha256": "b7e00c5f2b10ce0633d93e9391b6059736ab735c47a00da4450a33710747f955"
+    },
+    {
+      "file": "editor.worker.js",
+      "bytes": 307193,
+      "sha256": "eea028fdbafb79a3df476870dd2ef958bb8daeb99e3af62b6191064de6a6aabd"
+    }
+  ]
+}

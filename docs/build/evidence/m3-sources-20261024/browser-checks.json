@@ -1,0 +1,40 @@
+{
+  "status": "M3 development checkpoint; full milestone remains open",
+  "origin": "http://127.0.0.1:18223",
+  "fixture": "KnowledgeBrowserQualification; synthetic files and account; real folder admission and descriptor-backed extractor",
+  "controlledFailure": "The fixture wrapper throws IOException on the first three attempts for each marked Markdown file, then delegates to the actual extractor. Invalid PDF is rejected by the actual parser.",
+  "checks": [
+    {
+      "width": 1280,
+      "sourceId": "01M5QW6553VV48V81QNWB7JZVW",
+      "created": true,
+      "scan": true,
+      "fileFailureReason": true,
+      "transientRetryCompleted": true,
+      "deterministicRetryRefused": true,
+      "counts": true,
+      "pauseResume": true,
+      "removed": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "sourceId": "01M5QW6EGWN6PDAAFZ2MKCRPBP",
+      "created": true,
+      "scan": true,
+      "fileFailureReason": true,
+      "transientRetryCompleted": true,
+      "deterministicRetryRefused": true,
+      "counts": true,
+      "pauseResume": true,
+      "removed": true,
+      "noOverflow": true
+    }
+  ],
+  "removal": "Retained text returned 404. Metadata remains readable under the existing contract; both originals were separately verified present and byte-identical after removal.",
+  "console": "Expected 404 while probing removed text; no JavaScript exception observed.",
+  "limitations": [
+    "Loopback only; U11 and U16 VPN/Cloudflare acceptance remain open.",
+    "No deployment or complete M3 acceptance claimed."
+  ]
+}

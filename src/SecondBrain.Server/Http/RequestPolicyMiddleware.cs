@@ -39,6 +39,7 @@ public sealed class TrustedForwardedHeadersMiddleware(
 /// <summary>Allowlisted Host and exact browser Origin checks after trusted forwarding.</summary>
 public sealed class RequestPolicyMiddleware(RequestDelegate next, IOptionsMonitor<SecondBrainOptions> options)
 {
+    public const string StyleNonceItem = "SecondBrain.StyleNonce";
     public async Task InvokeAsync(HttpContext context)
     {
         var server = options.CurrentValue.Server;
@@ -64,7 +65,9 @@ public sealed class RequestPolicyMiddleware(RequestDelegate next, IOptionsMonito
         }
 
         context.Response.Headers.XContentTypeOptions = "nosniff";
-        context.Response.Headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
+        var styleNonce = context.Items[StyleNonceItem] as string ?? Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24));
+        context.Items[StyleNonceItem] = styleNonce;
+        context.Response.Headers["Content-Security-Policy"] = $"default-src 'self'; script-src 'self'; style-src 'self' 'nonce-{styleNonce}'; style-src-attr 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
         context.Response.Headers["Referrer-Policy"] = "same-origin";
         await next(context);
     }

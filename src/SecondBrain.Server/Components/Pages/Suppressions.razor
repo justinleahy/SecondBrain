@@ -1,0 +1,42 @@
+@page "/manage/suppressions"
+@inherits BrowserPage
+@using System.Text.Json
+@using SecondBrain.Core.Ingestion
+
+<PageTitle>Suppressions · SecondBrain</PageTitle>
+<KnowledgeNav />
+<main class="knowledge-page">
+    <header class="knowledge-heading"><h1>Suppressions</h1><a href="/manage/trash">Open trash</a></header>
+    <p>Suppressions prevent automatic reimport. Lifting one does not restore a trashed or purged document.</p>
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (notice is not null) { <p role="status" class="knowledge-notice">@notice</p> }
+    @if (listing is not null)
+    {
+        @foreach (var item in listing.Items)
+        {
+            <article class="knowledge-card" @key="item.Id"><h2>@item.Key</h2><p>@item.Scope · @item.Source · @item.Reason</p><p>Created @item.CreatedAt @if (item.DocumentStatus is not null) { <span>· document @item.DocumentStatus</span> }</p>
+                @if (confirm == item.Id)
+                { <p>Allow this item to be imported again?</p><button disabled="@Busy" @onclick="() => LiftAsync(item.Id)">Confirm lift suppression</button><button @onclick="() => confirm = null">Cancel</button> }
+                else { <button disabled="@Busy" @onclick="() => confirm = item.Id">Lift suppression</button> }
+            </article>
+        }
+        @if (listing.Items.Count == 0) { <p>No suppressions.</p> }
+        @if (listing.NextCursor is not null) { <button disabled="@Busy" @onclick="NextAsync">Next page</button> }
+    }
+</main>
+@code {
+    private CatalogPage<SuppressionRecord>? listing;
+    private string? confirm, notice;
+    protected override async Task LoadAsync() => listing = await Api.SendAsync<CatalogPage<SuppressionRecord>>("/suppressions");
+    private Task NextAsync() => RunAsync(async () =>
+    {
+        confirm = null;
+        if (listing?.NextCursor is not null) listing = await Api.SendAsync<CatalogPage<SuppressionRecord>>("/suppressions?cursor=" + Uri.EscapeDataString(listing.NextCursor));
+    });
+    private Task LiftAsync(string id) => RunAsync(async () =>
+    {
+        await Api.SendAsync<JsonElement>("/suppressions/" + Uri.EscapeDataString(id), "DELETE");
+        confirm = null; notice = "Suppression lifted.";
+        await LoadAsync();
+    });
+}

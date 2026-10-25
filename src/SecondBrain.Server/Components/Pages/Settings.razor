@@ -1,0 +1,400 @@
+@page "/settings"
+@inherits BrowserPage
+@using System.Text.Json
+@using SecondBrain.Core.Auth
+@using SecondBrain.Core.Authorization
+@using SecondBrain.Server.Auth
+@using SecondBrain.Server.Http
+@using SecondBrain.Core.Configuration
+@using SecondBrain.Core.Operations
+@using SecondBrain.Core.Providers
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Forms
+@inject IJSRuntime JavaScript
+
+<PageTitle>Settings · SecondBrain</PageTitle>
+<KnowledgeNav />
+<NavigationLock ConfirmExternalNavigation="@(editing is not null)" OnBeforeInternalNavigation="BeforeNavigateAsync" />
+<main class="knowledge-page">
+    <h1>Settings</h1>
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (notice is not null) { <p id="settings-notice" class="knowledge-notice" role="status">@notice</p> }
+    @if (actor is not null)
+    {
+        <section class="knowledge-card" aria-label="Session security">
+            <h2>Session security</h2><p>Confirm your password before changing credentials or other sensitive settings.</p>
+            <form class="knowledge-actions" @onsubmit="StepUpAsync" @onsubmit:preventDefault>
+                <label>Password<input type="password" @bind="password" autocomplete="current-password" required maxlength="1024" /></label>
+                <button disabled="@Busy">Confirm password</button>
+            </form>
+            <p><button disabled="@Busy" @onclick="LogoutAsync">Sign out</button></p>
+            @if (confirmSignOutAll)
+            { <p>Sign out every session, including this one?</p><button disabled="@Busy" @onclick="LogoutAllAsync">Confirm sign out everywhere</button><button @onclick="() => confirmSignOutAll = false">Cancel</button> }
+            else { <button @onclick="() => confirmSignOutAll = true">Sign out everywhere…</button> }
+        </section>
+        <section class="knowledge-card" aria-label="Active sessions">
+            <h2>Active sessions</h2>
+            @foreach (var session in sessions)
+            {
+                <article class="knowledge-card"><h3>@session.Name @(session.Id == actor.Id ? "(this session)" : "")</h3><p>@session.Device · Last seen @(session.LastUsedAt ?? session.CreatedAt)</p><button disabled="@Busy" @onclick="() => RevokeSessionAsync(session.Id)">Revoke session</button></article>
+            }
+            @if (nextSession is not null) { <button disabled="@Busy" @onclick="MoreSessionsAsync">More sessions</button> }
+        </section>
+        @if (actor.Scopes.Contains(Scope.Admin))
+        {
+            @if (settings is not null)
+            {
+                <section class="knowledge-card" aria-label="Providers and roles">
+                    <h2>Providers and role bindings</h2>
+                    @foreach (var provider in settings.Providers)
+                    {
+                        <article class="knowledge-card"><h3>@provider.Name</h3><p>@provider.Kind · @(provider.IsLocal ? "Local" : "Hosted") · @(provider.HasCredential ? "Credential configured" : "No credential configured")</p><p>@provider.Endpoint</p>
+                            <div class="knowledge-actions"><button disabled="@(!CanEdit)" @onclick="() => EditProvider(provider)">Edit @provider.Name</button><button disabled="@Busy" @onclick="() => TestProviderAsync(provider.Name)">Test @provider.Name</button><button disabled="@(!CanEdit)" @onclick="() => RemoveProviderAsync(provider.Name)">Remove @provider.Name</button></div>
+                        </article>
+                    }
+                    <button disabled="@(!CanEdit)" @onclick="() => EditProvider(null)">Add provider</button>
+                    @foreach (var role in settings.Roles)
+                    {
+                        <article class="knowledge-card"><h3>@role.Role</h3><p>@role.Provider / @role.Model</p><p>Tools: @role.Capabilities.Tools · Streaming: @role.Capabilities.Streaming · Structured output: @role.Capabilities.StructuredOutput · Reasoning control: @role.Capabilities.ReasoningControl</p><p>Context: @role.Limits.ContextTokens · Maximum output: @role.Limits.MaxOutputTokens · Embedding dimensions: @role.Limits.EmbedDimensions</p></article>
+                    }
+                    <button disabled="@(!CanEdit)" @onclick='() => OpenEditor("models", settings.Models)'>Edit role bindings</button>
+                    @if (providerTest is not null) { <pre>@providerTest</pre> }
+                </section>
+                <section class="knowledge-card" aria-label="Privacy">
+                    <h2>Privacy and egress</h2><p>Local-only mode: @(settings.Privacy.LocalOnly ? "On" : "Off")</p>
+                    <p>Trusted services: @string.Join(", ", settings.Privacy.TrustedServices)</p>
+                    <p>Egress check: @settings.Egress.CanaryState · @(settings.Egress.IsReady ? "Ready" : "Needs attention") · @settings.Egress.Detail</p>
+                    <button disabled="@(!CanEdit)" @onclick="EditPrivacy">Edit privacy</button>
+                </section>
+                <section class="knowledge-card" aria-label="Limits and preferences">
+                    <h2>Limits and preferences</h2>
+                    <p>Time zone: @settings.Time.Zone · Week begins: @settings.Time.WeekStart</p>
+                    <p>Daily model token budget: @settings.Budgets.DailyTokens · Per credential per hour: @settings.Limits.PerCredential.ModelTokensPerHour</p>
+                    <p>Requests per minute: @settings.Limits.PerCredential.RequestsPerMinute · Concurrent searches: @settings.Limits.PerCredential.ConcurrentSearches · Concurrent turns: @settings.Limits.PerCredential.ConcurrentTurns</p>
+                    <p>Files: @settings.Limits.Global.Files · Admitted GB: @settings.Limits.Global.AdmittedGb · Minimum free disk GB: @settings.Limits.Global.DiskLowWaterGb</p>
+                    <div class="knowledge-actions"><button disabled="@(!CanEdit)" @onclick='() => OpenEditor("limits", settings.Limits)'>Edit resource limits</button><button disabled="@(!CanEdit)" @onclick='() => OpenEditor("time", settings.Time)'>Edit time preferences</button><button disabled="@(!CanEdit)" @onclick='() => OpenEditor("budgets", settings.Budgets)'>Edit daily budget</button><button disabled="@(!CanEdit)" @onclick='() => OpenEditor("assistant", settings.Assistant)'>Edit assistant safeguards</button><button disabled="@(!CanEdit)" @onclick='() => OpenEditor("ingest", settings.Ingest)'>Edit ingestion</button></div>
+                    <p>Chunking: maximum @settings.Chunking.MaxTokens, target @settings.Chunking.TargetTokens, overlap @settings.Chunking.OverlapTokens tokens.</p>
+                    <button disabled="@(!CanEdit)" @onclick='() => OpenEditor("chunking", settings.Chunking)'>Edit chunking</button>
+                    <p>Chunking changes reprocess existing indexed documents in the background and refresh their embeddings. Their text and revision history are retained. Check processing jobs for failures.</p>
+
+                </section>
+                <section class="knowledge-card" aria-label="Backups">
+                    <h2>Encrypted backups</h2>
+                    <p>@(backupKey?.Ready == true ? "The backup key is ready." : "A backup key must be set up on the server before creating backups.")</p>
+                    <p>Includes documents, trash, local key material and required source folders. Keep a recovery copy of the backup key outside this server.</p>
+                    <p>Keep the latest @settings.Backup.Keep archives. The latest complete backup is also retained when newer attempts are incomplete.</p>
+                    <button disabled="@(!CanEdit)" @onclick="EditBackupRetention">Edit backup retention</button>
+                    <button disabled="@(!CanEdit || backupKey?.Ready != true)" @onclick="CreateBackupAsync">Create encrypted backup</button>
+                    @foreach (var backup in backups)
+                    {
+                        <article class="knowledge-card"><p>@BackupTime(backup.CreatedAt) · @backup.Bytes.ToString("N0") bytes · @(backup.Partial ? "Incomplete: some files were unavailable" : "Complete")</p>
+                            @if (CanEdit) { <a href="@("/v1/maintenance/backups/" + Uri.EscapeDataString(backup.Name))" download="@backup.Name">Download encrypted backup</a> }
+                            else { <p>Confirm your password above to download.</p> }
+                        </article>
+                    }
+                </section>
+                <section class="knowledge-card" aria-label="Export">
+                    <h2>Export your data</h2>
+                    <p>Download documents, history, conversations and metadata in a portable archive. The file is not encrypted. Passwords, keys and calendar subscription links are excluded.</p>
+                    <form action="/v1/maintenance/export" method="post" target="_blank">
+                        <AntiforgeryToken />
+                        <button type="submit" disabled="@(!CanEdit)">Download portable export</button>
+                    </form>
+                </section>
+                <section class="knowledge-card" aria-label="Document enrichment">
+                    <h2>Document enrichment</h2>
+                    <p>Automatic enrichment: @(settings.Enrichment.Enabled ? "on" : "off"). Summaries, tags, mentions and link suggestions appear alongside your documents.</p>
+                    <p>Enrichment uses the configured model budget. Folder sources can opt out.</p>
+                    <p>Save suggestions in managed Markdown files: @(settings.Enrichment.WriteBackFrontmatter ? "on" : "off").</p>
+                    <p>Batch processing for backfills: @(settings.Enrichment.BatchBackfill ? "on when supported by the model" : "off").</p>
+                    <button disabled="@(!CanEdit)" @onclick='() => OpenEditor("enrichment", settings.Enrichment)'>Edit enrichment</button>
+                </section>
+                <section class="knowledge-card" aria-label="Document classification">
+                    <h2>Document classification</h2>
+                    <p>Automatic classification: @(settings.Classification.Llm ? "on" : "off"). Minimum confidence: @((settings.Classification.MinConfidence * 100).ToString("0.#"))%.</p>
+                    <p>Supplied types and source rules take priority. If the model is unavailable or uncertain, the file keeps its format default.</p>
+                    <button disabled="@(!CanEdit)" @onclick='() => OpenEditor("classification", settings.Classification)'>Edit classification</button>
+                </section>
+                <section class="knowledge-card" aria-label="Model usage">
+                    <h2>Model usage</h2>
+                    @if (modelUsage is { } usage)
+                    {
+                        <p>@usage.DailyTokens.ToString("N0") of @settings.Budgets.DailyTokens.ToString("N0") tokens used today (UTC).</p>
+                        <p>Calls without reported totals keep their reserved amount charged. Cached input is included in input tokens.</p>
+                        @if (usage.Rows.Count == 0) { <p>No model calls recorded today.</p> }
+                        @foreach (var row in usage.Rows.Take(20))
+                        {
+                            @if (row.Role == "legacy-chat") { <p>Previous conversations: @row.ChargedTokens.ToString("N0") tokens.</p> }
+                            else { <p>@row.Provider · @row.Model · @UsagePurpose(row.Role): @row.ChargedTokens.ToString("N0") tokens across @row.Calls.ToString("N0") @(row.Calls == 1 ? "call" : "calls").</p> }
+                        }
+                        @if (usage.Truncated || usage.Rows.Count > 20) { <p>More usage details are available in the usage report.</p> }
+                    }
+                    <button disabled="@Busy" @onclick="RefreshUsageAsync">Refresh usage</button>
+                </section>
+                <section class="knowledge-card" aria-label="Retention">
+                    <h2>Retention</h2>
+                    <p>Trash: @settings.Retention.TrashDays days · Removed source records: @settings.Retention.RemovedDays days · Debug logs: @settings.Retention.DebugLogDays days.</p>
+                    <p>Cleanup runs automatically and permanently removes expired items. Saved conversations remain; excerpts from purged documents are redacted.</p>
+                    <div class="knowledge-actions">
+                        <button disabled="@(!CanEdit)" @onclick='() => OpenEditor("retention", settings.Retention)'>Edit retention</button>
+                        <button disabled="@(!CanEdit)" @onclick="() => confirmRetention = true">Run cleanup now…</button>
+                    </div>
+                    @if (confirmRetention)
+                    {
+                        <p>Apply the current retention periods now? Expired trash, source records, debug logs, abandoned temporary files and old backups will be permanently removed.</p>
+                        <div class="knowledge-actions"><button disabled="@(!CanEdit)" @onclick="RunRetentionAsync">Confirm cleanup</button><button @onclick="() => confirmRetention = false">Cancel cleanup</button></div>
+                    }
+                </section>
+                @if (!settings.CanEdit) { <p class="knowledge-notice">Confirm your password above to edit configuration or create credentials.</p> }
+                @if (editing is not null)
+                {
+                    <section id="settings-editor" class="knowledge-card" aria-label="Edit settings"><h2>Edit @editing</h2>
+                        @if (settingsConflict) { <p class="knowledge-error">The configuration changed. Your draft remains below. Copy it before reloading the latest settings.</p><button @onclick="ReloadSettingsAsync">Discard draft and reload settings</button> }
+                        <form class="knowledge-editor" @onsubmit="SaveSettingsAsync" @onsubmit:preventDefault>
+                            <fieldset disabled="@(Busy || settingsConflict)">
+                            @if (editing == "provider")
+                            {
+                                <label>Provider name<input @bind="providerName" required readonly="@providerExists" maxlength="100" /></label>
+                                <label>Adapter kind<input @bind="providerKind" required placeholder="openai_compatible" /></label>
+                                <label>Endpoint<input @bind="providerEndpoint" type="url" /></label>
+                                <label class="knowledge-toggle"><input type="checkbox" @bind="providerTrusted" /> Trust this provider</label>
+                                <label>Credential reference<input @bind="providerCredential" placeholder="${MODEL_API_KEY}; leave blank to keep the current reference" /></label>
+                                <label class="knowledge-toggle"><input type="checkbox" @bind="clearCredential" /> Remove the credential reference</label>
+                                <p>Use a secret reference. Secrets are never displayed or stored as plain text in configuration.</p>
+                            }
+                            else if (editing == "privacy")
+                            {
+                                <label class="knowledge-toggle"><input type="checkbox" @bind="localOnly" /> Restrict model calls to local providers</label>
+                                <label>Trusted service origins<textarea @bind="trustedServices" rows="4" placeholder="One exact HTTP(S) origin per line"></textarea></label>
+                            }
+                            else if (editing == "chunking")
+                            {
+                                <label>Target tokens<input type="number" min="16" max="8192" @bind="chunkTarget" required /></label>
+                                <label>Maximum tokens<input type="number" min="32" max="8192" @bind="chunkMaximum" required /></label>
+                                <label>Overlap tokens<input type="number" min="0" max="8191" @bind="chunkOverlap" required /></label>
+                                <p>The target must fit within the maximum, and overlap must be smaller than the target. The embedding model must accept the maximum.</p>
+                            }
+                            else if (editing == "backup")
+                            {
+                                <label>Backups to keep<input type="number" min="1" max="1000" @bind="backupKeep" required /></label>
+                            }
+                            else if (editing == "budgets")
+                            {
+                                <label>Daily token limit<input type="number" min="0" @bind="dailyTokenLimit" required /></label>
+                                <p>A limit of zero pauses model calls. Existing documents remain available for keyword search.</p>
+                            }
+                            else if (editing == "classification")
+                            {
+                                <label class="knowledge-toggle"><input type="checkbox" @bind="classificationEnabled" /> Classify ambiguous documents with the model</label>
+                                <label>Minimum confidence (%)<input type="number" min="0" max="100" step="0.1" @bind="classificationConfidencePercent" required /></label>
+                            }
+                            else if (editing == "enrichment")
+                            {
+                                <label class="knowledge-toggle"><input type="checkbox" @bind="enrichmentEnabled" /> Enable document enrichment</label>
+                                <label class="knowledge-toggle"><input type="checkbox" @bind="enrichmentWriteback" /> Save summaries and suggested tags in managed Markdown files</label>
+                                <label class="knowledge-toggle"><input type="checkbox" @bind="enrichmentBatch" /> Use batch processing for supported backfill models</label>
+                                <p>This applies to existing and newly enriched managed Markdown files and creates a new revision. Existing frontmatter and body text are preserved; external source files are left unchanged.</p>
+                            }
+                            else if (editing == "retention")
+                            {
+                                <label>Trash retention (days)<input type="number" min="1" max="36500" @bind="retentionDraft.TrashDays" required /></label>
+                                <label>Removed source records (days)<input type="number" min="1" max="36500" @bind="retentionDraft.RemovedDays" required /></label>
+                                <label>Resolved approvals (days)<input type="number" min="1" max="36500" @bind="retentionDraft.ResolvedProposalDays" required /></label>
+                                <label>Unattached temporary content (days)<input type="number" min="1" max="36500" @bind="retentionDraft.PayloadDays" required /></label>
+                                <label>Request replay records (hours)<input type="number" min="1" max="876000" @bind="retentionDraft.IdempotencyHours" required /></label>
+                                <label>Search traces (days)<input type="number" min="1" max="36500" @bind="retentionDraft.TraceDays" required /></label>
+                                <label>Debug logs (days)<input type="number" min="1" max="36500" @bind="retentionDraft.DebugLogDays" required /></label>
+                            }
+                            else { <label>Configuration values (JSON object)<textarea @bind="settingsDraft" rows="16" spellcheck="false"></textarea></label> }
+                            </fieldset>
+                            <div class="knowledge-actions"><button disabled="@(Busy || settingsConflict)">Save settings</button><button type="button" disabled="@Busy" @onclick="CancelEdit">Cancel settings edit</button></div>
+                        </form>
+                    </section>
+                }
+            }
+            <section class="knowledge-card" aria-label="API keys">
+                <h2>API keys</h2>
+                <form class="knowledge-editor" @onsubmit="CreateKeyAsync" @onsubmit:preventDefault><fieldset disabled="@(Busy || settings?.CanEdit != true)"><legend>Create an API key</legend>
+                    <label>Key name<input @bind="keyName" required maxlength="128" /></label>
+                    <label>Expiry date (UTC, optional)<input type="date" @bind="keyExpires" /></label>
+                    <div class="key-scopes"><label class="knowledge-toggle"><input type="checkbox" @bind="keyRead" /> Read</label><label class="knowledge-toggle"><input type="checkbox" @bind="keyWrite" /> Write</label><label class="knowledge-toggle"><input type="checkbox" @bind="keyInfer" /> Infer</label><label class="knowledge-toggle"><input type="checkbox" @bind="keyAdmin" /> Admin</label></div>
+                    <button>Create API key</button>
+                </fieldset></form>
+                @if (createdKey is not null) { <div id="new-key-notice" class="knowledge-notice"><p>Copy this key now. It will not be shown again.</p><label for="new-api-key">New API key</label><textarea id="new-api-key" readonly rows="3">@createdKey.Key</textarea><button @onclick="() => createdKey = null">Dismiss key</button></div> }
+                @foreach (var key in keys)
+                {
+                    <article class="knowledge-card"><h3>@key.Name</h3><p>Scopes: @key.Scopes · Created @key.CreatedAt · @(key.RevokedAt is null ? "Active" : "Revoked")</p>
+                    @if (key.RevokedAt is null) { <button disabled="@Busy" @onclick="() => RevokeKeyAsync(key.Id)">Revoke key</button> }</article>
+                }
+                @if (nextKey is not null) { <button disabled="@Busy" @onclick="MoreKeysAsync">More keys</button> }
+            </section>
+            <section class="knowledge-card" aria-label="Service health"><h2>Service health and privacy</h2>
+                <button disabled="@Busy" @onclick="RefreshDiagnosticsAsync">Check health</button>
+                @foreach (var check in checks) { <p><strong>@check.Name: @(check.Passed ? "Ready" : "Needs attention")</strong><br />@check.Message</p> }
+            </section>
+        }
+    }
+</main>
+
+@code {
+    private BrowserSessionIdentity? actor;
+    private readonly List<CredentialSummary> sessions = [], keys = [];
+    private string? nextSession, nextKey;
+    private IReadOnlyList<DiagnosticCheck> checks = [];
+    private string password = "";
+    private bool confirmSignOutAll;
+    private SettingsSnapshot? settings;
+    private string? editing, notice, providerTest, pendingFocus;
+    private string settingsDraft = "", providerName = "", providerKind = "openai_compatible", providerEndpoint = "", providerCredential = "", trustedServices = "";
+    private bool providerExists, providerTrusted, clearCredential, localOnly, settingsConflict;
+    private int chunkTarget, chunkMaximum, chunkOverlap;
+    private RetentionOptions retentionDraft = new();
+    private bool confirmRetention;
+    private BackupKeyStatus? backupKey;
+    private ModelUsageReport? modelUsage;
+    private static string UsagePurpose(string? role) => role switch
+    {
+        "chat" => "Conversation", "embed" => "Search and indexing", "rerank" => "Search ranking",
+        "classify" => "Classification", "enrich" => "Enrichment", _ => "Model processing"
+    };
+    private Task RefreshUsageAsync() => RunAsync(async () => modelUsage = await Api.SendAsync<ModelUsageReport>("/usage"));
+    private IReadOnlyList<BackupInfo> backups = [];
+    private int backupKeep = 14;
+    private long dailyTokenLimit;
+    private bool classificationEnabled;
+    private double classificationConfidencePercent;
+    private bool enrichmentEnabled;
+    private bool enrichmentWriteback;
+    private bool enrichmentBatch;
+    private string BackupTime(DateTimeOffset value) => TimeZoneInfo.ConvertTime(value, TimeZoneInfo.FindSystemTimeZoneById(settings!.Time.Zone)).ToString("g");
+    private bool CanEdit => !Busy && settings?.CanEdit == true && editing is null;
+    private void EditBackupRetention() { backupKeep = settings!.Backup.Keep; editing = "backup"; settingsConflict = false; pendingFocus = "settings-editor"; }
+    private string keyName = "";
+    private DateTime? keyExpires;
+    private bool keyRead = true, keyWrite, keyInfer, keyAdmin;
+    private KeyCreatedResponse? createdKey;
+    private static readonly JsonSerializerOptions EditorJson = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    protected override async Task LoadAsync()
+    {
+        actor = await Api.SendAsync<BrowserSessionIdentity>("/auth/me");
+        var sessionPage = await Api.PageAsync<CredentialSummary>("/auth/sessions");
+        sessions.Clear(); sessions.AddRange(sessionPage.Items); nextSession = sessionPage.Next;
+        if (actor.Scopes.Contains(Scope.Admin))
+        {
+            var keyPage = await Api.PageAsync<CredentialSummary>("/keys");
+            keys.Clear(); keys.AddRange(keyPage.Items); nextKey = keyPage.Next;
+            settings = await Api.SendAsync<SettingsSnapshot>("/configuration");
+            await DiagnosticsAsync();
+            backupKey = await Api.SendAsync<BackupKeyStatus>("/maintenance/backup/key");
+            backups = await Api.SendAsync<BackupInfo[]>("/maintenance/backups") ?? [];
+            modelUsage = await Api.SendAsync<ModelUsageReport>("/usage");
+        }
+    }
+    private Task MoreSessionsAsync() => RunAsync(async () => { if (nextSession is null) return; var result = await Api.PageAsync<CredentialSummary>(nextSession); sessions.AddRange(result.Items); nextSession = result.Next; });
+    private Task MoreKeysAsync() => RunAsync(async () => { if (nextKey is null) return; var result = await Api.PageAsync<CredentialSummary>(nextKey); keys.AddRange(result.Items); nextKey = result.Next; });
+    private Task StepUpAsync() => RunAsync(async () =>
+    {
+        try { await Api.NavigateAsync("/auth/step-up", "/settings", body: new LoginRequest(password)); }
+        finally { password = ""; }
+    });
+    private Task LogoutAsync() => RunAsync(() => Api.NavigateAsync("/auth/logout", "/login"));
+    private Task LogoutAllAsync() => RunAsync(() => Api.NavigateAsync("/auth/logout-all", "/login"));
+    private Task RevokeSessionAsync(string id) => RunAsync(async () =>
+    {
+        var path = "/auth/sessions/" + Uri.EscapeDataString(id);
+        if (id == actor?.Id) await Api.NavigateAsync(path, "/login", "DELETE");
+        else { await Api.SendAsync<JsonElement>(path, "DELETE"); await LoadAsync(); }
+    });
+    private Task RevokeKeyAsync(string id) => RunAsync(async () => { await Api.SendAsync<JsonElement>("/keys/" + Uri.EscapeDataString(id), "DELETE"); await LoadAsync(); });
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (pendingFocus is not { } target) return;
+        pendingFocus = null;
+        try { await JavaScript.InvokeVoidAsync("secondBrainApi.focusSection", target); }
+        catch (JSDisconnectedException) { }
+    }
+    private void OpenEditor(string section, object value)
+    {
+        if (value is BudgetOptions budget) dailyTokenLimit = budget.DailyTokens;
+        if (value is ClassificationOptions classification) { classificationEnabled = classification.Llm; classificationConfidencePercent = classification.MinConfidence * 100; }
+        if (value is EnrichmentOptions enrichment) { enrichmentEnabled = enrichment.Enabled; enrichmentWriteback = enrichment.WriteBackFrontmatter; enrichmentBatch = enrichment.BatchBackfill; }
+        editing = section; settingsDraft = JsonSerializer.Serialize(value, EditorJson); settingsConflict = false; pendingFocus = "settings-editor";
+        if (value is ChunkingOptions chunking) { chunkTarget = chunking.TargetTokens; chunkMaximum = chunking.MaxTokens; chunkOverlap = chunking.OverlapTokens; }
+        if (value is RetentionOptions retention) retentionDraft = JsonSerializer.Deserialize<RetentionOptions>(JsonSerializer.Serialize(retention, EditorJson), EditorJson)!;
+    }
+    private void EditPrivacy() { editing = "privacy"; localOnly = settings!.Privacy.LocalOnly; trustedServices = string.Join("\n", settings.Privacy.TrustedServices); settingsConflict = false; pendingFocus = "settings-editor"; }
+    private void EditProvider(ProviderSetting? value)
+    {
+        editing = "provider"; providerName = value?.Name ?? ""; providerKind = value?.Kind ?? "openai_compatible";
+        providerEndpoint = value?.Endpoint ?? ""; providerTrusted = value?.Trusted ?? false; providerExists = value is not null;
+        providerCredential = ""; clearCredential = false; settingsConflict = false;
+        pendingFocus = "settings-editor";
+    }
+    private void CancelEdit() { editing = null; settingsConflict = false; }
+    private Task ReloadSettingsAsync() => RunAsync(async () => { settings = await Api.SendAsync<SettingsSnapshot>("/configuration"); CancelEdit(); });
+    private async Task BeforeNavigateAsync(Microsoft.AspNetCore.Components.Routing.LocationChangingContext context)
+    { if (editing is not null && !await JavaScript.InvokeAsync<bool>("confirm", "Discard your unsaved settings?")) context.PreventNavigation(); }
+    private Task SaveSettingsAsync() => RunAsync(async () =>
+    {
+        JsonElement value;
+        try
+        {
+            value = editing switch
+            {
+                "privacy" => JsonSerializer.SerializeToElement(new EditablePrivacy(localOnly, trustedServices.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToList()), EditorJson),
+                "provider" => JsonSerializer.SerializeToElement(new ProviderChange(providerKind, providerEndpoint.Length == 0 ? null : providerEndpoint, providerTrusted, providerCredential.Length == 0 ? null : providerCredential, clearCredential), EditorJson),
+                "chunking" => JsonSerializer.SerializeToElement(new ChunkingOptions { TargetTokens = chunkTarget, MaxTokens = chunkMaximum, OverlapTokens = chunkOverlap }, EditorJson),
+                "retention" => JsonSerializer.SerializeToElement(retentionDraft, EditorJson),
+                "backup" => JsonSerializer.SerializeToElement(new BackupRetentionSetting(backupKeep), EditorJson),
+                "budgets" => JsonSerializer.SerializeToElement(new BudgetOptions { DailyTokens = dailyTokenLimit }, EditorJson),
+                "classification" => JsonSerializer.SerializeToElement(new ClassificationOptions { Llm = classificationEnabled, MinConfidence = classificationConfidencePercent / 100 }, EditorJson),
+                "enrichment" => JsonSerializer.SerializeToElement(new EnrichmentOptions { Enabled = enrichmentEnabled, BatchBackfill = enrichmentBatch, WriteBackFrontmatter = enrichmentWriteback }, EditorJson),
+                _ => JsonSerializer.Deserialize<JsonElement>(settingsDraft)
+            };
+        }
+        catch (JsonException) { Error = "Configuration values must be a valid JSON object."; return; }
+        try
+        {
+            settings = await Api.SendAsync<SettingsSnapshot>("/configuration", "PUT", new SettingsChange(settings!.Version, editing!, value, editing == "provider" ? providerName : null));
+            CancelEdit(); checks = []; providerTest = null; notice = "Settings saved and reloaded."; pendingFocus = "settings-notice";
+        }
+        catch (BrowserApiException exception) when (exception.Status == 412) { settingsConflict = true; Error = "Settings changed while you were editing. Your draft has been retained."; }
+    });
+    private Task CreateBackupAsync() => RunAsync(async () =>
+    {
+        var created = await Api.SendAsync<BackupCreated>("/maintenance/backup", "POST", new { });
+        backups = await Api.SendAsync<BackupInfo[]>("/maintenance/backups") ?? [];
+        notice = created!.Archive.Partial ? "An incomplete backup was created. Review unavailable source files before relying on it." : "Encrypted backup created.";
+        if (created.Retention is { Deferred: > 0 }) notice += " Some old backups could not be removed yet.";
+        pendingFocus = "settings-notice";
+    });
+    private Task RunRetentionAsync() => RunAsync(async () =>
+    {
+        var result = await Api.SendAsync<SecondBrain.Core.Ingestion.RetentionResult>("/maintenance/retention", "POST", new { });
+        confirmRetention = false;
+        backups = await Api.SendAsync<BackupInfo[]>("/maintenance/backups") ?? [];
+        notice = result!.Documents.Deferred > 0 ? $"Cleanup finished; {result.Documents.Deferred} items could not be cleaned up yet."
+            : result.Backups is { Deferred: > 0 } ? "Cleanup finished; some old backups could not be removed yet."
+            : result.Operations is { Deferred: > 0 } ? "Cleanup finished; some temporary files could not be removed yet."
+            : result.Metadata.MoreWork || result.Documents.MoreWork || result.Backups is { MoreWork: true } || result.Operations is { MoreWork: true } ? "Cleanup finished; more eligible items remain." : "Cleanup finished.";
+    });
+    private Task RemoveProviderAsync(string name) => RunAsync(async () =>
+    {
+        if (!await JavaScript.InvokeAsync<bool>("confirm", "Remove provider " + name + "? Active role bindings must be changed first.")) return;
+        settings = await Api.SendAsync<SettingsSnapshot>("/configuration", "PUT", new SettingsChange(settings!.Version, "remove_provider", JsonSerializer.SerializeToElement(new { }), name));
+        notice = "Provider removed.";
+    });
+    private Task TestProviderAsync(string name) => RunAsync(async () => { var result = await Api.SendAsync<JsonElement>("/providers/test", "POST", new ProviderTestRequest(name)); providerTest = JsonSerializer.Serialize(result, EditorJson); });
+    private Task CreateKeyAsync() => RunAsync(async () =>
+    {
+        var scopes = new List<string>(); if (keyRead) scopes.Add("read"); if (keyWrite) scopes.Add("write"); if (keyInfer) scopes.Add("infer"); if (keyAdmin) scopes.Add("admin");
+        if (scopes.Count == 0) { Error = "Choose at least one key scope."; return; }
+        createdKey = await Api.SendAsync<KeyCreatedResponse>("/keys", "POST", new CreateKeyRequest(keyName, scopes.ToArray(), keyExpires is null ? null : new DateTimeOffset(DateTime.SpecifyKind(keyExpires.Value, DateTimeKind.Utc))));
+        var result = await Api.PageAsync<CredentialSummary>("/keys"); keys.Clear(); keys.AddRange(result.Items); nextKey = result.Next;
+        keyName = ""; notice = "API key created. Copy it before leaving this page."; pendingFocus = "new-key-notice";
+    });
+    private async Task DiagnosticsAsync() { var result = await Api.SendAsync<DiagnosticsResponse>("/diagnostics"); checks = result.Checks; }
+    private Task RefreshDiagnosticsAsync() => RunAsync(DiagnosticsAsync);
+    private sealed record DiagnosticsResponse(IReadOnlyList<DiagnosticCheck> Checks);
+}

@@ -27,7 +27,8 @@ public sealed partial class SqliteChatRepository
                 SELECT d.title Title,p.generation_json Generation,b.bytes Bytes
                 FROM document_projections p JOIN documents d ON d.id=p.document_id JOIN payloads b ON b.id=p.payload_id
                 WHERE d.id=@id AND d.revision=@revision AND p.revision=d.revision
-                  AND d.status NOT IN ('deleted','purged','missing','failed') AND b.redacted_at IS NULL
+                  AND d.status NOT IN ('deleted','purged','missing','removed_from_source','failed') AND b.redacted_at IS NULL
+                  AND NOT EXISTS(SELECT 1 FROM documents parent WHERE parent.id=d.container_document_id AND parent.status IN ('deleted','purged','missing','removed_from_source'))
                 """, new { id = request.DocumentId, revision = request.Revision }, transaction, token))
                 ?? throw new ChatConflictException("A retrieved source changed or is no longer available.");
             var previous = existing.FirstOrDefault(source => source.DocumentId == request.DocumentId && source.Revision == request.Revision &&
@@ -37,7 +38,7 @@ public sealed partial class SqliteChatRepository
             var chunk = text.Chunks.SingleOrDefault(chunk => chunk.Id == request.ChunkId)
                 ?? throw new ChatConflictException("The retrieved passage is no longer current.");
             var source = new ChatSource(nextNumber, request.DocumentId, request.Revision, projection.Generation,
-                chunk.Id, chunk.Ordinal, chunk.Page, projection.Title, chunk.Text, Hash(Encoding.UTF8.GetBytes(chunk.Text)));
+                chunk.Id, chunk.Ordinal, chunk.Page, projection.Title, chunk.Text, Hash(Encoding.UTF8.GetBytes(chunk.Text)), chunk.Transcript);
             var byteCount = JsonSerializer.SerializeToUtf8Bytes(source, Json).Length;
             if (bytes + byteCount > policy.MaxReadBytes || !exposedDocuments.Contains(source.DocumentId) && exposedDocuments.Count >= policy.MaxReadDocuments)
                 throw new ChatLimitException("This turn reached its source exposure limit.");

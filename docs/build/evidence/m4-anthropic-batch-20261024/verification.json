@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-24",
+  "scope": "Native Anthropic enrichment batches; not full M4 acceptance",
+  "configuration": "Debug",
+  "applicationSchemaVersion": 8,
+  "lockedRestore": "passed",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 2507,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 202,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 818,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 141,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 225,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 489,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 396,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "newAdapterTests": 18,
+  "newStorageRecoveryTests": 2,
+  "dependencyChanges": false,
+  "productionChanged": false,
+  "liveCloudCalls": false,
+  "checks": [
+    "Native inline batches use the official SDK and the existing policy-owned transport, with configured credentials, bounded deadlines, no SDK retries and no SDK telemetry.",
+    "The existing durable workflow holds budgets before submission, resumes known ids, fences publication and handles per-item results through the same document parser.",
+    "Opaque 64-character custom ids map back to original work ids; long local job ids remain valid without leaking their original spelling.",
+    "Declared caching, adaptive reasoning and structured output map to native fields. Unsupported size constraints remain in schema descriptions and are still enforced by the core result validator.",
+    "Result collection uses the fixed SDK route, never the returned results_url. Byte/line/count/identity bounds, partial outcomes and unknown usage are checked.",
+    "Native batch deletion tolerates an already-deleted response. Lifecycle-only bindings cannot submit new inference.",
+    "Inline staging survives an interruption before submission. Unknown submissions fail after the existing reconciliation window without automatic resubmission or refund.",
+    "All 38 Anthropic adapter cases also passed with synthetic ambient SDK credentials and headers present."
+  ],
+  "logHashes": {
+    "restore": "f71292e2bb576d21ab2a2455b69d09f38de890af31105702ee68bc59ce84ac86",
+    "build": "f2f97418d3850077862fe12430ecfa3e43ee7e015e7c450d14df2c97cd8c53f2",
+    "tests": "8b30770b4b939893a586e6ed1e9421796a29e66a093ea72e6bfebb65684f8e90",
+    "adapter": "984bda587e13699ac7401a8a6ea0dcc8b4f99bc9ed71cc49becc360055aaa9df",
+    "storage": "52e3b5afd20d911d512df57e347e0af4bd8de922c10e86b66d658a2309c31c2b",
+    "advisories": "3196172f5c5e8c3bfb2271c612b4f2aced3a24fbc7b37ab6efb8109086d41168"
+  },
+  "limitations": [
+    "The native API exposes no batch-level client-key lookup or submission idempotency guarantee. A lost create response remains unconfirmed and fails conservatively after 48 hours rather than scanning unrelated results or creating a duplicate.",
+    "No live Anthropic account was used. New adapter results are controlled local HTTP responses; storage checks use a controlled batch provider.",
+    "Verified span-level citation integration remains unfinished. Operational deployment, full sustained-write restore, mounted/large-corpus, signed-release and remaining real-export acceptance remain open."
+  ]
+}

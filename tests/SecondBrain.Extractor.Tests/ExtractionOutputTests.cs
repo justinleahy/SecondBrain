@@ -27,7 +27,30 @@ public sealed class ExtractionOutputTests
         var result = await Exchange(new("extracted", "pdf", "application/pdf", "short", Pages: [new(1, 5, int.MaxValue)]));
         Assert.Equal("extractor_protocol_failed", result.Error);
     }
-    private static async Task<ExtractionResult> Exchange(ExtractionResult dishonest)
+    [Fact]
+    public async Task DaemonRejectsTranscriptWithForgedSegmentOffsets()
+    {
+        var result = await Exchange(new("extracted", "vtt", "text/vtt", "short", Segments: [new(0, "Ada", 0, 1, 0, 500)]));
+        Assert.Equal("extractor_protocol_failed", result.Error);
+    }
+
+    [Fact]
+    public async Task DaemonRejectsCalendarCoverageDifferentFromItsRequest()
+    {
+        var wrong = new CalendarSnapshot(new("2025-01-01T00:00:00Z", "2025-02-01T00:00:00Z", "UTC"), [], []);
+        var result = await Exchange(new("extracted", "calendar", "text/calendar", "", Calendar: wrong), calendar: true);
+        Assert.Equal("extractor_protocol_failed", result.Error);
+    }
+
+    [Fact]
+    public async Task DaemonRejectsCalendarInstanceWithoutAMember()
+    {
+        var wrong = new CalendarSnapshot(new("2026-10-01T00:00:00Z", "2026-11-01T00:00:00Z", "UTC"), [], [new("forged", "", "2026-10-04T00:00:00Z", "2026-10-04T01:00:00Z", "confirmed")]);
+        var result = await Exchange(new("extracted", "calendar", "text/calendar", "", Calendar: wrong), calendar: true);
+        Assert.Equal("extractor_protocol_failed", result.Error);
+    }
+
+    private static async Task<ExtractionResult> Exchange(ExtractionResult dishonest, bool calendar = false)
     {
         var path = Path.Combine(Path.GetTempPath(), "sb-output-" + Guid.NewGuid().ToString("N")); var filePath = Path.GetTempFileName();
         using var listener = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
@@ -42,7 +65,11 @@ public sealed class ExtractionOutputTests
                 ExtractorSocketServer.SendExtraction(socket, parsed.Id, dishonest, timeout.Token);
             });
             await using var file = File.OpenRead(filePath);
-            var result = await new DescriptorExtractorClient(path).ExtractAsync(file, ".txt", timeout.Token); await server; return result;
+            var client = new DescriptorExtractorClient(path);
+            var result = calendar
+                ? await client.ExtractCalendarAsync(file, new("2026-10-01T00:00:00Z", "2026-11-01T00:00:00Z", "UTC"), timeout.Token)
+                : await client.ExtractAsync(file, ".txt", timeout.Token);
+            await server; return result;
         }
         finally { File.Delete(path); File.Delete(filePath); }
     }

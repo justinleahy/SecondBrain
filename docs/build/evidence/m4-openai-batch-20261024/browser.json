@@ -1,0 +1,12 @@
+{
+  "syntheticData": true,
+  "realExtractor": true,
+  "views": [
+    { "width": 1280, "batchBackfill": false, "survivesReload": true, "noHorizontalOverflow": true },
+    { "width": 390, "batchBackfill": true, "survivesReload": true, "noHorizontalOverflow": true }
+  ],
+  "workflowConsoleWarnings": 0,
+  "workflowConsoleErrors": 0,
+  "screenshotsReviewed": ["settings-1280.png", "settings-390.png"],
+  "productionChanged": false
+}

@@ -23,12 +23,17 @@ public sealed record SourceRecord(
     string Status,
     [property: JsonPropertyName("last_scan_at")] DateTimeOffset? LastScanAt,
     [property: JsonPropertyName("last_full_scan_at")] DateTimeOffset? LastFullScanAt,
-    [property: JsonPropertyName("created_at")] DateTimeOffset CreatedAt);
+    [property: JsonPropertyName("created_at")] DateTimeOffset CreatedAt)
+{
+    public string? LastScanError { get; init; }
+    public DateTimeOffset? LastScanErrorAt { get; init; }
+}
 
 public interface ISourceRepository
 {
     Task AddAsync(SourceRecord source, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<SourceRecord>> ListAsync(CancellationToken cancellationToken = default);
+    Task RecordScanErrorAsync(string id, string? error, DateTimeOffset at, CancellationToken cancellationToken = default);
 }
 
 public sealed record SourcePathValidation(bool Accepted, string? CanonicalPath, string? Reason);

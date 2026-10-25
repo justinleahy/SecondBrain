@@ -1,0 +1,6 @@
+
+Verification for cgr.dev/chainguard/aspnet-runtime@sha256:d60e6201e24b3462db6d17f0698650f604c82b3ac7aa1e1ba13fd430ac2f636c --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The code-signing certificate was verified using trusted certificate authority certificates

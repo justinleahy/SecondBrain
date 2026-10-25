@@ -63,10 +63,13 @@ public sealed class DeploymentArtifactsTests
         Assert.False(daemon.TryGetProperty("cap_add", out _));
         Assert.Equal("NET_ADMIN", Assert.Single(egress.GetProperty("cap_add").EnumerateArray()).GetString());
         var volumes = daemon.GetProperty("volumes").EnumerateArray().ToArray();
-        foreach (var target in new[] { "/etc/secondbrain/config.yaml", "/etc/secondbrain/secrets", "/etc/resolv.conf" })
+        foreach (var target in new[] { "/etc/secondbrain/secrets", "/etc/resolv.conf" })
         {
             Assert.True(volumes.Single(v => v.GetProperty("target").GetString() == target).GetProperty("read_only").GetBoolean());
         }
+        var writableSettings = volumes.Single(v => v.GetProperty("target").GetString() == "/etc/secondbrain/settings");
+        Assert.False(writableSettings.TryGetProperty("read_only", out var readOnly) && readOnly.GetBoolean());
+        Assert.Equal("/etc/secondbrain/settings/config.yaml", daemon.GetProperty("environment").GetProperty("SECONDBRAIN_CONFIG").GetString());
 
         Assert.DoesNotContain(extractor.GetProperty("volumes").EnumerateArray(),
             x => x.GetProperty("target").GetString() is "/srv/secondbrain" or "/etc/secondbrain/secrets");
@@ -79,6 +82,22 @@ public sealed class DeploymentArtifactsTests
             new Dictionary<string, string> { ["SECONDBRAIN_PRIVATE_ADDRESS"] = string.Empty });
         Assert.NotEqual(0, result.ExitCode);
         Assert.Contains("SECONDBRAIN_PRIVATE_ADDRESS", result.Error, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task OptionalIpv6OverlayRetainsBothSubnetsAndKeepsExtractorOffline()
+    {
+        var result = await Run("docker", ["compose", "-f", "deploy/compose.yaml", "-f", "deploy/compose.ipv6.yaml", "config", "--format", "json"],
+            new Dictionary<string, string> { ["SECONDBRAIN_PRIVATE_ADDRESS"] = "127.0.0.1", ["SECONDBRAIN_CALENDAR_ALLOWLIST"] = "[2606:4700:4700::1001]:443" });
+        Assert.True(result.ExitCode == 0, result.Error);
+        using var document = JsonDocument.Parse(result.Output);
+        var network = document.RootElement.GetProperty("networks").GetProperty("restricted");
+        Assert.True(network.GetProperty("enable_ipv6").GetBoolean());
+        Assert.Equal(2, network.GetProperty("ipam").GetProperty("config").GetArrayLength());
+        var services = document.RootElement.GetProperty("services");
+        Assert.Equal("none", services.GetProperty("extractor").GetProperty("network_mode").GetString());
+        Assert.Equal("[2606:4700:4700::1001]:443", services.GetProperty("egress").GetProperty("environment").GetProperty("SECONDBRAIN_CALENDAR_ALLOWLIST").GetString());
+        Assert.False(services.GetProperty("daemon").GetProperty("environment").TryGetProperty("SECONDBRAIN_CALENDAR_ALLOWLIST", out _));
     }
 
     [Fact]
@@ -141,7 +160,7 @@ public sealed class DeploymentArtifactsTests
         if (user == "secondbrain")
         {
             AssertDirective(unit, "Service", "UMask", "0077");
-            AssertDirective(unit, "Service", "ReadWritePaths", "/srv/secondbrain /srv/secondbrain-incoming/inbox /run/secondbrain");
+            AssertDirective(unit, "Service", "ReadWritePaths", "/srv/secondbrain /srv/secondbrain-incoming/inbox /run/secondbrain -/etc/secondbrain/settings");
             AssertDirective(unit, "Service", "RestrictAddressFamilies", "AF_UNIX AF_INET AF_INET6");
             foreach (var allowance in new[] { "localhost", "10.8.0.5", "10.8.0.1", "192.0.2.1" })
             {
@@ -241,7 +260,50 @@ public sealed class DeploymentArtifactsTests
             Read("deploy/provision/secondbrain.tmpfiles.conf"), StringComparison.Ordinal);
     }
 
-    private static async Task<CommandResult> RunFirewall(string localOnly, string provider, string access, string hosted, string privateAddress = "127.0.0.1")
+    [Theory]
+    [InlineData("true")]
+    [InlineData("false")]
+    public async Task CalendarPinsAreDaemonOnlyAndIndependentOfProviderMode(string localOnly)
+    {
+        var result = await RunFirewall(localOnly, "", "", "", calendar: "93.184.216.34:443 [2606:4700:4700::1001]:8443");
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("--uid-owner 1654 -p tcp -d 93.184.216.34 --dport 443 -j ACCEPT", result.Output);
+        Assert.Contains("--uid-owner 1654 -p tcp -d 2606:4700:4700::1001 --dport 8443 -j ACCEPT", result.Output);
+        Assert.DoesNotContain("--uid-owner 65532 -p tcp -d 93.184.216.34", result.Output);
+        Assert.DoesNotContain("--uid-owner 1655", result.Output);
+        Assert.Contains("-A INPUT -p ipv6-icmp --icmpv6-type 135 -m hl --hl-eq 255 -j ACCEPT", result.Output);
+        Assert.Contains("-A OUTPUT -p ipv6-icmp --icmpv6-type 136 -m hl --hl-eq 255 -j ACCEPT", result.Output);
+        Assert.DoesNotContain("--icmpv6-type 128", result.Output);
+    }
+
+    [Theory]
+    [InlineData("127.0.0.1:443")]
+    [InlineData("169.254.169.254:80")]
+    [InlineData("192.168.1.2:443")]
+    [InlineData("224.0.0.1:443")]
+    [InlineData("1.1.1.1:443")]
+    [InlineData("feed.test:443")]
+    [InlineData("93.184.216.34/24:443")]
+    [InlineData("[::ffff:93.184.216.34]:443")]
+    [InlineData("[2001:db8::1]:443")]
+    [InlineData("[2002:1234::1]:443")]
+    [InlineData("[3fff::1]:443")]
+    [InlineData("[2606:4700:::1001]:443")]
+    [InlineData("93.184.216.34:65536")]
+    public async Task CalendarFirewallPinsRejectUnsafeDestinations(string pin)
+    {
+        var result = await RunFirewall("true", "", "", "", calendar: pin);
+        Assert.NotEqual(0, result.ExitCode); Assert.DoesNotContain("READY", result.Output);
+    }
+
+    [Fact]
+    public async Task CalendarCanaryComparisonNormalizesIpv6()
+    {
+        var result = await RunFirewall("true", "", "", "", calendar: "[2606:4700:4700::1001]:443", canary: "2606:4700:4700:0:0:0:0:1001");
+        Assert.NotEqual(0, result.ExitCode); Assert.DoesNotContain("READY", result.Output);
+    }
+
+    private static async Task<CommandResult> RunFirewall(string localOnly, string provider, string access, string hosted, string privateAddress = "127.0.0.1", string calendar = "", string canary = "1.1.1.1")
     {
         using var temporary = new TemporaryDirectory();
         var log = Path.Combine(temporary.Path, "rules.log");
@@ -267,6 +329,8 @@ public sealed class DeploymentArtifactsTests
             ["SECONDBRAIN_PROVIDER_ALLOWLIST"] = provider,
             ["SECONDBRAIN_ACCESS_ALLOWLIST"] = access,
             ["SECONDBRAIN_HOSTED_ALLOWLIST"] = hosted,
+            ["SECONDBRAIN_CALENDAR_ALLOWLIST"] = calendar,
+            ["SECONDBRAIN_CALENDAR_CANARY_ADDRESSES"] = canary,
         });
         return result with { Output = File.ReadAllText(log) + (File.Exists(ready) ? "READY" : string.Empty) };
     }

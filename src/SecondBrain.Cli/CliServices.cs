@@ -15,12 +15,13 @@ public sealed class CliServices
 {
     private readonly HttpDaemonCommands? http;
     private readonly LocalInitializationCommands? local;
+    private RuntimeLocations localLocations = new(null, null);
     public CliServices(bool bindDefaults = true)
     {
         if (bindDefaults)
         {
             http = new HttpDaemonCommands(() => CredentialStore, (purpose, token) => ReadPassword(purpose, token));
-            local = new LocalInitializationCommands(root => CreateKeyRing(root), (purpose, token) => ReadPassword(purpose, token), () => CalibratePassword());
+            local = new LocalInitializationCommands(root => CreateKeyRing(root), (purpose, token) => ReadPassword(purpose, token), () => CalibratePassword(), () => localLocations);
             Initialization = local;
             EpochRevoker = local;
             Credentials = http;
@@ -29,8 +30,10 @@ public sealed class CliServices
             Login = http;
             DoctorExtension = http;
             Knowledge = http;
+            Sources = http;
             Assistant = http;
             Mcp = http;
+            Restore = new LocalRestoreCommands(root => CreateKeyRing(root));
         }
         else
         {
@@ -43,9 +46,12 @@ public sealed class CliServices
         }
     }
     public IKnowledgeCommands? Knowledge { get; init; }
+    public IRestoreCommands? Restore { get; init; }
+    public ISourceCommands? Sources { get; init; }
     public IAssistantCommands? Assistant { get; init; }
     public IMcpBridge? Mcp { get; init; }
     public TextReader Input { get; init; } = Console.In;
+    public Func<CancellationToken, Task<string>> ReadCalendarLink { get; init; } = SourceCommandRegistration.ReadHiddenLinkAsync;
     public IInitializationCommands Initialization { get; init; }
     public ICredentialCommands Credentials { get; init; }
     public IProviderCommands Providers { get; init; }
@@ -60,6 +66,7 @@ public sealed class CliServices
     public Func<PasswordParameters> CalibratePassword { get; init; } = () => PasswordHasher.Calibrate().Parameters;
     public IDaemonCommands Daemon { get; init; } = new InstalledDaemonCommands();
     public ProvisioningService Provisioning { get; init; } = new();
+    public CalendarEgressPlanner CalendarEgress { get; init; } = new();
     public Func<string, string?, SecondBrainOptions> ReadConfiguration { get; init; } = (path, secrets) => new YamlConfigurationLoader(secrets).Load(path);
     public Func<string, FileKeyRing> CreateKeyRing { get; init; } = dataRoot =>
     {
@@ -72,4 +79,5 @@ public sealed class CliServices
     internal void ConfigureDaemon(Func<SecondBrainOptions> options, string? origin, string credentialName) =>
         http?.Configure(options, origin, credentialName);
     internal void ConfigureLocal(SecondBrainOptions options) => local?.Configure(options);
+    internal void ConfigurePaths(RuntimeLocations locations) => localLocations = locations;
 }

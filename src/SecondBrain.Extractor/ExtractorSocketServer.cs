@@ -135,7 +135,9 @@ public sealed class ExtractorSocketServer(ExtractorServerOptions options, ILogge
             {
                 responseId = id;
             }
-            if (request is { Operation: "extract_v2", Version: 1, Id.Length: > 0 and <= 128 } && request.FormatHint?.Length <= 64 && frame.Descriptor is not null)
+            if (request is { Operation: "extract_v2", Version: 1, Id.Length: > 0 and <= 128 } && request.FormatHint?.Length <= 64 && frame.Descriptor is not null &&
+                (request.CalendarFrom is null && request.CalendarTo is null && request.CalendarTimeZone is null && request.CalendarMaxOccurrences is null ||
+                 request.CalendarFrom is { Length: > 0 and <= 64 } && request.CalendarTo is { Length: > 0 and <= 64 } && request.CalendarTimeZone is { Length: > 0 and <= 128 } && request.CalendarMaxOccurrences is null or >= 1 and <= 100000))
             {
                 var entered = false;
                 try

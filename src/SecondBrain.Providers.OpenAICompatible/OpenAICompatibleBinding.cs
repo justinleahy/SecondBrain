@@ -33,12 +33,17 @@ public sealed partial class OpenAICompatibleBinding : IProviderBinding, IRerankP
     private readonly ConcurrentDictionary<string, ResolvedModel> resolvedModels = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, IChatClient> chatClients = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, IEmbeddingGenerator<string, Embedding<float>>> embeddingClients = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, OpenAINativeBatch> batches = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, OpenAINativeBatch> batchLifecycles = new(StringComparer.Ordinal);
+    private readonly bool nativeBatch;
+    private readonly IPolicyHttpClientFactory factory;
+    private readonly string? apiKey;
 
     public OpenAICompatibleBinding(string providerName, Uri endpoint, ModelRole role,
         IPolicyHttpClientFactory factory, IProviderEgressPolicy privacy, ModelCatalog catalog,
         string? apiKey = null, int? dimensions = null, TimeProvider? timeProvider = null,
         ModelLimits? configuredLimits = null, string? configuredModel = null,
-        ModelCapabilityOptions? configuredCapabilities = null)
+        ModelCapabilityOptions? configuredCapabilities = null, bool nativeBatch = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
         if (!endpoint.IsAbsoluteUri || endpoint.Scheme is not ("http" or "https") ||
@@ -54,6 +59,7 @@ public sealed partial class OpenAICompatibleBinding : IProviderBinding, IRerankP
         this.configuredLimits = configuredLimits;
         this.configuredModel = configuredModel;
         this.configuredCapabilities = configuredCapabilities;
+        this.nativeBatch = nativeBatch; this.factory = factory; this.apiKey = apiKey;
         inferenceClient = factory.CreateClient(role, this);
         discoveryClient = factory.CreateClient(role, this, discovery: true);
         // The SDK has no independent HTTP transport or retry loop. Every send crosses our factory.
@@ -187,10 +193,26 @@ public sealed partial class OpenAICompatibleBinding : IProviderBinding, IRerankP
     // Capability declarations describe the configured concrete model only.
     private ModelCapabilityOptions? DeclaredCapabilities(string model) => model == configuredModel ? configuredCapabilities : null;
 
+    public IBatchProvider? GetBatchProvider(string model)
+    {
+        if (!nativeBatch || role != ModelRole.Enrich) return null;
+        var resolved = ResolveForClient(model);
+        return resolved.Capabilities.Batch ? batches.GetOrAdd(model, _ => new OpenAINativeBatch(this, factory, apiKey, resolved)) : null;
+    }
+    public IBatchProvider? GetBatchLifecycleProvider(string model)
+    {
+        if (!nativeBatch) return null;
+        ArgumentException.ThrowIfNullOrWhiteSpace(model);
+        return batchLifecycles.GetOrAdd(model, _ => new OpenAINativeBatch(this, factory, apiKey,
+            new(ProviderName, model, new(), new()), lifecycleOnly: true));
+    }
+
     public void Dispose()
     {
         foreach (var client in chatClients.Values) client.Dispose();
         foreach (var client in embeddingClients.Values) client.Dispose();
+        foreach (var batch in batches.Values) batch.Dispose();
+        foreach (var batch in batchLifecycles.Values) batch.Dispose();
         inferenceClient.Dispose();
         discoveryClient.Dispose();
     }

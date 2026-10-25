@@ -1,0 +1,55 @@
+{
+  "checked_at": "2026-10-24 20:52:19 UTC",
+  "origin": "http://127.0.0.1:18203",
+  "scope": "Isolated synthetic loopback development qualification",
+  "workflows": {
+    "highlighted": [
+      "Retrieval",
+      "retrieval"
+    ],
+    "passage": true,
+    "scriptBlocked": true,
+    "conflictPreserved": true,
+    "mergedSave": true,
+    "mobileCapture": true,
+    "mobileNoOverflow": true,
+    "settingsAndJobs": true,
+    "stepUpReload": true,
+    "signOut": true
+  },
+  "catalog": [
+    {
+      "width": 1280,
+      "facets": true,
+      "filterHistory": true,
+      "timeline": true,
+      "peopleFilter": true,
+      "trashMetadataOnly": true,
+      "liftSuppression": true,
+      "restore": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "facets": true,
+      "filterHistory": true,
+      "timeline": true,
+      "peopleFilter": true,
+      "trashMetadataOnly": true,
+      "liftSuppression": true,
+      "restore": true,
+      "noOverflow": true
+    }
+  ],
+  "circuits": {
+    "directLoads": 9,
+    "revokedIdleCircuitClosedMilliseconds": 1901,
+    "independentSessionPreserved": true,
+    "revokedCredentialRejected": true
+  },
+  "limitations": [
+    "VPN and Cloudflare origin acceptance is not established by these tests.",
+    "Document rendering checks do not replace the full document CSP gate.",
+    "Daemon restart/reconnection UI and remaining M3 screens are still incomplete."
+  ]
+}

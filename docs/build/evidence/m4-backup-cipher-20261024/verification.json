@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "scope": "Streaming authenticated backup encryption codec only; not a usable backup/restore operation",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "focusedTests": {
+    "passed": 28,
+    "failed": 0,
+    "skipped": 0,
+    "result": "cipher.trx",
+    "sha256": "546f668118921173cdaf1d666ddfd90f17d5e05f17d26b1f775b5028073342e0"
+  },
+  "previousFullRegression": "../m4-folder-purge-20261024/verification.json",
+  "format": {
+    "version": "SBKB0001",
+    "dataKey": "32 fresh random bytes per archive",
+    "keyWrapping": "AES-256-GCM under a caller-supplied 32-byte backup key; 12-byte random nonce and 16-byte tag",
+    "headerBytes": 84,
+    "segmentBytes": 1048576,
+    "segmentAuthentication": "AES-256-GCM with a 12-byte nonce containing the sequential 64-bit frame index; 16-byte tags. Associated data binds the complete header hash, frame index and plaintext length.",
+    "completion": "Required authenticated zero-length frame at the next index; trailing bytes are rejected."
+  },
+  "verifiedBehavior": [
+    "Empty, one-byte, exact-segment and multisegment streams round trip through nonseekable fragmented readers.",
+    "Every encrypted archive gets a fresh data key and identifier.",
+    "Header, wrapping nonce, wrapped key, tags, ciphertext and completion tampering are rejected.",
+    "Wrong keys fail before any plaintext is emitted; data from a failing frame is not emitted.",
+    "Truncation, dropped final frames, reordered, duplicated, omitted, foreign frames and trailing bytes are rejected.",
+    "Invalid lengths are rejected before input-driven allocation.",
+    "A 32-MiB generated input uses at most 1-MiB read/write requests and the implementation retains two fixed 1-MiB working buffers.",
+    "Cancellation before output and after a complete data frame does not create a valid completed archive.",
+    "Only 32-byte wrapping keys are accepted."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Storage/Backup/BackupCipher.cs": "89cd6385a0411fe5e2416079ea6603d36a6f68b3c54fbef87e1fa6f5dfdb5462",
+    "tests/SecondBrain.Storage.Tests/BackupCipherTests.cs": "0f0c41eafc96f14505c572761701af19a1cb737ca5b9a13a6dfb070ae84024bc"
+  },
+  "documentation": [
+    "https://github.com/dotnet/docs/blob/main/docs/standard/security/cross-platform-cryptography.md",
+    "https://github.com/dotnet/docs/blob/main/docs/fundamentals/syslib-diagnostics/syslib0053.md"
+  ],
+  "limitations": [
+    "The codec has not yet been connected to snapshot creation, manifest generation/verification, atomic archive publication, retention rotation, HTTP/CLI commands or restore.",
+    "A decoder can emit an authenticated prefix before discovering a later corruption. Callers must keep all output in private staging until full archive authentication and manifest verification finish.",
+    "No production archive or secret key was created, read or changed.",
+    "No independent cryptographic audit or full backup-under-sustained-edits acceptance is claimed."
+  ]
+}

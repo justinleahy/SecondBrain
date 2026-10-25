@@ -1,0 +1,18 @@
+[
+  {
+    "file": "export-1280.tar",
+    "tarEntries": 54,
+    "manifestRows": 53,
+    "allHashesMatched": true,
+    "noUnsafePaths": true,
+    "authenticationRecordsExcluded": true
+  },
+  {
+    "file": "export-390.tar",
+    "tarEntries": 54,
+    "manifestRows": 53,
+    "allHashesMatched": true,
+    "noUnsafePaths": true,
+    "authenticationRecordsExcluded": true
+  }
+]

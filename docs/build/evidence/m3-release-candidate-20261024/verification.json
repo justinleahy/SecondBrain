@@ -1,0 +1,192 @@
+{
+  "status": "M3 Release candidate; milestone remains incomplete",
+  "configuration": "Release; locked restore; warnings as errors",
+  "tests_passed": 1956,
+  "tests": [
+    {
+      "project": "SecondBrain.Architecture.Tests",
+      "counts": {
+        "total": 63,
+        "executed": 63,
+        "passed": 63,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "e494f51dae4fac65f5174a82f62c953f87f4e19f5e45f35b4328158245bb54ac"
+    },
+    {
+      "project": "SecondBrain.Core.Tests",
+      "counts": {
+        "total": 167,
+        "executed": 167,
+        "passed": 167,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "6bf446cc5acfa79983cf52dcc091d907a05cb8443cd7442ef273d4ea98577cc5"
+    },
+    {
+      "project": "SecondBrain.Deploy.Tests",
+      "counts": {
+        "total": 163,
+        "executed": 163,
+        "passed": 163,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "04d441414c471a34eae37ea0d882e3e774c8a5598f1ab850fd006649060005bc"
+    },
+    {
+      "project": "SecondBrain.Extractor.Tests",
+      "counts": {
+        "total": 780,
+        "executed": 780,
+        "passed": 780,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "6ea74e75062898393b17240f35afc8c2cb4aaa8a7dc7b9c8eb354b653fe3fc14"
+    },
+    {
+      "project": "SecondBrain.Infrastructure.Tests",
+      "counts": {
+        "total": 84,
+        "executed": 84,
+        "passed": 84,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "96a63b6cfcf2dd00601c1ea9d629b1e7c05f8629d4ae8369f465d735606ae48c"
+    },
+    {
+      "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+      "counts": {
+        "total": 73,
+        "executed": 73,
+        "passed": 73,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "90301bdd339132710854d77251c37715699fa6cdce5c6bd39e384e8d477c124d"
+    },
+    {
+      "project": "SecondBrain.Server.Tests",
+      "counts": {
+        "total": 344,
+        "executed": 344,
+        "passed": 344,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "df5a33ce2c8837c89a6c555d4ba844337f640a62424f5796804789c2310c2f32"
+    },
+    {
+      "project": "SecondBrain.Storage.Tests",
+      "counts": {
+        "total": 282,
+        "executed": 282,
+        "passed": 282,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "sha256": "a71d01e3f8448002385bd407604f03f68404eba447291ba3ca0a0aa6e51d0e76"
+    }
+  ],
+  "python_deployment_tests": 33,
+  "python_test_log_sha256": "8125d7a71e1f7441646c50b2126e0cf3d3e726ddc71eaad61048255cf2010dce",
+  "javascript_transport_tests": 6,
+  "browser_results": "browser-checks.json",
+  "installation": "No M3 deployment or configuration migration performed. Reference service remains M2.",
+  "required_live_gates": "U6/U7/U11/U16 through actual VPN and Cloudflare origins; hostile metadata/CSP; real daemon restart; revocation.",
+  "user_waivers": [
+    "VPN and Cloudflare qualification skipped at the user's explicit request."
+  ]
+}

@@ -3,6 +3,11 @@ namespace SecondBrain.Core.Durability;
 /// <summary>Serializes a document's state and index publication without cross-store atomicity (§8).</summary>
 public interface IPublicationCoordinator
 {
+    ValueTask<PublicationOutcome> PublishCalendarSubscriptionAsync(SecondBrain.Core.Sources.CalendarSubscriptionPublication publication,
+        CancellationToken cancellationToken = default) => throw new NotSupportedException("Calendar subscriptions are unavailable.");
+    ValueTask<PublicationOutcome> RecoverCalendarAsync(string containerId, CancellationToken cancellationToken = default) => throw new NotSupportedException("Calendar recovery is unavailable.");
+    ValueTask<PublicationOutcome> PublishCalendarAsync(PublicationFence container, SecondBrain.Extraction.Contracts.CalendarSnapshot calendar,
+        CancellationToken cancellationToken = default) => throw new NotSupportedException("Calendar publication is unavailable.");
     /// <summary>
     /// Records a new revision, replaces its index snapshot, then marks it published. A document with an active
     /// (prepared or applied) journal mutation is Superseded until that mutation is finalized or conflicted.
@@ -55,8 +60,12 @@ public sealed record DocumentPublication(
     string ContentHash,
     string Provenance)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SecondBrain.Core.Ingestion.RetentionExpiry? Expiry { get; init; }
     public SecondBrain.Core.Ingestion.TextProjection? Projection { get; init; }
     public SecondBrain.Core.Ingestion.PublicationAdmission? Admission { get; init; }
+    /// <summary>Explicit metadata choices committed with an in-memory member mutation.</summary>
+    public IReadOnlyDictionary<string, string>? Overrides { get; init; }
     /// <summary>The registered content type.</summary>
     public string Type { get; init; } = "file";
     /// <summary>The authoritative type provenance.</summary>

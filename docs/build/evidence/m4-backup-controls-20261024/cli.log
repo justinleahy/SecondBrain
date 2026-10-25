@@ -1,0 +1,19 @@
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Debug/net10.0/SecondBrain.Extractor.dll
+  SecondBrain.MockProvider -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/bin/Debug/net10.0/SecondBrain.MockProvider.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Debug/net10.0/SecondBrain.Server.dll
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/bin/Debug/net10.0/brain.dll
+  SecondBrain.Deploy.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-backup-cli2/cli.trx
+
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 112 ms - SecondBrain.Deploy.Tests.dll (net10.0)

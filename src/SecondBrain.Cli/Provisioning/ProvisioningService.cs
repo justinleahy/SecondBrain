@@ -46,6 +46,9 @@ public sealed class ProvisioningService(IProvisionPlatform? platform = null)
         DirectoryAction(inbox, GroupReadableDirectory | UnixFileMode.GroupWrite | UnixFileMode.StickyBit, options.DaemonUid, options.DaemonGid);
         DirectoryAction(Path.Combine(inbox, ".claimed"), PrivateDirectory, options.DaemonUid, options.DaemonGid);
         DirectoryAction(options.ConfigDirectory, GroupReadableDirectory, 0, options.DaemonGid);
+        var settingsDirectory = Path.Combine(options.ConfigDirectory, "settings");
+        // Temporarily root-owned while privileged setup inspects/creates children.
+        DirectoryAction(settingsDirectory, PrivateDirectory, 0, 0);
         // Directories require execute for traversal; the 0600 secrets requirement applies to files.
         DirectoryAction(Path.Combine(options.ConfigDirectory, "secrets"), PrivateDirectory, options.DaemonUid, options.DaemonGid);
         DirectoryAction(options.RuntimeDirectory, GroupReadableDirectory | UnixFileMode.GroupWrite | UnixFileMode.SetGroup, options.DaemonUid, options.DaemonGid);
@@ -56,10 +59,26 @@ public sealed class ProvisioningService(IProvisionPlatform? platform = null)
         var configPath = Path.Combine(options.ConfigDirectory, "config.yaml");
         Action("file", configPath, "create if absent; mode=600; daemon-owned", () =>
         {
-            WriteIfAbsent(configPath, config, PrivateFile);
-            File.SetUnixFileMode(configPath, PrivateFile);
-            _platform.SetOwner(configPath, options.DaemonUid, options.DaemonGid);
+            var link = new FileInfo(configPath).LinkTarget;
+            if (link is not null && link != "settings/config.yaml") throw new CliPreconditionException("Unexpected configuration symlink.");
+            if (link is null && File.Exists(configPath))
+            {
+                // Existing installations retain their file; the separate reviewed
+                // settings migration moves it without changing its contents.
+                File.SetUnixFileMode(configPath, PrivateFile);
+                _platform.SetOwner(configPath, options.DaemonUid, options.DaemonGid);
+                return;
+            }
+            var writableConfig = Path.Combine(settingsDirectory, "config.yaml");
+            RejectSymlink(writableConfig);
+            if (!File.Exists(writableConfig))
+            {
+                WriteIfAbsent(writableConfig, config, PrivateFile);
+                _platform.SetOwner(writableConfig, options.DaemonUid, options.DaemonGid);
+            }
+            if (link is null) File.CreateSymbolicLink(configPath, "settings/config.yaml");
         });
+        Action("ownership", settingsDirectory, "mode=700; daemon-owned configuration directory", () => _platform.SetOwner(settingsDirectory, options.DaemonUid, options.DaemonGid));
         if (!options.DryRun)
         {
             foreach (var secret in Directory.EnumerateFiles(Path.Combine(options.ConfigDirectory, "secrets")))
@@ -81,6 +100,8 @@ public sealed class ProvisioningService(IProvisionPlatform? platform = null)
             var compose = Path.Combine(dockerDirectory, "compose.yaml");
             if (!File.Exists(compose)) compose = Path.Combine(templateRoot, "compose.yaml");
             InstallTemplate(compose, Path.Combine(options.ComposeDirectory, "compose.yaml"), options, Action);
+            var ipv6Compose = Path.Combine(templateRoot, "compose.ipv6.yaml");
+            if (File.Exists(ipv6Compose)) InstallTemplate(ipv6Compose, Path.Combine(options.ComposeDirectory, "compose.ipv6.yaml"), options, Action);
             foreach (var (sourceName, installedName) in new[] { ("compose.env.example", ".env.example"), ("cloudflared.yaml", "cloudflared.yaml") })
             {
                 var source = Path.Combine(templateRoot, "provision", sourceName);

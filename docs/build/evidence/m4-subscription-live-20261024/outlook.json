@@ -1,0 +1,53 @@
+{
+  "initialSucceeded": true,
+  "error": null,
+  "members": 893,
+  "occurrences": 2335,
+  "conditionalSucceeded": true,
+  "conditionalError": null,
+  "bytesChanged": true,
+  "unchangedRevisions": false,
+  "transport": [
+    {
+      "Status": "modified",
+      "Error": null,
+      "conditional": false,
+      "acceptedETag": false,
+      "acceptedLastModified": false
+    },
+    {
+      "Status": "modified",
+      "Error": null,
+      "conditional": false,
+      "acceptedETag": false,
+      "acceptedLastModified": false
+    }
+  ],
+  "realTransport": true,
+  "realExtractor": true,
+  "isolatedTemporaryStore": true,
+  "hardenedDeployment": false,
+  "localOnly": true,
+  "feed": "outlook",
+  "testCounts": {
+    "total": "1",
+    "executed": "1",
+    "passed": "1",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "trxSha256": "3926315b0dbafc6c3ed23ede9e536b118b011e0bd021c5f75d9279fd57706351",
+  "urlAndEventBodiesOmitted": true,
+  "followUpRequest": "unconditional; server supplied neither ETag nor Last-Modified"
+}

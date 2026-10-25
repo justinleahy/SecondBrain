@@ -1,0 +1,41 @@
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.94]     SecondBrain.Storage.Tests.BackupFilePinsTests.ConcurrentCaptureIsRejectedWithoutClosingTheExistingPins [FAIL]
+  Failed SecondBrain.Storage.Tests.BackupFilePinsTests.ConcurrentCaptureIsRejectedWithoutClosingTheExistingPins [39 ms]
+  Error Message:
+   System.ArgumentNullException : Value cannot be null. (Parameter 'path')
+  Stack Trace:
+     at System.ArgumentNullException.Throw(String paramName)
+   at System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   at System.ArgumentException.ThrowNullOrEmptyException(String argument, String paramName)
+   at System.IO.File.Validate(String path, Encoding encoding)
+   at System.IO.File.ReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at SecondBrain.Storage.Tests.BackupFilePinsTests.ConcurrentCaptureIsRejectedWithoutClosingTheExistingPins() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupFilePinsTests.cs:line 110
+   at SecondBrain.Storage.Tests.BackupFilePinsTests.ConcurrentCaptureIsRejectedWithoutClosingTheExistingPins() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupFilePinsTests.cs:line 110
+   at SecondBrain.Storage.Tests.BackupFilePinsTests.ConcurrentCaptureIsRejectedWithoutClosingTheExistingPins() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupFilePinsTests.cs:line 110
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:01.37]     SecondBrain.Storage.Tests.BackupFilePinsTests.CaptureDefersFileCopyAndPreservesTheOriginalVersionBeforeAnEdit [FAIL]
+  Failed SecondBrain.Storage.Tests.BackupFilePinsTests.CaptureDefersFileCopyAndPreservesTheOriginalVersionBeforeAnEdit [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+           ↓ (pos 0)
+Expected: "copied"
+Actual:   "pending"
+           ↑ (pos 0)
+  Stack Trace:
+     at SecondBrain.Storage.Tests.BackupFilePinsTests.CaptureDefersFileCopyAndPreservesTheOriginalVersionBeforeAnEdit() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupFilePinsTests.cs:line 30
+   at SecondBrain.Storage.Tests.BackupFilePinsTests.CaptureDefersFileCopyAndPreservesTheOriginalVersionBeforeAnEdit() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupFilePinsTests.cs:line 34
+   at SecondBrain.Storage.Tests.BackupFilePinsTests.CaptureDefersFileCopyAndPreservesTheOriginalVersionBeforeAnEdit() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/BackupFilePinsTests.cs:line 34
+--- End of stack trace from previous location ---
+Results File: /tmp/m4-backup-pins-focused3/pins.trx
+
+Failed!  - Failed:     2, Passed:     8, Skipped:     0, Total:    10, Duration: 1 s - SecondBrain.Storage.Tests.dll (net10.0)

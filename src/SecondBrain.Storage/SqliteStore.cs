@@ -48,7 +48,22 @@ public abstract class SqliteStore : IStoreHandle, IDisposable, IAsyncDisposable
         _writer = Task.Run(() => WriterLoopAsync(writerConnection));
     }
 
-    public async ValueTask<IReadConnectionLease> OpenReadConnectionAsync(CancellationToken cancellationToken = default)
+    public ValueTask<IReadConnectionLease> OpenReadConnectionAsync(CancellationToken cancellationToken = default) =>
+        OpenReadConnectionAsync(_options, cancellationToken);
+
+    /// <summary>
+    /// Startup loads the complete vector generation before serving requests. Give that
+    /// bounded bulk read its own five-minute lifetime without extending query leases.
+    /// Statement budgets and read-pool capacity remain unchanged.
+    /// </summary>
+    public ValueTask<IReadConnectionLease> OpenStartupReadConnectionAsync(CancellationToken cancellationToken = default) =>
+        OpenReadConnectionAsync(_options with
+        {
+            ReadLeaseTimeout = TimeSpan.FromMinutes(5),
+            TransactionTimeout = TimeSpan.FromMinutes(5)
+        }, cancellationToken);
+
+    private async ValueTask<IReadConnectionLease> OpenReadConnectionAsync(SqliteStoreOptions leaseOptions, CancellationToken cancellationToken)
     {
         ThrowIfDisposed();
         using var wait = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _shutdown.Token);
@@ -60,7 +75,7 @@ public abstract class SqliteStore : IStoreHandle, IDisposable, IAsyncDisposable
             {
                 ThrowIfDisposed();
                 if (!_readPool.TryTake(out native)) native = ConnectionFactory.Open(DatabasePath, _state, _options, readOnly: true);
-                var lease = new ReadLease(this, native, _options);
+                var lease = new ReadLease(this, native, leaseOptions);
                 _leases.TryAdd(lease, 0);
                 lease.StartExpiry();
                 return lease;
@@ -166,15 +181,17 @@ public abstract class SqliteStore : IStoreHandle, IDisposable, IAsyncDisposable
         private readonly SqliteConnection _native;
         private readonly BoundedConnection _bounded;
         private readonly Timer _expiry;
+        private readonly TimeSpan _lifetime;
         private int _returned;
         internal ReadLease(SqliteStore owner, SqliteConnection native, SqliteStoreOptions options)
         {
             _owner = owner;
             _native = native;
             _bounded = new BoundedConnection(native, options, options.ReadLeaseTimeout);
+            _lifetime = options.ReadLeaseTimeout;
             _expiry = new Timer(_ => Expire(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
-        internal void StartExpiry() => _expiry.Change(_owner._options.ReadLeaseTimeout, Timeout.InfiniteTimeSpan);
+        internal void StartExpiry() => _expiry.Change(_lifetime, Timeout.InfiniteTimeSpan);
         public DbConnection Connection { get { ObjectDisposedException.ThrowIf(Volatile.Read(ref _returned) != 0, this); return _bounded; } }
         internal void Expire() => Return(expired: true);
         public void Dispose() => Return(expired: false);

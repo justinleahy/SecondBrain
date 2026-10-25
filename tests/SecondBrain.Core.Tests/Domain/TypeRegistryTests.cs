@@ -11,7 +11,7 @@ public sealed class TypeRegistryTests
     [Fact]
     public void BuiltInsMatchAppendixE()
     {
-        Assert.Equal(["article", "file", "note"], _registry.Types.Select(type => type.Key).Order());
+        Assert.Equal(["article", "calendar_event", "file", "note", "transcript"], _registry.Types.Select(type => type.Key).Order());
         foreach (var definition in _registry.Types)
         {
             Assert.Equal(1, definition.SchemaVersion);
@@ -24,6 +24,8 @@ public sealed class TypeRegistryTests
     [InlineData("note", "{}", true)]
     [InlineData("file", "{}", true)]
     [InlineData("article", "{}", true)]
+    [InlineData("transcript", "{\"participants\":[\"Ada\"],\"started_at\":\"2026-10-24T12:00:00Z\",\"duration_ms\":5000}", true)]
+    [InlineData("transcript", "{\"duration_ms\":-1}", false)]
     [InlineData("article", "{\"author\":\"Sarah\",\"site\":\"Example\",\"published_at\":\"2026-10-08T10:00:00-04:00\",\"url\":\"https://example.test/story\"}", true)]
     [InlineData("article", "{\"author\":123}", false)]
     [InlineData("article", "{\"site\":false}", false)]

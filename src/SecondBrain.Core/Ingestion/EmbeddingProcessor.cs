@@ -19,16 +19,19 @@ public interface IEmbeddingWorkRepository
 }
 
 /// <summary>All inference goes through the configured binding's policy-owned generator.</summary>
-public sealed class EmbeddingProcessor(IProviderRegistry providers, IEmbeddingWorkRepository repository)
+public sealed class EmbeddingProcessor(IProviderRegistry providers, IEmbeddingWorkRepository repository,
+    Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null,
+    IModelUsage? usage = null)
 {
     public async ValueTask<int> ProcessAsync(CancellationToken cancellationToken = default)
     {
         var role = providers.GetRole(ModelRole.Embed);
         var dimensions = role.Model.Limits.EmbedDimensions ?? throw new ArgumentException("Embedding dimensions are required.");
         var maximum = role.Model.Limits.EmbedMaxInputTokens ?? throw new ArgumentException("Embedding input bound is required.");
-        if (maximum < 1024) throw new ArgumentException("Embedding input bound requires controlled rechunking.");
+        var profile = ChunkingProfile.FromOptions(options?.CurrentValue.Chunking);
+        if (maximum < profile.MaxTokens) throw new ArgumentException("Embedding input bound requires controlled rechunking.");
         var batchMaximum = role.Model.Limits.EmbedBatchMax ?? 1;
-        var fingerprint = EmbeddingFingerprint.Create(role.Provider.ProviderName, role.Provider.Endpoint?.AbsoluteUri, role.Model.Model, dimensions);
+        var fingerprint = EmbeddingFingerprint.Create(role.Provider.ProviderName, role.Provider.EmbeddingIdentity, role.Model.Model, dimensions, profile);
         var space = await repository.EnsureSpaceAsync(fingerprint, role.Provider.ProviderName, role.Model.Model, dimensions, cancellationToken);
         var processed = 0;
         var active = await repository.ActiveAsync(cancellationToken);
@@ -71,7 +74,9 @@ public sealed class EmbeddingProcessor(IProviderRegistry providers, IEmbeddingWo
             foreach (var batch in missing.Chunk(Math.Max(1, batchMaximum)))
             {
                 if (batch.Any(chunk => chunk.TokenCount > maximum)) throw new ArgumentException("Embedding input exceeds resolved bound.");
-                var embeddings = await generator.GenerateAsync(batch.Select(chunk => chunk.Context + "\n" + chunk.Text), new EmbeddingGenerationOptions { AdditionalProperties = new() { ["intent"] = "document" } }, cancellationToken);
+                var input = batch.Select(chunk => chunk.Context + "\n" + chunk.Text).ToArray();
+                var embeddings = await GenerateAsync(generator, input, "document", provider.ProviderName, space.Model,
+                    document.DocumentId, document.Revision, null, cancellationToken);
                 if (embeddings.Count != batch.Length) throw new ArgumentException("Embedding response count mismatch.");
                 for (var i = 0; i < batch.Length; i++)
                 {
@@ -88,15 +93,35 @@ public sealed class EmbeddingProcessor(IProviderRegistry providers, IEmbeddingWo
     }
 
     public async ValueTask<(float[]? Vector, string? SpaceId)> QueryAsync(string query, CancellationToken cancellationToken = default,
-        Func<IProviderBinding, EmbeddingSpace, CancellationToken, ValueTask>? beforeSend = null)
+        Func<IProviderBinding, EmbeddingSpace, CancellationToken, ValueTask>? beforeSend = null, IngestionAuthority? actor = null,
+        Action<ModelUsageTotals?>? onUsage = null)
     {
         var space = await repository.ActiveAsync(cancellationToken);
         if (space is null) return (null, null);
         var provider = providers.GetEmbeddingProvider(space.Provider, space.Model, space.Dimensions, space.Fingerprint);
         var generator = provider.GetEmbeddingGenerator(space.Model) ?? throw new InvalidOperationException("Embedding generator unavailable.");
         if (beforeSend is not null) await beforeSend(provider, space, cancellationToken);
-        var result = await generator.GenerateAsync(new[] { query }, new EmbeddingGenerationOptions { AdditionalProperties = new() { ["intent"] = "query" } }, cancellationToken);
+        var result = beforeSend is not null
+            ? await generator.GenerateAsync(new[] { query }, new EmbeddingGenerationOptions { AdditionalProperties = new() { ["intent"] = "query" } }, cancellationToken)
+            : await GenerateAsync(generator, [query], "query", provider.ProviderName, space.Model, null, null, actor, cancellationToken);
+        onUsage?.Invoke(ModelUsageTotals.From(result.Usage));
         if (result.Count != 1 || result[0].Vector.Length != space.Dimensions) throw new ArgumentException("Invalid query embedding.");
         return (result[0].Vector.ToArray(), space.Id);
+    }
+
+    private async Task<GeneratedEmbeddings<Embedding<float>>> GenerateAsync(IEmbeddingGenerator<string, Embedding<float>> generator,
+        string[] input, string intent, string provider, string model, string? document, long? revision, IngestionAuthority? actor, CancellationToken token)
+    {
+        long? reservation = usage is null ? null : await usage.ReserveAsync(new(Guid.NewGuid().ToString("N"), provider, model,
+            "embed", input.Sum(text => (long)Encoding.UTF8.GetByteCount(text) + 64), actor, document, revision), token);
+        ModelUsageTotals? totals = null;
+        try
+        {
+            var result = await generator.GenerateAsync(input, new EmbeddingGenerationOptions { AdditionalProperties = new() { ["intent"] = intent } }, token);
+            totals = ModelUsageTotals.From(result.Usage);
+            if (totals is not null) totals = totals with { OutputTokens = totals.OutputTokens ?? 0 };
+            return result;
+        }
+        finally { if (reservation is { } id) await usage!.SettleAsync(id, totals, CancellationToken.None); }
     }
 }

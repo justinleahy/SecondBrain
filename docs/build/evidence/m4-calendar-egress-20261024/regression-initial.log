@@ -1,0 +1,90 @@
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.MockProvider -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/bin/Debug/net10.0/SecondBrain.MockProvider.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Debug/net10.0/SecondBrain.Extractor.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Infrastructure.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll
+  SecondBrain.Core.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll
+  SecondBrain.Extractor.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+  SecondBrain.Providers.OpenAICompatible.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll
+VSTest version 18.0.2 (x64)
+VSTest version 18.0.2 (x64)
+
+
+VSTest version 18.0.2 (x64)
+VSTest version 18.0.2 (x64)
+
+
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll (.NETCoreApp,Version=v10.0)
+Starting test execution, please wait...
+Starting test execution, please wait...
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Debug/net10.0/SecondBrain.Server.dll
+  SecondBrain.Server.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/bin/Debug/net10.0/brain.dll
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_42.trx
+
+Passed!  - Failed:     0, Passed:   171, Skipped:     0, Total:   171, Duration: 602 ms - SecondBrain.Core.Tests.dll (net10.0)
+  SecondBrain.Architecture.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_41.trx
+
+Passed!  - Failed:     0, Passed:   162, Skipped:     0, Total:   162, Duration: 1 s - SecondBrain.Infrastructure.Tests.dll (net10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  SecondBrain.Deploy.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_44.trx
+
+Passed!  - Failed:     0, Passed:    63, Skipped:     0, Total:    63, Duration: 150 ms - SecondBrain.Architecture.Tests.dll (net10.0)
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_42[1].trx
+
+Passed!  - Failed:     0, Passed:    73, Skipped:     0, Total:    73, Duration: 3 s - SecondBrain.Providers.OpenAICompatible.Tests.dll (net10.0)
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_42[2].trx
+
+Passed!  - Failed:     0, Passed:   809, Skipped:     0, Total:   809, Duration: 4 s - SecondBrain.Extractor.Tests.dll (net10.0)
+[xUnit.net 00:00:04.90]     SecondBrain.Server.Tests.TranscriptApiTests.UploadedTranscriptExposesSegmentsAndSpeakerSearch [FAIL]
+  Failed SecondBrain.Server.Tests.TranscriptApiTests.UploadedTranscriptExposesSegmentsAndSpeakerSearch [4 s]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at SecondBrain.Server.Tests.TranscriptApiTests.UploadedTranscriptExposesSegmentsAndSpeakerSearch() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/TranscriptApiTests.cs:line 59
+   at SecondBrain.Server.Tests.TranscriptApiTests.UploadedTranscriptExposesSegmentsAndSpeakerSearch() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/TranscriptApiTests.cs:line 60
+--- End of stack trace from previous location ---
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_41[1].trx
+
+Passed!  - Failed:     0, Passed:   314, Skipped:     0, Total:   314, Duration: 7 s - SecondBrain.Storage.Tests.dll (net10.0)
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_44[1].trx
+
+Passed!  - Failed:     0, Passed:   208, Skipped:     0, Total:   208, Duration: 12 s - SecondBrain.Deploy.Tests.dll (net10.0)
+Results File: /tmp/m4-egress-regression/_DESKTOP-8NJSRF2_2026-10-24_19_56_43.trx
+
+Failed!  - Failed:     1, Passed:   360, Skipped:     0, Total:   361, Duration: 50 s - SecondBrain.Server.Tests.dll (net10.0)

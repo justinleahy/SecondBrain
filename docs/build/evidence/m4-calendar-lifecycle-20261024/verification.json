@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-24",
+  "scope": "Calendar container trash, restore, purge, durable subscription lifecycle pause and detached snapshot cleanup; not full source purge or M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2170,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_48.trx",
+        "sha256": "88e5b8aae4482831a1a8c1dcd5dce54eff60181d3b4d9e0660e736803425879a"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 162,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_48[1].trx",
+        "sha256": "27af87bc2374a7d1850465fdaed75eb521f36d814d7987c0d4db317f6eab643c"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_48[2].trx",
+        "sha256": "26ab28184c948179e074693da13e08a0e09606e2705a270ad0ba56a6369c9f72"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_48[3].trx",
+        "sha256": "4779db6ffeaefc122f55b80803e68f7012dc5335565e0b3880d0883f2189591a"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 323,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_48[4].trx",
+        "sha256": "01d390215198bed34f83743cc2bf32def51e25144e8e4e776a3292ad035cb1e2"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_53.trx",
+        "sha256": "99c7b3f5140599712f59e2202faa4ca0316480c9a2fa7d2c41f1d440a256704c"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 208,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_53[1].trx",
+        "sha256": "db752c0ba2a86d635ccd8759bf9c4e3cc34e8f372ec59d9afeb4701f45c3b5b0"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 361,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_04_53[2].trx",
+        "sha256": "65d151c95c75972f0cf5252196ea06837fcd906c877f8f1c427b7384b19a7acc"
+      }
+    ]
+  },
+  "focusedRestartTests": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "status": "passed",
+    "widths": [
+      1280,
+      390
+    ],
+    "details": "browser.json",
+    "fixtureStopped": true,
+    "screenshotsReviewed": true
+  },
+  "verifiedBehavior": [
+    "Container trash hides all available members together and removes occurrence coverage; restore preserves identities and independent member deletions.",
+    "Trash fences active fetches and rejects late snapshot writes; a source cannot resume while its container is unavailable.",
+    "A lifecycle pause survives configured startup reconciliation and restore until an explicit resume.",
+    "Member purge retains owned container originals; container purge removes current and historical owned originals, scrubs member payloads and purges projections.",
+    "Before-finalize and after-index-commit interruption recovery is idempotent; stale pre-purge publication fences are rejected.",
+    "Bounded orphan cleanup retains active and accepted snapshots, removes never-accepted snapshots, replays a quarantine interruption and preserves external file replacements."
+  ],
+  "notes": [
+    "Initial focused test incorrectly expected null for a database NULL returned as DBNull; corrected the assertion to check SQL NULL explicitly.",
+    "Initial browser readiness callback did not await asynchronous publication; replaced it with bounded polling of the actual query result and reran successfully.",
+    "Review after the first full regression found configured startup could reactivate a trashed container; added a durable lifecycle pause and a restart/reconciliation test, then reran all eight test projects.",
+    "The browser run preceded the final storage-only configured restart fix; the final deterministic suite covers that fix."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Storage/Durability/CalendarLifecycle.cs": "a3a52fc5cd820ba837f787485e01b132ab1440dd8fde94f9700a13b39c8ec425",
+    "src/SecondBrain.Storage/Durability/MutationJournal.cs": "97e18b617c6d1fc75c1d7b9212413155e7568dac61be8690b759be482c25a8cb",
+    "src/SecondBrain.Storage/Durability/PublicationCoordinator.cs": "65dbabba688addc027d8d28e338203de229a402643b30ccdc2ca65cccb27c33b",
+    "src/SecondBrain.Storage/Durability/PublicationCoordinator.Calendar.cs": "e66a5389f03a3f4da9471213ff5b60e83e093c3b4b6e30a7d7867cd98bfb82f9",
+    "src/SecondBrain.Storage/Migrations/M4Schema.cs": "59a5b6895929bb24ad117fba2eec2b5f91d64290318b1812a6e35d63f6046548",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.Configuration.cs": "c20b36f22494cbd7d203dade1dc55ae1170a2c1d0d9cbf56e6fa612268784f87",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.cs": "53423ee879661726dc1b28f1a540fc0d5c6fc69b8b79e9168322f648cf9af2b9",
+    "src/SecondBrain.Infrastructure/Ingestion/ManagedDocumentFiles.cs": "1d2853c86a3b778b54799e931d2f2cf01c7ddc29bbc603b2e9e294ab71612f4f",
+    "src/SecondBrain.Server/Sources/CalendarSubscriptionOrchestrator.cs": "e8b0dde54547f87f9261505339cf8236c529bef91c6af72c9fb3982cf904b1dc",
+    "src/SecondBrain.Storage/Ingestion/SqliteDocumentCatalog.cs": "9453ac0832244c5fb949c27d809bfc25a4cb8b5a6ad2c400eb591228c278bd6a",
+    "tests/SecondBrain.Storage.Tests/CalendarLifecycleTests.cs": "d9d507dae595e11ec91ea5a98f3121a8c1df2b90369b724fbbc55cf48b5f9df5",
+    "tests/browser/m4-calendar-lifecycle.js": "79fd3fdca5e40e245bcf60335da5c5b8624028f813f65bcf57b188b16f382cf0"
+  },
+  "limitations": [
+    "Full source-level ?purge=1 remains unimplemented, including source removal revision semantics and never-accepted source cleanup.",
+    "Container purge currently retains the existing 1000-file and 64-KiB journal metadata bounds; very large retained snapshot sets still require a scalable purge workflow.",
+    "Accepted historical snapshots are intentionally retained until container purge; general retention policy and cleanup are still pending.",
+    "M4 production migration, backup/restore/export, enrichment/providers/budgets, release supply-chain and final hardened deployment acceptance remain open.",
+    "No production data, configuration, subscriptions or network rules were changed."
+  ]
+}

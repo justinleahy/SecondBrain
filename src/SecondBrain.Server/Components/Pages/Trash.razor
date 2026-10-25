@@ -1,0 +1,40 @@
+@page "/manage/trash"
+@inherits BrowserPage
+@using SecondBrain.Core.Ingestion
+@inject Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions> Options
+
+<PageTitle>Trash · SecondBrain</PageTitle>
+<KnowledgeNav />
+<main class="knowledge-page">
+    <header class="knowledge-heading"><h1>Trash</h1><a href="/manage/suppressions">Manage suppressions</a></header>
+    <p>Restore a document to make it searchable again. Deleted document text is unavailable until it is restored.</p>
+    <p>Restore a calendar container before its individual events. Restored calendar subscriptions stay paused until you resume them in Sources.</p>
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (notice is not null) { <p role="status" class="knowledge-notice">@notice</p> }
+    @if (listing is not null)
+    {
+        @foreach (var document in listing.Items)
+        {
+            <article class="knowledge-card" @key="document.Id"><small>@document.Type · revision @document.Revision · deleted @DeletedTime(document.DeletedAt)</small><h2>@document.Title</h2><button disabled="@Busy" @onclick="() => RestoreAsync(document)">Restore @document.Title</button></article>
+        }
+        @if (listing.Items.Count == 0) { <p>Trash is empty.</p> }
+        @if (listing.NextCursor is not null) { <button disabled="@Busy" @onclick="NextAsync">Next page</button> }
+    }
+</main>
+@code {
+    private CatalogPage<TrashedDocument>? listing;
+    private string? notice;
+    private string DeletedTime(string? value) => DateTimeOffset.TryParse(value, out var date)
+        ? TimeZoneInfo.ConvertTime(date, TimeZoneInfo.FindSystemTimeZoneById(Options.CurrentValue.Time.Zone)).ToString("g") : "unknown date";
+    protected override async Task LoadAsync() => listing = await Api.SendAsync<CatalogPage<TrashedDocument>>("/trash");
+    private Task NextAsync() => RunAsync(async () =>
+    {
+        if (listing?.NextCursor is not null) listing = await Api.SendAsync<CatalogPage<TrashedDocument>>("/trash?cursor=" + Uri.EscapeDataString(listing.NextCursor));
+    });
+    private Task RestoreAsync(TrashedDocument document) => RunAsync(async () =>
+    {
+        await Api.SendAsync<CaptureResult>("/documents/" + Uri.EscapeDataString(document.Id) + "/restore", "POST", revision: document.Revision);
+        notice = $"Restored {document.Title}.";
+        await LoadAsync();
+    });
+}

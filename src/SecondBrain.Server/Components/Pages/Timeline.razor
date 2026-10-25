@@ -1,0 +1,68 @@
+@page "/activity"
+@inherits BrowserPage
+@using System.Globalization
+@using SecondBrain.Server.Ingestion
+
+<PageTitle>Timeline · SecondBrain</PageTitle>
+<KnowledgeNav />
+<main class="knowledge-page">
+    <header class="knowledge-heading"><div><span class="knowledge-eyebrow">YOUR KNOWLEDGE</span><h1>Timeline</h1></div></header>
+    <p>Documents grouped by when they occurred@(timeline is null ? "." : $" in {timeline.TimeZone}.") Documents without an occurrence date remain available in the library.</p>
+    <form @onsubmit="RefreshAsync" @onsubmit:preventDefault><fieldset class="knowledge-filters" disabled="@(!Loaded || Busy)">
+        <label>From<input type="date" @bind="from" /></label>
+        <label>Before<input type="date" @bind="to" /></label>
+        <label>Type<select @bind="type"><option value="">All types</option><option value="note">Notes</option><option value="article">Articles</option><option value="transcript">Transcripts</option><option value="calendar_event">Calendar events</option><option value="file">Files</option></select></label>
+        <div class="catalog-field"><CatalogTokens Label="People" Kind="person" @bind-Value="people" Placeholder="Comma-separated names" /></div>
+        <button disabled="@Busy">Apply filters</button>
+    </fieldset></form>
+    <BrowserStatus Error="@Error" Busy="Busy" />
+    @if (timeline is not null)
+    {
+        <CalendarCoverageNotice Coverage="timeline.Coverage" />
+        @foreach (var day in timeline.Days)
+        {
+            <section class="timeline-day" aria-label="@day.Day">
+                <h2>@DateTime.ParseExact(day.Day, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dddd, MMMM d, yyyy", CultureInfo.CurrentCulture)</h2>
+                @foreach (var document in day.Documents)
+                {
+                    <article class="knowledge-card" @key="(document.InstanceId ?? document.Id)"><small>@document.Type · @LocalTime(document.OccurredAt!)</small><h3><a href="@("/library/" + Uri.EscapeDataString(document.Id))">@document.Title</a></h3><p>@string.Join(" · ", document.Tags ?? [])</p></article>
+                }
+            </section>
+        }
+        @if (timeline.Days.Count == 0) { <p>No dated documents match this period.</p> }
+        @if (timeline.NextCursor is not null) { <button disabled="@Busy" @onclick="NextAsync">Older results</button> }
+    }
+</main>
+
+@code {
+    private TimelinePage? timeline;
+    private DateTime? from, to;
+    private string type = "", people = "", activePath = "/timeline";
+    protected override async Task LoadAsync()
+    {
+        await FetchAsync("/timeline");
+        activePath = "/timeline?from=" + timeline!.FromDay + "&to=" + timeline.ToDay;
+    }
+    private async Task FetchAsync(string path)
+    {
+        timeline = await Api.SendAsync<TimelinePage>(path);
+        from = DateTime.ParseExact(timeline.FromDay, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        to = DateTime.ParseExact(timeline.ToDay, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+    }
+    private Task RefreshAsync() => RunAsync(async () =>
+    {
+        var parameters = new List<string>();
+        if (from is not null) parameters.Add("from=" + from.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+        if (to is not null) parameters.Add("to=" + to.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+        if (type.Length > 0) parameters.Add("type=" + Uri.EscapeDataString(type));
+        if (people.Length > 0) parameters.Add("people=" + Uri.EscapeDataString(people));
+        activePath = "/timeline" + (parameters.Count == 0 ? "" : "?" + string.Join('&', parameters));
+        await FetchAsync(activePath);
+    });
+    private Task NextAsync() => RunAsync(async () =>
+    {
+        if (timeline?.NextCursor is null) return;
+        await FetchAsync(activePath + (activePath.Contains('?') ? "&" : "?") + "cursor=" + Uri.EscapeDataString(timeline.NextCursor));
+    });
+    private string LocalTime(string value) => TimeZoneInfo.ConvertTime(DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), TimeZoneInfo.FindSystemTimeZoneById(timeline!.TimeZone)).ToString("t", CultureInfo.CurrentCulture);
+}

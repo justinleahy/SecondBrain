@@ -1,0 +1,154 @@
+{
+  "scope": "Isolated loopback fixture; development evidence, not VPN/Cloudflare acceptance",
+  "results": {
+    "chunking": {
+      "status": "passed",
+      "chunking": [
+        {
+          "width": 1280,
+          "settingsPersisted": true,
+          "oldChunks": 14,
+          "newChunks": 107,
+          "authoredContentRetained": true,
+          "revisionRetained": true,
+          "semanticSearchRecovered": true,
+          "invalidBoundsRejected": true
+        },
+        {
+          "width": 390,
+          "settingsPersisted": true,
+          "oldChunks": 107,
+          "newChunks": 54,
+          "authoredContentRetained": true,
+          "revisionRetained": true,
+          "semanticSearchRecovered": true,
+          "invalidBoundsRejected": true
+        }
+      ],
+      "restoredDefaultProfile": true
+    },
+    "file_conflicts": {
+      "status": "passed",
+      "fileConflicts": [
+        {
+          "width": 1280,
+          "draftPreserved": true,
+          "downloadVerified": true,
+          "externalRevisionIndexed": true,
+          "outcome": "reconciled"
+        },
+        {
+          "width": 390,
+          "draftPreserved": true,
+          "downloadVerified": true,
+          "externalRevisionIndexed": true,
+          "outcome": "new note"
+        }
+      ]
+    },
+    "editor_pdf_csp": {
+      "status": "passed",
+      "editor": [
+        {
+          "width": 1280,
+          "monaco": true,
+          "linkCompletion": true,
+          "tagCompletion": true,
+          "peopleCompletion": true,
+          "plainTextRoundTrip": true,
+          "draftGuard": true,
+          "aliases": true,
+          "history": true,
+          "revisionSave": true
+        },
+        {
+          "width": 390,
+          "monaco": true,
+          "linkCompletion": true,
+          "tagCompletion": true,
+          "peopleCompletion": true,
+          "plainTextRoundTrip": true,
+          "draftGuard": true,
+          "aliases": true,
+          "history": true,
+          "revisionSave": true
+        }
+      ],
+      "pdfPageSelection": true,
+      "pdfMarkupEscaped": true,
+      "inlineScriptBlocked": true,
+      "remoteImageBlocked": true
+    },
+    "reconnect": {
+      "status": "passed",
+      "reconnect": [
+        {
+          "width": 1280,
+          "transportInterrupted": true,
+          "rejoined": true,
+          "draftRetainedAndSaved": true,
+          "rejectedStateControls": true,
+          "actualDaemonRestartTested": false
+        },
+        {
+          "width": 390,
+          "transportInterrupted": true,
+          "rejoined": true,
+          "draftRetainedAndSaved": true,
+          "rejectedStateControls": true,
+          "actualDaemonRestartTested": false
+        }
+      ]
+    },
+    "settings": {
+      "status": "passed",
+      "checks": [
+        {
+          "width": 1280,
+          "stepUp": true,
+          "privacyReload": true,
+          "budgetPersistence": true,
+          "conflictDraftPreserved": true,
+          "roleCapabilities": true,
+          "roleLimitReload": true,
+          "providerCreateEditRemove": true,
+          "oneTimeReadOnlyKey": true,
+          "noOverflow": true
+        },
+        {
+          "width": 390,
+          "stepUp": true,
+          "privacyReload": true,
+          "budgetPersistence": true,
+          "conflictDraftPreserved": true,
+          "roleCapabilities": true,
+          "roleLimitReload": true,
+          "providerCreateEditRemove": true,
+          "oneTimeReadOnlyKey": true,
+          "noOverflow": true
+        }
+      ]
+    },
+    "existing_workflows": {
+      "highlighted": [
+        "Retrieval",
+        "retrieval"
+      ],
+      "passage": true,
+      "scriptBlocked": true,
+      "conflictPreserved": true,
+      "mergedSave": true,
+      "mobileCapture": true,
+      "mobileNoOverflow": true,
+      "settingsAndJobs": true,
+      "stepUpReload": true,
+      "signOut": true
+    },
+    "session_lifecycle": {
+      "directLoads": 9,
+      "revokedIdleCircuitClosedMilliseconds": 1910,
+      "independentSessionPreserved": true,
+      "revokedCredentialRejected": true
+    }
+  }
+}

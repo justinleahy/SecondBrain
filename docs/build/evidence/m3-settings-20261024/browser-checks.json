@@ -1,0 +1,62 @@
+{
+  "status": "M3 development checkpoint; milestone remains open",
+  "origin": "http://127.0.0.1:18232",
+  "fixture": "KnowledgeBrowserQualification; temporary stores, synthetic account and local mock provider",
+  "settings": {
+    "status": "passed",
+    "checks": [
+      {
+        "width": 1280,
+        "stepUp": true,
+        "privacyReload": true,
+        "budgetPersistence": true,
+        "conflictDraftPreserved": true,
+        "roleCapabilities": true,
+        "roleLimitReload": true,
+        "providerCreateEditRemove": true,
+        "oneTimeReadOnlyKey": true,
+        "noOverflow": true
+      },
+      {
+        "width": 390,
+        "stepUp": true,
+        "privacyReload": true,
+        "budgetPersistence": true,
+        "conflictDraftPreserved": true,
+        "roleCapabilities": true,
+        "roleLimitReload": true,
+        "providerCreateEditRemove": true,
+        "oneTimeReadOnlyKey": true,
+        "noOverflow": true
+      }
+    ]
+  },
+  "baseline": {
+    "highlighted": [
+      "Retrieval",
+      "retrieval"
+    ],
+    "passage": true,
+    "scriptBlocked": true,
+    "conflictPreserved": true,
+    "mergedSave": true,
+    "mobileCapture": true,
+    "mobileNoOverflow": true,
+    "settingsAndJobs": true,
+    "stepUpReload": true,
+    "signOut": true
+  },
+  "circuits": {
+    "directLoads": 9,
+    "revokedIdleCircuitClosedMilliseconds": 1909,
+    "independentSessionPreserved": true,
+    "revokedCredentialRejected": true
+  },
+  "limitations": [
+    "Loopback is not the required VPN or Cloudflare origin.",
+    "Current production configuration is read-only; writable configuration provisioning remains open.",
+    "Configurable chunking and generation rollout remain open.",
+    "No deployment or final Release acceptance claimed."
+  ],
+  "assetQualification": "A host started during a build served an empty compressed bootstrap script. The final host was started after the build completed; identity and gzip script responses were verified before running workflows."
+}

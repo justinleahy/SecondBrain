@@ -1,0 +1,18 @@
+@using System.Text.Json
+@using SecondBrain.Core.Retrieval
+@if (Partial)
+{
+    <p class="knowledge-notice" role="status">Some requested dates fall outside the imported calendar range. Events may be missing for those dates.</p>
+}
+@if (Stale)
+{
+    <p class="knowledge-notice" role="status">Some calendar subscriptions are paused, overdue, or have not refreshed successfully. Their events may be out of date.</p>
+}
+@code {
+    [Parameter] public object? Coverage { get; set; }
+    private bool Partial => Coverage is CalendarCoverage { Status: "partial" } ||
+        Coverage is JsonElement { ValueKind: JsonValueKind.Object } json && json.TryGetProperty("calendar", out var status) && status.GetString() == "partial";
+    private bool Stale => Coverage is CalendarCoverage { Subscriptions: { } sources } && sources.Any(item => item.Stale) ||
+        Coverage is JsonElement { ValueKind: JsonValueKind.Object } json && json.TryGetProperty("subscriptions", out var list) && list.ValueKind == JsonValueKind.Array &&
+        list.EnumerateArray().Any(item => item.TryGetProperty("stale", out var stale) && stale.ValueKind == JsonValueKind.True);
+}

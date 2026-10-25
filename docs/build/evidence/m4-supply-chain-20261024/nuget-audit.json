@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "parameters": "--vulnerable --include-transitive",
+  "sources": [
+    "https://api.nuget.org/v3/index.json"
+  ],
+  "projects": [
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/SecondBrain.Cli.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/SecondBrain.Core.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/SecondBrain.Extraction.Contracts.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/SecondBrain.Extractor.Wire.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/SecondBrain.Extractor.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/SecondBrain.Infrastructure.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/SecondBrain.Providers.OpenAICompatible.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/SecondBrain.Server.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/SecondBrain.Storage.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/SecondBrain.Architecture.Tests.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/SecondBrain.Core.Tests.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/SecondBrain.Deploy.Tests.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/SecondBrain.Extractor.Tests.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/SecondBrain.Infrastructure.Tests.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/SecondBrain.MockProvider.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/SecondBrain.Providers.OpenAICompatible.Tests.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/SecondBrain.Server.Tests.csproj"
+    },
+    {
+      "path": "/home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/SecondBrain.Storage.Tests.csproj"
+    }
+  ]
+}

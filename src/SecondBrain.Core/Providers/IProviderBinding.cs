@@ -15,6 +15,12 @@ public interface IProviderBinding
     /// <summary>Gets the endpoint, or null for an in-process adapter (§13.5).</summary>
     Uri? Endpoint { get; }
 
+    /// <summary>Stable embedding transport identity, including protocol when it differs from the compatible API.</summary>
+    string? EmbeddingIdentity => Endpoint?.AbsoluteUri;
+
+    /// <summary>The one read-only model-list URL allowed by the discovery transport.</summary>
+    Uri? ModelDiscoveryEndpoint => Endpoint is { } endpoint ? new Uri(endpoint.AbsoluteUri.TrimEnd('/') + "/models") : null;
+
     /// <summary>
     /// Gets locality resolved from in-process execution or exact trusted-service matching;
     /// a private IP address alone never implies locality (§13.5).
@@ -50,6 +56,11 @@ public interface IProviderBinding
 
     /// <summary>Optional binding-owned reranker; requests use the binding's policy transport.</summary>
     IRerankProvider? GetRerankProvider(string model) => null;
+
+    /// <summary>Optional native enrichment batch lifecycle through the same policy-owned transport.</summary>
+    IBatchProvider? GetBatchProvider(string model) => null;
+    /// <summary>Resume, collect or cancel existing native work without admitting a new submission.</summary>
+    IBatchProvider? GetBatchLifecycleProvider(string model) => GetBatchProvider(model);
 }
 
 /// <summary>A concrete provider and model's resolved declaration; see spec §13.3.</summary>

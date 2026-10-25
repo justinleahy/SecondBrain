@@ -1,0 +1,148 @@
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.MockProvider -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.MockProvider/bin/Debug/net10.0/SecondBrain.MockProvider.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Extractor -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor/bin/Debug/net10.0/SecondBrain.Extractor.dll
+  SecondBrain.Providers.OpenAICompatible -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Providers.OpenAICompatible/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Core.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll
+  SecondBrain.Infrastructure.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+  SecondBrain.Extractor.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Core.Tests/bin/Debug/net10.0/SecondBrain.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Infrastructure.Tests/bin/Debug/net10.0/SecondBrain.Infrastructure.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Extractor.Tests/bin/Debug/net10.0/SecondBrain.Extractor.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+  SecondBrain.Providers.OpenAICompatible.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+
+VSTest version 18.0.2 (x64)
+VSTest version 18.0.2 (x64)
+
+
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Providers.OpenAICompatible.Tests/bin/Debug/net10.0/SecondBrain.Providers.OpenAICompatible.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.A total of 1 test files matched the specified pattern.
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  SecondBrain.Server -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Server/bin/Debug/net10.0/SecondBrain.Server.dll
+[xUnit.net 00:00:00.88]     SecondBrain.Storage.Tests.CompositionTests.StoreHandlesAreSingleUndecoratedInstances [FAIL]
+[xUnit.net 00:00:00.91]     SecondBrain.Storage.Tests.CompositionTests.ConfiguredRootServicesStartOnlyAfterRegistrationAndRecoverOnRestart [FAIL]
+[xUnit.net 00:00:00.91]     SecondBrain.Storage.Tests.CompositionTests.MigrationStartupUsesTheRegisteredDataRootDiskProbe [FAIL]
+  Failed SecondBrain.Storage.Tests.CompositionTests.StoreHandlesAreSingleUndecoratedInstances [99 ms]
+  Error Message:
+   System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: SecondBrain.Core.Ingestion.IDocumentRetention Lifetime: Singleton ImplementationType: SecondBrain.Storage.Ingestion.SqliteDocumentRetention': Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.)
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: SecondBrain.Core.Ingestion.IDocumentRetention Lifetime: Singleton ImplementationType: SecondBrain.Storage.Ingestion.SqliteDocumentRetention': Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.
+  Stack Trace:
+     at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
+   at SecondBrain.Storage.Tests.CompositionTests.Provider(String root, IDiskCapacity disk) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CompositionTests.cs:line 110
+   at SecondBrain.Storage.Tests.CompositionTests.StoreHandlesAreSingleUndecoratedInstances() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CompositionTests.cs:line 65
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+  Failed SecondBrain.Storage.Tests.CompositionTests.ConfiguredRootServicesStartOnlyAfterRegistrationAndRecoverOnRestart [29 ms]
+  Error Message:
+   System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: SecondBrain.Core.Ingestion.IDocumentRetention Lifetime: Singleton ImplementationType: SecondBrain.Storage.Ingestion.SqliteDocumentRetention': Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.)
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: SecondBrain.Core.Ingestion.IDocumentRetention Lifetime: Singleton ImplementationType: SecondBrain.Storage.Ingestion.SqliteDocumentRetention': Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.
+  Stack Trace:
+     at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
+   at SecondBrain.Storage.Tests.CompositionTests.Provider(String root, IDiskCapacity disk) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CompositionTests.cs:line 110
+   at SecondBrain.Storage.Tests.CompositionTests.ConfiguredRootServicesStartOnlyAfterRegistrationAndRecoverOnRestart() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CompositionTests.cs:line 20
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+  Failed SecondBrain.Storage.Tests.CompositionTests.MigrationStartupUsesTheRegisteredDataRootDiskProbe [1 ms]
+  Error Message:
+   System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: SecondBrain.Core.Ingestion.IDocumentRetention Lifetime: Singleton ImplementationType: SecondBrain.Storage.Ingestion.SqliteDocumentRetention': Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.)
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: SecondBrain.Core.Ingestion.IDocumentRetention Lifetime: Singleton ImplementationType: SecondBrain.Storage.Ingestion.SqliteDocumentRetention': Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'SecondBrain.Core.Ingestion.IManagedDocumentFiles' while attempting to activate 'SecondBrain.Storage.Ingestion.SqliteDocumentRetention'.
+  Stack Trace:
+     at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
+   at SecondBrain.Storage.Tests.CompositionTests.Provider(String root, IDiskCapacity disk) in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CompositionTests.cs:line 110
+   at SecondBrain.Storage.Tests.CompositionTests.MigrationStartupUsesTheRegisteredDataRootDiskProbe() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CompositionTests.cs:line 83
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+  SecondBrain.Cli -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Cli/bin/Debug/net10.0/brain.dll
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_41.trx
+
+Passed!  - Failed:     0, Passed:   171, Skipped:     0, Total:   171, Duration: 767 ms - SecondBrain.Core.Tests.dll (net10.0)
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_41[1].trx
+
+Passed!  - Failed:     0, Passed:   163, Skipped:     0, Total:   163, Duration: 1 s - SecondBrain.Infrastructure.Tests.dll (net10.0)
+  SecondBrain.Server.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Server.Tests/bin/Debug/net10.0/SecondBrain.Server.Tests.dll (.NETCoreApp,Version=v10.0)
+  SecondBrain.Architecture.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll
+VSTest version 18.0.2 (x64)
+
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Architecture.Tests/bin/Debug/net10.0/SecondBrain.Architecture.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  SecondBrain.Deploy.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Deploy.Tests/bin/Debug/net10.0/SecondBrain.Deploy.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_44.trx
+
+Passed!  - Failed:     0, Passed:    63, Skipped:     0, Total:    63, Duration: 170 ms - SecondBrain.Architecture.Tests.dll (net10.0)
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_42.trx
+
+Passed!  - Failed:     0, Passed:    73, Skipped:     0, Total:    73, Duration: 3 s - SecondBrain.Providers.OpenAICompatible.Tests.dll (net10.0)
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_42[1].trx
+
+Passed!  - Failed:     0, Passed:   809, Skipped:     0, Total:   809, Duration: 4 s - SecondBrain.Extractor.Tests.dll (net10.0)
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_42[2].trx
+
+Failed!  - Failed:     3, Passed:   342, Skipped:     0, Total:   345, Duration: 8 s - SecondBrain.Storage.Tests.dll (net10.0)
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_45.trx
+
+Passed!  - Failed:     0, Passed:   210, Skipped:     0, Total:   210, Duration: 12 s - SecondBrain.Deploy.Tests.dll (net10.0)
+Results File: /tmp/m4-document-retention-regression/_DESKTOP-8NJSRF2_2026-10-24_20_21_44[1].trx
+
+Passed!  - Failed:     0, Passed:   365, Skipped:     0, Total:   365, Duration: 51 s - SecondBrain.Server.Tests.dll (net10.0)

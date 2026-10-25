@@ -16,6 +16,8 @@ public sealed class CliProvisionTests
         var options = Options(root);
         var first = service.Provision(options);
         var config = Path.Combine(options.ConfigDirectory, "config.yaml");
+        Assert.Equal("settings/config.yaml", new FileInfo(config).LinkTarget);
+        Assert.Equal(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute, File.GetUnixFileMode(Path.Combine(options.ConfigDirectory, "settings")));
         File.AppendAllText(config, "# administrator edit\n");
         var preserved = File.ReadAllText(config);
         var second = service.Provision(options);
@@ -44,6 +46,32 @@ public sealed class CliProvisionTests
         Assert.Empty(platform.Owners);
         Assert.Empty(platform.Users);
         Assert.False(Directory.Exists(root.Data));
+    }
+
+    [Fact]
+    public void Provision_PreservesAnExistingRegularConfigForExplicitMigration()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        using var root = new CliTempRoot();
+        var options = Options(root);
+        Directory.CreateDirectory(options.ConfigDirectory);
+        var path = Path.Combine(options.ConfigDirectory, "config.yaml");
+        File.WriteAllText(path, "# existing administrator configuration\n");
+        new ProvisioningService(new FakePlatform()).Provision(options);
+        Assert.Null(new FileInfo(path).LinkTarget);
+        Assert.Equal("# existing administrator configuration\n", File.ReadAllText(path));
+    }
+
+    [Fact]
+    public void Provision_RejectsUnexpectedConfigurationLink()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        using var root = new CliTempRoot(); var options = Options(root);
+        Directory.CreateDirectory(options.ConfigDirectory);
+        var outside = Path.Combine(root.Path, "outside.yaml"); File.WriteAllText(outside, "unchanged");
+        File.CreateSymbolicLink(Path.Combine(options.ConfigDirectory, "config.yaml"), outside);
+        Assert.Throws<CliPreconditionException>(() => new ProvisioningService(new FakePlatform()).Provision(options));
+        Assert.Equal("unchanged", File.ReadAllText(outside));
     }
 
     [Fact]

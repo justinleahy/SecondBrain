@@ -1,0 +1,36 @@
+[Unit]
+Description=Cloudflare Tunnel for SecondBrain
+After=network-online.target secondbrain.service
+Wants=network-online.target secondbrain.service
+ConditionPathExists=/etc/secondbrain-tunnel/config.yaml
+ConditionPathExists=/etc/secondbrain-tunnel/credentials.json
+
+[Service]
+Type=simple
+DynamicUser=yes
+UMask=0077
+LoadCredential=tunnel.json:/etc/secondbrain-tunnel/credentials.json
+ExecStart=/usr/local/libexec/secondbrain-cloudflared tunnel --config /etc/secondbrain-tunnel/config.yaml --credentials-file %d/tunnel.json run
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+LimitCORE=0
+MemoryMax=256M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+@using SecondBrain.Core.Retrieval
+@foreach (var part in Parts())
+{
+    if (part.Highlight) { <mark>@part.Text</mark> }
+    else { @part.Text }
+}
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public IReadOnlyList<HighlightRange> Ranges { get; set; } = [];
+
+    private IEnumerable<(string Text, bool Highlight)> Parts()
+    {
+        var offset = 0;
+        foreach (var range in Ranges.OrderBy(range => range.Start))
+        {
+            var start = Math.Clamp(range.Start, 0, Text.Length);
+            var end = Math.Clamp(range.End, start, Text.Length);
+            if (end <= offset) continue;
+            if (start > offset) yield return (Text[offset..start], false);
+            start = Math.Max(start, offset);
+            yield return (Text[start..end], true);
+            offset = end;
+        }
+        if (offset < Text.Length) yield return (Text[offset..], false);
+    }
+}

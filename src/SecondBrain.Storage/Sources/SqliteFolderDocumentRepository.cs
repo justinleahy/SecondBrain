@@ -8,7 +8,7 @@ using SecondBrain.Storage.Ingestion;
 
 namespace SecondBrain.Storage.Sources;
 
-public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicationCoordinator publication,
+public sealed partial class SqliteFolderDocumentRepository(IStateStore state, IPublicationCoordinator publication,
     IDocumentRepository documents, IManagedDocumentFiles? files = null,
     Microsoft.Extensions.Options.IOptions<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null,
     Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? optionsMonitor = null) : IFolderDocumentRepository
@@ -43,8 +43,8 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
             if (await read.ExecuteScalarAsync(token) is not string json || JsonSerializer.Deserialize<Reconciliation>(json) is not { Ready: true } scan) return 0;
             foreach (var fence in scan.Absences)
             {
-                await using var expire = Command(connection, transaction, "UPDATE documents SET status='removed_from_source',publish_state='publishing' WHERE id=$id AND revision=$revision AND status='missing' AND source_id=$source AND EXISTS(SELECT 1 FROM sources WHERE id=$source AND status='active')", ("$id", fence.Id), ("$revision", fence.Revision), ("$source", sourceId));
-                if (await expire.ExecuteNonQueryAsync(token) == 1) expired.Add(new(fence.Id, fence.Revision, Generation));
+                await using var expire = Command(connection, transaction, "UPDATE documents SET status='removed_from_source',publish_state='publishing',updated_at=$now WHERE id=$id AND revision=$revision AND status='missing' AND source_id=$source AND EXISTS(SELECT 1 FROM sources WHERE id=$source AND status='active')", ("$id", fence.Id), ("$revision", fence.Revision), ("$source", sourceId), ("$now", Now()));
+                if (await expire.ExecuteNonQueryAsync(token) == 1) expired.Add(new(fence.Id, fence.Revision, await ReadGenerationAsync(connection, transaction, fence.Id, token)));
             }
             await using var clear = Command(connection, transaction, "DELETE FROM meta WHERE key=$key", ("$key", "folder-reconciliation:" + sourceId));
             return await clear.ExecuteNonQueryAsync(token);
@@ -87,7 +87,7 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
                 await using (var read = Command(connection, transaction, "SELECT d.id,d.revision,f.generation_json FROM documents d JOIN publication_fences f ON f.document_id=d.id WHERE d.source_id=$source AND d.status NOT IN ('deleted','purged')", ("$source", sourceId)))
                 await using (var reader = await read.ExecuteReaderAsync(token))
                     while (await reader.ReadAsync(token)) fences.Add(new(reader.GetString(0), reader.GetInt64(1), reader.GetString(2)));
-                await using var mark = Command(connection, transaction, "UPDATE documents SET status='removed_from_source',publish_state='publishing' WHERE source_id=$source AND status NOT IN ('deleted','purged')", ("$source", sourceId)); await mark.ExecuteNonQueryAsync(token);
+                await using var mark = Command(connection, transaction, "UPDATE documents SET status='removed_from_source',publish_state='publishing',updated_at=CASE WHEN status='removed_from_source' THEN updated_at ELSE $now END WHERE source_id=$source AND status NOT IN ('deleted','purged')", ("$source", sourceId), ("$now", Now())); await mark.ExecuteNonQueryAsync(token);
                 await using var cancel = Command(connection, transaction, "UPDATE jobs SET status='cancelled',lease_until=NULL,updated_at=$now WHERE document_id IN (SELECT id FROM documents WHERE source_id=$source) AND status IN ('queued','running')", ("$source", sourceId), ("$now", Now())); await cancel.ExecuteNonQueryAsync(token);
             }
             return 0;
@@ -115,7 +115,7 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
         var existing = new Dictionary<string, Existing>(StringComparer.Ordinal);
         await using (var lease = await state.OpenReadConnectionAsync(cancellationToken))
         await using (var read = Command(lease.Connection, null,
-            "SELECT o.path,o.document_id,d.revision,d.content_hash,o.size_bytes,o.file_mtime,d.status,j.error,j.payload_json,j.generation_json FROM occurrences o JOIN documents d ON d.id=o.document_id LEFT JOIN jobs j ON j.document_id=o.document_id AND j.kind='stage' WHERE o.source_id=$source AND o.member_key=''", ("$source", source.Id)))
+            "SELECT o.path,o.document_id,d.revision,CASE WHEN d.content_hash='' THEN '' ELSE COALESCE(o.source_content_hash,d.content_hash) END,o.size_bytes,o.file_mtime,d.status,j.error,j.payload_json,j.generation_json FROM occurrences o JOIN documents d ON d.id=o.document_id LEFT JOIN jobs j ON j.document_id=o.document_id AND j.kind='stage' WHERE o.source_id=$source AND o.member_key=''", ("$source", source.Id)))
         await using (var reader = await read.ExecuteReaderAsync(cancellationToken))
             while (await reader.ReadAsync(cancellationToken)) existing.TryAdd(reader.GetString(0), new Existing(reader.GetString(1), reader.GetInt64(2), reader.GetString(3), reader.IsDBNull(4) ? 0 : reader.GetInt64(4), reader.IsDBNull(5) ? "" : reader.GetString(5), reader.GetString(6),
                 reader.IsDBNull(7) ? null : StageRejection.Read(reader.GetString(7), reader.GetString(8), reader.GetString(9))));
@@ -142,6 +142,8 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
         using var scanGate = await SecondBrain.Storage.Durability.PublicationCoordinator.AcquirePublicationGateAsync(state, cancellationToken);
         await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
+            await using (var active = Command(connection, transaction, "SELECT 1 FROM sources WHERE id=$id AND status='active'", ("$id", source.Id)))
+                if (await active.ExecuteScalarAsync(token) is null) throw new IngestionConflictException("source-disabled");
             foreach (var pair in missing)
             {
                 if (pair.Value.Status == DocumentStatusNames.Missing) continue;
@@ -158,11 +160,13 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
             return await scanned.ExecuteNonQueryAsync(token);
         }, cancellationToken);
         scanGate.Dispose();
-        foreach (var pair in missing) await publication.PublishCurrentAsync(new PublicationFence(pair.Value.Id, pair.Value.Revision, Generation), cancellationToken);
+        foreach (var pair in missing) await publication.PublishCurrentAsync(new PublicationFence(pair.Value.Id, pair.Value.Revision, await ReadGenerationAsync(pair.Value.Id, cancellationToken)), cancellationToken);
         return candidates;
     }
     public async ValueTask<bool> RecordRejectionAsync(SourceRecord source, SourceEntryRejection rejection, CancellationToken cancellationToken = default)
     {
+        using var sourceGate = await AcquireSourceGateAsync(source.Id, cancellationToken);
+        await EnsureActiveAsync(source.Id, cancellationToken);
         if (rejection.RelativePath.Length is < 1 or > 4096) throw new ArgumentException("Invalid rejected entry path.", nameof(rejection));
         var reason = SourceEntryPolicy.ReasonOf(rejection.Reason);
         var modified = rejection.ModifiedAt.ToString("O", CultureInfo.InvariantCulture);
@@ -219,6 +223,10 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
     }
     public async ValueTask<CaptureResult?> AdmitSourceAsync(SourceRecord source, FolderImportCandidate candidate, byte[] bytes, string sha256, int hashOccurrences = 1, CancellationToken cancellationToken = default)
     {
+        using var sourceGate = await AcquireSourceGateAsync(source.Id, cancellationToken);
+        await EnsureActiveAsync(source.Id, cancellationToken);
+        var profile = ChunkingProfile.FromOptions((optionsMonitor?.CurrentValue ?? options?.Value)?.Chunking);
+        var Generation = profile.GenerationJson;
         if (files is null) throw new InvalidOperationException("Managed files not registered.");
         var entry = candidate.Entry;
         string? id = candidate.DocumentId; var revision = candidate.Revision; var settled = false; var excluded = false;
@@ -226,7 +234,7 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
         {
             if (id is null)
             {
-                await using var existing = Command(lease.Connection, null, "SELECT d.id,d.revision,d.content_hash,d.status FROM occurrences o JOIN documents d ON d.id=o.document_id WHERE o.source_id=$source AND o.path=$path AND o.member_key=''", ("$source", source.Id), ("$path", entry.RelativePath));
+                await using var existing = Command(lease.Connection, null, "SELECT d.id,d.revision,COALESCE(o.source_content_hash,d.content_hash),d.status FROM occurrences o JOIN documents d ON d.id=o.document_id WHERE o.source_id=$source AND o.path=$path AND o.member_key=''", ("$source", source.Id), ("$path", entry.RelativePath));
                 await using var existingReader = await existing.ExecuteReaderAsync(cancellationToken);
                 if (await existingReader.ReadAsync(cancellationToken))
                 {
@@ -252,7 +260,7 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
                 // U9: the reconciliation window is the open absence itself. It lasts while the old occurrence is
                 // still `missing` and uncleared (FLD-6), independent of how long a checkpointed plan takes to drain.
                 await using var move = Command(lease.Connection, null,
-                    $"SELECT DISTINCT d.id,d.revision FROM documents d JOIN absences a ON a.document_id=d.id WHERE a.source_id=$source AND a.cleared_at IS NULL AND d.status='{DocumentStatusNames.Missing}' AND d.content_hash=$hash", ("$source", source.Id), ("$hash", sha256));
+                    $"SELECT DISTINCT d.id,d.revision FROM documents d JOIN absences a ON a.document_id=d.id WHERE a.source_id=$source AND a.cleared_at IS NULL AND d.status='{DocumentStatusNames.Missing}' AND EXISTS(SELECT 1 FROM occurrences o WHERE o.document_id=d.id AND o.source_id=$source AND COALESCE(o.source_content_hash,d.content_hash)=$hash)", ("$source", source.Id), ("$hash", sha256));
                 await using var reader = await move.ExecuteReaderAsync(cancellationToken);
                 while (await reader.ReadAsync(cancellationToken)) moves.Add((reader.GetString(0), reader.GetInt64(1)));
                 if (moves.Count == 1) { id = moves[0].Id; revision = moves[0].Revision; }
@@ -266,9 +274,27 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
         }
         id ??= Ulid.NewUlid().ToString();
         var old = revision == 0 ? null : await documents.GetAsync(id, true, cancellationToken);
-        if (source.Config.Mode == "import" && old is not null && old.ContentHash == sha256)
+        string? sourceHash = null;
+        var samePath = false;
+        if (old is not null)
+        {
+            await using var sourceLease = await state.OpenReadConnectionAsync(cancellationToken);
+            await using var sourceRead = Command(sourceLease.Connection, null,
+                "SELECT COALESCE(source_content_hash,$fallback),path FROM occurrences WHERE document_id=$id AND source_id=$source AND member_key='' ORDER BY last_seen_at DESC LIMIT 1",
+                ("$id", id), ("$source", source.Id), ("$fallback", old.ContentHash));
+            await using var observed = await sourceRead.ExecuteReaderAsync(cancellationToken);
+            if (await observed.ReadAsync(cancellationToken)) { sourceHash = observed.GetString(0); samePath = observed.GetString(1) == entry.RelativePath; }
+            sourceHash ??= old.ContentHash;
+        }
+        if (old is not null && samePath && sourceHash == sha256 && !DocumentStatusNames.IsUnavailable(old.Status))
         {
             await ClearRejectionAsync(id, cancellationToken);
+            await state.QueueWriteAsync(async (connection, transaction, token) =>
+            {
+                await using var observed = Command(connection, transaction, "UPDATE occurrences SET file_mtime=$mtime,size_bytes=$length,last_seen_at=$now WHERE document_id=$id AND source_id=$source AND path=$path",
+                    ("$mtime", entry.ModifiedAt.ToString("O", CultureInfo.InvariantCulture)), ("$length", bytes.LongLength), ("$now", Now()), ("$id", id), ("$source", source.Id), ("$path", entry.RelativePath));
+                return await observed.ExecuteNonQueryAsync(token);
+            }, cancellationToken);
             return new CaptureResult(old, (await documents.JobsAsync(null, cancellationToken)).FirstOrDefault(job => job.DocumentId == id));
         }
         // A metadata-only revision has no managed original, so the first admitted bytes create one.
@@ -278,34 +304,56 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
         var title = old?.Title ?? entry.RelativePath.Split('/')[^1];
         var type = old?.Type ?? source.Config.DefaultType ?? "file";
         TextProjection? retainedProjection = null;
+        long? retainedSize = null;
         DocumentPublication? retainedMetadata = null;
         if (old is not null)
         {
             await using var lease = await state.OpenReadConnectionAsync(cancellationToken);
             await using (var read = Command(lease.Connection, null, "SELECT p.bytes FROM document_projections d JOIN payloads p ON p.id=d.payload_id WHERE d.document_id=$id AND p.redacted_at IS NULL", ("$id", id)))
                 if (await read.ExecuteScalarAsync(cancellationToken) is byte[] snapshot) retainedProjection = JsonSerializer.Deserialize<TextProjection>(snapshot);
-            await using var metadata = Command(lease.Connection, null, "SELECT type_origin,props_original_json,mime,source_url,claimed_client,occurred_at,occurred_offset,occurred_basis,occurred_precision,natural_key,type_confidence,schema_version FROM documents WHERE id=$id", ("$id", id));
+            await using var metadata = Command(lease.Connection, null, "SELECT type_origin,props_original_json,mime,source_url,claimed_client,occurred_at,occurred_offset,occurred_basis,occurred_precision,natural_key,type_confidence,schema_version,size_bytes FROM documents WHERE id=$id", ("$id", id));
             await using var reader = await metadata.ExecuteReaderAsync(cancellationToken);
-            if (await reader.ReadAsync(cancellationToken)) retainedMetadata = new DocumentPublication(id, source.Id, revision, Generation, "source-edit", title, sha256, old.Provenance)
+            if (await reader.ReadAsync(cancellationToken))
+            {
+                retainedSize = reader.GetInt64(12);
+                retainedMetadata = new DocumentPublication(id, source.Id, revision, Generation, "source-edit", title, sha256, old.Provenance)
             {
                 TypeOrigin = reader.GetString(0), PropsOriginalJson = reader.GetString(1), Mime = Optional(2), SourceUrl = Optional(3), ClaimedClient = Optional(4),
                 OccurredAt = Optional(5), OccurredOffset = Optional(6), OccurredBasis = Optional(7), OccurredPrecision = Optional(8), NaturalKey = Optional(9),
                 TypeConfidence = reader.IsDBNull(10) ? null : reader.GetDouble(10), SchemaVersion = reader.GetInt32(11)
-            };
+                };
+            }
             string? Optional(int ordinal) => reader.IsDBNull(ordinal) ? null : reader.GetString(ordinal);
         }
-        var same = old?.ContentHash == sha256 && retainedProjection is not null;
-        var projection = same ? retainedProjection! with { Path = managed } : TextProcessor.Process(id, title, "", old?.Tags, managed);
+        var same = sourceHash == sha256 && retainedProjection is not null;
+        if (same)
+        {
+            // A move keeps its existing projection generation. The chunking worker
+            // can subsequently migrate it without losing cached PDF page metadata.
+            Generation = await ReadGenerationAsync(id, cancellationToken);
+            if (retainedMetadata is not null) retainedMetadata = retainedMetadata with { GenerationJson = Generation };
+        }
+        var projection = same ? retainedProjection! with { Path = managed } : profile.Process(id, title, "", old?.Tags, managed);
         var job = Ulid.NewUlid().ToString();
         var admitted = (retainedMetadata ?? new DocumentPublication(id, source.Id, revision, Generation, "source-admit", title, sha256, "folder:" + source.Name) { TypeOrigin = "source" }) with
         {
-            Type = type, PropsJson = old?.PropsJson ?? "{}", Status = same ? "indexed_partial" : "queued", Projection = projection,
-            SizeBytes = bytes.LongLength,
+            Type = type, ContentHash = same ? old!.ContentHash : sha256, PropsJson = old?.PropsJson ?? "{}", Status = same ? "indexed_partial" : "queued", Projection = projection,
+            SizeBytes = same ? retainedSize ?? bytes.LongLength : bytes.LongLength,
             Admission = new PublicationAdmission(null, job, null, sha256, bytes.LongLength, same ? "embed" : "extract", JsonSerializer.Serialize(new { path = managed, file_name = entry.RelativePath, admitted_bytes = bytes.LongLength, claim_root = source.Id == "inbox" ? source.Config.Path : null, claim_path = source.Id == "inbox" ? entry.RelativePath : null, claim_original_name = source.Id == "inbox" ? entry.RelativePath.Split("--", 2)[^1] : null }), source.Id, new PublicationOccurrence(source.Id, entry.RelativePath, entry.ModifiedAt, bytes.LongLength))
         };
         // ING-4: admission precedes the vault write; a fresh original is discarded if publication still rejects it.
         await publication.CheckAdmissionAsync(id, source.Id, admitted.Admission, cancellationToken);
-        await files.WriteAsync(id, bytes, extension, metadataOnly ? null : old?.ContentHash, cancellationToken);
+        if (!same || old!.Path != managed)
+        {
+            var storedBytes = bytes;
+            if (same && old!.ContentHash != sha256 && old.Path is not null)
+            {
+                await using var original = await files.OpenReadAsync(old.Path, cancellationToken);
+                using var copy = new MemoryStream(); await original.CopyToAsync(copy, cancellationToken); storedBytes = copy.ToArray();
+                if (Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(storedBytes)) != old.ContentHash) throw new IngestionConflictException("file-changed");
+            }
+            await files.WriteAsync(id, storedBytes, extension, metadataOnly || old?.Path != managed ? null : old?.ContentHash, cancellationToken);
+        }
         PublicationOutcome outcome;
         try { outcome = await publication.PublishAsync(admitted, cancellationToken); }
         catch
@@ -327,6 +375,16 @@ public sealed class SqliteFolderDocumentRepository(IStateStore state, IPublicati
         {
             await using var clear = Command(connection, transaction, "DELETE FROM jobs WHERE document_id=$id AND kind='stage'", ("$id", id)); return await clear.ExecuteNonQueryAsync(token);
         }, cancellationToken);
+    }
+    private async ValueTask<string> ReadGenerationAsync(string id, CancellationToken token)
+    {
+        await using var lease = await state.OpenReadConnectionAsync(token);
+        return await ReadGenerationAsync(lease.Connection, null, id, token);
+    }
+    private static async ValueTask<string> ReadGenerationAsync(DbConnection connection, DbTransaction? transaction, string id, CancellationToken token)
+    {
+        await using var read = Command(connection, transaction, "SELECT generation_json FROM publication_fences WHERE document_id=$id", ("$id", id));
+        return await read.ExecuteScalarAsync(token) as string ?? Generation;
     }
     private static string Now() => DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
     private static DbCommand Command(DbConnection connection, DbTransaction? transaction, string sql, params (string Name, object? Value)[] parameters) => SqliteDocumentRepository.Command(connection, transaction, sql, parameters);

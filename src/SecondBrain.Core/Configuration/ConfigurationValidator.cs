@@ -8,11 +8,27 @@ public static class ConfigurationValidator
     public static void Validate(SecondBrainOptions options, IHostPathInspector paths)
     {
         if (!Path.IsPathFullyQualified(options.DataRoot)) Fail("data_root must be absolute.");
+        if (options.Enrichment is null) Fail("enrichment must not be null.");
+        options.Enrichment.Validate();
+        if (options.Classification is null) Fail("classification must not be null.");
+        options.Classification.Validate();
+        if (options.Retention is null) Fail("retention must not be null.");
+        options.Retention.Validate();
+        if (options.Backup is null || options.Backup.Keep is < 1 or > 1000 || options.Backup.SegmentMib != 1 || !options.Backup.IncludeTrash
+            || !Path.IsPathFullyQualified(options.Backup.KeyFile) || options.Backup.ExternalRoots is null || options.Backup.ExternalRoots.Count > 128)
+            Fail("Backup requires keep in 1..1000, one-MiB segments, trash included, an absolute key_file and at most 128 external roots.");
+        if (IsWithin(paths.Canonicalize(options.Backup.KeyFile), paths.Canonicalize(options.DataRoot)))
+            Fail("The backup key must be outside data_root.");
+        if (options.Calendar is null || options.Calendar.PastMonths is < 0 or > 120 || options.Calendar.FutureMonths is < 1 or > 120)
+            Fail("calendar.past_months must be in 0..120 and future_months in 1..120.");
         if (options.Assistant is null || options.Assistant.MaxToolCallsPerTurn is < 1 or > 32 ||
             options.Assistant.MaxReadDocuments is < 1 or > 100 || options.Assistant.MaxReadBytes is < 1 or > 1_000_000 ||
             options.Assistant.PendingTtlHours is < 1 or > 720) Fail("assistant limits are outside their supported bounds.");
         if (options.Retrieval is null || options.Retrieval.MaxExactCandidates is < 1 or > 10_000_000) Fail("retrieval.max_exact_candidates must be in 1..10000000.");
         if (options.Ingest is null || options.Ingest.SyncEmbedDeadlineMs is < 0 or > 30000) Fail("ingest.sync_embed_deadline_ms must be in 0..30000.");
+        if (options.Chunking is null || options.Chunking.MaxTokens is < 32 or > 8192 || options.Chunking.TargetTokens < 16 ||
+            options.Chunking.TargetTokens > options.Chunking.MaxTokens || options.Chunking.OverlapTokens < 0 || options.Chunking.OverlapTokens >= options.Chunking.TargetTokens)
+            Fail("chunking requires max_tokens in 32..8192, target_tokens in 16..max_tokens, and overlap_tokens in 0..target_tokens-1.");
         if (!TimeOnly.TryParseExact(options.Ingest.DeepRescanAt, "HH:mm", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))
             Fail("ingest.deep_rescan_at must be a 24-hour HH:mm time.");
         if (options.Extractor is null || !Path.IsPathFullyQualified(options.Extractor.SocketPath)) Fail("extractor.socket_path must be absolute.");
@@ -20,6 +36,25 @@ public static class ConfigurationValidator
             Fail("M0 configuration sections must not be null.");
         if (options.Sources.AllowedRoots is null || options.Server.Listeners is null || options.Server.Hosts is null || options.Server.Origins is null || options.Server.TrustedProxies is null || options.Privacy.TrustedServices is null || options.Privacy.ControlPlaneEgress is null || options.Limits.PerCredential is null || options.Limits.Global is null)
             Fail("M0 configuration collections and limit groups must not be null.");
+        if (options.Limits.Global.CalendarOccurrences is < 1 or > 100000) Fail("limits.global.calendar_occurrences must be in 1..100000.");
+        if (options.Sources.CalendarAllowedOrigins is null || options.Sources.CalendarAllowedOrigins.Count > 128)
+            Fail("sources.calendar_allowed_origins must contain at most 128 exact HTTPS origins.");
+        foreach (var origin in options.Sources.CalendarAllowedOrigins)
+        {
+            try { _ = Sources.CalendarLink.ValidateOrigin(origin); }
+            catch (Sources.CalendarSubscriptionException) { Fail("sources.calendar_allowed_origins requires exact HTTPS origins without credentials, paths or queries."); }
+        }
+        if (options.Sources.CalendarSubscriptions is null || options.Sources.CalendarSubscriptions.Count > 128)
+            Fail("sources.calendar_subscriptions must contain at most 128 entries.");
+        var calendarIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var calendar in options.Sources.CalendarSubscriptions)
+        {
+            if (calendar is null || string.IsNullOrWhiteSpace(calendar.Name) || !CalendarSubscriptionOptions.IsId(calendar.Id) || !calendarIds.Add(calendar.Id) ||
+                !CalendarSubscriptionOptions.IsReference(calendar.UrlReference))
+                Fail("Calendar subscriptions require distinct bounded ids and a single ${NAME} URL reference.");
+            try { Sources.CalendarSubscriptionService.Validate(calendar.Name, calendar.PollIntervalSeconds); }
+            catch (Sources.CalendarSubscriptionException) { Fail("Calendar subscriptions require a bounded name and a refresh interval of at least 300 seconds."); }
+        }
         if (options.Server.Listeners.Count == 0 || options.Server.Hosts.Count == 0 || options.Server.Origins.Count == 0)
             Fail("server.listeners, server.hosts and server.origins must be explicitly configured.");
         foreach (var origin in options.Server.Origins)
@@ -32,6 +67,10 @@ public static class ConfigurationValidator
                 !Uri.TryCreate("http://" + host, UriKind.Absolute, out var uri) || uri.UserInfo.Length != 0 ||
                 uri.AbsolutePath != "/" || uri.Query.Length != 0 || uri.Fragment.Length != 0)
                 Fail("server.hosts entries must be explicit hostnames or addresses with an optional port.");
+        foreach (var root in options.Backup.ExternalRoots)
+            if (!Path.IsPathFullyQualified(root) || !paths.DirectoryExists(root)
+                || !options.Sources.AllowedRoots.Any(allowed => IsWithin(paths.Canonicalize(root), paths.Canonicalize(allowed))))
+                Fail("Backup external roots must exist below configured allowed source roots.");
         var data = paths.Canonicalize(options.DataRoot);
         foreach (var root in options.Sources.AllowedRoots)
         {

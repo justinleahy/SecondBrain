@@ -11,11 +11,11 @@ using SecondBrain.Extraction.Contracts;
 
 namespace SecondBrain.Storage.Ingestion;
 
-public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexStore index, IPublicationCoordinator coordinator, IManagedDocumentFiles? files = null, Microsoft.Extensions.Options.IOptions<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null) : IDocumentRepository
+public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexStore index, IPublicationCoordinator coordinator, IManagedDocumentFiles? files = null, Microsoft.Extensions.Options.IOptions<SecondBrain.Core.Configuration.SecondBrainOptions>? options = null, Microsoft.Extensions.Options.IOptionsMonitor<SecondBrain.Core.Configuration.SecondBrainOptions>? optionsMonitor = null) : IDocumentRepository
 {
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IStateStore, SemaphoreSlim> CaptureGates = new();
     private readonly SemaphoreSlim captureGate = CaptureGates.GetValue(state, static _ => new SemaphoreSlim(1, 1));
-    private const string Generation = "{\"chunker\":1,\"extractor\":1,\"normalization\":1}";
+    private ChunkingProfile CurrentChunking => ChunkingProfile.FromOptions((optionsMonitor?.CurrentValue ?? options?.Value)?.Chunking);
     public async ValueTask<CaptureResult> CaptureAsync(CaptureRequest request, IngestionAuthority authority, string? idempotencyKey = null, CancellationToken cancellationToken = default)
     {
         await captureGate.WaitAsync(cancellationToken);
@@ -23,8 +23,10 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         finally { captureGate.Release(); }
     }
 
-    private async ValueTask<CaptureResult> CaptureCoreAsync(CaptureRequest request, IngestionAuthority authority, string? idempotencyKey, CancellationToken cancellationToken, SecondBrain.Core.Chat.ApprovedDocumentWrite? approved = null)
+    private async ValueTask<CaptureResult> CaptureCoreAsync(CaptureRequest request, IngestionAuthority authority, string? idempotencyKey, CancellationToken cancellationToken, SecondBrain.Core.Chat.ApprovedDocumentWrite? approved = null, ExtractionResult? extraction = null)
     {
+        var profile = CurrentChunking;
+        var Generation = profile.GenerationJson;
         Validate(request);
         if (authority.Door is not ("api" or "mcp" or "ui")) throw new ArgumentException("Invalid capture surface.");
         var requestHash = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request)));
@@ -62,12 +64,14 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         var jobId = approved?.ExecutionId ?? Ulid.NewUlid().ToString();
         var title = request.Title ?? FirstLine(request.Content);
         var managedPath = approved is null ? files?.GetManagedPath(id, ".md") : files?.GetAssistantNotePath(id);
-        var projection = TextProcessor.Process(id, title, request.Content, request.Tags, managedPath);
+        var projection = (request.Type == "transcript" && extraction?.Segments is { } segments
+            ? TranscriptTextProcessor.Process(id, title, request.Content, segments, profile, request.Tags, managedPath)
+            : profile.Process(id, title, request.Content, request.Tags, managedPath)) with { Aliases = request.Aliases?.Distinct(StringComparer.Ordinal).ToArray() };
         var props = request.Props?.GetRawText() ?? "{}";
         using var timeProperties = JsonDocument.Parse(props);
         var basis = new TypeRegistry().GetProcessingType(request.Type ?? "note").Metadata.OccurredBasis;
         var declared = basis is not null && timeProperties.RootElement.TryGetProperty(basis, out var timeValue) && timeValue.ValueKind == JsonValueKind.String ? timeValue.GetString() : null;
-        var occurred = basis is null ? null : SourceTime.Parse(declared, basis, TimeZoneInfo.FindSystemTimeZoneById(options?.Value.Time.Zone ?? TimeZoneInfo.Local.Id));
+        var occurred = basis is null ? null : SourceTime.Parse(declared, basis, TimeZoneInfo.FindSystemTimeZoneById((optionsMonitor?.CurrentValue ?? options?.Value)?.Time.Zone ?? TimeZoneInfo.Local.Id));
         var publication = new DocumentPublication(id, authority.Door + "-captures", 0, Generation, "capture", title,
             Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(request.Content))), authority.Door + ":" + authority.CredentialName)
         { Type = request.Type ?? "note", TypeOrigin = request.Type is null ? "format-default" : "door", PropsJson = props,
@@ -112,14 +116,20 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         await using var reader = await read.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken)) return null;
         var record = new DocumentRecord(reader.GetString(0), reader.GetInt64(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetString(8));
-        if (!includeText) return record;
         await reader.DisposeAsync();
+        await using (var parent = Command(lease.Connection, transaction,
+            $"SELECT 1 FROM documents d JOIN documents parent ON parent.id=d.container_document_id WHERE d.id=$id AND parent.status IN ({DocumentStatusSql.Unavailable})", ("$id", id)))
+            if (await parent.ExecuteScalarAsync(cancellationToken) is not null) return null;
+        if (!includeText) return record;
         await using var projectionRead = Command(lease.Connection, transaction,
             "SELECT p.bytes FROM document_projections d JOIN payloads p ON p.id=d.payload_id WHERE d.document_id=$id AND p.redacted_at IS NULL", ("$id", id));
         if (await projectionRead.ExecuteScalarAsync(cancellationToken) is byte[] bytes)
         {
             var projection = JsonSerializer.Deserialize<TextProjection>(bytes)!;
-            record = record with { Text = projection.LosslessText, Chunks = projection.Chunks, Tags = projection.Tags, Path = projection.Path };
+            await using var overrides = Command(lease.Connection, transaction, "SELECT COUNT(*) FROM overrides WHERE document_id=$id AND kind='tags'", ("$id", id));
+            var userTags = Convert.ToInt64(await overrides.ExecuteScalarAsync(cancellationToken), CultureInfo.InvariantCulture) != 0;
+            var tags = userTags || projection.Enrichment is null ? projection.Tags : projection.Tags.Concat(projection.Enrichment.Tags).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            record = record with { Text = projection.LosslessText, Chunks = projection.Chunks, Tags = tags, Path = projection.Path, Segments = projection.Segments, Enrichment = projection.Enrichment };
         }
         return record;
     }
@@ -153,9 +163,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
                 if (!await reader.ReadAsync(token)) throw new IngestionConflictException("job-superseded");
                 status = reader.GetString(0); error = reader.IsDBNull(1) ? null : reader.GetString(1); kind = reader.GetString(2); document = reader.GetString(3);
             }
-            if (status != "failed") throw new IngestionConflictException("job-not-failed");
-            // A staging rejection (ING-7) is deterministic; only a changed source entry retries it.
-            if (kind == "stage" || kind == "extract" && error is not ("extraction-unavailable" or "extraction-timeout" or "provider-unavailable")) throw new IngestionConflictException("deterministic-failure");
+            if (JobRetryPolicy.Rejection(kind, error, status, current: true) is { } rejection) throw new IngestionConflictException(rejection);
             await using var update = Command(connection, transaction, "UPDATE jobs SET status='queued',attempts=0,run_after=NULL,lease_until=NULL,error=NULL,updated_at=$now WHERE id=$id", ("$id", id), ("$now", Now())); await update.ExecuteNonQueryAsync(token);
             await using var doc = Command(connection, transaction, "UPDATE documents SET status=$status,error=NULL WHERE id=$id", ("$id", document), ("$status", kind == "extract" ? "queued" : "indexed_partial")); return await doc.ExecuteNonQueryAsync(token);
         }, cancellationToken);
@@ -190,6 +198,8 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
 
     public async ValueTask<CaptureResult> AdmitFileAsync(byte[] bytes, CaptureRequest metadata, string fileName, IngestionAuthority authority, string? idempotencyKey = null, CancellationToken cancellationToken = default)
     {
+        var profile = CurrentChunking;
+        var Generation = profile.GenerationJson;
         if (files is null) throw new InvalidOperationException("Managed file adapter is not registered.");
         if (bytes.LongLength > 50L * 1024 * 1024 || fileName.Length > 1024) throw new ArgumentException("Input bound exceeded.");
         Validate(metadata with { Content = "" });
@@ -228,7 +238,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
             var publication = new DocumentPublication(id, "api-captures", 0, Generation, "capture-file", title, hash, "api:" + actor.Name)
             {
                 Type = metadata.Type ?? "file", TypeOrigin = metadata.Type is null ? "format-default" : "door", PropsJson = props, PropsOriginalJson = props, SizeBytes = bytes.LongLength,
-                Status = "queued", Projection = TextProcessor.Process(id, title, "", metadata.Tags, path),
+                Status = "queued", Projection = profile.Process(id, title, "", metadata.Tags, path),
                 Admission = new PublicationAdmission(authority, job, idempotencyKey, requestHash, bytes.LongLength, "extract",
                     JsonSerializer.Serialize(new { path, file_name = fileName, metadata, admitted_bytes = bytes.LongLength }))
             };
@@ -284,7 +294,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
             var jobs = new List<FileProcessingWork>();
             await using (var expired = Command(connection, transaction, "UPDATE jobs SET status='queued',lease_until=NULL WHERE kind='extract' AND status='running' AND lease_until<$now", ("$now", Now()))) await expired.ExecuteNonQueryAsync(token);
             await using (var read = Command(connection, transaction,
-                "SELECT j.id,j.document_id,j.revision,j.generation_json,j.payload_json FROM jobs j JOIN documents d ON d.id=j.document_id JOIN publication_fences f ON f.document_id=d.id WHERE j.kind='extract' AND j.status='queued' AND j.revision=d.revision AND j.generation_json=f.generation_json AND d.status NOT IN ('deleted','purged') AND (j.run_after IS NULL OR j.run_after<=$now) ORDER BY j.created_at,j.id LIMIT $limit", ("$now", Now()), ("$limit", Math.Clamp(limit, 1, 32))))
+                "SELECT j.id,j.document_id,j.revision,j.generation_json,j.payload_json FROM jobs j JOIN documents d ON d.id=j.document_id JOIN sources s ON s.id=d.source_id JOIN publication_fences f ON f.document_id=d.id WHERE j.kind='extract' AND j.status='queued' AND j.revision=d.revision AND j.generation_json=f.generation_json AND d.status NOT IN ('deleted','purged','missing','removed_from_source') AND (s.kind NOT IN ('folder','calendar_subscription') OR s.status='active') AND (j.run_after IS NULL OR j.run_after<=$now) ORDER BY j.created_at,j.id LIMIT $limit", ("$now", Now()), ("$limit", Math.Clamp(limit, 1, 32))))
             await using (var reader = await read.ExecuteReaderAsync(token))
                 while (await reader.ReadAsync(token))
                 {
@@ -316,7 +326,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
     private async Task<string> ExtractionCacheDiscriminatorAsync(string documentId, long revision, CancellationToken cancellationToken)
     {
         await using var lease = await state.OpenReadConnectionAsync(cancellationToken);
-        await using var read = Command(lease.Connection, null, "SELECT json_extract(payload_json,'$.file_name') FROM jobs WHERE document_id=$id AND revision=$revision AND kind='extract' LIMIT 1", ("$id", documentId), ("$revision", revision));
+        await using var read = Command(lease.Connection, null, "SELECT json_extract(payload_json,'$.file_name') FROM jobs WHERE document_id=$id AND revision<=$revision AND kind='extract' ORDER BY revision DESC LIMIT 1", ("$id", documentId), ("$revision", revision));
         var name = await read.ExecuteScalarAsync(cancellationToken) as string ?? "";
         var hint = Path.GetExtension(name).ToLowerInvariant() switch { ".md" or ".markdown" => "markdown", ".txt" or ".text" => "text", ".html" or ".htm" => "html", ".pdf" => "pdf", ".docx" => "docx", _ => "unknown" };
         return "m1-bounded:" + hint;
@@ -328,36 +338,38 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         var discriminator = await ExtractionCacheDiscriminatorAsync(documentId, document.Revision, cancellationToken);
         string? payloadId;
         await using (var indexLease = await index.OpenReadConnectionAsync(cancellationToken))
-        await using (var cached = Command(indexLease.Connection, null, "SELECT path FROM extraction_cache WHERE content_hash=$hash AND extractor=$extractor AND extractor_version=1 AND type=$type AND schema_version=1", ("$hash", document.ContentHash), ("$type", document.Type), ("$extractor", discriminator)))
+        // The M1 parser depends on bytes and the physical-format hint. Semantic type
+        // is applied after parsing and can change at completion or during an edit.
+        // Prefer that type's cache entry, retaining compatibility with preclassification entries.
+        await using (var cached = Command(indexLease.Connection, null, "SELECT path FROM extraction_cache WHERE content_hash=$hash AND extractor=$extractor AND extractor_version=1 AND schema_version=1 ORDER BY CASE WHEN type=$type THEN 0 ELSE 1 END,type LIMIT 1", ("$hash", document.ContentHash), ("$type", document.Type), ("$extractor", discriminator)))
             payloadId = await cached.ExecuteScalarAsync(cancellationToken) as string;
         if (payloadId is null) return null;
         await using var lease = await state.OpenReadConnectionAsync(cancellationToken);
         await using var body = Command(lease.Connection, null, "SELECT bytes FROM payloads WHERE id=$id AND redacted_at IS NULL", ("$id", payloadId));
         return await body.ExecuteScalarAsync(cancellationToken) is byte[] bytes ? JsonSerializer.Deserialize<ExtractionResult>(bytes) : null;
     }
-    public async ValueTask<CaptureResult> CompleteFileAsync(string documentId, long revision, ExtractionResult extraction, CancellationToken cancellationToken = default)
+    public ValueTask<CaptureResult> CompleteFileAsync(string documentId, long revision, ExtractionResult extraction, CancellationToken cancellationToken = default)
+        => CompleteClassifiedFileAsync(documentId, revision, extraction, null, cancellationToken);
+    public async ValueTask<CaptureResult> CompleteClassifiedFileAsync(string documentId, long revision, ExtractionResult extraction, ContentClassification? classification, CancellationToken cancellationToken = default)
     {
+        var Generation = await ReadGenerationAsync(documentId, cancellationToken);
+        var profile = ChunkingProfile.FromGeneration(Generation);
         var document = await GetAsync(documentId, true, cancellationToken) ?? throw new IngestionConflictException("not-found");
         if (document.Revision != revision || DocumentStatusNames.IsUnavailable(document.Status)) throw new IngestionConflictException("revision-mismatch");
-        string typeOrigin = "format-default"; string? sourceDefault = null; string? mappedType = null;
-        await using (var metadataLease = await state.OpenReadConnectionAsync(cancellationToken))
-        await using (var metadataRead = Command(metadataLease.Connection, null, "SELECT d.type_origin,s.config_json,(SELECT path FROM occurrences WHERE document_id=d.id LIMIT 1) FROM documents d JOIN sources s ON s.id=d.source_id WHERE d.id=$id", ("$id", documentId)))
-        await using (var metadataReader = await metadataRead.ExecuteReaderAsync(cancellationToken))
-            if (await metadataReader.ReadAsync(cancellationToken))
-            {
-                typeOrigin = metadataReader.GetString(0);
-                if (!metadataReader.IsDBNull(1) && !metadataReader.IsDBNull(2))
-                {
-                    var source = JsonSerializer.Deserialize<SecondBrain.Core.Sources.FolderSourceConfiguration>(metadataReader.GetString(1));
-                    sourceDefault = source?.DefaultType;
-                    if (source is not null)
-                        mappedType = source.TypeMap.FirstOrDefault(pair => System.IO.Enumeration.FileSystemName.MatchesSimpleExpression(pair.Key, metadataReader.GetString(2), false)).Value;
-                }
-            }
-        var type = typeOrigin is "door" or "user" ? document.Type : extraction.DeclaredType ?? mappedType ?? sourceDefault ??
-            (extraction.PhysicalFormat is "pdf" or "html" ? "article" : extraction.PhysicalFormat is "markdown" or "md" or "text" or "txt" ? "note" : "file");
-        if (typeOrigin is not ("door" or "user")) typeOrigin = extraction.DeclaredType is not null ? "frontmatter" : mappedType is not null ? "type-map" : sourceDefault is not null ? "source" : "format-default";
-        if (type is not ("note" or "article" or "file")) type = "file";
+        if (extraction.Calendar is { } calendar)
+        {
+            if (await coordinator.PublishCalendarAsync(new(documentId, revision, Generation), calendar, cancellationToken) != PublicationOutcome.Published)
+                throw new IngestionConflictException("revision-mismatch");
+            return new((await GetAsync(documentId, true, cancellationToken))!, (await JobsAsync(null, cancellationToken)).FirstOrDefault(item => item.DocumentId == documentId));
+        }
+        ClassificationContext classificationContext;
+        await using (var read = await state.OpenReadConnectionAsync(cancellationToken))
+            classificationContext = await SqliteClassificationWorkRepository.ReadContextAsync(read.Connection, null, documentId, revision, cancellationToken)
+                ?? throw new IngestionConflictException("revision-mismatch");
+        if (!TranscriptSegments.IsValid(extraction.LosslessText, extraction.Segments)) throw new ArgumentException("Invalid transcript extraction.", nameof(extraction));
+        var classificationOptions = optionsMonitor?.CurrentValue ?? options?.Value ?? new SecondBrain.Core.Configuration.SecondBrainOptions();
+        var typeChoice = ContentTypeSelection.Select(classificationContext, extraction, classification, classificationOptions);
+        var type = typeChoice.Type; var typeOrigin = typeChoice.Origin;
         CaptureRequest? doorMetadata = null;
         await using (var admissionLease = await state.OpenReadConnectionAsync(cancellationToken))
         await using (var admissionRead = Command(admissionLease.Connection, null, "SELECT json_extract(payload_json,'$.metadata') FROM jobs WHERE document_id=$id AND revision=$revision AND kind='extract' LIMIT 1", ("$id", documentId), ("$revision", revision)))
@@ -375,11 +387,13 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
             tags = tagOverride.EnumerateArray().Select(tag => tag.GetString()!).Distinct(StringComparer.Ordinal).ToArray();
         var title = overrides.TryGetValue("title", out var titleOverride) && titleOverride.ValueKind == JsonValueKind.String ? titleOverride.GetString()! : doorMetadata?.Title ?? extraction.Title ?? document.Title;
         TextProjection projection;
-        try { projection = TextProcessor.Process(documentId, title, extraction.LosslessText, tags, document.Path); }
+        try { projection = type == "transcript" && extraction.Segments is { } segments
+                ? TranscriptTextProcessor.Process(documentId, title, extraction.LosslessText, segments, profile, tags, document.Path)
+                : profile.Process(documentId, title, extraction.LosslessText, tags, document.Path); }
         catch (IngestionConflictException error) when (error.Code == "chunk-count-bound")
         {
-            extraction = extraction with { Status = "skipped", Bound = "chunk-count-bound", LosslessText = "" };
-            projection = TextProcessor.Process(documentId, title, "", document.Tags, document.Path);
+            extraction = extraction with { Status = "skipped", Bound = "chunk-count-bound", LosslessText = "", Segments = null };
+            projection = profile.Process(documentId, title, "", document.Tags, document.Path);
         }
         if (extraction.Pages is { Count: > 0 } pages)
             projection = projection with { Chunks = projection.Chunks.Select(chunk => chunk with
@@ -401,12 +415,14 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
             extraction = extraction with { Status = "failed", Error = "invalid-properties" };
             effective = "{}";
         }
-        var sourceZone = TimeZoneInfo.FindSystemTimeZoneById(options?.Value.Time.Zone ?? TimeZoneInfo.Local.Id);
+        var sourceZone = TimeZoneInfo.FindSystemTimeZoneById((optionsMonitor?.CurrentValue ?? options?.Value)?.Time.Zone ?? TimeZoneInfo.Local.Id);
         using var effectiveTimeProps = JsonDocument.Parse(effective);
         var occurredBasis = registry.GetProcessingType(type).Metadata.OccurredBasis;
         var occurredValue = occurredBasis == "created" ? extraction.DeclaredCreatedAt : occurredBasis is not null && effectiveTimeProps.RootElement.TryGetProperty(occurredBasis, out var declaredTime) && declaredTime.ValueKind == JsonValueKind.String ? declaredTime.GetString() : null;
         var occurred = occurredBasis is null ? null : SourceTime.Parse(occurredValue, occurredBasis, sourceZone);
-        projection = projection with { Aliases = extraction.Aliases?.Where(alias => !string.IsNullOrWhiteSpace(alias) && alias.Length <= 256).Take(200).Distinct(StringComparer.Ordinal).ToArray(), SourceCreatedAt = SourceTime.Parse(extraction.DeclaredCreatedAt, "created", sourceZone) is not null ? extraction.DeclaredCreatedAt : null, SourceUpdatedAt = SourceTime.Parse(extraction.DeclaredUpdatedAt, "updated", sourceZone) is not null ? extraction.DeclaredUpdatedAt : null, Links = extraction.Links?.Where(link => !string.IsNullOrWhiteSpace(link) && link.Length <= 4096 && !link.Any(char.IsControl)).Take(200).Distinct(StringComparer.Ordinal).ToArray() };
+        var aliases = overrides.TryGetValue("aliases", out var aliasOverride) && aliasOverride.ValueKind == JsonValueKind.Array
+            ? aliasOverride.EnumerateArray().Select(alias => alias.GetString()!).ToArray() : doorMetadata?.Aliases ?? extraction.Aliases;
+        projection = projection with { Aliases = aliases?.Where(alias => !string.IsNullOrWhiteSpace(alias) && alias.Length <= 256).Take(200).Distinct(StringComparer.Ordinal).ToArray(), SourceCreatedAt = SourceTime.Parse(extraction.DeclaredCreatedAt, "created", sourceZone) is not null ? extraction.DeclaredCreatedAt : null, SourceUpdatedAt = SourceTime.Parse(extraction.DeclaredUpdatedAt, "updated", sourceZone) is not null ? extraction.DeclaredUpdatedAt : null, Links = extraction.Links?.Where(link => !string.IsNullOrWhiteSpace(link) && link.Length <= 4096 && !link.Any(char.IsControl)).Take(200).Distinct(StringComparer.Ordinal).ToArray() };
         var cacheDiscriminator = await ExtractionCacheDiscriminatorAsync(documentId, revision, cancellationToken);
         var cachePayloadId = Ulid.NewUlid().ToString();
         var cacheBytes = JsonSerializer.SerializeToUtf8Bytes(extraction);
@@ -415,6 +431,10 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         {
         await state.QueueWriteAsync(async (connection, transaction, token) =>
         {
+            var currentClassification = await SqliteClassificationWorkRepository.ReadContextAsync(connection, transaction, documentId, revision, token);
+            if (currentClassification?.Stamp != classificationContext.Stamp || (classification is not null &&
+                classification.ConfigurationStamp != ContentTypeSelection.ConfigurationStamp(optionsMonitor?.CurrentValue ?? options?.Value ?? classificationOptions)))
+                throw new IngestionConflictException("classification-changed");
             await using var pendingExtraction = Command(connection, transaction, "SELECT 1 FROM jobs WHERE document_id=$id AND revision=$revision AND kind='extract' AND status IN ('queued','running') LIMIT 1", ("$id", documentId), ("$revision", revision));
             if (await pendingExtraction.ExecuteScalarAsync(token) is null) return 0;
             await using var fence = Command(connection, transaction, $"SELECT d.revision FROM documents d JOIN publication_fences f ON f.document_id=d.id WHERE d.id=$id AND d.status NOT IN ({DocumentStatusSql.Unavailable}) AND f.generation_json=$generation", ("$id", documentId), ("$generation", Generation));
@@ -427,7 +447,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
             await using var reference = Command(connection, transaction, "INSERT INTO payload_refs(payload_id,referrer_kind,referrer_id) VALUES($payload,'document-projection',$id)", ("$payload", payloadId), ("$id", documentId)); await reference.ExecuteNonQueryAsync(token);
             await using var updateProjection = Command(connection, transaction, "UPDATE document_projections SET payload_id=$payload WHERE document_id=$id AND revision=$revision", ("$payload", payloadId), ("$id", documentId), ("$revision", revision)); await updateProjection.ExecuteNonQueryAsync(token);
             var status = extraction.Status is "failed" or "skipped" or "needs_ocr" ? extraction.Status : "indexed_partial";
-            await using var update = Command(connection, transaction, "UPDATE documents SET type=$type,type_origin=$origin,title=$title,mime=$mime,props_json=$props,props_original_json=$original,occurred_at=$occurred,occurred_offset=$offset,occurred_basis=$basis,occurred_precision=$precision,status=$status,error=$error,publish_state='publishing' WHERE id=$id AND revision=$revision", ("$type", type), ("$origin", typeOrigin), ("$title", title), ("$mime", extraction.MimeType), ("$props", effective), ("$original", props), ("$occurred", occurred?.At), ("$offset", occurred?.Offset), ("$basis", occurred?.Basis), ("$precision", occurred?.Precision), ("$status", status), ("$error", extraction.Bound ?? extraction.Error), ("$id", documentId), ("$revision", revision)); await update.ExecuteNonQueryAsync(token);
+            await using var update = Command(connection, transaction, "UPDATE documents SET type=$type,type_origin=$origin,type_confidence=$confidence,title=$title,mime=$mime,props_json=$props,props_original_json=$original,occurred_at=$occurred,occurred_offset=$offset,occurred_basis=$basis,occurred_precision=$precision,status=$status,error=$error,publish_state='publishing' WHERE id=$id AND revision=$revision", ("$type", type), ("$origin", typeOrigin), ("$confidence", typeChoice.Confidence), ("$title", title), ("$mime", extraction.MimeType), ("$props", effective), ("$original", props), ("$occurred", occurred?.At), ("$offset", occurred?.Offset), ("$basis", occurred?.Basis), ("$precision", occurred?.Precision), ("$status", status), ("$error", extraction.Bound ?? extraction.Error), ("$id", documentId), ("$revision", revision)); await update.ExecuteNonQueryAsync(token);
             await using var complete = Command(connection, transaction, "UPDATE jobs SET status=$status,error=$error,lease_until=NULL,updated_at=$now WHERE document_id=$id AND revision=$revision AND kind='extract'", ("$status", extraction.Status is "failed" or "skipped" ? "failed" : "completed"), ("$error", extraction.Bound ?? extraction.Error), ("$now", Now()), ("$id", documentId), ("$revision", revision)); await complete.ExecuteNonQueryAsync(token);
             if (status == "indexed_partial")
             {
@@ -448,11 +468,17 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
 
     public async ValueTask<CaptureResult> CaptureExtractedAsync(CaptureRequest metadata, ExtractionResult extraction, string fileName, IngestionAuthority authority, string? idempotencyKey = null, CancellationToken cancellationToken = default)
     {
-        var type = metadata.Type ?? extraction.DeclaredType ?? (extraction.PhysicalFormat is "pdf" or "html" ? "article" : extraction.PhysicalFormat is "markdown" or "text" ? "note" : "file");
+        var type = metadata.Type ?? extraction.DeclaredType ?? (extraction.PhysicalFormat is "vtt" or "srt" ? "transcript" : extraction.PhysicalFormat is "pdf" or "html" ? "article" : extraction.PhysicalFormat is "markdown" or "text" ? "note" : "file");
         JsonElement? props = metadata.Props;
         if (props is null && extraction.Properties is not null) props = JsonSerializer.SerializeToElement(extraction.Properties);
-        var result = await CaptureAsync(metadata with { Content = extraction.LosslessText, Title = metadata.Title ?? extraction.Title ?? fileName,
-            Type = type, Props = props, Tags = metadata.Tags ?? extraction.Tags?.ToArray() }, authority, idempotencyKey, cancellationToken);
+        CaptureResult result;
+        await captureGate.WaitAsync(cancellationToken);
+        try
+        {
+            result = await CaptureCoreAsync(metadata with { Content = extraction.LosslessText, Title = metadata.Title ?? extraction.Title ?? fileName,
+                Type = type, Props = props, Tags = metadata.Tags ?? extraction.Tags?.ToArray() }, authority, idempotencyKey, cancellationToken, extraction: extraction);
+        }
+        finally { captureGate.Release(); }
         if (extraction.Status is "failed" or "skipped" or "needs_ocr")
         {
             await state.QueueWriteAsync(async (connection, transaction, token) =>
@@ -465,7 +491,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
                     "UPDATE jobs SET status='failed',error=$error WHERE document_id=$id", ("$id", result.Document.Id), ("$error", extraction.Bound ?? extraction.Error));
                 return await jobs.ExecuteNonQueryAsync(token);
             }, cancellationToken);
-            await coordinator.PublishCurrentAsync(new PublicationFence(result.Document.Id, result.Document.Revision, Generation), cancellationToken);
+            await coordinator.PublishCurrentAsync(new PublicationFence(result.Document.Id, result.Document.Revision, await ReadGenerationAsync(result.Document.Id, cancellationToken)), cancellationToken);
             result = result with { Document = (await GetAsync(result.Document.Id, true, cancellationToken))!, Job = result.Job is null ? null : result.Job with { Status = "failed", Error = extraction.Bound ?? extraction.Error, Stage = "extract" } };
         }
         return result;
@@ -476,6 +502,8 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
 
     private async ValueTask<CaptureResult> MutateCoreAsync(string id, long revision, string operation, JsonElement payload, IngestionAuthority authority, CancellationToken cancellationToken, SecondBrain.Core.Chat.ApprovedDocumentWrite? approved = null)
     {
+        var profile = CurrentChunking;
+        var Generation = profile.GenerationJson;
         // A tags array is the requested tag set. Only a superset of the current tags (pure additions) is additive
         // metadata that a key executes directly; omitting any current tag is a removal and needs a proposal (ING-12).
         var additive = operation is "patch" or "update" && payload.ValueKind == JsonValueKind.Object && payload.EnumerateObject().All(property => property.Name == "tags")
@@ -506,17 +534,86 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         var title = payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("title", out var t) ? t.GetString()! : document.Title;
         var content = payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("content", out var c) ? c.GetString()! : document.Text ?? durableProjection?.LosslessText ?? "";
         var type = payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("type", out var ty) ? ty.GetString()! : document.Type;
-        var props = payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("props", out var p) ? p.GetRawText() : document.PropsJson;
+        if (type is not ("note" or "article" or "transcript" or "calendar_event" or "file")) throw new ArgumentException("Unsupported document type.");
+        string storedOriginalProps;
+        await using (var originalLease = await state.OpenReadConnectionAsync(cancellationToken))
+        await using (var originalRead = Command(originalLease.Connection, null, "SELECT props_original_json FROM documents WHERE id=$id", ("$id", id)))
+            storedOriginalProps = (string)(await originalRead.ExecuteScalarAsync(cancellationToken))!;
+        using var originals = JsonDocument.Parse(storedOriginalProps);
+        using var previousProps = JsonDocument.Parse(document.PropsJson);
+        var propertyInput = type != document.Type
+            ? originals.RootElement.EnumerateObject().ToDictionary(property => property.Name, property => property.Value.Clone(), StringComparer.Ordinal)
+            : new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+        foreach (var property in previousProps.RootElement.EnumerateObject()) propertyInput[property.Name] = property.Value.Clone();
+        if (payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("props", out var p))
+        {
+            if (p.ValueKind != JsonValueKind.Object) throw new ArgumentException("Properties must be an object.");
+            if (type == document.Type) propertyInput.Clear();
+            foreach (var property in p.EnumerateObject()) propertyInput[property.Name] = property.Value.Clone();
+        }
+        var props = new TypeRegistry().DeriveEffectiveProperties(type, JsonSerializer.SerializeToElement(propertyInput)).GetRawText();
         var tags = document.Tags ?? durableProjection?.Tags ?? [];
         if (payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("tags", out var requested)) tags = requested.EnumerateArray().Select(tag => tag.GetString()!).Distinct(StringComparer.Ordinal).ToArray();
+        var aliases = durableProjection?.Aliases?.ToArray() ?? [];
+        if (payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("aliases", out var requestedAliases))
+        {
+            if (requestedAliases.ValueKind != JsonValueKind.Array || requestedAliases.EnumerateArray().Any(alias => alias.ValueKind != JsonValueKind.String))
+                throw new ArgumentException("Aliases must be an array of strings.");
+            aliases = requestedAliases.EnumerateArray().Select(alias => alias.GetString()!).Distinct(StringComparer.Ordinal).ToArray();
+        }
         using var parsedProps = JsonDocument.Parse(props);
-        Validate(new CaptureRequest(content, title, type, parsedProps.RootElement, tags));
-        var publication = new DocumentPublication(id, "api-captures", revision, Generation, operation, title,
+        Validate(new CaptureRequest(content, title, type, parsedProps.RootElement, tags, Aliases: aliases), allowCalendar: true);
+        string? sourceUrl;
+        await using (var sourceLease = await state.OpenReadConnectionAsync(cancellationToken))
+        await using (var sourceRead = Command(sourceLease.Connection, null, "SELECT source_url FROM documents WHERE id=$id", ("$id", id)))
+            sourceUrl = await sourceRead.ExecuteScalarAsync(cancellationToken) as string;
+        if (payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("source_url", out var urlChange))
+        {
+            if (urlChange.ValueKind is not (JsonValueKind.Null or JsonValueKind.String)) throw new ArgumentException("Source URL must be a string or null.");
+            sourceUrl = urlChange.ValueKind == JsonValueKind.Null ? null : urlChange.GetString();
+        }
+        if (sourceUrl?.Length > 4096) throw new ArgumentException("Source URL exceeds input bounds.");
+        var retainedSegments = !replacesContent && type == "transcript" ? durableProjection?.Segments : null;
+        if (!replacesContent && type == "transcript" && retainedSegments is null && await CachedExtractionAsync(id, cancellationToken) is { } cached && cached.LosslessText == content)
+            retainedSegments = cached.Segments;
+        var updatedProjection = retainedSegments is not null
+            ? TranscriptTextProcessor.Process(id, title, content, retainedSegments, profile, tags, document.Path)
+            : profile.Process(id, title, content, tags, document.Path);
+        if (!replacesContent && type == "calendar_event") updatedProjection = updatedProjection with { CalendarInstances = durableProjection?.CalendarInstances, CalendarGeneration = durableProjection?.CalendarGeneration, People = durableProjection?.People };
+        bool calendarMember;
+        string documentSource;
+        await using (var originLease = await state.OpenReadConnectionAsync(cancellationToken))
+        await using (var originRead = Command(originLease.Connection, null, "SELECT source_id,container_document_id FROM documents WHERE id=$id", ("$id", id)))
+        await using (var origin = await originRead.ExecuteReaderAsync(cancellationToken))
+        { await origin.ReadAsync(cancellationToken); documentSource = origin.GetString(0); calendarMember = !origin.IsDBNull(1); }
+        if (calendarMember && replacesContent) throw new IngestionConflictException("binary-edit-not-supported");
+        if (calendarMember) Generation = profile.ApplyToGeneration(await ReadGenerationAsync(id, cancellationToken));
+        await using (var pendingLease = await state.OpenReadConnectionAsync(cancellationToken))
+        await using (var pending = Command(pendingLease.Connection, null, "SELECT 1 FROM calendar_batch_members m JOIN calendar_batches b ON b.container_id=m.container_id WHERE m.document_id=$id AND b.phase='publishing'", ("$id", id)))
+            if (await pending.ExecuteScalarAsync(cancellationToken) is not null) throw new IngestionConflictException("calendar-publishing");
+        var publication = new DocumentPublication(id, documentSource, revision, Generation, operation, title,
             Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(content))), document.Provenance)
-        { Type = type, PropsJson = props, PropsOriginalJson = props, Status = status,
+        { Type = type, PropsJson = props, PropsOriginalJson = storedOriginalProps, Status = status, SourceUrl = sourceUrl,
             Admission = new PublicationAdmission(authority, Ulid.NewUlid().ToString(), null, "", Encoding.UTF8.GetByteCount(content)),
-            Projection = TextProcessor.Process(id, title, content, tags, document.Path) };
-        if (operation is "patch" or "update" or "delete" or "restore" or "purge" && files is not null)
+            Projection = updatedProjection with { Aliases = aliases } };
+        if (calendarMember)
+        {
+            var choices = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var kind in new[] { "type", "props", "tags", "title", "aliases" })
+                if (payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty(kind, out var choice)) choices[kind] = kind == "tags" ? JsonSerializer.Serialize(tags) : choice.GetRawText();
+            await using var metadataLease = await state.OpenReadConnectionAsync(cancellationToken);
+            await using var metadataRead = Command(metadataLease.Connection, null, "SELECT type_origin,mime,natural_key,occurred_at,occurred_offset,occurred_basis,occurred_precision FROM documents WHERE id=$id", ("$id", id));
+            await using var metadata = await metadataRead.ExecuteReaderAsync(cancellationToken);
+            await metadata.ReadAsync(cancellationToken);
+            string? Optional(int column) => metadata.IsDBNull(column) ? null : metadata.GetString(column);
+            var basis = new TypeRegistry().GetProcessingType(type).Metadata.OccurredBasis;
+            var sourceTime = basis is not null && parsedProps.RootElement.TryGetProperty(basis, out var time) && time.ValueKind == JsonValueKind.String
+                ? SourceTime.Parse(time.GetString(), basis, TimeZoneInfo.FindSystemTimeZoneById((optionsMonitor?.CurrentValue ?? options?.Value)?.Time.Zone ?? TimeZoneInfo.Local.Id)) : null;
+            publication = publication with { Overrides = choices, SizeBytes = 0, Mime = Optional(1), NaturalKey = Optional(2),
+                TypeOrigin = choices.ContainsKey("type") ? "user" : metadata.GetString(0), OccurredAt = sourceTime?.At, OccurredOffset = sourceTime?.Offset,
+                OccurredBasis = sourceTime?.Basis, OccurredPrecision = parsedProps.RootElement.TryGetProperty("all_day", out var day) && day.ValueKind == JsonValueKind.True ? "date" : sourceTime?.Precision };
+        }
+        if (operation is "patch" or "update" or "delete" or "restore" or "purge" && files is not null && !calendarMember)
         {
             var hasContent = payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("content", out _);
             var extension = priorPath is null ? ".md" : Path.GetExtension(priorPath);
@@ -533,8 +630,14 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
                     expectedHash = document.ContentHash;
                 }
                 catch (InvalidDataException exception) when (exception.Message == "managed_path") { extension = ".md"; priorPath = null; }
+                catch (Exception exception) when (hasContent && exception is IOException or InvalidDataException &&
+                    (priorPath == files.GetManagedPath(id, extension) || priorPath == files.GetAssistantNotePath(id)))
+                {
+                    // The journal records missing/nonregular destinations without overwriting them.
+                    expectedHash = document.ContentHash;
+                }
             }
-            var typeOrigin = "user"; var originalProps = document.PropsJson; string? mime = null, sourceUrl = null;
+            var typeOrigin = "user"; var originalProps = document.PropsJson; string? mime = null;
             await using (var metadataLease = await state.OpenReadConnectionAsync(cancellationToken))
             await using (var metadataRead = Command(metadataLease.Connection, null, "SELECT type_origin,props_original_json,mime,source_url FROM documents WHERE id=$id", ("$id", id)))
             await using (var metadataReader = await metadataRead.ExecuteReaderAsync(cancellationToken))
@@ -547,17 +650,19 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
                     sourceUrl = metadataReader.IsDBNull(3) ? null : metadataReader.GetString(3);
                 }
             }
+            if (payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("source_url", out var requestedUrl)) sourceUrl = requestedUrl.ValueKind == JsonValueKind.Null ? null : requestedUrl.GetString();
+            if (sourceUrl?.Length > 4096) throw new ArgumentException("Source URL exceeds input bounds.");
             var lifecycle = operation is "delete" or "restore" or "purge";
             var assistantNote = priorPath == files.GetAssistantNotePath(id);
             var targetPath = lifecycle ? files.GetLifecyclePath(id, extension, operation) : assistantNote ? files.GetAssistantNotePath(id) : files.GetManagedPath(id, extension);
             var projectionId = "mutation-projection:" + (approved?.ExecutionId ?? Ulid.NewUlid().ToString());
-            var plannedProjection = operation == "purge" ? TextProcessor.Process(id, "[purged]", "", []) : publication.Projection! with
+            var plannedProjection = operation == "purge" ? profile.Process(id, "[purged]", "", []) : publication.Projection! with
             {
-                Aliases = durableProjection?.Aliases, SourceCreatedAt = durableProjection?.SourceCreatedAt,
+                Aliases = aliases, SourceCreatedAt = durableProjection?.SourceCreatedAt,
                 SourceUpdatedAt = durableProjection?.SourceUpdatedAt,
                 Links = approved?.Plan.RelatedDocumentIds is { Length: > 0 } related
-                    ? (durableProjection?.Links ?? []).Concat(related).Distinct(StringComparer.Ordinal).ToArray()
-                    : hasContent ? null : durableProjection?.Links
+                    ? (publication.Projection?.Links ?? []).Concat(related).Distinct(StringComparer.Ordinal).ToArray()
+                    : hasContent ? publication.Projection?.Links : durableProjection?.Links
             };
             var projectionBytes = JsonSerializer.SerializeToUtf8Bytes(plannedProjection with { Path = targetPath });
             await state.QueueWriteAsync(async (connection, transaction, token) =>
@@ -575,12 +680,12 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
                 return 0;
             }, cancellationToken);
             var overrideValues = new Dictionary<string,string>(StringComparer.Ordinal);
-            foreach (var kind in new[] { "type", "props", "tags", "title" })
+            foreach (var kind in new[] { "type", "props", "tags", "title", "aliases" })
                 if (payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty(kind, out var winning)) overrideValues[kind] = kind == "tags" ? JsonSerializer.Serialize(tags) : winning.GetRawText();
             var updateOccurred = operation == "purge" || payload.ValueKind == JsonValueKind.Object && (payload.TryGetProperty("props", out _) || payload.TryGetProperty("type", out _));
             var registry = new TypeRegistry();
             var effectiveProps = registry.DeriveEffectiveProperties(type, parsedProps.RootElement).GetRawText();
-            var sourceZone = TimeZoneInfo.FindSystemTimeZoneById(options?.Value.Time.Zone ?? TimeZoneInfo.Local.Id);
+            var sourceZone = TimeZoneInfo.FindSystemTimeZoneById((optionsMonitor?.CurrentValue ?? options?.Value)?.Time.Zone ?? TimeZoneInfo.Local.Id);
             var occurrenceBasis = registry.GetProcessingType(type).Metadata.OccurredBasis;
             using var timeProps = JsonDocument.Parse(effectiveProps);
             var occurrenceValue = occurrenceBasis == "created" ? durableProjection?.SourceCreatedAt : occurrenceBasis is not null && timeProps.RootElement.TryGetProperty(occurrenceBasis, out var declaredTime) && declaredTime.ValueKind == JsonValueKind.String ? declaredTime.GetString() : null;
@@ -598,7 +703,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
             if (await coordinator.PublishCurrentAsync(new(id, revision + 1, Generation), cancellationToken) != PublicationOutcome.Published) throw new IngestionConflictException("revision-mismatch");
         }
         else if (await coordinator.PublishAsync(publication, cancellationToken) != PublicationOutcome.Published) throw new IngestionConflictException("revision-mismatch");
-        if (operation is "delete" or "restore" or "purge" && files is null)
+        if (operation is "delete" or "restore" or "purge" && files is null && !calendarMember)
         {
             await state.QueueWriteAsync(async (connection, transaction, token) =>
             {
@@ -636,7 +741,7 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
         await index.QueueWriteAsync(async (connection, transaction, token) =>
         {
             // Ensure a physically deleted disposable index has its M1 tables before replay.
-            await using var schema = Command(connection, transaction, SecondBrain.Storage.Migrations.M0Schema.IndexDdl + SecondBrain.Storage.Migrations.M1Schema.IndexDdl);
+            await using var schema = Command(connection, transaction, SecondBrain.Storage.Migrations.M0Schema.IndexDdl + SecondBrain.Storage.Migrations.M1Schema.IndexDdl + SecondBrain.Storage.Migrations.M4Schema.IndexDdl);
             return await schema.ExecuteNonQueryAsync(token);
         }, cancellationToken);
         var fences = new List<PublicationFence>();
@@ -646,16 +751,39 @@ public sealed partial class SqliteDocumentRepository(IStateStore state, IIndexSt
             while (await reader.ReadAsync(cancellationToken)) fences.Add(new PublicationFence(reader.GetString(0), reader.GetInt64(1), reader.GetString(2)));
         var count = 0;
         foreach (var fence in fences) if (await coordinator.PublishCurrentAsync(fence, cancellationToken) == PublicationOutcome.Published) count++;
+        // Recurrence coverage is a disposable projection. A rebuild must not claim that
+        // retained event instances were re-evaluated for the current zone/range.
+        using (await PublicationCoordinator.AcquirePublicationGateAsync(state, cancellationToken))
+        {
+            await state.QueueWriteAsync(async (connection, transaction, token) =>
+            {
+                await using var invalidate = Command(connection, transaction, "UPDATE calendar_batches SET phase='needs_materialization' WHERE phase='published'");
+                return await invalidate.ExecuteNonQueryAsync(token);
+            }, cancellationToken);
+            using var vectors = await SecondBrain.Storage.Retrieval.VectorSnapshotRegistry.For(index).EnterAsync(cancellationToken);
+            await index.QueueWriteAsync(async (connection, transaction, token) =>
+            {
+                await using var invalidate = Command(connection, transaction, "DELETE FROM event_occurrences; DELETE FROM indexed_calendar_coverage;");
+                return await invalidate.ExecuteNonQueryAsync(token);
+            }, cancellationToken);
+        }
         await SqliteFtsMaintenance.ConsolidateAsync(index, cancellationToken);
         return count;
     }
 
-    private static void Validate(CaptureRequest request)
+    private async ValueTask<string> ReadGenerationAsync(string id, CancellationToken token)
     {
-        if (request.Content is null || Encoding.UTF8.GetByteCount(request.Content) > 50 * 1024 * 1024 || request.Title?.Length > 1024 || request.Tags?.Length > 200 || request.Tags?.Any(tag => string.IsNullOrWhiteSpace(tag) || tag.Length > 256) == true)
+        await using var lease = await state.OpenReadConnectionAsync(token);
+        await using var command = Command(lease.Connection, null, "SELECT generation_json FROM publication_fences WHERE document_id=$id", ("$id", id));
+        return await command.ExecuteScalarAsync(token) as string ?? throw new IngestionConflictException("not-found");
+    }
+
+    private static void Validate(CaptureRequest request, bool allowCalendar = false)
+    {
+        if (request.Content is null || Encoding.UTF8.GetByteCount(request.Content) > 50 * 1024 * 1024 || request.Title?.Length > 1024 || request.SourceUrl?.Length > 4096 || request.Tags?.Length > 200 || request.Tags?.Any(tag => string.IsNullOrWhiteSpace(tag) || tag.Length > 256) == true || request.Aliases?.Length > 200 || request.Aliases?.Any(alias => string.IsNullOrWhiteSpace(alias) || alias.Length > 256) == true)
             throw new ArgumentException("Capture exceeds input bounds.");
         var type = request.Type ?? "note";
-        if (type is not ("note" or "article" or "file")) throw new ArgumentException("Unsupported M1 type.");
+        if (type is not ("note" or "article" or "transcript" or "file") && !(allowCalendar && type == "calendar_event")) throw new ArgumentException("Unsupported document type.");
         using var empty = JsonDocument.Parse("{}");
         if (!new TypeRegistry().ValidateProperties(type, request.Props ?? empty.RootElement).IsValid) throw new ArgumentException("Invalid properties.");
     }

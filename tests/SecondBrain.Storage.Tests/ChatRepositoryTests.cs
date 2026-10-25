@@ -61,7 +61,8 @@ public sealed class ChatRepositoryTests
         await Assert.ThrowsAsync<ChatLimitException>(() => chat.ReserveTokensAsync(next.Id, "hour", 16, Browser).AsTask());
         var keyTurn = (await chat.StartAsync(new("Global budget"), policy with { DailyTokens = 40 }, Key)).Turn;
         await Assert.ThrowsAsync<ChatLimitException>(() => chat.ReserveTokensAsync(keyTurn.Id, "day", 6, Key).AsTask());
-        Assert.Equal(35L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT SUM(charged_tokens) FROM chat_usage_history"));
+        Assert.Equal(35L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT SUM(charged_tokens) FROM usage_calls"));
+        Assert.Equal(0L, await MigrationTestSql.ScalarAsync(stores.State, "SELECT COUNT(*) FROM chat_usage_history"));
     }
 
     [Fact]

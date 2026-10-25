@@ -9,6 +9,18 @@ namespace SecondBrain.Core.Tests.Ingestion;
 public sealed class EmbeddingProcessorTests
 {
     [Theory]
+    [InlineData(128, true)]
+    [InlineData(256, false)]
+    public async Task EmbeddingLimitIsCheckedAgainstTheConfiguredChunkMaximum(int maximum, bool accepted)
+    {
+        var registry = new Registry { Maximum = 128 };
+        var configured = new FixedOptions(new() { Chunking = new() { TargetTokens = 64, MaxTokens = maximum, OverlapTokens = 8 } });
+        var processor = new EmbeddingProcessor(registry, new Repository(false), configured);
+        if (accepted) Assert.Equal(0, await processor.ProcessAsync());
+        else await Assert.ThrowsAsync<ArgumentException>(() => processor.ProcessAsync().AsTask());
+    }
+
+    [Theory]
     [InlineData(true, 0)]
     [InlineData(false, 1)]
     public async Task IdleProcessingActivatesOnlyAnInactiveSpace(bool active, int expectedActivations)
@@ -38,13 +50,21 @@ public sealed class EmbeddingProcessorTests
 
     private sealed class Registry : IProviderRegistry
     {
+        public int Maximum { get; init; } = 1024;
         public Binding Binding { get; } = new();
         public bool IsCurrentConfiguration(SecondBrainOptions options) => true;
-        public ProviderRoleBinding GetRole(ModelRole role) => new(role, Binding, new("local", "model", new(), new() { EmbedDimensions = 2, EmbedMaxInputTokens = 1024 }));
+        public ProviderRoleBinding GetRole(ModelRole role) => new(role, Binding, new("local", "model", new(), new() { EmbedDimensions = 2, EmbedMaxInputTokens = Maximum }));
         public IProviderBinding GetProvider(string name) => Binding;
         public IReadOnlyList<string> ProviderNames => ["local"];
         public ValueTask<IReadOnlyDictionary<string, IReadOnlyList<string>>> ListModelsAsync(CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public ValueTask<IReadOnlyDictionary<ModelRole, ProviderHealthResult>> TestAsync(CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    }
+
+    private sealed class FixedOptions(SecondBrainOptions value) : Microsoft.Extensions.Options.IOptionsMonitor<SecondBrainOptions>
+    {
+        public SecondBrainOptions CurrentValue => value;
+        public SecondBrainOptions Get(string? name) => value;
+        public IDisposable? OnChange(Action<SecondBrainOptions, string?> listener) => null;
     }
 
     private sealed class Binding : IProviderBinding

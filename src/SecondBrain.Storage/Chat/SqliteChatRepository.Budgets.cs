@@ -1,3 +1,5 @@
+using SecondBrain.Core.Providers;
+using SecondBrain.Storage.Usage;
 using Dapper;
 using System.Text.Json;
 using SecondBrain.Core.Auth;
@@ -16,6 +18,9 @@ public sealed partial class SqliteChatRepository
             await RequireLiveLineageAsync(connection, transaction, refs, token);
             if (await connection.ExecuteScalarAsync<int>(Sql("SELECT COUNT(*) FROM chat_model_calls WHERE turn_id=@turnId AND call_id=@callId AND status='reserved'", new { turnId, callId }, transaction, token)) != 1)
                 throw new ChatConflictException("The provider exposure needs an active model reservation.");
+            if (target is not null)
+                await connection.ExecuteAsync(Sql("UPDATE usage SET provider=@Provider,model=@Model,role='embed' WHERE id=(SELECT usage_id FROM usage_calls WHERE call_id=@call)",
+                    new { target.Provider, target.Model, call = "chat/" + turnId + "/" + callId }, transaction, token));
             return await connection.ExecuteAsync(Sql("""
                 INSERT INTO chat_provider_exposures(turn_id,call_id,provider,model,endpoint,documents_json)
                 VALUES(@turnId,@callId,@provider,@model,@endpoint,@documents)
@@ -36,18 +41,15 @@ public sealed partial class SqliteChatRepository
             throw new ChatConflictException("This model call ID has already been reserved.");
         }
         var now = clock.GetUtcNow();
-        var day = AuthTime.Format(new DateTimeOffset(now.UtcDateTime.Date, TimeSpan.Zero));
-        var hour = AuthTime.Format(now.AddHours(-1));
         var policy = Policy(turn);
-        var daily = await connection.ExecuteScalarAsync<long>(Sql("""
-            SELECT (SELECT COALESCE(SUM(charged_tokens),0) FROM chat_model_calls WHERE created_at>=@day)
-              +(SELECT COALESCE(SUM(charged_tokens),0) FROM chat_usage_history WHERE created_at>=@day)
-            """, new { day }, transaction, token));
-        var hourly = await connection.ExecuteScalarAsync<long>(Sql("""
-            SELECT (SELECT COALESCE(SUM(charged_tokens),0) FROM chat_model_calls WHERE credential_id=@actor AND created_at>=@hour)
-              +(SELECT COALESCE(SUM(charged_tokens),0) FROM chat_usage_history WHERE credential_id=@actor AND created_at>=@hour)
-            """, new { actor = actor.Id, hour }, transaction, token));
-        if (tokens > policy.DailyTokens - daily || tokens > policy.HourlyTokens - hourly) throw new ChatLimitException("The model token budget is exhausted.");
+        try
+        {
+            await SqliteModelUsage.ReserveInTransactionAsync(connection, transaction, "chat/" + turnId + "/" + callId,
+                policy.Provider, policy.Model, "chat", tokens, actor.Id, actor.Generation, actor.AccountEpoch,
+                null, turnId, now, Math.Min(policy.DailyTokens, options?.CurrentValue.Budgets.DailyTokens ?? policy.DailyTokens),
+                Math.Min(policy.HourlyTokens, options?.CurrentValue.Limits.PerCredential.ModelTokensPerHour ?? policy.HourlyTokens), token);
+        }
+        catch (ModelBudgetException) { throw new ChatLimitException("The model token budget is exhausted."); }
         await connection.ExecuteAsync(Sql("""
             INSERT INTO chat_model_calls(turn_id,call_id,credential_id,reserved_tokens,charged_tokens,status,created_at)
             VALUES(@turnId,@callId,@actor,@tokens,@tokens,'reserved',@now)
@@ -55,13 +57,22 @@ public sealed partial class SqliteChatRepository
         return 0;
     }, cancellationToken).AsTask());
 
-    public ValueTask SettleTokensAsync(string turnId, string callId, long? actualTokens, CancellationToken cancellationToken = default) => new(state.QueueWriteAsync(async (connection, transaction, token) =>
+    public ValueTask SettleTokensAsync(string turnId, string callId, long? actualTokens, CancellationToken cancellationToken = default)
     {
         if (actualTokens is < 0 or > 10_000_000) throw new ArgumentOutOfRangeException(nameof(actualTokens));
+        return SettleUsageAsync(turnId, callId, actualTokens is { } actual ? new(null, null, null, actual) : null, cancellationToken);
+    }
+
+    public ValueTask SettleUsageAsync(string turnId, string callId, ModelUsageTotals? totals, CancellationToken cancellationToken = default) => new(state.QueueWriteAsync(async (connection, transaction, token) =>
+    {
+        var usageId = await connection.ExecuteScalarAsync<long?>(Sql("SELECT usage_id FROM usage_calls WHERE call_id=@call",
+            new { call = "chat/" + turnId + "/" + callId }, transaction, token));
+        if (usageId is { } id) await SqliteModelUsage.SettleInTransactionAsync(connection, transaction, id, totals, token);
+        long? legacy = totals?.TotalTokens is >= 0 and <= 100_000_000 ? totals.TotalTokens : null;
         // Unknown usage (including cancellation/crash) consumes the reservation, rather than granting a refund.
         return await connection.ExecuteAsync(Sql("""
-            UPDATE chat_model_calls SET charged_tokens=COALESCE(@actualTokens,reserved_tokens),status='settled'
+            UPDATE chat_model_calls SET charged_tokens=COALESCE((SELECT charged_tokens FROM usage_calls WHERE usage_id=@usageId),@legacy,reserved_tokens),status='settled'
             WHERE turn_id=@turnId AND call_id=@callId AND status='reserved'
-            """, new { turnId, callId, actualTokens }, transaction, token));
+            """, new { turnId, callId, usageId, legacy }, transaction, token));
     }, cancellationToken).AsTask());
 }

@@ -11,6 +11,9 @@ public interface IFolderDocumentRepository
     /// <summary>Expires unmatched prior absences after every persisted candidate has been admitted or acknowledged.</summary>
     ValueTask CompleteScanAsync(string sourceId, CancellationToken cancellationToken = default);
     ValueTask CompleteCandidateAsync(string sourceId, string relativePath, CancellationToken cancellationToken = default);
+    /// <summary>Stops a source and durably purges its retained data; external source files are never removed.</summary>
+    ValueTask PurgeAsync(string sourceId, IngestionAuthority authority, CancellationToken cancellationToken = default) => throw new NotSupportedException("Folder purge unavailable.");
+    ValueTask<int> RecoverPurgesAsync(CancellationToken cancellationToken = default) => ValueTask.FromResult(0);
     ValueTask SetStatusAsync(string sourceId, string status, IngestionAuthority authority, CancellationToken cancellationToken = default);
     ValueTask<SourceRecord> EnsureInboxAsync(string inboxPath, CancellationToken cancellationToken = default);
     ValueTask<IReadOnlyList<FolderImportCandidate>> PlanScanAsync(SourceRecord source, IReadOnlyList<SourceFileEntry> entries, bool deep, CancellationToken cancellationToken = default);

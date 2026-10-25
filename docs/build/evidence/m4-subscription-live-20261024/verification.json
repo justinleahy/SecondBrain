@@ -1,0 +1,179 @@
+{
+  "date": "2026-10-24",
+  "scope": "Live functional subscription qualification in disposable local stores; not production or hardened-deployment acceptance",
+  "feeds": [
+    {
+      "initialSucceeded": true,
+      "error": null,
+      "members": 63,
+      "occurrences": 28,
+      "conditionalSucceeded": true,
+      "conditionalError": null,
+      "bytesChanged": false,
+      "unchangedRevisions": true,
+      "transport": [
+        {
+          "Status": "modified",
+          "Error": null,
+          "conditional": false,
+          "acceptedETag": true,
+          "acceptedLastModified": false
+        },
+        {
+          "Status": "modified",
+          "Error": null,
+          "conditional": true,
+          "acceptedETag": true,
+          "acceptedLastModified": false
+        }
+      ],
+      "realTransport": true,
+      "realExtractor": true,
+      "isolatedTemporaryStore": true,
+      "hardenedDeployment": false,
+      "localOnly": true,
+      "feed": "icloud",
+      "testCounts": {
+        "total": "1",
+        "executed": "1",
+        "passed": "1",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxSha256": "4a3a7c416fa89a7034302839d14bb975ee276cecea91c1730c418142a822d1d4",
+      "urlAndEventBodiesOmitted": true
+    },
+    {
+      "initialSucceeded": true,
+      "error": null,
+      "members": 83,
+      "occurrences": 16,
+      "conditionalSucceeded": true,
+      "conditionalError": null,
+      "bytesChanged": true,
+      "unchangedRevisions": false,
+      "transport": [
+        {
+          "Status": "modified",
+          "Error": null,
+          "conditional": false,
+          "acceptedETag": true,
+          "acceptedLastModified": false
+        },
+        {
+          "Status": "modified",
+          "Error": null,
+          "conditional": true,
+          "acceptedETag": true,
+          "acceptedLastModified": false
+        }
+      ],
+      "realTransport": true,
+      "realExtractor": true,
+      "isolatedTemporaryStore": true,
+      "hardenedDeployment": false,
+      "localOnly": true,
+      "feed": "generic_https",
+      "testCounts": {
+        "total": "1",
+        "executed": "1",
+        "passed": "1",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxSha256": "88e633e0a9750e36b921caf91ff7f518cef00fbdf9d91b3b0f9f964e5aa04901",
+      "urlAndEventBodiesOmitted": true
+    },
+    {
+      "initialSucceeded": true,
+      "error": null,
+      "members": 893,
+      "occurrences": 2335,
+      "conditionalSucceeded": true,
+      "conditionalError": null,
+      "bytesChanged": true,
+      "unchangedRevisions": false,
+      "transport": [
+        {
+          "Status": "modified",
+          "Error": null,
+          "conditional": false,
+          "acceptedETag": false,
+          "acceptedLastModified": false
+        },
+        {
+          "Status": "modified",
+          "Error": null,
+          "conditional": false,
+          "acceptedETag": false,
+          "acceptedLastModified": false
+        }
+      ],
+      "realTransport": true,
+      "realExtractor": true,
+      "isolatedTemporaryStore": true,
+      "hardenedDeployment": false,
+      "localOnly": true,
+      "feed": "outlook",
+      "testCounts": {
+        "total": "1",
+        "executed": "1",
+        "passed": "1",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxSha256": "3926315b0dbafc6c3ed23ede9e536b118b011e0bd021c5f75d9279fd57706351",
+      "urlAndEventBodiesOmitted": true,
+      "followUpRequest": "unconditional; server supplied neither ETag nor Last-Modified"
+    }
+  ],
+  "genericPublicFeed": "https://www.gov.uk/bank-holidays/england-and-wales.ics",
+  "privateInput": "User-supplied iCloud and Outlook bearer links delivered over private local sockets from non-echoing input channels; not saved in command arguments, environment or project files.",
+  "cleanup": "All three isolated test hosts exited and disposed their temporary stores. No private URL or event body is retained in these artifacts.",
+  "observations": [
+    "Both feeds returned accepted initial snapshots and successful follow-up requests carrying the accepted ETag.",
+    "The iCloud follow-up returned unchanged bytes via HTTP 200 and created no revisions.",
+    "The GOV.UK follow-up returned changed bytes via HTTP 200 and was accepted as a content change.",
+    "A real live 304 was not observed; controlled deterministic tests establish its behavior.",
+    "The Outlook feed imported 893 calendar members and materialized 2335 occurrences in the configured window. A second HTTP 200 fetch succeeded with changed bytes; no ETag or Last-Modified was supplied, so that follow-up request was unconditional."
+  ],
+  "pending": [
+    "systemd and Compose source-egress provisioning and hardened deployment checks",
+    "configured secret references",
+    "full container purge/retention and encrypted backup/restore qualification",
+    "remaining noncalendar M4 acceptance"
+  ]
+}

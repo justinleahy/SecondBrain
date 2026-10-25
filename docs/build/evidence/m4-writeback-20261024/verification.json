@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-24",
+  "scope": "Optional journaled frontmatter write-back with source-hash tracking; not full M4 acceptance",
+  "applicationSchemaVersion": 7,
+  "configuration": "Debug",
+  "lockedRestore": "passed",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 2425,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 202,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 818,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 225,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 475,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 396,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "newChecks": {
+    "frontmatterPreservationAndBounds": 9,
+    "durableWritebackAndSourceBehavior": 11,
+    "encryptedSchemaUpgrade": 1,
+    "realExtractorApi": 1
+  },
+  "logHashes": {
+    "restore": "40d104602671164ab3958225da3e1c8cabd55f0251d6df6bc911d9d5a24f44ce",
+    "build": "b28b192d54fed0e171f6a08a63d51e90b02c15e2ea72d9e31bb8456a3bbbd156",
+    "tests": "84d493ba01b7fb14a104a29cfa83660da0042141bcd592f340efaa2bb228811e"
+  },
+  "checks": [
+    "Write-back is off by default. Enabling it is an administrator setting with session step-up; only owned Markdown files are eligible.",
+    "The sandbox inspects frontmatter. The daemon preserves original UTF-8 bytes outside a strict generated section and validates the complete output again in the sandbox.",
+    "Authored fields, tag overrides and body text are retained, including BOM, CRLF, Unicode and empty frontmatter. Authored collisions, unsafe YAML and dishonest replacement ranges are rejected.",
+    "Journal preparation revalidates job, source, revision/generation and active write-back policy. One enrichment revision records the effect. Interrupted rename recovery is idempotent.",
+    "A concurrent managed-file replacement survives as a conflict. External paths are untouched. A repeat enrichment request does not add a revision or model call.",
+    "Existing results can be written under administrator authority without another model call, even after the original capture credential is revoked. Fresh inference retains its read/infer requirements.",
+    "Backfills of completed jobs obey queue capacity; admission rejection does not terminate the worker.",
+    "Source hashes are independent from managed-file hashes. Import and index source scans keep unchanged enriched copies, import changed source bytes and preserve identity/enrichment through moves.",
+    "Version six upgrades require a complete encrypted backup before the source-hash column is added; the portable export column policy was reviewed.",
+    "Desktop and phone checks cover opt-in, saved state, repeat requests, downloaded file, reading view and lossless view. Four screenshots were reviewed; no workflow console warnings/errors."
+  ],
+  "browserEvidence": "browser.json",
+  "fixtureEvidence": "harness.json",
+  "productionChanged": false,
+  "limitations": [
+    "This checkpoint does not implement native provider batch execution or the remaining provider adapters.",
+    "The browser and file scenarios use synthetic content and a controlled model; separate earlier evidence covers the actual local enrichment model.",
+    "Full daemon restore under sustained edits, mounted external-root and large-corpus qualification, hardened deployment, release operations and remaining real-export acceptance are still open."
+  ]
+}

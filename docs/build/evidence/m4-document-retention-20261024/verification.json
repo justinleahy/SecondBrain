@@ -1,0 +1,153 @@
+{
+  "date": "2026-10-24",
+  "scope": "Automatic trash and removed-document expiry, admin controls and scheduled retention; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2202,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 171,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_24.trx",
+        "sha256": "7907cd546c510fc74b17b84cf80d55c9d941759fbc26b33a1505c14b19b1146d"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 163,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_24[1].trx",
+        "sha256": "0e2d7b4abd4f042a3ab12d7781d33fa2eadd01c9c922faf7d13f763db6650ffa"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_24[2].trx",
+        "sha256": "0a6db4fd9fddd78e6f0225f7136499f4700206d948f6428fccb6c50acd44ab8f"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 348,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_24[3].trx",
+        "sha256": "a642ab7719d22a9b6b8e15948b51345a9766a1ba1189d3f2745345465751dbf9"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_25.trx",
+        "sha256": "ae9d8fbaef006f84db69d16c89ee5c688f15041ab992f64a69743e9dfd34d611"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 365,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_25[1].trx",
+        "sha256": "dc197c666479898e79800fe9c325a638d7aa5616f39f91894cd3adac334cd3ab"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_26.trx",
+        "sha256": "dab067cdad48bda3bbb1fbe7fde964cc9839c80902cde188cacd561fba6df3ac"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 210,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_20_25_26[1].trx",
+        "sha256": "3e23181883379b9e1b507f3fb459ca07e5783188d2e75d44bd62aa4efce52cd8"
+      }
+    ]
+  },
+  "finalTargetedApiTests": [
+    {
+      "project": "SecondBrain.Server.Tests",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "result": "api.trx",
+      "sha256": "52ad5a04ecbcb30cda720ca6d169e5b11a68e4014cb984881695ffad82587cdd"
+    }
+  ],
+  "calendarConcurrencyTests": [
+    {
+      "project": "SecondBrain.Storage.Tests",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "result": "race.trx",
+      "sha256": "30c2758b0f672efe6e8098b6d878c43a61f46e0b744571819c0440a1b452020b"
+    }
+  ],
+  "browser": "browser.json",
+  "verifiedBehavior": [
+    "Expired trash is purged through the existing recoverable journal and publication workflow; recent trash remains.",
+    "Writer-side expiry and revision checks preserve restored or reimported records.",
+    "Already-missing managed files can complete expiry; changed files are preserved and deferred without starving later candidates.",
+    "Interrupted expiry recovers exactly once at file-finalization and index-publication boundaries.",
+    "External originals and individual calendar member container originals remain untouched.",
+    "Expired removed identities release occurrence/member mappings; user-deletion suppression remains.",
+    "Calendar refresh waits for member expiry and identity detachment under the parent lock.",
+    "Expired trashed subscription containers use the source-wide purge and erase protected settings.",
+    "The actual hourly worker purges expired trash and orphan payloads under controlled time.",
+    "Authenticated API, CLI and desktop/phone settings support combined retention with confirmation and bounded editable policy."
+  ],
+  "notes": [
+    "The first full regression exposed three storage-only composition failures. A deferred service factory preserves the host-owned managed-files dependency; the complete regression passed afterward.",
+    "Initial focused setup omitted the trash parent directory; the test setup was corrected. Expected OpenAPI/composition additions were reviewed before golden updates.",
+    "After the 2202-test regression, the scheduled test was extended to assert actual document expiry and a UI sentence clarified purge redaction. The three targeted API/scheduler tests and final browser qualification passed on those final changes.",
+    "All four final screenshots were visually reviewed. The browser reported zero errors/warnings; it navigated away before the fixture stopped successfully."
+  ],
+  "sourceHashes": {
+    "src/SecondBrain.Core/Ingestion/DocumentRetention.cs": "a4d93a1d07007d9da5ca2a8d6dfede73c7bb5893a67d566121ff1707b079055a",
+    "src/SecondBrain.Core/Durability/IMutationJournal.cs": "b810ab0220fb5ae3da83f5d42f3afcdbe1bcdbe792d0f59a2896ac6a20735cd0",
+    "src/SecondBrain.Core/Durability/IPublicationCoordinator.cs": "3242c9e5a0079fe6b1f54cc6bf2f3edc94a911a3098cb4a7c6bbad924d3f8b11",
+    "src/SecondBrain.Core/Sources/CalendarSubscriptions.cs": "5998ba5bd34df5a7d1a4c406630e574f466505cb3ace5ea18a6013f94a20ecc3",
+    "src/SecondBrain.Storage/Durability/RetentionConditions.cs": "019326b437b755d23c438941e88980d1ca91384092a3054090e7ecf8c33faace",
+    "src/SecondBrain.Storage/Ingestion/SqliteDocumentRetention.cs": "9affd9c8198eccc998377013cb65c1358733ca9b9ba4ba830db2911c92cca510",
+    "src/SecondBrain.Storage/Migrations/M4Schema.cs": "4d464c593b14677103ccfead1044fe841ac8dfd11ae067c6e4dbce39fbd1e831",
+    "src/SecondBrain.Storage/Durability/MutationJournal.cs": "dd1a0a14516ad326ebd2fcbff9a3fb49ba19d995569aaadafcd1bf250f592d62",
+    "src/SecondBrain.Storage/Durability/PublicationCoordinator.cs": "478a76be179aca38f0bd52cd64d6057dc85ad7cb0333a542d42627f20ce847be",
+    "src/SecondBrain.Storage/Durability/PublicationCoordinator.Calendar.cs": "d5f002d0503d95d8bde969d5d5fc4a3c5b06c17895708b935c3dbe2914a711e2",
+    "src/SecondBrain.Storage/Sources/SqliteFolderDocumentRepository.cs": "a713f6a5d497314b653224a4e0168b3646d655edf4393d6d4f88074881af1e66",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.Lifecycle.cs": "5b00e74aeb0d05e4db9d15232f2b9cf4f68aa4b648349cf29ca27669f1b83ecc",
+    "src/SecondBrain.Storage/Sources/SqliteCalendarSubscriptionRepository.Purge.cs": "131d95b237b469a8464d74722e0ad6461036afbced5f24c91bed98832d189076",
+    "src/SecondBrain.Storage/StorageServiceCollectionExtensions.cs": "bb65afca6266f494dc1d133cfc027aee5c1184435fb79ea0045c12763581c164",
+    "src/SecondBrain.Infrastructure/Ingestion/ManagedDocumentFiles.cs": "3fb3e564d448a2248a302d4cabd740fec2c61c732088ff5b2511a46523bff208",
+    "src/SecondBrain.Server/Ingestion/MetadataRetentionOrchestrator.cs": "37beb93617ec4f7b81c0e46e8a835ed0c2e54d1765e192d10f19305df884541d",
+    "src/SecondBrain.Server/Http/AdministrationEndpoints.cs": "f7ccefaad2981bcbe8842de398041f8ff963c643db189c931fc8e333891e2b33",
+    "src/SecondBrain.Server/Components/Pages/Settings.razor": "31b612c8519a63e69eb0a2f9455ad84b9a0c5c01a2192317f78725b4c8d4ba25",
+    "src/SecondBrain.Server/Components/Pages/Trash.razor": "48e348bb97dd3af493668390563cd8be4dc86e90ec162e454e3d905c62431246",
+    "src/SecondBrain.Cli/Commands/MaintenanceCommands.cs": "d367e964c8c6e468ef74c2a805c143af9f0579f815a4d3f4fbefde585b0b0eb5",
+    "src/SecondBrain.Cli/Program.cs": "a30fab786054cbb4d1987ad6ae9144cb8bc7f876ddf0c59f30dd762e3d78652a",
+    "src/SecondBrain.Cli/Commands/CliContracts.cs": "ed25f5e601f74805328e14872e98912770592c4591d6f256866c257a0bc9b5d6",
+    "tests/SecondBrain.Storage.Tests/DocumentRetentionTests.cs": "213b49f8e5ef8c171743219068657dde8ade54f9b6d2a445015e47d74d3d969e",
+    "tests/SecondBrain.Server.Tests/MetadataRetentionApiTests.cs": "8e459d4b6561759739d6cf312b30e36e43153ad7a6f31c6f072090a1ebf27509",
+    "tests/SecondBrain.Server.Tests/M4RetentionQualification.cs": "c69b75ac771b13648c8d4fcb55aee0f2ceb002ff26d9321a9d62fb27be0523c2",
+    "tests/browser/m4-retention.js": "736b9db77cc18865a69b696502616beabfd882ec52f8d94e942553314a15f87f"
+  },
+  "limitations": [
+    "Debug-log cleanup, backup rotation and folder-source purge remain open.",
+    "Direct standalone container-document purge retains its existing 1000-removal/64-KiB journal bounds; subscription-root expiry uses bounded source-purge batches.",
+    "Unreadable, changed or unsafe owned files/directories defer cleanup. A missing file can finish only when its parent remains safely accessible.",
+    "Large-corpus latency has not been qualified.",
+    "Full versioned M4 migration, hardened deployment, backup/restore/export, enrichment/provider/budget and release acceptance remain open.",
+    "No production data, configuration or running service was changed."
+  ]
+}

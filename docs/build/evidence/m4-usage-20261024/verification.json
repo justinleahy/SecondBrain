@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-24",
+  "scope": "Shared token reservations, usage attribution/reporting, API/CLI/settings and schema-5 migration; not full M4 acceptance",
+  "configuration": "Debug",
+  "warningsAsErrors": true,
+  "lockedRestore": "passed",
+  "deterministicTests": {
+    "passed": 2357,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 174,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_25.trx",
+        "sha256": "1f4249c42a61a74703be4a17b2a32537e1b23cf0edf42572211215e8104f22cb"
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_25[1].trx",
+        "sha256": "5ddfad07c0677194ce32ea69b2dfb1edd42e28c507d09b9f24630a552190327f"
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_25[2].trx",
+        "sha256": "2d3e5f4d2d45379dee7c2884d70b457d9cb386b3f3504e5e0aceb1ca93db1900"
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_25[3].trx",
+        "sha256": "df3f1d68dd3ce3a1ab970cb6b18547e11da1220c1eb6af48e815914198862d21"
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 452,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_25[4].trx",
+        "sha256": "7259cb8fe18d8fe1d852bf97c7e0e9b72de23bd5002a27aca0fea14c039d1d96"
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 389,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_26.trx",
+        "sha256": "64c3e52f054b287059a0946274de7845f401eec21ae8f373d6e71adaf583284f"
+      },
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_28.trx",
+        "sha256": "cffb00653eb6265f7d84413c41dd937ec0e70fc66f65a43218841dcf97660c17"
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 224,
+        "failed": 0,
+        "skipped": 0,
+        "result": "_DESKTOP-8NJSRF2_2026-10-24_21_26_29.trx",
+        "sha256": "7a1db8abaa4f98fe0487eed122dcf773a312bbf504c049e4442720d530494f8c"
+      }
+    ]
+  },
+  "newTests": {
+    "rerankBudgetAndFailure": 3,
+    "ledgerConcurrencyAttributionLegacyAndReport": 7,
+    "earlierM4Migration": 1,
+    "usageApi": 2,
+    "streamingUsage": 2,
+    "usageCli": 1
+  },
+  "checks": [
+    "Atomic shared reservations cover chat, tool continuations, index/query embeddings and both reranking paths. Cached vectors do not trigger new model calls.",
+    "Actual input/output/cache totals settle calls. Cached input is included in input; interrupted, unknown or malformed usage retains a conservative charge. Streaming uses additive SDK usage and settles actual totals only after complete delivery.",
+    "UTC daily and per-credential rolling-hour caps are shared. Unknown reservations survive restart; deleting a conversation preserves charges. Retained pre-ledger chat usage is included without double-counting new rows.",
+    "Interactive spending revalidates authority. Admitted ingestion keeps its initiating credential, generation and account epoch; derived calendar-member embedding jobs inherit the container import attribution while retaining their own job id.",
+    "Administrator usage reports expose bounded interval and group counts with explicit truncation. The API, CLI and Settings share the same report. Numeric daily-budget edits reload and zero budget leaves keyword search available.",
+    "Schema version 5 adds the ledger correlation table and indexes. Initialized schema upgrades require complete encrypted backups; an earlier M4 state upgrades in a dedicated regression test. Portable export explicitly includes the added table.",
+    "Reviewed composition and OpenAPI updates add one usage service, two usage routes and report schemas."
+  ],
+  "browserEvidence": "browser.json",
+  "browserApiUnitTests": 1,
+  "realTranscriptEvidence": "../m4-real-transcript-20261024/verification.json",
+  "productionChanged": false,
+  "limitations": [
+    "Classification, enrichment/batch/frontmatter write-back and remaining provider integrations are not completed by this checkpoint. Future inference consumers must use the shared ledger.",
+    "Dollar cost calculation is not implemented; reports cover tokens and attribution.",
+    "The real transcript contains no pricing vocabulary. The local-model qualification checks a real speaker/topic question and current timestamped citation metadata, without a separate human semantic review.",
+    "Hardened deployment, sustained-write daemon restore, external mount-point restore, large-corpus resource gates and release operations remain open."
+  ]
+}

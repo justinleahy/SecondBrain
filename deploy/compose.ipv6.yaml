@@ -1,0 +1,9 @@
+# Optional dual-stack bridge for explicitly pinned IPv6 calendar destinations.
+# The host must have a working routed/NAT IPv6 uplink. No extractor network is added.
+networks:
+  restricted:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: ${SECONDBRAIN_DOCKER_SUBNET:-172.30.0.0/24}
+        - subnet: ${SECONDBRAIN_DOCKER_IPV6_SUBNET:-fd42:5342:1::/64}

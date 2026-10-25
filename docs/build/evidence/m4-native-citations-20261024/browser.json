@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-24",
+  "syntheticData": true,
+  "controlledNativeProvider": true,
+  "screenshotsInspected": true,
+  "fixtureStoppedSuccessfully": true,
+  "consoleErrors": 0,
+  "consoleWarnings": 0,
+  "results": [
+    {
+      "width": 1280,
+      "exactQuoteVisible": true,
+      "wholePassageNotSubstituted": true,
+      "citationLinkVisible": true,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 390,
+      "exactQuoteVisible": true,
+      "wholePassageNotSubstituted": true,
+      "citationLinkVisible": true,
+      "noHorizontalOverflow": true
+    }
+  ],
+  "fixes": [
+    "Phone navigation now scrolls the whole disclosure so the conversation list cannot collapse beneath management links.",
+    "The qualification waits for navigation network idle to avoid clicking the initial noninteractive render."
+  ],
+  "screenshotHashes": {
+    "chat-1280.png": "3929554fd871e49ec1ee9c70bd799eb1b25314c0f87b4524af1836c8d048756d",
+    "chat-390.png": "695456f4c9cca897a73b283a902634344cbb860423e27beaeefda6509869fb05"
+  }
+}

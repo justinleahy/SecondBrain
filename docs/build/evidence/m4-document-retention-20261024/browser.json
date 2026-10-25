@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "evidence": [
+    {
+      "width": 1280,
+      "retentionDays": 14,
+      "policyEdited": true,
+      "cancellationPreservesTrash": true,
+      "expiredTrashPurged": true,
+      "recentTrashPreserved": true,
+      "noOverflow": true
+    },
+    {
+      "width": 390,
+      "retentionDays": 7,
+      "policyEdited": true,
+      "cancellationPreservesTrash": true,
+      "expiredTrashPurged": true,
+      "recentTrashPreserved": true,
+      "noOverflow": true
+    }
+  ],
+  "console": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "hostStopped": true,
+  "syntheticData": true,
+  "realManagedFiles": true,
+  "screenshotsVisuallyReviewed": true
+}

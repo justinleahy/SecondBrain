@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-24",
+  "syntheticData": true,
+  "realExtractor": true,
+  "widths": [
+    1280,
+    390
+  ],
+  "explicitSettingsOptIn": true,
+  "savedFilePreservesAuthoredFieldsAndBody": true,
+  "oneEnrichmentRevision": true,
+  "oneModelCall": true,
+  "repeatRequestDoesNotWriteAgain": true,
+  "readingViewHidesGeneratedBlock": true,
+  "losslessViewRetainsGeneratedBlock": true,
+  "noHorizontalOverflow": true,
+  "workflowWarnings": 0,
+  "workflowErrors": 0,
+  "expectedPreLogin401": 1,
+  "screenshotsReviewed": true,
+  "screenshots": [
+    {
+      "file": "document-1280.png",
+      "sha256": "6fa0ac7f6dc022e477de08af4ea5ad8f781de93d8d8c6ff1554bf1ac842a8baa"
+    },
+    {
+      "file": "document-390.png",
+      "sha256": "f5f10ffccbe39ba78bdd7530d5456d877b0421855f36e0b253e89abb215ab27f"
+    },
+    {
+      "file": "settings-1280.png",
+      "sha256": "d4175a97cd4d83c7a020413fcd9568fca9aa0043f42821bc4234ff25b9ada78e"
+    },
+    {
+      "file": "settings-390.png",
+      "sha256": "9f9a4df0c3e1bc393902d353d02d9a96cd415fd7f023ccedc801e6c7c491aa8d"
+    }
+  ],
+  "browserScript": "tests/browser/m4-writeback.js",
+  "applicationSchemaVersion": 7
+}

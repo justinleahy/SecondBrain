@@ -1,0 +1,24 @@
+  SecondBrain.Extractor.Wire -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extractor.Wire/bin/Debug/net10.0/SecondBrain.Extractor.Wire.dll
+  SecondBrain.Extraction.Contracts -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Extraction.Contracts/bin/Debug/net10.0/SecondBrain.Extraction.Contracts.dll
+  SecondBrain.Core -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Core/bin/Debug/net10.0/SecondBrain.Core.dll
+  SecondBrain.Storage -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Storage/bin/Debug/net10.0/SecondBrain.Storage.dll
+  SecondBrain.Infrastructure -> /home/justinleahy/Developer/SecondBrain/src/SecondBrain.Infrastructure/bin/Debug/net10.0/SecondBrain.Infrastructure.dll
+  SecondBrain.Storage.Tests -> /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll
+Test run for /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/bin/Debug/net10.0/SecondBrain.Storage.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.2 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.69]     SecondBrain.Storage.Tests.CalendarLifecycleTests.UnreadableOwnedFileKeepsDurablePurgePendingUntilItIsRepaired [FAIL]
+  Failed SecondBrain.Storage.Tests.CalendarLifecycleTests.UnreadableOwnedFileKeepsDurablePurgePendingUntilItIsRepaired [81 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: calendar_purge_pending
+Actual:   
+  Stack Trace:
+     at SecondBrain.Storage.Tests.CalendarLifecycleTests.UnreadableOwnedFileKeepsDurablePurgePendingUntilItIsRepaired() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CalendarLifecycleTests.cs:line 164
+   at SecondBrain.Storage.Tests.CalendarLifecycleTests.UnreadableOwnedFileKeepsDurablePurgePendingUntilItIsRepaired() in /home/justinleahy/Developer/SecondBrain/tests/SecondBrain.Storage.Tests/CalendarLifecycleTests.cs:line 169
+--- End of stack trace from previous location ---
+Results File: /tmp/m4-source-purge-scan/lifecycle.trx
+
+Failed!  - Failed:     1, Passed:    17, Skipped:     0, Total:    18, Duration: 2 s - SecondBrain.Storage.Tests.dll (net10.0)

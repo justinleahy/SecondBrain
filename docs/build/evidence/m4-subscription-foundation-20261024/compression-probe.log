@@ -1,0 +1,12 @@
+gzip,cut=0,decoded=42,accepted=true
+gzip,cut=1,decoded=42,accepted=true
+gzip,cut=4,decoded=42,accepted=true
+gzip,cut=8,decoded=42,accepted=true
+zlib,cut=0,decoded=42,accepted=true
+zlib,cut=1,decoded=42,accepted=true
+zlib,cut=4,decoded=42,accepted=true
+zlib,cut=8,decoded=28,accepted=true
+br,cut=0,decoded=42,accepted=true
+br,cut=1,decoded=42,accepted=true
+br,cut=4,decoded=39,accepted=true
+br,cut=8,decoded=35,accepted=true

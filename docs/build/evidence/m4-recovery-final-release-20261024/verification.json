@@ -1,0 +1,26 @@
+{
+  "status": "passed_for_local_unsigned_packages",
+  "threshold": "low",
+  "projects": [
+    {
+      "project": "Cli",
+      "vulnerabilityMatches": 0,
+      "checksumManifestSha256": "e19bdd978e7cfaf1bb9fd13bca35f6cc950fdfa258e36b2c3e407cd9089e8ca4"
+    },
+    {
+      "project": "Server",
+      "vulnerabilityMatches": 0,
+      "checksumManifestSha256": "cab10ad502cf0649ab0be8a08fa67c6df7947543c49babb95d8ab41a794b7a74"
+    },
+    {
+      "project": "Extractor",
+      "vulnerabilityMatches": 0,
+      "checksumManifestSha256": "8b6912e6feccb476db25d732100fd6259843610145fdc5b31b882f51a3279d9e"
+    }
+  ],
+  "artifacts": "artifacts/m4-release-recovery-final-20261024",
+  "limitations": [
+    "Local dirty working-tree build; not a remote CI run or signed release.",
+    "Systemd/production and large-corpus restore remain separate gates."
+  ]
+}

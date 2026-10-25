@@ -1,0 +1,178 @@
+{
+  "date": "2026-10-24",
+  "scope": "Release inventory, vulnerability scanning, packaging, parser mutation corpus and editor dependency patch; not full M4 acceptance",
+  "configuration": "Release",
+  "applicationSchemaVersion": 8,
+  "productionChanged": false,
+  "remoteCiRun": false,
+  "githubOidcSigningQualified": false,
+  "githubReleaseCreated": false,
+  "hardenedDeploymentQualified": false,
+  "lockedRestore": "passed",
+  "warningsAsErrors": true,
+  "deterministicTests": {
+    "passed": 2543,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      {
+        "project": "SecondBrain.Architecture.Tests",
+        "passed": 63,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Core.Tests",
+        "passed": 213,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Extractor.Tests",
+        "passed": 826,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Infrastructure.Tests",
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Providers.OpenAICompatible.Tests",
+        "passed": 149,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Deploy.Tests",
+        "passed": 226,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Storage.Tests",
+        "passed": 489,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "project": "SecondBrain.Server.Tests",
+        "passed": 404,
+        "failed": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "pythonTests": 8,
+  "actionlint": "passed",
+  "parserMutationCasesPerSeed": 2056,
+  "parserSeeds": [
+    5059585,
+    20261024
+  ],
+  "daemonBackupReleaseQualification": "passed",
+  "artifacts": [
+    {
+      "project": "Cli",
+      "files": 450,
+      "components": 543,
+      "sqlite": [
+        "3.53.4"
+      ],
+      "editorBundles": 1,
+      "vulnerabilities": 0,
+      "archiveSha256": "edeb7fc4bc66fa5a57d9077ad3faa9c9c237936281963a7c18b2054eb81b79a2"
+    },
+    {
+      "project": "Server",
+      "files": 431,
+      "components": 479,
+      "sqlite": [
+        "3.53.4"
+      ],
+      "editorBundles": 1,
+      "vulnerabilities": 0,
+      "archiveSha256": "4f325a333f7e70e913d47abce1bf8c876f465fdad094090f9b99869142eb6980"
+    },
+    {
+      "project": "Extractor",
+      "files": 236,
+      "components": 272,
+      "sqlite": [],
+      "editorBundles": 0,
+      "vulnerabilities": 0,
+      "archiveSha256": "6b35a798339358a9ae55df975bb5494cf58639bf301c91126480d2d387461f1a"
+    }
+  ],
+  "nugetAudit": {
+    "projects": 18,
+    "vulnerablePackages": 0
+  },
+  "npmAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "scannerControl": {
+    "oldDomPurify": "3.4.15",
+    "advisories": [
+      "GHSA-6688-9rhm-gjv2",
+      "GHSA-c6gr-qvv4-5v3f",
+      "GHSA-cg2g-xh64-v4q7",
+      "GHSA-mrv2-3pqr-j5jr",
+      "GHSA-p98j-92pf-mc4p"
+    ],
+    "expectedNonzeroExit": 2
+  },
+  "editor": {
+    "monaco": "0.57.0",
+    "dompurify": "3.4.17",
+    "marked": "14.0.0",
+    "oldVendoredModuleExcluded": true,
+    "browserWidths": [
+      1280,
+      390
+    ],
+    "screenshotsInspected": true,
+    "servedHashMatched": true,
+    "fixtureStopped": true,
+    "deliberateCspViolations": 2,
+    "unexpectedBrowserErrors": 0
+  },
+  "localSignatureTest": {
+    "disposableKey": true,
+    "manifestAccepted": true,
+    "modifiedManifestRejected": true,
+    "transparencyServicesUsed": false,
+    "productionTrustQualified": false
+  },
+  "logHashes": {
+    "restore": "270292317adaf11bbf72be8980b038dbcafbf66a8db3bb2c6dc67accf2c02914",
+    "build": "ef6f3bdf1d065a6dc7a4591b654fb276318e93d8b6ed9508a4e469cfa329f189",
+    "tests": "fe95d8c6651ed1bb9d6939eba930f9a1cf5670e204fd13331840172f4edfc777",
+    "python": "e616fa843a600d83cac244e57c976563f2e1d65c08473ffaef4a04ad75fda9d7",
+    "fuzz": "44eabc703095a338960f848170462c3464925a4eddab5a64dcbde0b456d6fa1c",
+    "backup": "264b4d527c4e3a4e9dc41c1e8797332b5d470fd03bcd1dde0a07a2e19adbb55d",
+    "browser": "e4083e932a8d8d0f5d7bb24b4d521b36d4d1367c2f1f60645f3d6f55e7aa20a2",
+    "actionlint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "signature": "55252e0d86da4a6fa32b4e1272ec7aabe830dbe2d25c7f6092a180c0b8fa4242",
+    "signatureTamper": "73b1ff1de101707e2ff7858f3f429b5b1d309af7cc6dbe0c237024cdf9fb8127"
+  },
+  "limitations": [
+    "Three local published-package scans are qualified; the newly configured container-image scans and CI signing job have not run remotely.",
+    "The signature qualification uses a disposable local key and explicitly bypasses transparency only in that isolated test. The production CI verification retains transparency and exact workflow identity/commit checks.",
+    "The bounded mutation corpus supplements parser tests; it does not establish exhaustive coverage.",
+    "Hardened deployment, mounted/external-root and large-corpus operations, off-server key custody, live signed-release execution and remaining real-export semantic acceptance remain open."
+  ],
+  "localArtifactDirectory": "artifacts/m4-release-20261024",
+  "subsequentAudit": {
+    "supersededBy": "../m4-runtime-security-20261024/verification.json",
+    "runtimeScanLimitation": "The original runtimepack.* NuGet names did not match runtime advisories. Canonical normalization subsequently found 14 advisory IDs in the old .NET 10.0.12 runtime. Do not rely on the original zero-match result for runtime safety.",
+    "oldLocalArtifactsSuperseded": true
+  }
+}

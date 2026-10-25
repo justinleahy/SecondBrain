@@ -20,7 +20,8 @@ namespace SecondBrain.Cli.Commands;
 public sealed class LocalInitializationCommands(
     Func<string, FileKeyRing> openKeyRing,
     Func<string, CancellationToken, Task<string>> readPassword,
-    Func<PasswordParameters> calibrate) : IInitializationCommands, IAccountEpochRevoker
+    Func<PasswordParameters> calibrate,
+    Func<RuntimeLocations>? locations = null) : IInitializationCommands, IAccountEpochRevoker
 {
     private SecondBrainOptions? configured;
     public void Configure(SecondBrainOptions options) => configured = options;
@@ -85,14 +86,23 @@ public sealed class LocalInitializationCommands(
         await repository.BumpEpochAsync(cancellationToken);
     }
 
-    private static ServiceProvider OpenStorage(SecondBrainOptions options)
+    private ServiceProvider OpenStorage(SecondBrainOptions options)
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<IOptions<SecondBrainOptions>>(Options.Create(options));
+        services.AddSingleton<IOptionsMonitor<SecondBrainOptions>>(new ConstantOptions(options));
+        services.AddSingleton(locations?.Invoke() ?? new RuntimeLocations(null, null));
+        services.AddSingleton<SecondBrain.Core.Operations.IBackupKeyProvider, FileBackupKeyProvider>();
         services.AddSingleton<IDiskCapacity, DiskCapacity>();
         services.AddSecondBrainStorage();
         return services.BuildServiceProvider();
+    }
+    private sealed class ConstantOptions(SecondBrainOptions options) : IOptionsMonitor<SecondBrainOptions>
+    {
+        public SecondBrainOptions CurrentValue => options;
+        public SecondBrainOptions Get(string? name) => options;
+        public IDisposable? OnChange(Action<SecondBrainOptions, string?> listener) => null;
     }
     private static AuthRepository Repository(IServiceProvider services) => new(services.GetRequiredService<IStateStore>(), TimeProvider.System);
     private static SqliteAccountRecoveryStore RecoveryStore(IServiceProvider services) => new(services.GetRequiredService<IStateStore>());

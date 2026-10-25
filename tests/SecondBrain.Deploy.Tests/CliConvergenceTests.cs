@@ -29,7 +29,7 @@ using SecondBrain.Storage.Auth;
 
 namespace SecondBrain.Deploy.Tests;
 
-public sealed class CliConvergenceTests
+public sealed partial class CliConvergenceTests
 {
     private const string Password = "isolated-convergence-password";
     private static readonly PasswordParameters TestParameters = new(MemoryKiB: 1024, Iterations: 1);
@@ -508,14 +508,15 @@ public sealed class CliConvergenceTests
         public FileCredentialStore Credentials { get; private set; } = null!;
         public WebApplication Mock { get; private set; } = null!;
         public IServiceProvider Services => daemon!.Services;
+        public string Workspace => root.Path;
 
-        public static async Task<CliDaemon> CreateAsync()
+        public static async Task<CliDaemon> CreateAsync(bool forBackup = false)
         {
             var fixture = new CliDaemon();
-            try { await fixture.Start(); return fixture; }
+            try { await fixture.Start(forBackup); return fixture; }
             catch { await fixture.DisposeAsync(); throw; }
         }
-        private async Task Start()
+        private async Task Start(bool forBackup)
         {
             root.CreateRoots();
             Mock = MockProviderApplication.Build(["--urls", "http://127.0.0.1:0"], builder => builder.Logging.ClearProviders());
@@ -549,6 +550,13 @@ public sealed class CliConvergenceTests
                   per_credential: {requests_per_min: 10000}
                   global: {disk_low_water_gb: 0}
                 """);
+            if (forBackup)
+            {
+                var keyPath = Path.Combine(root.Path, "backup.key");
+                await File.WriteAllBytesAsync(keyPath, System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
+                if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(keyPath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+                await File.AppendAllTextAsync(configPath, $"\nbackup:\n  key_file: '{keyPath}'\nclassification: {{llm: false}}\nenrichment: {{enabled: false}}\n");
+            }
             Credentials = new FileCredentialStore(Path.Combine(root.Path, "credentials"));
             services = new CliServices
             {
@@ -558,11 +566,15 @@ public sealed class CliConvergenceTests
             };
             var initialized = await Run(["init", "--json"]);
             Assert.True(initialized.Exit == 0, initialized.Output);
+            var socketServer = new ExtractorSocketServer(new ExtractorServerOptions { SocketPath = socketPath }, NullLogger<ExtractorSocketServer>.Instance);
+            extractor = socketServer.RunAsync(stopExtractor.Token);
+            await StartHost();
+        }
+        public async Task StartHost()
+        {
             configuration = new ReloadingConfiguration(configPath, new YamlConfigurationLoader(environment: _ => null), watch: false);
             rootLock = DataRootLock.Acquire(root.Data);
             keyRing = services.CreateKeyRing(root.Data);
-            var socketServer = new ExtractorSocketServer(new ExtractorServerOptions { SocketPath = socketPath }, NullLogger<ExtractorSocketServer>.Instance);
-            extractor = socketServer.RunAsync(stopExtractor.Token);
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions
             {
                 ApplicationName = typeof(global::Program).Assembly.GetName().Name,
@@ -613,15 +625,19 @@ public sealed class CliConvergenceTests
         }
         public async ValueTask DisposeAsync()
         {
-            if (daemon is not null) { await daemon.StopAsync(); await daemon.DisposeAsync(); }
+            await StopHost();
             stopExtractor.Cancel();
             if (extractor is not null) await extractor;
             stopExtractor.Dispose();
-            rootLock?.Dispose();
-            keyRing?.Dispose();
-            configuration?.Dispose();
             if (Mock is not null) { await Mock.StopAsync(); await Mock.DisposeAsync(); }
             root.Dispose();
+        }
+        public async Task StopHost()
+        {
+            if (daemon is not null) { await daemon.StopAsync(); await daemon.DisposeAsync(); daemon = null; }
+            rootLock?.Dispose(); rootLock = null;
+            keyRing?.Dispose(); keyRing = null;
+            configuration?.Dispose(); configuration = null;
         }
     }
 }

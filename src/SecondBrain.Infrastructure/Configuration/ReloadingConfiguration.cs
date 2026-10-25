@@ -1,6 +1,9 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using SecondBrain.Core.Configuration;
+using SecondBrain.Infrastructure.Security;
 
 namespace SecondBrain.Infrastructure.Configuration;
 
@@ -18,18 +21,22 @@ public sealed class ReloadingConfiguration : IDisposable
     private string restartMetadata;
     private bool disposed;
     private long generation;
+    private string appliedHash;
 
     public ReloadingConfiguration(string path, YamlConfigurationLoader? loader = null, Action<string>? diagnostic = null, bool watch = true)
     {
         this.path = Path.GetFullPath(path);
         this.loader = loader ?? new YamlConfigurationLoader();
         this.diagnostic = diagnostic;
-        var initial = this.loader.LoadSnapshot(this.path);
+        var initialText = ReadText();
+        var initial = this.loader.LoadTextSnapshot(initialText);
+        appliedHash = Hash(initialText);
         current = initial.Options;
         restartMetadata = initial.RestartMetadata;
         if (!watch) return;
         debounce = new Timer(_ => TryReload(), null, Timeout.Infinite, Timeout.Infinite);
-        watcher = new FileSystemWatcher(Path.GetDirectoryName(this.path)!, Path.GetFileName(this.path))
+        var watchedPath = new FileInfo(this.path).ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? this.path;
+        watcher = new FileSystemWatcher(Path.GetDirectoryName(watchedPath)!, Path.GetFileName(watchedPath))
         { NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size };
         watcher.Changed += Schedule;
         watcher.Created += Schedule;
@@ -46,6 +53,52 @@ public sealed class ReloadingConfiguration : IDisposable
     /// <summary>Collaborating model/privacy validators run before an options snapshot is published.</summary>
     public event Action<SecondBrainOptions>? Validating;
 
+    public ConfigurationEditSnapshot ReadForEdit()
+    {
+        lock (gate)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+            if (Hash(ReadText()) != appliedHash && !TryReload())
+                throw new ConfigurationException("The configuration file changed and could not be reloaded. Correct it before editing settings.");
+            return new(appliedHash, current);
+        }
+    }
+
+    /// <summary>Validates and atomically replaces the source configuration before publishing it.</summary>
+    public ConfigurationEditSnapshot UpdateForEdit(string expectedHash, Func<string, string> rewrite, Func<bool> authorized)
+    {
+        lock (gate)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+            var original = ReadText();
+            if (Hash(original) != expectedHash) throw new ConfigurationEditConflictException();
+            var replacement = rewrite(original);
+            if (Encoding.UTF8.GetByteCount(replacement) > 1_048_576) throw new ConfigurationException("Configuration exceeds the supported size.");
+            var candidate = loader.LoadTextSnapshot(replacement);
+            ValidateCandidate(candidate);
+            if (!authorized()) throw new ConfigurationEditAuthorityException();
+            if (Hash(ReadText()) != expectedHash) throw new ConfigurationEditConflictException();
+            var target = new FileInfo(path).ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? path;
+            var temporary = Path.Combine(Path.GetDirectoryName(target)!, ".secondbrain-settings-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var bytes = Encoding.UTF8.GetBytes(replacement);
+                using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(temporary, File.GetUnixFileMode(target));
+                    output.Write(bytes); output.Flush(flushToDisk: true);
+                }
+                if (Hash(ReadText()) != expectedHash) throw new ConfigurationEditConflictException();
+                if (!authorized()) throw new ConfigurationEditAuthorityException();
+                File.Move(temporary, target, overwrite: true);
+                UnixSecurity.SyncDirectory(Path.GetDirectoryName(target)!);
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
+            Publish(candidate.Options, Hash(replacement));
+            return new(appliedHash, current);
+        }
+    }
+
     public bool TryReload()
     {
         SecondBrainOptions next;
@@ -54,20 +107,40 @@ public sealed class ReloadingConfiguration : IDisposable
             if (disposed) return false;
             try
             {
-                var snapshot = loader.LoadSnapshot(path);
+                var text = ReadText();
+                var snapshot = loader.LoadTextSnapshot(text);
                 next = snapshot.Options;
-                if (RestartFingerprint(next) != RestartFingerprint(current) || snapshot.RestartMetadata != restartMetadata)
-                    throw new ConfigurationException("Listeners, allowed roots, data root, Access and sandbox settings require a restart.");
-                try { Validating?.Invoke(next); }
-                catch (Exception) { throw new ConfigurationException("Model or privacy validation rejected the reload candidate."); }
-                Volatile.Write(ref current, next);
-                generation++;
+                ValidateCandidate(snapshot);
+                appliedHash = Hash(text);
             }
             catch (Exception error) when (error is ConfigurationException or IOException or UnauthorizedAccessException)
             {
                 diagnostic?.Invoke(error is ConfigurationException ? $"Configuration reload rejected: {error.Message}" : "Configuration reload rejected: file unavailable.");
                 return false;
             }
+            Publish(next, appliedHash);
+            return true;
+        }
+    }
+
+    private string ReadText()
+    {
+        try { return File.ReadAllText(path); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { throw new ConfigurationException("Configuration file cannot be read."); }
+    }
+    private static string Hash(string value) => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
+    private void ValidateCandidate(ConfigurationSnapshot snapshot)
+    {
+        if (RestartFingerprint(snapshot.Options) != RestartFingerprint(current) || snapshot.RestartMetadata != restartMetadata)
+            throw new ConfigurationException("Listeners, allowed roots, data root, Access and sandbox settings require a restart.");
+        try { Validating?.Invoke(snapshot.Options); }
+        catch (Exception) { throw new ConfigurationException("Model or privacy validation rejected the reload candidate."); }
+    }
+    private void Publish(SecondBrainOptions next, string hash)
+    {
+            Volatile.Write(ref current, next);
+            appliedHash = hash;
+            generation++;
             // Serialize publication and delivery. A reentrant subscriber can reload; stop
             // delivering the superseded outer generation so no lane observes an older value last.
             var publishedGeneration = generation;
@@ -79,12 +152,10 @@ public sealed class ReloadingConfiguration : IDisposable
                     try { handler(next); }
                     catch (Exception) { diagnostic?.Invoke("A configuration change subscriber failed after a valid reload."); }
                 }
-            return true;
-        }
     }
 
     private static string RestartFingerprint(SecondBrainOptions options) => JsonSerializer.Serialize(new
-    { options.DataRoot, options.Server.Listeners, options.Server.Hosts, options.Server.Origins, options.Server.TrustedProxies, options.Server.CloudflareAccess, options.Sources, options.Extractor });
+    { options.DataRoot, options.Backup.KeyFile, options.Backup.ExternalRoots, options.Server.Listeners, options.Server.Hosts, options.Server.Origins, options.Server.TrustedProxies, options.Server.CloudflareAccess, options.Sources, options.Extractor });
 
     private void Schedule(object? sender, FileSystemEventArgs args)
     {
@@ -103,3 +174,7 @@ public sealed class ReloadingConfiguration : IDisposable
         }
     }
 }
+
+public sealed record ConfigurationEditSnapshot(string Version, SecondBrainOptions Options);
+public sealed class ConfigurationEditConflictException : Exception;
+public sealed class ConfigurationEditAuthorityException : Exception;

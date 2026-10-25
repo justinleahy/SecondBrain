@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+using SecondBrain.Core.Operations;
 
 namespace SecondBrain.Infrastructure.Security;
 
@@ -10,19 +11,20 @@ public sealed class DataRootLockedException : IOException
 }
 
 /// <summary>Retains an exclusive non-blocking flock until disposal; the lock file is never removed.</summary>
-public sealed class DataRootLock : IDisposable
+public sealed class DataRootLock : IDisposable, IRestoreLease
 {
     private readonly SafeFileHandle handle;
-    private DataRootLock(SafeFileHandle handle) => this.handle = handle;
+    private DataRootLock(SafeFileHandle handle, string dataRoot) { this.handle = handle; DataRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dataRoot)); }
+    public string DataRoot { get; }
     public bool IsHeld => !handle.IsClosed && !handle.IsInvalid;
 
-    public static DataRootLock Acquire(string dataRoot)
+    public static DataRootLock Acquire(string dataRoot, bool allowPendingRestore = false)
     {
         var path = Path.Combine(dataRoot, ".lock");
         if (!Directory.Exists(dataRoot)) throw new IOException("Data root does not exist; provision it first.");
         if (OperatingSystem.IsWindows())
         {
-            try { return new DataRootLock(File.OpenHandle(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None)); }
+            try { return Checked(new DataRootLock(File.OpenHandle(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None), dataRoot), allowPendingRestore); }
             catch (IOException) { throw new DataRootLockedException(); }
         }
         // Let the runtime handle variadic open(mode) on Darwin arm64. CreateNew is atomic,
@@ -37,11 +39,21 @@ public sealed class DataRootLock : IDisposable
         var fd = Open(path, flags);
         if (fd < 0) throw new IOException("Cannot open the data-root lock.", new Win32Exception(Marshal.GetLastPInvokeError()));
         var handle = new SafeFileHandle((IntPtr)fd, true);
-        if (Flock(fd, 2 | 4) == 0) return new DataRootLock(handle);
+        if (Flock(fd, 2 | 4) == 0) return Checked(new DataRootLock(handle, dataRoot), allowPendingRestore);
         var error = Marshal.GetLastPInvokeError();
         handle.Dispose();
         if (error is 11 or 35) throw new DataRootLockedException();
         throw new IOException("Cannot acquire the data-root lock.", new Win32Exception(error));
+    }
+
+    private static DataRootLock Checked(DataRootLock lease, bool allowPendingRestore)
+    {
+        if (!allowPendingRestore && Path.Exists(Path.Combine(lease.DataRoot, RestoreState.PendingFileName)))
+        {
+            lease.Dispose();
+            throw new IOException("A restore is incomplete. Recover it before starting this instance.");
+        }
+        return lease;
     }
 
     public void Dispose() => handle.Dispose();

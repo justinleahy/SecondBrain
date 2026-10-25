@@ -295,12 +295,12 @@ public sealed partial class HttpDaemonCommands(
         catch (Exception ex) when (ex is DaemonCommandException or HttpRequestException or OperationCanceledException or DaemonUnreachableException) { }
     }
 
-    private static async Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string path, object? body, CancellationToken cancellationToken)
+    private static async Task<HttpResponseMessage> SendAsync(HttpClient client, HttpMethod method, string path, object? body, CancellationToken cancellationToken, HttpCompletionOption completion = HttpCompletionOption.ResponseContentRead)
     {
         using var request = new HttpRequestMessage(method, path);
         if (body is not null) request.Content = body as HttpContent ?? JsonContent.Create(body);
         HttpResponseMessage response;
-        try { response = await client.SendAsync(request, cancellationToken); }
+        try { response = await client.SendAsync(request, completion, cancellationToken); }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { throw new DaemonUnreachableException("The daemon request timed out."); }
         if (response.IsSuccessStatusCode) return response;
         var status = (int)response.StatusCode;
