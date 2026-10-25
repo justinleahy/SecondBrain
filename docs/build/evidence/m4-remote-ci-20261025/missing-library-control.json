@@ -1,0 +1,9 @@
+{
+  "originalRuntimeConfigurationReproducedMissingFrameworkFailure": true,
+  "status": "passed",
+  "testOnlyFrameworkAssetsDeliberatelyAbsent": true,
+  "correctedRuntimeConfigurationPassedRealDescriptorAndCliImports": true,
+  "positiveRuntime": "10.0.13 from the already qualified Wolfi image",
+  "focusedTestsPassed": 3,
+  "scope": "Real calendar extraction, frontmatter enrichment and CLI ingestion with local Hosting DLL copies deliberately absent."
+}

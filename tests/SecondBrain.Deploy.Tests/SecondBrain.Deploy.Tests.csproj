@@ -16,4 +16,9 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
   </ItemGroup>
+  <!-- The referenced extractor shares this test output's ASP.NET framework assets. -->
+  <Target Name="UseTestFrameworksForExtractorWorker" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).runtimeconfig.json"
+          DestinationFiles="$(TargetDir)SecondBrain.Extractor.runtimeconfig.json" />
+  </Target>
 </Project>

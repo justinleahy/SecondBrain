@@ -22,4 +22,10 @@
     <None Update="Golden/**" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../eval/assistant/*" Link="AssistantEvaluation/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <!-- Referencing the extractor from an ASP.NET test host prunes shared-framework
+       assemblies from this output directory. Its child must use the same frameworks. -->
+  <Target Name="UseTestFrameworksForExtractorWorker" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).runtimeconfig.json"
+          DestinationFiles="$(TargetDir)SecondBrain.Extractor.runtimeconfig.json" />
+  </Target>
 </Project>
