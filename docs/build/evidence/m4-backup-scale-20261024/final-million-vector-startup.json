@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "syntheticData": true,
+  "productionChanged": false,
+  "sourceMountedReadOnly": true,
+  "project": "secondbrain-m4-million-startup",
+  "phases": {
+    "clone": {
+      "seconds": 27.848521360196173,
+      "sourcePreserved": true
+    },
+    "fixturePreparation": {
+      "copiedBackupRootsPrivate": true,
+      "sourcePermissionsUnchanged": true
+    },
+    "startup": {
+      "secondsThroughReadinessAndCountVerification": 123.48485865117982,
+      "documents": 100000,
+      "chunks": 1000000,
+      "vectors": 1000000,
+      "documentStateHash": "968319570abd917c568699bc8e8163c91b9039ba9179d89d06a1f7baefca87a6",
+      "authoredDocumentHash": "8c74211c2ab0e4fc6b3714002001e1f7c25b99bdff164eecde2e4995c5b1811f",
+      "statusCounts": {
+        "indexed": 100000
+      },
+      "migrations": [
+        [
+          8,
+          "applied",
+          "backup-20261025T0427288987578Z-1be1eb24e0124216b336b85ce0fe4e31.sbk"
+        ]
+      ],
+      "scaleEdit": null,
+      "scaleTrash": null
+    },
+    "memory": {
+      "postStartupForcedGc": {
+        "at": "2026-10-25T04:29:21.5102608+00:00",
+        "process_id": 16,
+        "process_started_at": "2026-10-25T04:27:24.3200624Z",
+        "first_health_at": "2026-10-25T04:29:17.2067197+00:00",
+        "process_to_health_seconds_upper_bound": 112.8866573,
+        "vector_statistics": {
+          "LiveSlots": 1000000,
+          "RetainedSlots": 0,
+          "AllocatedSlots": 1048576,
+          "VectorBytes": 4294967296
+        },
+        "sample": 118,
+        "forced_full_gc": true,
+        "managed_live_bytes": 4480303240,
+        "gc_heap_size_bytes": 4543817384,
+        "gc_fragmented_bytes": 63547040,
+        "gc_committed_bytes": 4882382848,
+        "gc_memory_load_bytes": 4896262717,
+        "working_set_bytes": 4983840768
+      },
+      "daemonImageId": "sha256:9a6594ecf53243cbe8bdb8cfc8c81d352a00181f85e2289c50277c71af33ca43",
+      "daemonMemoryLimit": 8589934592,
+      "daemonRestarts": 0
+    }
+  },
+  "memorySamples": 59
+}

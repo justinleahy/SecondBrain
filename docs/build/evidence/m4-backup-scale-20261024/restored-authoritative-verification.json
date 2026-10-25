@@ -1,0 +1,103 @@
+{
+  "status": "passed",
+  "syntheticData": true,
+  "productionChanged": false,
+  "sourceMountedReadOnly": true,
+  "project": "secondbrain-m4-scale-qualification",
+  "phases": {
+    "fixturePreparation": {
+      "copiedBackupRootsPrivate": true,
+      "sourcePermissionsUnchanged": true
+    },
+    "migration": {
+      "secondsThroughReadinessAndCountVerification": 13.081487623043358,
+      "documents": 100002,
+      "chunks": 1000001,
+      "vectors": 330,
+      "documentStateHash": "75f6c175d56efd01f80270fab33042712000b145733d20611eba62eece3371ca",
+      "authoredDocumentHash": "b80ed3c87586f56b37941914b04dcaef3194496b4c3bd725db4738392472a84a",
+      "statusCounts": {
+        "deleted": 1,
+        "indexed": 32,
+        "indexed_partial": 99969
+      },
+      "migrations": [
+        [
+          8,
+          "applied",
+          "backup-20261025T0316461570014Z-7d30e9b48bbf4f71b2130a5ba7b84141.sbk"
+        ]
+      ],
+      "scaleEdit": [
+        "01M5RH2VM9A6X9G5J60007JQMC",
+        4
+      ],
+      "scaleTrash": [
+        "01M5RH2WE79713NFR4B9QHEE8Y",
+        2
+      ]
+    },
+    "restoreVerification": {
+      "stats": {
+        "documents": 100002,
+        "chunks": 1000001,
+        "vectors": 640,
+        "documentStateHash": "dc5b553a7076f5209cdcaae45db75912e065ab0181d1b891bfe65ec5a483b6cd",
+        "authoredDocumentHash": "10238922c7f7478ad024983edf4ea29c1c15a8845a6b2ab10d683ea32c12ba6e",
+        "statusCounts": {
+          "deleted": 1,
+          "indexed": 64,
+          "indexed_partial": 99937
+        },
+        "migrations": [
+          [
+            8,
+            "applied",
+            "backup-20261025T0316461570014Z-7d30e9b48bbf4f71b2130a5ba7b84141.sbk"
+          ]
+        ],
+        "scaleEdit": [
+          "01M5RH2VM9A6X9G5J60007JQMC",
+          4
+        ],
+        "scaleTrash": [
+          "01M5RH2WE79713NFR4B9QHEE8Y",
+          2
+        ],
+        "previousAuthoredDocumentHash": "10238922c7f7478ad024983edf4ea29c1c15a8845a6b2ab10d683ea32c12ba6e",
+        "accountEpochAdvanced": true,
+        "priorCredentialsRevoked": true
+      },
+      "capturedRevision": 4,
+      "laterLiveRevision": 142,
+      "allOtherAuthoredStatesEqual": true,
+      "trashPreserved": true,
+      "rebuiltKeywordSearchVerified": true,
+      "daemonImageId": "sha256:9a6594ecf53243cbe8bdb8cfc8c81d352a00181f85e2289c50277c71af33ca43",
+      "daemonRestarts": 0,
+      "postRestoreForcedGc": {
+        "at": "2026-10-25T04:25:37.3194936+00:00",
+        "process_id": 22,
+        "process_started_at": "2026-10-25T04:25:23.2496645Z",
+        "first_health_at": "2026-10-25T04:25:28.1681999+00:00",
+        "process_to_health_seconds_upper_bound": 4.9185354,
+        "vector_statistics": {
+          "LiveSlots": 320,
+          "RetainedSlots": 0,
+          "AllocatedSlots": 65536,
+          "VectorBytes": 268435456
+        },
+        "sample": 15,
+        "forced_full_gc": true,
+        "managed_live_bytes": 401196200,
+        "gc_heap_size_bytes": 407886024,
+        "gc_fragmented_bytes": 6714496,
+        "gc_committed_bytes": 581869568,
+        "gc_memory_load_bytes": 343597383,
+        "working_set_bytes": 500695040
+      },
+      "semanticCoverage": "Derived vectors are excluded from the archive; coverage rebuilds after restart through the configured embedding provider."
+    }
+  },
+  "memorySamples": 10
+}

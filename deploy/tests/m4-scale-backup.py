@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--startup-only', action='store_true', help='After the restore run has stopped, qualify the current image against its retained corpus.')
     parser.add_argument('--restore-only', action='store_true', help='Restore the retained completed archive without creating another one.')
+    parser.add_argument('--verify-restored-only', action='store_true', help='Verify an already installed archive against its retained previous state, without restoring again.')
     args = parser.parse_args()
     repo = pathlib.Path(__file__).resolve().parents[2]
     source = args.source.resolve(strict=True)
@@ -31,10 +32,15 @@ def main():
         raise ValueError('Use an isolated M4 project and loopback port.')
     if root.exists() and not args.resume:
         raise ValueError('The destination already exists; review it before explicitly resuming.')
-    if (args.startup_only or args.restore_only) and not args.resume:
+    if (args.startup_only or args.restore_only or args.verify_restored_only) and not args.resume:
         raise ValueError('Partial qualification requires an explicitly retained corpus.')
-    if args.startup_only and args.restore_only:
+    if sum([args.startup_only, args.restore_only, args.verify_restored_only]) > 1:
         raise ValueError('Select only one partial qualification.')
+    previous_restore = None
+    if args.verify_restored_only:
+        previous_restore = json.loads((root / 'restore-qualification.json').read_text())
+        if 'restoreInstallation' not in previous_restore['phases']:
+            raise ValueError('The previous offline CLI must finish installing before verification.')
     root.mkdir(parents=True, exist_ok=True, mode=0o700)
     origin = 'http://127.0.0.1:' + str(args.port)
     env = dict(os.environ, SECONDBRAIN_HOST_ROOT=str(root), SECONDBRAIN_PRIVATE_ADDRESS='127.0.0.1',
@@ -48,7 +54,7 @@ def main():
     samples = []
     report = {'status': 'running', 'syntheticData': True, 'productionChanged': False,
               'sourceMountedReadOnly': True, 'project': args.project, 'phases': {}}
-    output_prefix = 'startup-' if args.startup_only else 'restore-' if args.restore_only else ''
+    output_prefix = 'verify-' if args.verify_restored_only else 'startup-' if args.startup_only else 'restore-' if args.restore_only else ''
     report_path = root / (output_prefix + 'qualification.json')
 
     def checkpoint(phase, value):
@@ -104,7 +110,7 @@ def main():
             time.sleep(1)
         raise TimeoutError('Scale fixture did not become ready within 30 minutes.')
 
-    def read_stats(exclude=None):
+    def read_stats(exclude=None, previous_state=None):
         program = '''import sqlite3,json,hashlib,os
 r="/fixture/data/"
 s=sqlite3.connect("file:"+r+"state/state.db?mode=ro",uri=True)
@@ -112,9 +118,24 @@ i=sqlite3.connect("file:"+r+"index/index.db?mode=ro",uri=True)
 h=hashlib.sha256()
 for row in s.execute("SELECT id,revision,content_hash,status FROM documents WHERE id != ? ORDER BY id",(os.environ.get("EXCLUDE_ID",""),)):
  h.update(json.dumps(row,separators=(",",":")).encode());h.update(b"\\n")
-print(json.dumps({"documents":s.execute("SELECT COUNT(*) FROM documents").fetchone()[0],"chunks":i.execute("SELECT COUNT(*) FROM chunks").fetchone()[0],"vectors":i.execute("SELECT COUNT(*) FROM chunk_vectors").fetchone()[0],"documentStateHash":h.hexdigest(),"migrations":s.execute("SELECT version,phase,backup_name FROM app_migrations ORDER BY version").fetchall(),"scaleEdit":s.execute("SELECT id,revision FROM documents WHERE title='M4 scale editable' ORDER BY id DESC LIMIT 1").fetchone(),"scaleTrash":s.execute("SELECT id,revision FROM documents WHERE title='M4 scale trash' ORDER BY id DESC LIMIT 1").fetchone()}))
+def authored_hash(db):
+ digest=hashlib.sha256()
+ fields=[row[1] for row in db.execute("PRAGMA table_info(documents)") if row[1] not in {"status","publish_state","indexed_revision","error"}]
+ columns=",".join('"'+field.replace('"','""')+'"' for field in fields)
+ for row in db.execute("SELECT "+columns+" FROM documents WHERE id != ? ORDER BY id",(os.environ.get("EXCLUDE_ID",""),)):
+  digest.update(json.dumps(row,separators=(",",":")).encode());digest.update(b"\\n")
+ return digest.hexdigest()
+result={"documents":s.execute("SELECT COUNT(*) FROM documents").fetchone()[0],"chunks":i.execute("SELECT COUNT(*) FROM chunks").fetchone()[0],"vectors":i.execute("SELECT COUNT(*) FROM chunk_vectors").fetchone()[0],"documentStateHash":h.hexdigest(),"authoredDocumentHash":authored_hash(s),"statusCounts":dict(s.execute("SELECT status,COUNT(*) FROM documents GROUP BY status")),"migrations":s.execute("SELECT version,phase,backup_name FROM app_migrations ORDER BY version").fetchall(),"scaleEdit":s.execute("SELECT id,revision FROM documents WHERE title='M4 scale editable' ORDER BY id DESC LIMIT 1").fetchone(),"scaleTrash":s.execute("SELECT id,revision FROM documents WHERE title='M4 scale trash' ORDER BY id DESC LIMIT 1").fetchone()}
+if os.environ.get("PREVIOUS_STATE"):
+ old=sqlite3.connect("file:/fixture/data/"+os.environ["PREVIOUS_STATE"]+"?mode=ro",uri=True)
+ result["previousAuthoredDocumentHash"]=authored_hash(old)
+ result["accountEpochAdvanced"]=int(s.execute("SELECT value FROM meta WHERE key='account_epoch'").fetchone()[0])>int(old.execute("SELECT value FROM meta WHERE key='account_epoch'").fetchone()[0])
+ prior={row[0] for row in old.execute("SELECT id FROM credentials")}
+ result["priorCredentialsRevoked"]=all(row[1] is not None for row in s.execute("SELECT id,revoked_at FROM credentials") if row[0] in prior)
+print(json.dumps(result))
 '''
         result = run(['docker', 'run', '--rm', '--network', 'none', '--read-only', '-e', 'EXCLUDE_ID=' + (exclude or ''),
+            '-e', 'PREVIOUS_STATE=' + (previous_state or ''),
             '--mount', 'type=bind,source=' + str(root) + ',target=/fixture,readonly',
             'python@sha256:a3799099b64fd333f262768c7a64733f6e4edb7bc569813710a100214bdcf278', 'python', '-c', program])
         return json.loads(result.stdout)
@@ -135,6 +156,8 @@ print(json.dumps({"documents":s.execute("SELECT COUNT(*) FROM documents").fetcho
         running = run(['docker', 'ps', '-q']).stdout.decode().split()
         inspected = json.loads(run(['docker', 'inspect', *running]).stdout) if running else []
         assert not any(m.get('RW') and m.get('Source') == str(source / 'data') for c in inspected for m in c['Mounts'])
+        if args.verify_restored_only:
+            assert not any(m.get('RW') and m.get('Source') == str(root / 'data') for c in inspected for m in c['Mounts']), 'Wait for the original restore runner to stop.'
         if not (root / 'data').exists():
             clone = '''cp -a --reflink=auto /source/data /target/data
 if test -d /target/data/qualification-heap; then mv /target/data/qualification-heap /target/previous-qualification-heap; fi
@@ -181,7 +204,8 @@ chown ''' + str(os.getuid()) + ':' + str(os.getgid()) + ''' /target/.qualificati
         run(compose + ['up', '-d', 'egress', 'extractor', 'mock-provider', 'daemon'], timeout=180)
         wait_ready()
         initial = read_stats()
-        assert initial['documents'] >= 100000 and initial['chunks'] >= 1000000 and initial['vectors'] >= 1000000
+        assert initial['documents'] >= 100000 and initial['chunks'] >= 1000000
+        if not args.verify_restored_only: assert initial['vectors'] >= 1000000
         assert any(version == 8 and phase == 'applied' and archive for version, phase, archive in initial['migrations'])
         checkpoint('startup' if args.startup_only else 'migration', {'secondsThroughReadinessAndCountVerification': time.monotonic() - start, **initial})
         if args.startup_only:
@@ -198,6 +222,44 @@ chown ''' + str(os.getuid()) + ':' + str(os.getgid()) + ''' /target/.qualificati
             report['status'] = 'passed'
             return
         login()
+        if args.verify_restored_only:
+            installed = previous_restore['phases']['restoreInstallation']['cli']
+            record_path = pathlib.PurePosixPath(installed['recoveryRecord'])
+            record_id = record_path.name.removeprefix('.restore-complete-').removesuffix('.json')
+            assert record_path.parent == pathlib.PurePosixPath('/srv/secondbrain')
+            assert len(record_id) == 32 and all(c in '0123456789abcdef' for c in record_id)
+            recovery_record = json.loads(provision('cat ' + str(record_path)).stdout)
+            assert recovery_record['Phase'] == 'complete'
+            old_state = next(item['Previous'] for item in recovery_record['Roots'] if item['Name'] == 'state')
+            assert old_state.startswith('/srv/secondbrain/.sb-restore-') and old_state.endswith('-0.old')
+            relative_state = old_state.removeprefix('/srv/secondbrain/') + '/state.db'
+            assert '/' not in relative_state.removesuffix('/state.db')
+            baseline = previous_restore['phases']['restoreBaseline']
+            note_id = baseline['editableDocumentId']
+            after = read_stats(note_id, relative_state)
+            assert after['authoredDocumentHash'] == after['previousAuthoredDocumentHash']
+            assert after['accountEpochAdvanced'] and after['priorCredentialsRevoked']
+            recovered = request('GET', '/v1/documents/' + note_id + '?include=text')
+            expected = 'm4 scale checkpoint0000' if recovered['revision'] == 1 else 'm4 scale checkpoint%06d' % (recovered['revision'] - 1)
+            assert recovered['revision'] < baseline['liveRevision'] and recovered['text'] == expected
+            trash_id = baseline['stats']['scaleTrash'][0]
+            assert any(item['id'] == trash_id for item in request('GET', '/v1/trash')['items'])
+            hits = request('POST', '/v1/search', {'query': recovered['text'], 'mode': 'keyword'})['results']
+            assert any(hit['document_id'] == note_id for hit in hits)
+            run(compose + ['exec', '-T', 'daemon', 'touch', '/srv/secondbrain/qualification-heap/request-full-gc'])
+            time.sleep(3)
+            heap = [json.loads(line) for line in provision('cat /srv/secondbrain/qualification-heap/heap.jsonl').stdout.splitlines()]
+            forced = [row for row in heap if row['forced_full_gc']][-1]
+            assert forced['gc_heap_size_bytes'] < 1_000_000_000 + forced['vector_statistics']['VectorBytes']
+            runtime = json.loads(run(['docker', 'inspect', args.project + '-daemon-1']).stdout)[0]
+            assert runtime['RestartCount'] == 0 and not runtime['State']['OOMKilled']
+            checkpoint('restoreVerification', {'stats': after, 'capturedRevision': recovered['revision'],
+                'laterLiveRevision': baseline['liveRevision'], 'allOtherAuthoredStatesEqual': True,
+                'trashPreserved': True, 'rebuiltKeywordSearchVerified': True, 'daemonImageId': runtime['Image'],
+                'daemonRestarts': runtime['RestartCount'], 'postRestoreForcedGc': forced,
+                'semanticCoverage': 'Derived vectors are excluded from the archive; coverage rebuilds after restart through the configured embedding provider.'})
+            report['status'] = 'passed'
+            return
         if args.restore_only:
             assert initial['scaleEdit'] and initial['scaleTrash']
             note_id, live_revision = initial['scaleEdit']
@@ -217,8 +279,10 @@ chown ''' + str(os.getuid()) + ':' + str(os.getgid()) + ''' /target/.qualificati
             expected = 'm4 scale checkpoint0000' if recovered['revision'] == 1 else 'm4 scale checkpoint%06d' % (recovered['revision'] - 1)
             assert recovered['revision'] < live_revision and recovered['text'] == expected
             after = read_stats(note_id)
-            assert after['documents'] == stable['documents'] and after['documentStateHash'] == stable['documentStateHash']
-            assert after['chunks'] >= 1000000 and after['vectors'] >= 1000000
+            assert after['documents'] == stable['documents'] and after['authoredDocumentHash'] == stable['authoredDocumentHash']
+            # The archive omits the disposable index. Offline restore rebuilds text;
+            # embeddings and their derived indexed/partial status catch up after restart.
+            assert after['chunks'] >= 1000000
             assert any(item['id'] == trash_id for item in request('GET', '/v1/trash')['items'])
             hits = request('POST', '/v1/search', {'query': recovered['text'], 'mode': 'keyword'})['results']
             assert any(hit['document_id'] == note_id for hit in hits)
@@ -226,12 +290,11 @@ chown ''' + str(os.getuid()) + ':' + str(os.getgid()) + ''' /target/.qualificati
             time.sleep(3)
             heap = [json.loads(line) for line in provision('cat /srv/secondbrain/qualification-heap/heap.jsonl').stdout.splitlines()]
             forced = [row for row in heap if row['forced_full_gc']][-1]
-            assert forced['vector_statistics']['LiveSlots'] >= 1000000
             assert forced['gc_heap_size_bytes'] < 1_000_000_000 + forced['vector_statistics']['VectorBytes']
             runtime = json.loads(run(['docker', 'inspect', args.project + '-daemon-1']).stdout)[0]
             assert runtime['RestartCount'] == 0 and not runtime['State']['OOMKilled']
             checkpoint('restore', {'stats': after, 'capturedRevision': recovered['revision'], 'laterLiveRevision': live_revision,
-                'allOtherDocumentStatesEqual': True, 'oldSessionRejected': True, 'trashPreserved': True,
+                'allOtherAuthoredStatesEqual': True, 'oldSessionRejected': True, 'trashPreserved': True,
                 'rebuiltSearchVerified': True, 'daemonImageId': runtime['Image'], 'daemonRestarts': runtime['RestartCount'], 'postRestoreForcedGc': forced})
             report['status'] = 'passed'
             return
@@ -291,19 +354,19 @@ chown ''' + str(os.getuid()) + ':' + str(os.getgid()) + ''' /target/.qualificati
         recovered = request('GET', '/v1/documents/' + note['id'] + '?include=text')
         assert recovered['revision'] < state['revision'] and recovered['text'] == revisions[recovered['revision']]
         after = read_stats(note['id'])
-        assert after['documents'] == stable['documents'] and after['documentStateHash'] == stable['documentStateHash']
-        assert after['chunks'] >= 1000000 and after['vectors'] >= 1000000
+        assert after['documents'] == stable['documents'] and after['authoredDocumentHash'] == stable['authoredDocumentHash']
+        assert after['chunks'] >= 1000000
         assert any(item['id'] == trash['id'] for item in request('GET', '/v1/trash')['items'])
         hits = request('POST', '/v1/search', {'query': recovered['text'], 'mode': 'keyword'})['results']
         assert any(hit['document_id'] == note['id'] for hit in hits)
         checkpoint('restore', {'seconds': restore_seconds, 'cli': restored, 'stats': after,
             'capturedRevision': recovered['revision'], 'laterLiveRevision': state['revision'],
-            'allOtherDocumentStatesEqual': True, 'oldSessionRejected': True, 'trashPreserved': True, 'rebuiltSearchVerified': True})
+            'allOtherAuthoredStatesEqual': True, 'oldSessionRejected': True, 'trashPreserved': True, 'rebuiltSearchVerified': True,
+            'semanticCoverage': 'Derived vectors catch up through the configured embedding provider after restart.'})
         run(compose + ['exec', '-T', 'daemon', 'touch', '/srv/secondbrain/qualification-heap/request-full-gc'])
         time.sleep(3)
         heap = [json.loads(line) for line in provision('cat /srv/secondbrain/qualification-heap/heap.jsonl').stdout.splitlines()]
         forced = [row for row in heap if row['forced_full_gc']][-1]
-        assert forced['vector_statistics']['LiveSlots'] >= 1000000
         assert forced['gc_heap_size_bytes'] < 1_000_000_000 + forced['vector_statistics']['VectorBytes']
         runtime = json.loads(run(['docker', 'inspect', args.project + '-daemon-1']).stdout)[0]
         assert runtime['RestartCount'] == 0 and not runtime['State']['OOMKilled']

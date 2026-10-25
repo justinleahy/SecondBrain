@@ -1,0 +1,74 @@
+{
+  "status": "failed",
+  "syntheticData": true,
+  "productionChanged": false,
+  "sourceMountedReadOnly": true,
+  "project": "secondbrain-m4-scale-qualification",
+  "phases": {
+    "fixturePreparation": {
+      "copiedBackupRootsPrivate": true,
+      "sourcePermissionsUnchanged": true
+    },
+    "migration": {
+      "secondsThroughReadinessAndCountVerification": 39.758918480947614,
+      "documents": 100002,
+      "chunks": 1000001,
+      "vectors": 1000000,
+      "documentStateHash": "b030a42b1bd0ededa5c16c05688a443d968f406245fbf4b6c037c21704e34195",
+      "migrations": [
+        [
+          8,
+          "applied",
+          "backup-20261025T0316461570014Z-7d30e9b48bbf4f71b2130a5ba7b84141.sbk"
+        ]
+      ],
+      "scaleEdit": [
+        "01M5RH2VM9A6X9G5J60007JQMC",
+        142
+      ],
+      "scaleTrash": [
+        "01M5RH2WE79713NFR4B9QHEE8Y",
+        2
+      ]
+    },
+    "restoreBaseline": {
+      "editableDocumentId": "01M5RH2VM9A6X9G5J60007JQMC",
+      "liveRevision": 142,
+      "stats": {
+        "documents": 100002,
+        "chunks": 1000001,
+        "vectors": 1000000,
+        "documentStateHash": "9ae6ef95d062b14b97fbebca5b27e470bac9ca97286ccac0d55611adfce3045d",
+        "migrations": [
+          [
+            8,
+            "applied",
+            "backup-20261025T0316461570014Z-7d30e9b48bbf4f71b2130a5ba7b84141.sbk"
+          ]
+        ],
+        "scaleEdit": [
+          "01M5RH2VM9A6X9G5J60007JQMC",
+          142
+        ],
+        "scaleTrash": [
+          "01M5RH2WE79713NFR4B9QHEE8Y",
+          2
+        ]
+      }
+    },
+    "restoreInstallation": {
+      "seconds": 2818.4874698892236,
+      "cli": {
+        "recoveryRecord": "/srv/secondbrain/.restore-complete-792b86eb5cb84837b6de09932bc65193.json",
+        "accountEpoch": 2,
+        "remappedValues": 0,
+        "indexedDocuments": 100002
+      }
+    }
+  },
+  "error": {
+    "type": "AssertionError",
+    "message": ""
+  },
+  "memorySamples": 1352
+}

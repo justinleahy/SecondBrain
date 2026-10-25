@@ -10,6 +10,12 @@ cleanup() {
 }
 trap cleanup EXIT
 chmod 0755 "$qualification_root"
+# CI checkouts can live below the runner's private home. The daemon UID must
+# execute a readable disposable copy, without widening the checkout permissions.
+qualification_test_source=$(realpath "${1:-tests/SecondBrain.Extractor.Tests/bin/Release/net10.0/SecondBrain.Extractor.Tests.dll}")
+test -f "$qualification_test_source"
+cp -a "$(dirname "$qualification_test_source")" "$qualification_root/test-bundle"
+chmod -R a+rX "$qualification_root/test-bundle"
 mkdir "$qualification_root"/{incoming,stage,daemon-home,daemon-runtime,results,control}
 mkdir -p "$qualification_root/incoming/inbox/.claimed"
 chown 1656:1654 "$qualification_root/incoming"
@@ -53,7 +59,7 @@ setpriv --reuid 1654 --regid 1654 --clear-groups --no-new-privs env \
     DOTNET_CLI_HOME="$qualification_root/daemon-home" \
     XDG_RUNTIME_DIR="$qualification_root/daemon-runtime" \
     SECONDBRAIN_STAGING_QUALIFICATION_ROOT="$qualification_root" \
-    dotnet vstest "${1:-tests/SecondBrain.Extractor.Tests/bin/Release/net10.0/SecondBrain.Extractor.Tests.dll}" \
+    dotnet vstest "$qualification_root/test-bundle/SecondBrain.Extractor.Tests.dll" \
     --TestCaseFilter:FullyQualifiedName~DistinctIdentityStagingTests --logger:console\;verbosity=normal \
     --ResultsDirectory:"$qualification_root/results"
 setpriv --reuid 1656 --regid 1654 --clear-groups --no-new-privs sh -c 'test ! -r "$1/stage" && test ! -x "$1/stage"' fixture "$qualification_root"

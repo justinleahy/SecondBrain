@@ -1,0 +1,38 @@
+{
+  "status": "passed_for_manifest_restore_and_authoritative_recovery",
+  "backup": {
+    "completeFiles": 100006,
+    "partialFiles": 0,
+    "archiveBytes": 2183609245,
+    "archiveSha256": "9b9849ef90c374118954a6c5ca9362ac5b6b815ed478cb696bd6d1a911b7c615",
+    "editsDuringCreation": 137,
+    "seconds": 74.4116813
+  },
+  "offlineRestoreSeconds": 2818.4874698892236,
+  "documents": 100002,
+  "restoredTextChunks": 1000001,
+  "all100001OtherAuthoredDocumentStatesEqual": true,
+  "comparisonExcludesDerivedFields": [
+    "status",
+    "publish_state",
+    "indexed_revision",
+    "error"
+  ],
+  "capturedEditableRevision": 4,
+  "laterLiveRevision": 142,
+  "trashPreserved": true,
+  "oldSessionRejectedObservedInOriginalAttemptLog": true,
+  "accountEpochAdvanced": true,
+  "priorCredentialsRevoked": true,
+  "keywordSearchVerified": true,
+  "semanticCoverage": "Rebuilds asynchronously after restart; index vectors are excluded from the archive.",
+  "observedRebuiltVectorsAfterRestart": 640,
+  "initialVerificationCorrection": "The original runner required unchanged derived indexed status and all vectors immediately after an offline restore. That expectation was incorrect; it is preserved as a failed verification after successful CLI installation. No restore was repeated for the authoritative comparison.",
+  "finalDaemonRestarts": 0,
+  "sourceCorpusUnchanged": true,
+  "productionChanged": false,
+  "millionVectorColdStartup": "passed on the current image; final-million-vector-startup.json",
+  "millionVectorManagedHeapBytes": 4543817384,
+  "millionVectorAllocatedBytes": 4294967296,
+  "millionVectorDaemonRestarts": 0
+}

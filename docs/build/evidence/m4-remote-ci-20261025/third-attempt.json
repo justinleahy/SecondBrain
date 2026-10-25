@@ -1,0 +1,13 @@
+{
+  "status": "failed_after_application_tests_passed",
+  "runId": 40161640387,
+  "url": "https://github.com/justinleahy/SecondBrain/actions/runs/40161640387",
+  "tag": "v0.4.0-rc.3",
+  "commit": "f5be56419a808da351e15c3b9527d8c8a034eb93",
+  "applicationRegression": "passed",
+  "cause": "Distinct-UID fixture cannot traverse the runner private checkout to read the test assembly.",
+  "fix": "Copy the built test output to a readable disposable fixture directory; preserve checkout permissions.",
+  "localControl": "Passed real distinct-UID test with the original bundle deliberately placed beneath a root-private 0700 parent.",
+  "controlLogSha256": "389a2345197b0cc3f36285327a442a2b4e100e52b8f9c55c601517de169f1678",
+  "productRuntimeChanged": false
+}

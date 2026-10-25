@@ -31,7 +31,7 @@
   "runtime": "10.0.13",
   "firewallBackend": "nft",
   "limitations": [
-    "Large-corpus restore, systemd/production, remote CI/signing and off-server production-key custody remain separate acceptance gates."
+    "Systemd/production upgrade and remote CI/signing remain separate execution gates; local large-corpus recovery and million-vector startup have passed."
   ],
   "preFinalM4Qualification": {
     "status": "passed",
@@ -44,5 +44,6 @@
   "finalRecoveryRegression": "recovery-regression.json",
   "finalRecoveryMountedBackup": "final-recovery-mounted.json",
   "finalHardenedAudit": "final-hardened-audit.json",
-  "finalHttpsCalendar": "final-calendar-https.json"
+  "finalHttpsCalendar": "final-calendar-https.json",
+  "finalIpv4Ipv6Kernel": "final-ipv4-ipv6-kernel.json"
 }

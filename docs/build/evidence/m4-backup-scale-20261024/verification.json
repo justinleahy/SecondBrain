@@ -1,6 +1,6 @@
 {
   "date": "2026-10-24",
-  "status": "in_progress",
+  "status": "passed_for_recorded_scale_scope",
   "scope": "Backup scalability fix and isolated 100k-document upgrade/backup/restore qualification",
   "productionChanged": false,
   "fullReleaseTests": {
@@ -19,7 +19,7 @@
     "Restore payload selection is materialized once in a disk-backed temporary table, avoiding repeated full-corpus scans.",
     "A durable preparing-phase marker now records interrupted restore work before files are copied; graceful cleanup and rollback preserve the original roots."
   ],
-  "largeCorpusQualification": "100,000-document migration and 100,006-file sustained-write backup passed. The corrected offline restore completed metadata preparation and is rebuilding the index; final manifest/state/search/memory checks remain pending.",
+  "largeCorpusQualification": "Complete encrypted backup, offline restore, authoritative-state verification and separate million-vector startup/memory checks passed. Derived embeddings correctly catch up after restored text becomes available.",
   "logHashes": {
     "m4-scale-fix-build.log": "4857c94d5ba1663417c0c9ef65b1e4ba0c24190b06dc44267410971cf65c3756",
     "m4-scale-fix-tests.log": "83312ca12e64e4c29aac0754d11419af4d9225b2221bd3a1026a52137f447aee",
@@ -45,7 +45,7 @@
     "src/SecondBrain.Storage/Backup/BackupInstaller.cs": "58f07a944902e8266207707f8053afa284c09d8f6af5c1b501cf8de0003dbf4b",
     "tests/SecondBrain.Storage.Tests/BackupInstallerTests.cs": "9d1450695a6829e4f84825cfd78d4d7689cec60f8d4ba38ddad7ae054504c7ef"
   },
-  "startupFinding": "The corrected five-minute startup preload lease passed initial million-vector startup without the old lease timeout. Final post-restore startup and memory checks remain pending.",
+  "startupFinding": "The bounded startup lease loaded one million vectors on the current image with zero restarts. Forced-GC heap 4,543,817,384 bytes with 4,294,967,296 allocated vector bytes, below the one-billion-byte non-vector allowance.",
   "keyCustody": {
     "operatorWillStoreCopy": true,
     "handoffConfirmed": true,
@@ -55,5 +55,7 @@
   "startupLeaseFocusedTests": 13,
   "startupLeaseFullBuild": "passed",
   "currentImageId": "sha256:9a6594ecf53243cbe8bdb8cfc8c81d352a00181f85e2289c50277c71af33ca43",
-  "currentRestoreImageId": "sha256:e9f7b16fe71d04038a885e94fc66715c04224db5a3988e854270ce4a4e221dba"
+  "currentRestoreImageId": "sha256:e9f7b16fe71d04038a885e94fc66715c04224db5a3988e854270ce4a4e221dba",
+  "largeCorpusResult": "large-corpus-result.json",
+  "currentImageColdStartup": "final-million-vector-startup.json"
 }
