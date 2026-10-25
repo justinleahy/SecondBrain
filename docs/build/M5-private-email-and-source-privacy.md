@@ -1,6 +1,6 @@
 # M5 Private email import and source privacy
 
-Status: planned after M4 production acceptance. Researched 2026-10-25. This milestone turns the first deferred design in [spec.md](../../spec.md#appendix-f--deferred-designs) into a bounded implementation scope.
+Status: researched and ready for implementation after M4 production acceptance on 2026-10-25. This milestone turns the first deferred design in [spec.md](../../spec.md#appendix-f--deferred-designs) into a bounded implementation scope.
 
 An administrator can import an email export, search messages by sender, recipient and date, follow threads and attachments, and ask questions with citations. A source marked `no_cloud` keeps its messages and derived content on approved local model bindings, even when other sources use hosted providers. The first release accepts local `.eml` and `.mbox` exports.
 

@@ -1,0 +1,87 @@
+{
+  "status": "passed",
+  "tag": "v0.4.0-rc.6",
+  "commit": "deb2f9fbafed27b2a001d4028c78c3bc07c695d7",
+  "workflowRun": 40165478709,
+  "draftReleaseUrl": "https://github.com/justinleahy/SecondBrain/releases/tag/untagged-9f8294457a053af66c5c",
+  "draftRelease": true,
+  "signature": {
+    "verified": true,
+    "tag": "v0.4.0-rc.6",
+    "commit": "deb2f9fbafed27b2a001d4028c78c3bc07c695d7",
+    "archiveSha256": "267ede912d18523a4d89dbf90347f320a457e651b7728693e1e813480fe4b75d",
+    "certificateIdentity": "https://github.com/justinleahy/SecondBrain/.github/workflows/ci.yml@refs/tags/v0.4.0-rc.6",
+    "oidcIssuer": "https://token.actions.githubusercontent.com",
+    "transparencyLogVerificationEnabled": true
+  },
+  "deploymentCandidate": {
+    "status": "prepared",
+    "tag": "v0.4.0-rc.6",
+    "commit": "deb2f9fbafed27b2a001d4028c78c3bc07c695d7",
+    "signatureVerified": true,
+    "packageChecksumsAndFileManifestsVerified": true,
+    "packages": [
+      {
+        "project": "Cli",
+        "files": 450,
+        "checksumEntries": 6,
+        "workflowRun": "40165478709",
+        "knownVulnerabilityMatches": 0
+      },
+      {
+        "project": "Server",
+        "files": 431,
+        "checksumEntries": 6,
+        "workflowRun": "40165478709",
+        "knownVulnerabilityMatches": 0
+      },
+      {
+        "project": "Extractor",
+        "files": 236,
+        "checksumEntries": 6,
+        "workflowRun": "40165478709",
+        "knownVulnerabilityMatches": 0
+      }
+    ],
+    "mergedFiles": 465,
+    "platformRuntimeAssemblySelections": [
+      "SecondBrain.Server.staticwebassets.endpoints.json",
+      "Microsoft.Extensions.Configuration.Abstractions.dll",
+      "Microsoft.Extensions.Configuration.Binder.dll",
+      "Microsoft.Extensions.Configuration.CommandLine.dll",
+      "Microsoft.Extensions.Configuration.EnvironmentVariables.dll",
+      "Microsoft.Extensions.Configuration.FileExtensions.dll",
+      "Microsoft.Extensions.Configuration.Json.dll",
+      "Microsoft.Extensions.Configuration.UserSecrets.dll",
+      "Microsoft.Extensions.Configuration.dll",
+      "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+      "Microsoft.Extensions.DependencyInjection.dll",
+      "Microsoft.Extensions.Diagnostics.Abstractions.dll",
+      "Microsoft.Extensions.Diagnostics.dll",
+      "Microsoft.Extensions.FileProviders.Abstractions.dll",
+      "Microsoft.Extensions.FileProviders.Physical.dll",
+      "Microsoft.Extensions.FileSystemGlobbing.dll",
+      "Microsoft.Extensions.Hosting.Abstractions.dll",
+      "Microsoft.Extensions.Hosting.dll",
+      "Microsoft.Extensions.Logging.Abstractions.dll",
+      "Microsoft.Extensions.Logging.Configuration.dll",
+      "Microsoft.Extensions.Logging.Console.dll",
+      "Microsoft.Extensions.Logging.Debug.dll",
+      "Microsoft.Extensions.Logging.EventLog.dll",
+      "Microsoft.Extensions.Logging.EventSource.dll",
+      "Microsoft.Extensions.Logging.dll",
+      "Microsoft.Extensions.Options.ConfigurationExtensions.dll",
+      "Microsoft.Extensions.Options.dll",
+      "Microsoft.Extensions.Primitives.dll",
+      "System.Diagnostics.EventLog.dll"
+    ],
+    "manifestSha256": "25f8f20d5f64d9941bf385edf68bcaf9653158182276c05d8b8181c6523e526a",
+    "productionChanged": false
+  },
+  "outerChecksumsVerified": true,
+  "packageChecksumsAndFileInventoriesVerified": true,
+  "threshold": "low",
+  "knownVulnerabilityMatches": 0,
+  "noSignatureVerificationBypasses": true,
+  "productionDeployedAtPreparation": false
+}

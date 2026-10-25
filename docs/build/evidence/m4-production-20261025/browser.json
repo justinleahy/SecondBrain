@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "origin": "http://10.66.10.20:7171/",
+  "signedIn": false,
+  "title": "Chat \u00b7 SecondBrain",
+  "documentReady": "complete",
+  "blazorRuntimeLoaded": true,
+  "websocketConnected": true,
+  "consoleErrors": 0,
+  "consoleWarnings": 0,
+  "viewports": [
+    {
+      "width": 780,
+      "contentWidth": 780
+    },
+    {
+      "width": 390,
+      "contentWidth": 390
+    },
+    {
+      "width": 1280,
+      "contentWidth": 1280
+    }
+  ],
+  "authenticatedAssistantTurnExercised": false,
+  "scope": "Live production signed-out browser and phone-width layout; authenticated content preservation was checked through the existing read-only MCP credential."
+}

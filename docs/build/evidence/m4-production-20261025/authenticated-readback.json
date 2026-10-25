@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "existingReadOnlyCredentialStillWorks": true,
+  "readableDocumentsCompared": 3,
+  "documents": [
+    {
+      "id": "01M5QJKV4EA14J01GHSQ4QR7DA",
+      "revision": 2,
+      "textPreserved": true,
+      "revisionPreserved": true
+    },
+    {
+      "id": "01M5QJKVSABRPDYQCMNMY4N707",
+      "revision": 2,
+      "textPreserved": true,
+      "revisionPreserved": true
+    },
+    {
+      "id": "01M5QJKVGXSWPTN44TGNTH443Q",
+      "revision": 2,
+      "textPreserved": true,
+      "revisionPreserved": true
+    }
+  ],
+  "calendarQuery": {
+    "acceptedType": "calendar_event",
+    "records": 0,
+    "coverage": "partial",
+    "reason": "No calendars registered in production; approved private feeds were tested only in disposable stores."
+  },
+  "privateDocumentBodiesInEvidence": false
+}

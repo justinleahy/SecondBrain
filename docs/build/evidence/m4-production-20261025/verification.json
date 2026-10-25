@@ -1,0 +1,271 @@
+{
+  "status": "passed",
+  "verifiedAtUtc": "2026-10-25T05:40:22.320297+00:00",
+  "tag": "v0.4.0-rc.6",
+  "commit": "deb2f9fbafed27b2a001d4028c78c3bc07c695d7",
+  "installedFilesVerified": 465,
+  "httpChecks": [
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/app.css",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/favicon.svg",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/_framework/blazor.web.js",
+      "status": 200
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/usage",
+      "status": 401
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/maintenance/backups",
+      "status": 401
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/maintenance/backup/key",
+      "status": 401
+    },
+    {
+      "origin": "http://127.0.0.1:7171",
+      "path": "/v1/sources",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/ready",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/app.css",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/SecondBrain.Server.styles.css",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/favicon.svg",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/_framework/blazor.web.js",
+      "status": 200
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/usage",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/maintenance/backups",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/maintenance/backup/key",
+      "status": 401
+    },
+    {
+      "origin": "http://10.66.10.20:7171",
+      "path": "/v1/sources",
+      "status": 401
+    }
+  ],
+  "units": {
+    "secondbrain.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "1116619",
+      "MemoryMax": "8589934592",
+      "TasksMax": "256",
+      "User": "secondbrain",
+      "Group": "secondbrain",
+      "PrivateNetwork": "no",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes"
+    },
+    "secondbrain-extractor.service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MainPID": "1116815",
+      "MemoryMax": "1073741824",
+      "TasksMax": "64",
+      "User": "secondbrain-extract",
+      "Group": "secondbrain",
+      "PrivateNetwork": "yes",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes"
+    },
+    "secondbrain-extractor.socket": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "MemoryMax": "infinity",
+      "TasksMax": "154266",
+      "User": "",
+      "Group": "",
+      "PrivateNetwork": "no",
+      "ProtectSystem": "no",
+      "NoNewPrivileges": "no"
+    }
+  },
+  "rootDeploymentReport": {
+    "status": "deployed",
+    "at_utc": "2026-10-25T05:39:53.643531+00:00",
+    "backup": "/var/backups/secondbrain/chat-20261025T053940Z-dea2d145",
+    "previous_binaries": "/usr/local/lib/secondbrain.pre-chat-20261025T053940Z-dea2d145",
+    "bundle_files_verified": 465,
+    "readiness": {
+      "ready": true,
+      "components": {
+        "stores": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": null
+        },
+        "migrations": {
+          "ready": true,
+          "detail": "Migrations and durability recovery completed.",
+          "checkedAt": null
+        },
+        "lock": {
+          "ready": true,
+          "detail": "Exclusive data-root lock.",
+          "checkedAt": null
+        },
+        "canary": {
+          "ready": true,
+          "detail": "Egress canary: Blocked. Egress canary state is current.",
+          "checkedAt": "2026-10-25T05:39:48.6643534+00:00"
+        },
+        "extractor": {
+          "ready": true,
+          "detail": "Extractor answered ping.",
+          "checkedAt": null
+        },
+        "provider:chat": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-25T05:39:51.921414+00:00"
+        },
+        "provider:enrich": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-25T05:39:51.9228152+00:00"
+        },
+        "provider:embed": {
+          "ready": true,
+          "detail": null,
+          "checkedAt": "2026-10-25T05:39:51.9240688+00:00"
+        },
+        "provider:rerank": {
+          "ready": true,
+          "detail": "Optional rerank role is not configured.",
+          "checkedAt": "2026-10-25T05:39:53.4403979+00:00"
+        }
+      }
+    },
+    "m1_schema": "applied",
+    "account_and_credentials_preserved": true,
+    "configuration_and_secrets_preserved": true,
+    "keyring_preserved": true,
+    "existing_documents_preserved": 4,
+    "directory_modes": {
+      "/srv/secondbrain": {
+        "uid": 1654,
+        "gid": 1654,
+        "mode": "0o700"
+      },
+      "/srv/secondbrain-incoming": {
+        "uid": 1656,
+        "gid": 1654,
+        "mode": "0o750"
+      },
+      "/srv/secondbrain-incoming/inbox": {
+        "uid": 1654,
+        "gid": 1654,
+        "mode": "0o1770"
+      },
+      "/srv/secondbrain-incoming/inbox/.claimed": {
+        "uid": 1654,
+        "gid": 1654,
+        "mode": "0o700"
+      }
+    },
+    "unauthenticated_documents_and_jobs": 401,
+    "units": {
+      "secondbrain.service": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "MainPID": "1116619",
+        "ExecMainStartTimestamp": "Sun 2026-10-25 01:39:45 EDT",
+        "MemoryMax": "8589934592",
+        "PrivateNetwork": "no"
+      },
+      "secondbrain-extractor.service": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "MainPID": "1116815",
+        "ExecMainStartTimestamp": "Sun 2026-10-25 01:39:49 EDT",
+        "MemoryMax": "1073741824",
+        "PrivateNetwork": "yes"
+      },
+      "secondbrain-extractor.socket": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "MemoryMax": "infinity",
+        "PrivateNetwork": "no"
+      }
+    },
+    "release": "chat",
+    "chat_schema": "applied",
+    "chat_endpoints_require_authentication": true,
+    "chat_home_and_static_assets_served": true
+  },
+  "schema8AndCompleteEncryptedPreUpgradeBackup": "Inferred from verified M4 binary reaching ready on the initialized M3 account; the mandatory startup transition fails closed without the complete encrypted archive. Root-private archive metadata was not independently read.",
+  "productionAuthoredDataWritesByVerifier": false
+}

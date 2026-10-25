@@ -1,0 +1,42 @@
+{
+  "runId": 40165478709,
+  "commit": "deb2f9fbafed27b2a001d4028c78c3bc07c695d7",
+  "threshold": "low",
+  "ignoresAdded": false,
+  "reports": [
+    {
+      "report": "secondbrain-egress-vulnerabilities.json",
+      "reportSha256": "b48acd62b462411ae84779eeb90c7e5a3ceecbbd2c9e80a033c1b094260f0f36",
+      "matches": 0,
+      "ignoredMatches": 0,
+      "databaseBuilt": "2026-10-24T17:45:29Z",
+      "databaseSchema": "v6.1.10",
+      "databaseValid": true,
+      "sourceType": "image",
+      "sourceInput": "secondbrain-egress"
+    },
+    {
+      "report": "secondbrain-extractor-vulnerabilities.json",
+      "reportSha256": "1aa48ca6c3e534aeabc0688bcdd906c13833d21a7a9423eb9bdbca7f267bed9a",
+      "matches": 0,
+      "ignoredMatches": 0,
+      "databaseBuilt": "2026-10-24T17:45:29Z",
+      "databaseSchema": "v6.1.10",
+      "databaseValid": true,
+      "sourceType": "image",
+      "sourceInput": "secondbrain-extractor"
+    },
+    {
+      "report": "secondbrain-vulnerabilities.json",
+      "reportSha256": "df2187739b59f81688fe2027ce77c977198c5ee9b2ad8f113afe712bb1c8077f",
+      "matches": 0,
+      "ignoredMatches": 0,
+      "databaseBuilt": "2026-10-24T17:45:29Z",
+      "databaseSchema": "v6.1.10",
+      "databaseValid": true,
+      "sourceType": "image",
+      "sourceInput": "secondbrain"
+    }
+  ],
+  "scope": "Images built and scanned by the final Docker CI job; production uses separately verified signed systemd packages."
+}

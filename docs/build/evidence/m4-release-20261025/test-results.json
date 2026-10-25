@@ -1,0 +1,111 @@
+{
+  "runId": 40165478709,
+  "commit": "deb2f9fbafed27b2a001d4028c78c3bc07c695d7",
+  "deterministicPassed": 2555,
+  "deterministicFailed": 0,
+  "deterministicSkipped": 0,
+  "additionalParserMutationPassed": 8,
+  "additionalSustainedEditBackupPassed": 1,
+  "trx": [
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_22.trx",
+      "assemblies": [
+        "SecondBrain.Architecture.Tests.dll"
+      ],
+      "passed": 63,
+      "failed": 0,
+      "total": 63,
+      "sha256": "ed8f957528619e9a78304ee201bb53cfae7062f7222a0ae35243003a85be8df4"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_22[1].trx",
+      "assemblies": [
+        "SecondBrain.Core.Tests.dll"
+      ],
+      "passed": 213,
+      "failed": 0,
+      "total": 213,
+      "sha256": "f87873a68e08b51f78b255a3ea8b97a6b14ec17a4760c8a48cf2daf311bfac95"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_22[2].trx",
+      "assemblies": [
+        "SecondBrain.Deploy.Tests.dll"
+      ],
+      "passed": 226,
+      "failed": 0,
+      "total": 226,
+      "sha256": "2fe099aa75be8d6cbf2f33b890f3f196bdae793db06b08c419e85ee38780b90a"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_24.trx",
+      "assemblies": [
+        "SecondBrain.Extractor.Tests.dll"
+      ],
+      "passed": 826,
+      "failed": 0,
+      "total": 826,
+      "sha256": "d2c3d69cbd16e9119e9486ad2e4bea1567aa57324f6bef27dbc8f68a786a4c30"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_26.trx",
+      "assemblies": [
+        "SecondBrain.Infrastructure.Tests.dll"
+      ],
+      "passed": 173,
+      "failed": 0,
+      "total": 173,
+      "sha256": "bd90f7163f3bab273233c7d6d7a26679665d03c7b3ea554f85fceae9bad63628"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_31.trx",
+      "assemblies": [
+        "SecondBrain.Providers.OpenAICompatible.Tests.dll"
+      ],
+      "passed": 149,
+      "failed": 0,
+      "total": 149,
+      "sha256": "e01f5c94e9cc4be4ac3c7c0fff4a48d1323fc6f0d4300eaa48bc18e0949ffc1f"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_35.trx",
+      "assemblies": [
+        "SecondBrain.Server.Tests.dll"
+      ],
+      "passed": 410,
+      "failed": 0,
+      "total": 410,
+      "sha256": "cfb07decbc161eea6da94a91833687b787f9dfffba60a3981fd4094daed44473"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_26_41.trx",
+      "assemblies": [
+        "SecondBrain.Storage.Tests.dll"
+      ],
+      "passed": 495,
+      "failed": 0,
+      "total": 495,
+      "sha256": "0f0c85bb671da5d2ee098c6c05c2a933850029e0e622543d5edfcd514e79a5d2"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_29_42.trx",
+      "assemblies": [
+        "SecondBrain.Extractor.Tests.dll"
+      ],
+      "passed": 8,
+      "failed": 0,
+      "total": 8,
+      "sha256": "198761ad844cef390c9c0e902baf79d5392f4b111483606dfdb9247dba8a5e0c"
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_05_29_54.trx",
+      "assemblies": [
+        "SecondBrain.Deploy.Tests.dll"
+      ],
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "sha256": "a5f6c11a9fda4b12daa56e06a832ddad1553bd258e2723f7599eee42447f1277"
+    }
+  ]
+}

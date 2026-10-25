@@ -1,6 +1,6 @@
 # M4 progress
 
-Started 2026-10-24 at the user's request. Goal: complete the full [M4 plan](M4-meetings-enrichment-operations.md) and specification §19, preserving the deployed M3 service and existing working-tree changes. M4 is not accepted or deployed.
+Started 2026-10-24 at the user's request. Goal: complete the full [M4 plan](M4-meetings-enrichment-operations.md) and specification §19, preserving the deployed M3 service and existing working-tree changes. M4 was accepted and deployed 2026-10-25 for the user-agreed scope. [Final acceptance and production evidence](M4-acceptance.md). Earlier checkpoint statements below are historical.
 
 ## Implementation order
 
@@ -349,3 +349,12 @@ The U14 correction starts last-week meeting questions with an ordered occurrence
 
 
 The final fresh U14 answer passes the bounded real-feed date/order/coverage review: 35 queried meetings in the previous UTC calendar week, with the first three titles and start times in chronological order and three current citations. Coverage and truncated-list notices match the structured response. Calendar queries now read one verified passage per distinct calendar document within the existing exposure budget; budget exhaustion returns a citation-truncation warning. The initial page is bounded to four occurrences to leave room for model continuations. Two real-extractor tests verify citation delivery and the one-document reading cap. Private answer content remains outside evidence; the semantic review records its canceled-title/confirmed-status wording limitation. [U14 evidence](evidence/m4-real-calendar-chat-20261025/semantic-review.json). Final local regression totals 2,555 passed tests across eight projects, with one unrelated disposed-store server attempt retained and the full 410-test server suite passing on rerun; the final remote whole-solution run remains required.
+
+
+## Closure — 2026-10-25
+
+The final candidate `v0.4.0-rc.6` (`deb2f9fbafed27b2a001d4028c78c3bc07c695d7`) passed all seven remote jobs: the complete 2,555-test deterministic run, extra parser mutations and sustained-edit recovery, package and container inventories/scans, numeric-user and kernel isolation, hardened imports/recovery, and keyless signing. Local Cosign verification matched the exact workflow/tag identity, GitHub OIDC issuer and source commit with transparency verification enabled. Every outer/package checksum and package file inventory matched. The release remains a draft.
+
+The authorized production service deployed the verified 465-file merge at 05:39:53 UTC. All installed files matched; 22 loopback/LAN HTTP checks, readiness, provider/canary state, maintenance authentication and systemd identities/limits/isolation passed. The root report preserved all account/credential rows, configuration, secrets, key ring and four document identities. The existing Codex credential returned the same three readable texts and revision 2 for each. A calendar query accepted the new type and honestly returned partial coverage with no registered calendars. Signed-out LAN browser checks passed at 1280 and 390 pixels with a connected Blazor runtime, no horizontal overflow and zero console errors/warnings. No private qualification feeds were added to production.
+
+[Final acceptance](M4-acceptance.md) records the pricing waiver, earlier VPN/Cloudflare waiver, operator-attested key custody, bounded answer-review limitations and asynchronous semantic rebuild boundary. M5 was researched from the specification’s deferred email and per-source privacy designs and current primary parser documentation; [its implementation plan](M5-private-email-and-source-privacy.md) defines sixteen acceptance gates and a separate production handoff.
