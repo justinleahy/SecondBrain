@@ -1,0 +1,38 @@
+{
+  "status": "passed_for_bounded_U14_date_order_and_coverage_scope",
+  "from": "2026-10-12T00:00:00+00:00",
+  "to": "2026-10-19T00:00:00+00:00",
+  "queriedMeetings": 35,
+  "Truncated": false,
+  "coverage": "complete",
+  "citedRecords": 3,
+  "freshLocalModel": "Qwen/Qwen3-8B",
+  "chronologicalQuery": true,
+  "currentCitationsInRequestedWeek": true,
+  "realTransport": true,
+  "realExtractor": true,
+  "isolatedTemporaryStore": true,
+  "hardenedDeployment": false,
+  "embeddingProvider": "controlled fixture; structured calendar query does not require semantic search",
+  "privateContentInEvidence": false,
+  "reviewer": "Codex agent, private answer compared with structured occurrences and captured citations",
+  "humanReview": false,
+  "reviewedAnswerSha256": "5ee26bbcd235610eefb42e14ca3ab2eb1d4488142467dfc7250d1b1ae318ede0",
+  "checked": {
+    "firstThreeTitlesInChronologicalOrder": true,
+    "firstThreeStartDatesAndTimesMatchStructuredOccurrences": true,
+    "durationsMatchThirtyMinutes": true,
+    "eachFirstThreeRecordCitedAtCurrentRevision": true,
+    "coverageWindowAndCompleteStateMatch": true,
+    "truncatedListDisclosed": true,
+    "schedulingDistinguishedFromAttendance": true,
+    "invalidCitations": 0
+  },
+  "privateReviewFileMode": "0o600",
+  "limitations": [
+    "Single bounded local-model answer, not a broad answer-quality evaluation.",
+    "The answer repeats canceled wording from an event title alongside its confirmed structured status; this is not independent evidence of cancellation or attendance.",
+    "Dates are supported by structured occurrence metadata; passages cite the corresponding event record rather than duplicating each occurrence date.",
+    "Controlled embedding fixture; this date question is qualified through real structured retrieval, not semantic ranking."
+  ]
+}

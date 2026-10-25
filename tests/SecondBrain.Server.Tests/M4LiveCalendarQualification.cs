@@ -107,7 +107,7 @@ public sealed class M4LiveCalendarQualification
         }
     }
 
-    private static async Task<string> ReadPrivateLink(string directory, CancellationToken token)
+    internal static async Task<string> ReadPrivateLink(string directory, CancellationToken token)
     {
         var path = Path.Combine(directory, "input.sock");
         using var listener = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);

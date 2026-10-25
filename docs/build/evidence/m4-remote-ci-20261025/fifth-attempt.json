@@ -1,0 +1,54 @@
+{
+  "tag": "v0.4.0-rc.5",
+  "commit": "b335518f2fa38a07b1b8d34f93374eb1bad73e86",
+  "runId": 40163358346,
+  "workflowUrl": "https://github.com/justinleahy/SecondBrain/actions/runs/40163358346",
+  "jobs": [
+    {
+      "id": 121079331268,
+      "name": "Build and deterministic tests",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121080204401,
+      "name": "Build Docker image",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121080204425,
+      "name": "Publish Extractor for linux-x64",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121080204428,
+      "name": "Publish Server for linux-x64",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121080204540,
+      "name": "Publish Cli for linux-x64",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121080835993,
+      "name": "G1 hardened Compose smoke",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081327883,
+      "name": "Sign the verified release and prepare its draft",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "allJobsPassed": true,
+  "draftRelease": true,
+  "productionDeployed": false,
+  "remainingAcceptance": "Fresh real-calendar answer found a semantic failure; a new immutable candidate will include the correction."
+}

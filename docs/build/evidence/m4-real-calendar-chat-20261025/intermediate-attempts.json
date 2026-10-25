@@ -1,0 +1,91 @@
+{
+  "attempts": [
+    {
+      "attempt": 3,
+      "Status": "failed",
+      "FailureCode": "provider_or_tool_failed",
+      "answerPresent": true,
+      "tools": [
+        {
+          "Name": "query_records",
+          "Status": "committed"
+        },
+        {
+          "Name": "query_records",
+          "Status": "failed"
+        }
+      ],
+      "initialContextBytes": 9415
+    },
+    {
+      "attempt": 4,
+      "Status": "failed",
+      "FailureCode": "provider_or_tool_failed",
+      "answerPresent": true,
+      "tools": [
+        {
+          "Name": "query_records",
+          "Status": "committed"
+        },
+        {
+          "Name": "query_records",
+          "Status": "failed"
+        }
+      ],
+      "initialContextBytes": 9415
+    },
+    {
+      "attempt": 5,
+      "Status": "failed",
+      "FailureCode": "provider_or_tool_failed",
+      "answerPresent": true,
+      "tools": [
+        {
+          "Name": "query_records",
+          "Status": "committed"
+        },
+        {
+          "Name": "query_records",
+          "Status": "failed"
+        }
+      ],
+      "initialContextBytes": 9415
+    },
+    {
+      "attempt": 6,
+      "Status": "complete",
+      "FailureCode": null,
+      "answerPresent": true,
+      "tools": [
+        {
+          "Name": "query_records",
+          "Status": "committed"
+        },
+        {
+          "Name": "query_records",
+          "Status": "committed"
+        }
+      ],
+      "initialContextBytes": 9415
+    },
+    {
+      "attempt": 7,
+      "Status": "partial",
+      "FailureCode": "limit_reached",
+      "answerPresent": true,
+      "tools": [
+        {
+          "Name": "query_records",
+          "Status": "committed"
+        },
+        {
+          "Name": "query_records",
+          "Status": "committed"
+        }
+      ],
+      "initialContextBytes": 16959
+    }
+  ],
+  "privateContentOmitted": true,
+  "notes": "Sort/predicate field confusion and context growth are retained; final attempt uses calendar-only alias adaptation, verified passages, and a four-occurrence initial page."
+}

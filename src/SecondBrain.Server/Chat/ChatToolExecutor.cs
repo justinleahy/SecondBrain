@@ -56,10 +56,26 @@ internal sealed partial class ChatToolExecutor
 
     public IReadOnlyList<AIFunction> Tools { get; }
     public HashSet<string> Warnings { get; } = new(StringComparer.Ordinal);
+    public bool CalendarContext { get; private set; }
 
-    public async Task<object> InitialContextAsync(string prompt, CancellationToken token)
+    public async Task<object> InitialContextAsync(string prompt, CancellationToken token, TimeProvider? clock = null, string timeZone = "UTC")
     {
         var query = prompt.TrimStart();
+        if (turn.Policy.Filters?.Type is null or "calendar_event" &&
+            Regex.IsMatch(query, @"\b(meetings?|calendar|events?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) &&
+            Regex.IsMatch(query, @"\blast week\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            var zone = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+            var local = TimeZoneInfo.ConvertTime((clock ?? TimeProvider.System).GetUtcNow(), zone).Date;
+            var monday = local.AddDays(-(((int)local.DayOfWeek + 6) % 7));
+            // Resolve wall-clock week boundaries separately: DST weeks need not be 168 hours.
+            var from = TimeZoneInfo.ConvertTimeToUtc(monday.AddDays(-7), zone);
+            var to = TimeZoneInfo.ConvertTimeToUtc(monday, zone);
+            return await QueryAsync(new(Type: "calendar_event", Occurred: new(from.ToString("O"), to.ToString("O")),
+                Sort: "occurred_at", Direction: "asc", Limit: 4), token);
+        }
+        if (turn.Policy.Filters?.Type == "calendar_event")
+            return await QueryAsync(new(Type: "calendar_event", Sort: "occurred_at", Direction: "asc", Limit: 4), token);
         if (Regex.IsMatch(query, @"\b(recent|latest|newest)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return await RecentAsync(10, token);
         if (Regex.IsMatch(query, @"^(who|when|which\s+(type|notes|articles|events|documents))\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
@@ -135,16 +151,53 @@ internal sealed partial class ChatToolExecutor
         {
         if (query.Limit is < 1 or > 50) throw new ArgumentException("Query limit must be 1 through 50.");
         var authority = new IngestionAuthority(actor.Id, actor.Generation, actor.AccountEpoch, "", actor.Kind);
-        var page = await retrieval.QueryAsync(Constrain(query), authority, cancellationToken);
+        var constrained = Constrain(query);
+        // Models commonly reuse the occurrence result's field name in their next query.
+        // Adapt that calendar-only alias after recording the original call and applying fixed filters.
+        if (constrained.Type == "calendar_event")
+            constrained = constrained with
+            {
+                Sort = constrained.Sort == "starts_at" ? "occurred_at" : constrained.Sort,
+                Predicates = constrained.Predicates?.Select(predicate => predicate.Field == "starts_at"
+                    ? predicate with { Field = "occurred_at", Value = predicate.Value.ValueKind == JsonValueKind.String &&
+                        DateTimeOffset.TryParse(predicate.Value.GetString(), System.Globalization.CultureInfo.InvariantCulture,
+                            System.Globalization.DateTimeStyles.None, out var date)
+                        ? JsonSerializer.SerializeToElement(date.ToUniversalTime().ToString("O")) : predicate.Value }
+                    : predicate).ToArray()
+            };
+        var page = await retrieval.QueryAsync(constrained, authority, cancellationToken);
+        CalendarContext |= page.Coverage is CalendarCoverage;
         foreach (var record in page.Records) surfaced.Add(record.Id);
         refs = page.Records.Select(record => record.Id).ToArray();
         if (page.Truncated) Warnings.Add("metadata_truncated");
         if (page.Coverage is CalendarCoverage { Status: "partial" }) Warnings.Add("calendar_coverage_partial");
         if (page.Coverage is CalendarCoverage { Subscriptions: { } subscriptions } && subscriptions.Any(item => item.Stale)) Warnings.Add("calendar_subscription_stale");
-        var result = new { records = page.Records.Select(record => record.InstanceId is null
+        var records = page.Records.Select(record => record.InstanceId is null
             ? (object)new { record.Id, record.Title, record.Type, record.Revision, record.UpdatedAt }
-            : new { record.Id, record.InstanceId, record.Title, record.Type, record.Revision, record.StartsAt, record.EndsAt, record.RecurrenceId, record.Status, Props = JsonSerializer.Deserialize<JsonElement>(record.PropsJson) }).ToArray(), page.NextCursor, page.Truncated, page.Coverage };
-        return result;
+            : new { record.Id, record.InstanceId, record.Title, record.Type, record.Revision, record.StartsAt, record.EndsAt, record.RecurrenceId, record.Status,
+                Props = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(record.PropsJson)!.Where(property => property.Key != "ical_properties").ToDictionary() }).ToArray();
+        if (page.Coverage is CalendarCoverage)
+        {
+            // Calendar date answers need both occurrence metadata and verified content citations.
+            // Read one passage per returned document, subject to the ordinary exposure budget.
+            List<ChatSource> sources = [];
+            foreach (var record in page.Records.Where(record => record.Type == "calendar_event").DistinctBy(record => record.Id))
+            {
+                var document = await documents.GetAsync(record.Id, true, cancellationToken) ?? throw new ChatNotFoundException();
+                if (document.Chunks?.FirstOrDefault() is not { } chunk) continue;
+                try
+                {
+                    sources.AddRange(await repository.ExposeAsync(turn.Id, [new(record.Id, record.Revision, chunk.Id)], actor, cancellationToken));
+                }
+                catch (ChatLimitException)
+                {
+                    Warnings.Add("calendar_citations_truncated");
+                    break;
+                }
+            }
+            return new { records, page.NextCursor, page.Truncated, page.Coverage, sources };
+        }
+        return new { records, page.NextCursor, page.Truncated, page.Coverage };
         }, _ => refs, cancellationToken);
     }
 

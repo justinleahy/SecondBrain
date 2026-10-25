@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "scope": "Fresh full CI-equivalent Compose smoke, M1 workflow, mounted-source encrypted backup/restore and strict meeting indexing checks.",
+  "logSha256": "5e43788aab6c8717d37a0653b1b49b662292c29811669f1589420fa17b7b5ee9",
+  "deadlineSeconds": 45,
+  "partialIndexStatusPolledUntilComplete": true,
+  "productionChanged": false
+}

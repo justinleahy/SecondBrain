@@ -1,0 +1,24 @@
+{
+  "status": "failed_semantic_acceptance",
+  "from": "2026-10-12T00:00:00+00:00",
+  "to": "2026-10-19T00:00:00+00:00",
+  "queriedMeetings": 35,
+  "Truncated": false,
+  "coverage": "complete",
+  "citedRecords": 3,
+  "freshLocalModel": "Qwen/Qwen3-8B",
+  "chronologicalQuery": true,
+  "currentCitationsInRequestedWeek": true,
+  "realTransport": true,
+  "realExtractor": true,
+  "isolatedTemporaryStore": true,
+  "hardenedDeployment": false,
+  "embeddingProvider": "controlled fixture; structured calendar query does not require semantic search",
+  "privateContentInEvidence": false,
+  "reviewer": "Codex agent",
+  "findings": [
+    "Did not give requested chronological dates and times despite available structured occurrences.",
+    "Cited records were in the requested week but did not identify the first three chronologically.",
+    "Treated absence of dates in the event body as absent calendar coverage."
+  ]
+}

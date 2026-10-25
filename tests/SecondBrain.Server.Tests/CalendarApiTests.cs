@@ -1,16 +1,21 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SecondBrain.Core.Auth;
 using SecondBrain.Core.Authorization;
+using SecondBrain.Core.Chat;
 using SecondBrain.Core.Configuration;
 using SecondBrain.Core.Extraction;
 using SecondBrain.Core.Ingestion;
 using SecondBrain.Core.Retrieval;
 using SecondBrain.Infrastructure.Extraction;
+using SecondBrain.MockProvider;
+using SecondBrain.Server.Chat;
 using SecondBrain.Server.Tests.Support;
 using Xunit;
 
@@ -18,6 +23,49 @@ namespace SecondBrain.Server.Tests;
 
 public sealed class CalendarApiTests
 {
+    [Theory]
+    [InlineData(1, 1, true)]
+    [InlineData(12, 2, false)]
+    public async Task CalendarAnswerReceivesVerifiedPassagesWithinItsReadingBudget(int maximumDocuments, int expectedSources, bool truncated)
+    {
+        await using var factory = new LaneDWebFactory(options =>
+        {
+            options.Time.Zone = "UTC"; options.Calendar.PastMonths = 120; options.Calendar.FutureMonths = 120;
+            options.Assistant.MaxReadDocuments = maximumDocuments;
+            options.Models.Chat!.Capabilities = options.Models.Chat.Capabilities with { Streaming = false };
+            options.Models.Chat.Limits = options.Models.Chat.Limits with { ContextTokens = 32768 };
+        }, services => services.Replace(ServiceDescriptor.Singleton<IExtractorClient>(provider =>
+            new DescriptorExtractorClient(provider.GetRequiredService<IOptionsMonitor<SecondBrainOptions>>().CurrentValue.Extractor.SocketPath))));
+        await factory.SeedAccountAsync();
+        using var client = await ClientAsync(factory);
+        await Upload(client, Calendar, "first.ics");
+        await Upload(client, Calendar, "second.ics");
+        factory.MockProvider.Services.GetRequiredService<MockProviderState>().ChatResponse = async context =>
+        {
+            using var request = await JsonDocument.ParseAsync(context.Request.Body);
+            var evidence = request.RootElement.GetProperty("messages").EnumerateArray().Select(message => message.GetProperty("content").GetString())
+                .Single(text => text?.StartsWith("Retrieved evidence", StringComparison.Ordinal) == true)!;
+            Assert.Contains("Prepare the weekly plan.", evidence);
+            Assert.DoesNotContain("ical_properties", evidence);
+            await context.Response.WriteAsJsonAsync(new { id = "calendar-test", @object = "chat.completion", model = "mock-chat",
+                choices = new[] { new { index = 0, message = new { role = "assistant", content = "Prepare the weekly plan [1]." }, finish_reason = "stop" } } });
+        };
+        var key = await factory.CreateKeyAsync(new HashSet<Scope> { Scope.Read, Scope.Infer });
+        var actor = new AuthenticatedCredential(key.Record.Id, "api_key", key.Record.Generation, key.Record.AccountEpoch, key.Record.GrantedScopes, null);
+        var started = await factory.Services.GetRequiredService<ChatService>().StartAsync(new("List my calendar", Mode: "ask",
+            Filters: new(Type: "calendar_event", Occurred: new("2026-10-01T00:00:00Z", "2026-11-01T00:00:00Z"))), actor);
+        var repository = factory.Services.GetRequiredService<IChatRepository>();
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(20);
+        ChatTurn turn;
+        do { await Task.Delay(25); turn = await repository.GetTurnAsync(started.Turn.Id, actor); }
+        while (turn.Status == "running" && DateTimeOffset.UtcNow < deadline);
+        Assert.Equal("complete", turn.Status);
+        Assert.Equal(expectedSources, (await repository.SourcesAsync(turn.Id, actor)).Count);
+        Assert.Equal(truncated, (turn.Answer!.Warnings ?? []).Contains("calendar_citations_truncated"));
+        Assert.Single(turn.Answer.Citations);
+        Assert.Equal("current", turn.Answer.Citations[0].State);
+    }
+
     [Fact]
     public async Task UploadedCalendarUsesRealSandboxAndReturnsOccurrencesCancellationCoverageAndDuplicates()
     {

@@ -1,0 +1,75 @@
+{
+  "status": "passed_with_recorded_server_rerun",
+  "releaseBuildWarnings": 0,
+  "releaseBuildErrors": 0,
+  "projects": [
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57.trx",
+      "passed": 63,
+      "failed": 0,
+      "total": 63,
+      "sha256": "a286e15c1d913e074bf9baa31f7a9b0e371de5ab23f7067a5891666d1d291526"
+    },
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57[1].trx",
+      "passed": 213,
+      "failed": 0,
+      "total": 213,
+      "sha256": "6ab2477c21c5038a322410b2a7946a33b351ad0559ab2b5b7a468b0640c483aa"
+    },
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57[2].trx",
+      "passed": 173,
+      "failed": 0,
+      "total": 173,
+      "sha256": "0a52506ca0bfba44aa870f909a2665ec2223ec464e85b935b9853eab85998fb1"
+    },
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57[3].trx",
+      "passed": 149,
+      "failed": 0,
+      "total": 149,
+      "sha256": "2f1c2cc9e040b0dc9b9b2d99849082a244105ebac5beb359fbd70c2569632a8c"
+    },
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57[4].trx",
+      "passed": 826,
+      "failed": 0,
+      "total": 826,
+      "sha256": "a5acc2b89aa2898e3753d1794e68cbfb0eb43dfb4fb0451a952124f2da2accbe"
+    },
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57[5].trx",
+      "passed": 495,
+      "failed": 0,
+      "total": 495,
+      "sha256": "217c69526e273f6f70272f90057f046b184c1bd261a974e7ef8ddaab222f0af9"
+    },
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57[6].trx",
+      "passed": 226,
+      "failed": 0,
+      "total": 226,
+      "sha256": "4e47927121cf93673bb4dca5dc3d86629fb6ffb6310095faa78f79b8b5d0329a"
+    },
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_23_28.trx",
+      "passed": 410,
+      "failed": 0,
+      "total": 410,
+      "sha256": "3c1d1aab358a106103c9e9292ba45995f44d23981b2a4474e27ad00e96e6cced"
+    }
+  ],
+  "totalPassed": 2555,
+  "supersededServerAttempt": [
+    {
+      "file": "_DESKTOP-8NJSRF2_2026-10-25_01_21_57[7].trx",
+      "passed": 409,
+      "failed": 1,
+      "total": 410,
+      "sha256": "45f0345147bd36ec5129f6a09cddcf820ff8ac504f7db7e284ac2400cfb579d5"
+    }
+  ],
+  "rerunReason": "One disposed-store failure in FolderSourcePurgeApiTests; the full server suite reran with 410/410 passing. Final remote CI must still pass the entire solution in one run.",
+  "scope": "Final calendar occurrence routing, field alias and bounded citation reading; live real-feed semantic review is separate."
+}
