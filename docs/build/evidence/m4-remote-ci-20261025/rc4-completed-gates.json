@@ -1,0 +1,109 @@
+{
+  "status": "application_and_image_gates_passed_compose_meeting_poll_failed",
+  "runId": 40162564972,
+  "tag": "v0.4.0-rc.4",
+  "commit": "df94ad6e9a3e4ac0bc50612ec55dc0ededc4c488",
+  "testResults": [
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_29[1].trx",
+      "assembly": "secondbrain.core.tests.dll",
+      "passed": 213,
+      "failed": 0,
+      "total": 213,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_29[2].trx",
+      "assembly": "secondbrain.extractor.tests.dll",
+      "passed": 826,
+      "failed": 0,
+      "total": 826,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_29.trx",
+      "assembly": "secondbrain.architecture.tests.dll",
+      "passed": 63,
+      "failed": 0,
+      "total": 63,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_29[3].trx",
+      "assembly": "secondbrain.deploy.tests.dll",
+      "passed": 226,
+      "failed": 0,
+      "total": 226,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_31.trx",
+      "assembly": "secondbrain.infrastructure.tests.dll",
+      "passed": 173,
+      "failed": 0,
+      "total": 173,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_33.trx",
+      "assembly": "secondbrain.providers.openaicompatible.tests.dll",
+      "passed": 149,
+      "failed": 0,
+      "total": 149,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_39.trx",
+      "assembly": "secondbrain.server.tests.dll",
+      "passed": 404,
+      "failed": 0,
+      "total": 404,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_38_43.trx",
+      "assembly": "secondbrain.storage.tests.dll",
+      "passed": 495,
+      "failed": 0,
+      "total": 495,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_41_36.trx",
+      "assembly": "secondbrain.extractor.tests.dll",
+      "passed": 8,
+      "failed": 0,
+      "total": 8,
+      "skipped": 0
+    },
+    {
+      "file": "_runnervmtai0g_2026-10-25_04_41_48.trx",
+      "assembly": "secondbrain.deploy.tests.dll",
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "skipped": 0
+    }
+  ],
+  "imageVulnerabilityReports": [
+    {
+      "file": "secondbrain-egress-vulnerabilities.json",
+      "matches": 0,
+      "sha256": "864b4372ee80176547de73a5c5cc72c6fc9a2333f1ab2bd75d4a9669a1909278"
+    },
+    {
+      "file": "secondbrain-extractor-vulnerabilities.json",
+      "matches": 0,
+      "sha256": "934a9d1d8e8bf5130798bc8bf17ea01d348e02c8abf0a46d229aedeff5f3829f"
+    },
+    {
+      "file": "secondbrain-vulnerabilities.json",
+      "matches": 0,
+      "sha256": "b35323c23310717a18465c8725b8684dc454ae8d1322819c1d4ed6ff5942deba"
+    }
+  ],
+  "threshold": "low",
+  "limitations": [
+    "Final Compose meeting poll failed; signing was correctly skipped. See fourth-attempt.json."
+  ]
+}

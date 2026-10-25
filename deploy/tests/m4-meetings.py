@@ -47,7 +47,9 @@ def main():
         if key: headers['Idempotency-Key'] = key
         result = request('POST', '/v1/documents?wait=30', raw=raw, headers=headers)
         until = time.monotonic() + 45
-        while result['document']['status'] not in ('indexed', 'indexed_partial', 'failed'):
+        # Text publication can precede the healthy provider's embedding pass.
+        # Every caller below requires complete indexing, so partial is not terminal.
+        while result['document']['status'] not in ('indexed', 'failed', 'skipped'):
             if time.monotonic() > until: raise TimeoutError('Meeting import did not finish.')
             time.sleep(.1); result['document'] = request('GET', '/v1/documents/' + result['document']['id'])
         return result['document']

@@ -1,0 +1,15 @@
+{
+  "status": "compose_meetings_fixture_failed_after_other_gates_passed",
+  "runId": 40162564972,
+  "url": "https://github.com/justinleahy/SecondBrain/actions/runs/40162564972",
+  "tag": "v0.4.0-rc.4",
+  "commit": "df94ad6e9a3e4ac0bc50612ec55dc0ededc4c488",
+  "deterministicTestsPassed": 2549,
+  "publishedPackages": "all three passed strict low scans",
+  "docker": "image scans, real extractor isolation and IPv4/IPv6 kernel checks passed",
+  "hardenedM1Workflow": "passed",
+  "hardenedMountedBackupRestore": "passed with nine edits during creation",
+  "failure": "Meeting upload polling accepted indexed_partial as terminal, then asserted fully indexed.",
+  "fix": "Poll through the existing bounded deadline until fully indexed or a failed/skipped terminal result; keep full-index assertions.",
+  "productRuntimeChanged": false
+}
